@@ -11,10 +11,10 @@
     <meta property="og:description" content="Branding visuel rapide pour entrepreneurs, artistes et commerçants. Logo, flyer, identité visuelle livrés en 72h.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://vens942-png.github.io/Eclipse-design3/">
-    <meta property="og:image" content="https://vens942-png.github.io/Eclipse-design3/og-image.png">
+    <meta property="og:image" content="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='16' fill='%23080808'/><circle cx='16' cy='16' r='14' fill='none' stroke='%23a3ff3b' stroke-width='2'/><circle cx='16' cy='16' r='6' fill='%23a3ff3b'/></svg>">
+    <link rel="icon" type="image/webp" href="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
@@ -28,7 +28,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 40px;
+            padding: 15px 40px;
             border-bottom: 1px solid #222;
             position: sticky;
             top: 0;
@@ -36,13 +36,10 @@
             backdrop-filter: blur(10px);
             z-index: 100;
         }
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 3px;
-            text-transform: uppercase;
+        .logo-img {
+            height: 40px;
+            width: auto;
         }
-        .logo span { color: #a3ff3b; }
         nav { display: flex; align-items: center; gap: 25px; }
         nav a {
             color: #aaa;
@@ -169,6 +166,77 @@
         .highlight-card .icon { background: rgba(0,0,0,0.2); }
         .highlight-card p { color: #111; }
 
+        /* Section Modèles – Défilement horizontal */
+        .modeles-section {
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 60px 0;
+            overflow: hidden;
+        }
+        .modeles-section h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .modeles-subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 40px;
+            font-size: 1rem;
+        }
+        .modeles-scroll {
+            display: flex;
+            gap: 25px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            padding: 10px 40px 20px;
+            scrollbar-width: thin;
+            scrollbar-color: #a3ff3b #0d0d0d;
+        }
+        .modeles-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+        .modeles-scroll::-webkit-scrollbar-track {
+            background: #0d0d0d;
+            border-radius: 3px;
+        }
+        .modeles-scroll::-webkit-scrollbar-thumb {
+            background: #a3ff3b;
+            border-radius: 3px;
+        }
+        .modele-card {
+            flex: 0 0 auto;
+            width: 320px;
+            scroll-snap-align: start;
+            border: 1px solid #1a1a1a;
+            border-radius: 4px;
+            overflow: hidden;
+            transition: transform 0.3s, border-color 0.3s;
+            background: #0d0d0d;
+        }
+        .modele-card:hover {
+            transform: translateY(-5px);
+            border-color: #a3ff3b;
+        }
+        .modele-card img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .modele-label {
+            padding: 12px 15px;
+            text-align: center;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #999;
+            font-weight: 600;
+        }
+        .modele-label span {
+            color: #a3ff3b;
+        }
+
         /* Avis */
         .avis-grid {
             display: grid;
@@ -234,9 +302,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4rem;
+            overflow: hidden;
         }
-        .about-img svg { width: 120px; height: 120px; stroke: #a3ff3b; }
+        .about-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         .about-text p {
             color: #999;
             font-size: 1.1rem;
@@ -254,6 +326,12 @@
             display: flex;
             flex-direction: column;
             gap: 25px;
+            align-items: center;
+        }
+        .contact-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 15px;
         }
         .contact-item {
             display: flex;
@@ -264,6 +342,7 @@
             border: 1px solid #1a1a1a;
             text-decoration: none;
             color: #f5f5f5;
+            width: 100%;
             transition: border-color 0.3s, transform 0.3s;
         }
         .contact-item:hover {
@@ -364,6 +443,12 @@
             color: #555;
             font-size: 0.9rem;
         }
+        footer .footer-logo {
+            width: 60px;
+            height: auto;
+            margin-bottom: 15px;
+            opacity: 0.6;
+        }
         @media (max-width: 768px) {
             header { padding: 15px 20px; }
             nav { gap: 12px; }
@@ -373,6 +458,8 @@
             .about-grid { grid-template-columns: 1fr; }
             .about-img { max-width: 100%; }
             .contact-grid { grid-template-columns: 1fr; }
+            .modeles-scroll { padding: 10px 20px 20px; }
+            .modele-card { width: 280px; }
             .whatsapp-float { width: 50px; height: 50px; font-size: 1.5rem; bottom: 15px; right: 15px; }
         }
     </style>
@@ -380,9 +467,12 @@
 <body>
 
 <header>
-    <div class="logo">Eclipse <span>Design</span></div>
+    <a href="#" style="display:flex; align-items:center; text-decoration:none;">
+        <img src="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp" alt="Eclipse Design Logo" class="logo-img">
+    </a>
     <nav>
         <a href="#services">Services</a>
+        <a href="#modeles">Modèles</a>
         <a href="#avis">Avis</a>
         <a href="#about">À propos</a>
         <a href="#contact" class="btn-devis">Devis</a>
@@ -427,10 +517,25 @@
     </div>
 </section>
 
+<section id="modeles" class="modeles-section">
+    <h2>Nos <span>Modèles</span></h2>
+    <p class="modeles-subtitle">Quelques créations pour vous inspirer. Faites défiler →</p>
+    <div class="modeles-scroll">
+        <div class="modele-card">
+            <img src="https://i.postimg.cc/hjhL8nHf/1-20250813-070918-0000.png" alt="Modèle Flyer 1" loading="lazy">
+            <div class="modele-label">Modèle <span>Flyer Premium</span></div>
+        </div>
+        <div class="modele-card">
+            <img src="https://i.postimg.cc/rp2yCN31/behance-project-1729211612297.jpg" alt="Modèle Flyer 2" loading="lazy">
+            <div class="modele-label">Modèle <span>Behance Project</span></div>
+        </div>
+        <!-- Ajoute d'autres cartes ici si tu as plus de modèles -->
+    </div>
+</section>
+
 <section id="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
     <h2 style="text-align:center;">Ce que <span>nos clients</span> disent</h2>
     <p style="text-align:center; color:#777; margin-bottom:50px;">Votre satisfaction est notre meilleure récompense.</p>
-
     <div class="avis-grid">
         <div class="avis-card">
             <div class="avis-stars">★★★★★</div>
@@ -448,7 +553,6 @@
             <span class="avis-author">— Pierre K., Start-up</span>
         </div>
     </div>
-
     <div style="text-align:center; margin-top:40px;">
         <p style="color:#999; margin-bottom:15px;">Vous avez travaillé avec nous ?</p>
         <a href="https://wa.me/50947873144?text=Bonjour%20Eclipse%20Design,%20je%20veux%20laisser%20un%20avis%20!" target="_blank" class="btn-avis">Laisser un avis ⭐</a>
@@ -459,15 +563,7 @@
     <h2>Derrière <span>Eclipse Design</span></h2>
     <div class="about-grid">
         <div class="about-img">
-            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="50" cy="50" r="48" stroke="#a3ff3b" stroke-width="2"/>
-                <circle cx="50" cy="50" r="30" stroke="#a3ff3b" stroke-width="1" stroke-dasharray="4 4"/>
-                <circle cx="50" cy="50" r="10" fill="#a3ff3b"/>
-                <line x1="50" y1="20" x2="50" y2="0" stroke="#a3ff3b" stroke-width="2"/>
-                <line x1="50" y1="80" x2="50" y2="100" stroke="#a3ff3b" stroke-width="2"/>
-                <line x1="20" y1="50" x2="0" y2="50" stroke="#a3ff3b" stroke-width="2"/>
-                <line x1="80" y1="50" x2="100" y2="50" stroke="#a3ff3b" stroke-width="2"/>
-            </svg>
+            <img src="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp" alt="Logo Eclipse Design">
         </div>
         <div class="about-text">
             <p>Je suis créatif, graphiste et passionné par la puissance des images.</p>
@@ -481,9 +577,9 @@
 <section id="contact">
     <h2>Prêt à faire naître votre <span>image</span> ?</h2>
     <p style="color:#999; margin-bottom:30px; max-width:500px;">Contactez-moi directement ou remplissez le formulaire. Je vous réponds sous 24h.</p>
-
     <div class="contact-grid">
         <div class="contact-info">
+            <img src="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp" alt="Eclipse Design" class="contact-logo">
             <a href="https://wa.me/50947873144" target="_blank" class="contact-item">
                 <div class="contact-icon">💬</div>
                 <div>
@@ -506,7 +602,6 @@
             <button type="submit">Envoyer le message →</button>
         </form>
     </div>
-
     <div class="success-message" id="success-message">
         ✅ Message envoyé avec succès. Je vous réponds sous 24h.
     </div>
@@ -515,7 +610,8 @@
 <a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">💬</a>
 
 <footer>
-    © Eclipse Design – L'image qui frappe. Tous droits réservés.
+    <img src="https://i.postimg.cc/tTn2hCzV/a179c216-f96f-4b14-b577-abb069e901ee.webp" alt="Eclipse Design" class="footer-logo">
+    <p>© Eclipse Design – L'image qui frappe. Tous droits réservés.</p>
 </footer>
 
 </body>
