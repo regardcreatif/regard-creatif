@@ -55,6 +55,7 @@
         .hero {
             min-height: 90vh; display: flex; flex-direction: column;
             justify-content: center; padding: 60px 40px; position: relative;
+            z-index: 1;
         }
         .hero h1 {
             font-size: clamp(3rem, 8vw, 7rem); font-weight: 900;
@@ -88,7 +89,7 @@
         }
         .hero .cta:hover { background: #fff; }
 
-        section { padding: 80px 40px; }
+        section { padding: 80px 40px; position: relative; z-index: 1; }
         section h2 {
             font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
             text-transform: uppercase; margin-bottom: 30px;
@@ -258,7 +259,7 @@
 
         footer {
             border-top: 1px solid #222; padding: 40px; text-align: center;
-            color: #555; font-size: 0.9rem;
+            color: #555; font-size: 0.9rem; position: relative; z-index: 1;
         }
         footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
 
@@ -278,6 +279,11 @@
     </style>
 </head>
 <body>
+
+<!-- Logo watermark fixe en fond -->
+<div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; display:flex; align-items:center; justify-content:center;">
+    <img src="https://i.postimg.cc/cHbyk30M/35155c86-4e3f-43cc-8f47-4065e3f90eec.webp" alt="Eclipse" style="width:50%; max-width:600px; opacity:0.04; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">
+</div>
 
 <header>
     <a href="#" style="display:flex; align-items:center; text-decoration:none;">
@@ -436,7 +442,7 @@
 <a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">💬</a>
 
 <!-- Compteur protégé par mot de passe -->
-<div style="text-align:center; padding:10px 0;" id="compteur-section">
+<div style="text-align:center; padding:10px 0; position:relative; z-index:1;" id="compteur-section">
     <button onclick="showCompteur()" style="background:none; border:1px solid #333; color:#555; padding:5px 15px; cursor:pointer; font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">📊 Stats</button>
 </div>
 
