@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regard Créatif – L'image qui frappe.</title>
     <meta name="description" content="Graphiste Haïti, Création logo rapide, Identité visuelle entrepreneur, Flyer professionnel, Regard Créatif, Branding visuel.">
+    <meta name="google-site-verification" content="qDwUAI3US4AzS8Cz696vs90uuJLrVBSvWImRjMApdOs" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Regard Créatif – L'image qui frappe.">
     <meta property="og:description" content="Branding visuel rapide pour entrepreneurs, artistes et commerçants. Logo, flyer, identité visuelle livrés en 72h.">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://regard-creatif.github.io/regard-creatif/">
+    <meta property="og:url" content="https://regardcreatif.github.io/regard-creatif/">
     <meta property="og:image" content="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
 
     <!-- Favicon -->
@@ -22,13 +23,13 @@
             background: #080808;
             color: #f5f5f5;
             font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            line-height: 1.6;
+            line-height: 1.4;
         }
         header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 40px;
+            padding: 12px 30px;
             border-bottom: 1px solid #222;
             position: sticky;
             top: 0;
@@ -36,152 +37,137 @@
             backdrop-filter: blur(10px);
             z-index: 100;
         }
-        .logo-img { height: 40px; width: auto; }
-        nav { display: flex; align-items: center; gap: 25px; }
+        .logo-img { height: 32px; width: auto; }
+        nav { display: flex; align-items: center; gap: 20px; }
         nav a {
-            color: #aaa; text-decoration: none; font-size: 0.85rem;
-            text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
+            color: #aaa; text-decoration: none; font-size: 0.75rem;
+            text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
             transition: color 0.3s;
         }
         nav a:hover { color: #a3ff3b; }
         .btn-devis {
-            background: #a3ff3b; color: #000; padding: 10px 20px;
+            background: #a3ff3b; color: #000; padding: 8px 16px;
             font-weight: 700; text-decoration: none; text-transform: uppercase;
-            letter-spacing: 2px; font-size: 0.85rem; transition: background 0.3s;
+            letter-spacing: 1.5px; font-size: 0.75rem; transition: background 0.3s;
         }
         .btn-devis:hover { background: #fff; }
 
         /* Hero */
         .hero {
-            min-height: 90vh; display: flex; flex-direction: column;
-            justify-content: center; padding: 60px 40px; position: relative;
+            min-height: 60vh; display: flex; flex-direction: column;
+            justify-content: center; padding: 40px 30px; position: relative;
             z-index: 1;
         }
         .hero h1 {
-            font-size: clamp(3rem, 8vw, 7rem); font-weight: 900;
+            font-size: clamp(2rem, 6vw, 4.5rem); font-weight: 900;
             line-height: 0.9; text-transform: uppercase;
         }
         .hero .outline {
             -webkit-text-fill-color: transparent;
-            -webkit-text-stroke: 2px #f5f5f5;
+            -webkit-text-stroke: 1.5px #f5f5f5;
         }
         .hero .tag {
-            color: #a3ff3b; font-size: 0.85rem; text-transform: uppercase;
-            letter-spacing: 3px; font-weight: 700; margin-bottom: 20px;
-            display: flex; align-items: center; gap: 10px;
+            color: #a3ff3b; font-size: 0.7rem; text-transform: uppercase;
+            letter-spacing: 2px; font-weight: 700; margin-bottom: 12px;
+            display: flex; align-items: center; gap: 8px;
         }
-        .hero .tag .line { width: 40px; height: 1px; background: #a3ff3b; display: inline-block; }
+        .hero .tag .line { width: 30px; height: 1px; background: #a3ff3b; display: inline-block; }
         .hero-banner {
-            margin: 25px 0; max-width: 600px; border: 1px solid #222;
+            margin: 18px 0; max-width: 450px; border: 1px solid #222;
             border-radius: 4px; overflow: hidden;
         }
         .hero-banner img { width: 100%; height: auto; display: block; }
         .hero p {
-            font-size: 1.2rem; color: #999; max-width: 600px;
-            margin: 25px 0 35px;
+            font-size: 1rem; color: #999; max-width: 500px;
+            margin: 18px 0 25px;
         }
         .hero p strong { color: #fff; }
         .hero .cta {
-            background: #a3ff3b; color: #000; padding: 15px 30px;
+            background: #a3ff3b; color: #000; padding: 12px 25px;
             text-decoration: none; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 2px; display: inline-block; width: fit-content;
-            transition: background 0.3s;
+            letter-spacing: 1.5px; display: inline-block; width: fit-content;
+            transition: background 0.3s; font-size: 0.85rem;
         }
         .hero .cta:hover { background: #fff; }
 
-        section { padding: 80px 40px; position: relative; z-index: 1; }
+        section { padding: 50px 30px; position: relative; z-index: 1; }
         section h2 {
-            font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
-            text-transform: uppercase; margin-bottom: 30px;
+            font-size: clamp(1.5rem, 3.5vw, 2.5rem); font-weight: 900;
+            text-transform: uppercase; margin-bottom: 20px;
         }
         section h2 span { color: #a3ff3b; }
 
         /* Services */
         .services-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px; margin-top: 40px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px; margin-top: 25px;
         }
         .service-card {
-            background: #0d0d0d; border: 1px solid #1a1a1a; padding: 35px;
+            background: #0d0d0d; border: 1px solid #1a1a1a; padding: 22px;
             transition: transform 0.3s, border-color 0.3s;
         }
-        .service-card:hover { transform: translateY(-5px); border-color: #a3ff3b; }
+        .service-card:hover { transform: translateY(-4px); border-color: #a3ff3b; }
         .service-card .icon {
-            width: 50px; height: 50px; background: rgba(163,255,59,0.1);
+            width: 38px; height: 38px; background: rgba(163,255,59,0.1);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; margin-bottom: 20px;
+            font-size: 1.1rem; margin-bottom: 12px;
         }
         .service-card h3 {
-            font-size: 1.3rem; text-transform: uppercase; font-weight: 700; margin-bottom: 12px;
+            font-size: 1rem; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;
         }
-        .service-card p { color: #999; font-size: 0.95rem; }
+        .service-card p { color: #999; font-size: 0.8rem; }
         .highlight-card {
             background: #a3ff3b; color: #000; border-color: #a3ff3b;
         }
         .highlight-card .icon { background: rgba(0,0,0,0.2); }
         .highlight-card p { color: #111; }
-        .services-illustration { text-align: center; margin-top: 50px; }
+        .services-illustration { text-align: center; margin-top: 35px; }
         .services-illustration img {
-            max-width: 500px; width: 100%; height: auto;
+            max-width: 350px; width: 100%; height: auto;
             border-radius: 4px; border: 1px solid #1a1a1a;
         }
 
         /* Modèles */
         .modeles-section {
             background: #0a0a0a; border-top: 1px solid #1a1a1a;
-            border-bottom: 1px solid #1a1a1a; padding: 60px 0; overflow: hidden;
+            border-bottom: 1px solid #1a1a1a; padding: 40px 0; overflow: hidden;
         }
-        .modeles-section h2 { text-align: center; margin-bottom: 10px; }
-        .modeles-subtitle { text-align: center; color: #777; margin-bottom: 40px; font-size: 1rem; }
+        .modeles-section h2 { text-align: center; margin-bottom: 5px; }
+        .modeles-subtitle { text-align: center; color: #777; margin-bottom: 25px; font-size: 0.85rem; }
         .modeles-scroll {
-            display: flex; gap: 25px; overflow-x: auto;
+            display: flex; gap: 18px; overflow-x: auto;
             scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-            padding: 10px 40px 20px; scrollbar-width: thin;
+            padding: 8px 30px 15px; scrollbar-width: thin;
             scrollbar-color: #a3ff3b #0d0d0d;
         }
-        .modeles-scroll::-webkit-scrollbar { height: 6px; }
+        .modeles-scroll::-webkit-scrollbar { height: 5px; }
         .modeles-scroll::-webkit-scrollbar-track { background: #0d0d0d; border-radius: 3px; }
         .modeles-scroll::-webkit-scrollbar-thumb { background: #a3ff3b; border-radius: 3px; }
         .modele-card {
-            flex: 0 0 auto; width: 320px; scroll-snap-align: start;
+            flex: 0 0 auto; width: 260px; scroll-snap-align: start;
             border: 1px solid #1a1a1a; border-radius: 4px; overflow: hidden;
             transition: transform 0.3s, border-color 0.3s; background: #0d0d0d;
         }
-        .modele-card:hover { transform: translateY(-5px); border-color: #a3ff3b; }
+        .modele-card:hover { transform: translateY(-4px); border-color: #a3ff3b; }
         .modele-card img { width: 100%; height: auto; display: block; }
         .modele-label {
-            padding: 12px 15px; text-align: center; font-size: 0.8rem;
-            text-transform: uppercase; letter-spacing: 2px; color: #999; font-weight: 600;
+            padding: 10px 12px; text-align: center; font-size: 0.7rem;
+            text-transform: uppercase; letter-spacing: 1.5px; color: #999; font-weight: 600;
         }
         .modele-label span { color: #a3ff3b; }
 
         /* Flip Card Popup */
-        .flip-container-popup {
-            width: 300px;
-            height: 300px;
-            perspective: 1000px;
-        }
+        .flip-container-popup { width: 250px; height: 250px; perspective: 1000px; }
         .flip-card-popup {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            transform-style: preserve-3d;
-            animation: flipCardPopup 4s infinite;
+            width: 100%; height: 100%; position: relative;
+            transform-style: preserve-3d; animation: flipCardPopup 4s infinite;
         }
         .flip-face-popup {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 2px solid #a3ff3b;
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; border-radius: 10px;
+            overflow: hidden; border: 2px solid #a3ff3b;
         }
-        .flip-face-popup img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .flip-face-popup img { width: 100%; height: 100%; object-fit: cover; }
         .flip-front-popup { transform: rotateY(0deg); }
         .flip-back-popup { transform: rotateY(180deg); }
         @keyframes flipCardPopup {
@@ -194,36 +180,34 @@
 
         /* Galerie */
         .galerie-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; margin-top: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px; margin-top: 20px;
         }
         .galerie-card {
             background: rgba(255,255,255,0.02); backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.08); border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
             overflow: hidden; transition: transform 0.4s, box-shadow 0.4s;
         }
         .galerie-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 50px rgba(255,255,255,0.05);
+            transform: translateY(-6px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(255,255,255,0.05);
         }
-        .galerie-card img {
-            width: 100%; height: 280px; object-fit: cover; display: block;
-        }
-        .galerie-card .card-body { padding: 20px; }
+        .galerie-card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+        .galerie-card .card-body { padding: 15px; }
         .galerie-card .card-artist {
-            color: #a3ff3b; font-size: 0.75rem; text-transform: uppercase;
-            letter-spacing: 2px; margin-bottom: 5px;
+            color: #a3ff3b; font-size: 0.65rem; text-transform: uppercase;
+            letter-spacing: 1.5px; margin-bottom: 3px;
         }
         .galerie-card .card-title {
-            color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 5px;
+            color: #fff; font-weight: 700; font-size: 1rem; margin-bottom: 3px;
         }
         .galerie-card .card-subtitle {
-            color: #999; font-size: 0.9rem; font-style: italic; margin-bottom: 15px;
+            color: #999; font-size: 0.75rem; font-style: italic; margin-bottom: 12px;
         }
-        .share-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+        .share-btns { display: flex; gap: 8px; flex-wrap: wrap; }
         .share-btn {
-            padding: 6px 12px; border-radius: 20px; text-decoration: none;
-            font-size: 0.7rem; font-weight: 600; color: #fff;
+            padding: 5px 10px; border-radius: 15px; text-decoration: none;
+            font-size: 0.65rem; font-weight: 600; color: #fff;
         }
         .share-btn.wa { background: #25D366; }
         .share-btn.fb { background: #1877F2; }
@@ -231,124 +215,124 @@
         /* Chat */
         .chat-section {
             background: #0a0a0a; border-top: 1px solid #1a1a1a;
-            border-bottom: 1px solid #1a1a1a; text-align: center; padding: 60px 40px;
+            border-bottom: 1px solid #1a1a1a; text-align: center; padding: 40px 30px;
         }
         .chat-section h2 span { color: #a3ff3b; }
-        .chat-section p { color: #999; margin-bottom: 25px; font-size: 1.1rem; }
+        .chat-section p { color: #999; margin-bottom: 18px; font-size: 0.95rem; }
         .chat-btn {
             display: inline-block; background: #a3ff3b; color: #000;
-            padding: 15px 35px; text-decoration: none; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 2px; font-size: 1rem;
+            padding: 12px 28px; text-decoration: none; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px; font-size: 0.85rem;
             transition: background 0.3s;
         }
         .chat-btn:hover { background: #fff; }
 
         /* Avis */
         .avis-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; max-width: 1100px; margin: 40px auto 0;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px; max-width: 900px; margin: 30px auto 0;
         }
         .avis-card {
-            background: #0d0d0d; border: 1px solid #1a1a1a; padding: 30px;
+            background: #0d0d0d; border: 1px solid #1a1a1a; padding: 22px;
             text-align: center; transition: transform 0.3s, border-color 0.3s;
         }
-        .avis-card:hover { transform: translateY(-5px); border-color: #FFD700; }
-        .avis-stars { color: #FFD700; font-size: 1.5rem; margin-bottom: 15px; }
-        .avis-text { color: #ccc; font-style: italic; margin-bottom: 15px; }
-        .avis-author { color: #a3ff3b; font-weight: 700; }
+        .avis-card:hover { transform: translateY(-4px); border-color: #FFD700; }
+        .avis-stars { color: #FFD700; font-size: 1.2rem; margin-bottom: 10px; }
+        .avis-text { color: #ccc; font-style: italic; margin-bottom: 10px; font-size: 0.85rem; }
+        .avis-author { color: #a3ff3b; font-weight: 700; font-size: 0.8rem; }
         .btn-avis {
             display: inline-block; background: transparent; color: #a3ff3b;
-            border: 2px solid #a3ff3b; padding: 12px 30px; text-decoration: none;
-            font-weight: 700; text-transform: uppercase; letter-spacing: 2px;
-            font-size: 0.9rem; transition: all 0.3s;
+            border: 2px solid #a3ff3b; padding: 10px 22px; text-decoration: none;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            font-size: 0.8rem; transition: all 0.3s;
         }
         .btn-avis:hover { background: #a3ff3b; color: #000; }
 
         /* À propos */
         .about-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 35px; align-items: center;
         }
         .about-img {
             border: 1px solid #a3ff3b; border-radius: 4px; overflow: hidden;
-            aspect-ratio: 4/3; max-width: 450px;
+            aspect-ratio: 4/3; max-width: 350px;
         }
         .about-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .about-text p { color: #999; font-size: 1.1rem; margin-bottom: 20px; }
+        .about-text p { color: #999; font-size: 0.9rem; margin-bottom: 15px; }
         .about-text strong { color: #fff; }
 
         /* Contact */
         .contact-grid {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 40px;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 35px; margin-top: 25px;
         }
         .contact-info {
-            display: flex; flex-direction: column; gap: 25px; align-items: center;
+            display: flex; flex-direction: column; gap: 18px; align-items: center;
         }
-        .contact-logo { width: 100px; height: auto; margin-bottom: 15px; }
+        .contact-logo { width: 80px; height: auto; margin-bottom: 10px; }
         .contact-item {
-            display: flex; align-items: center; gap: 15px; padding: 20px;
+            display: flex; align-items: center; gap: 12px; padding: 15px;
             background: #0d0d0d; border: 1px solid #1a1a1a; text-decoration: none;
             color: #f5f5f5; width: 100%; transition: border-color 0.3s, transform 0.3s;
         }
         .contact-item:hover { border-color: #a3ff3b; transform: translateY(-3px); }
         .contact-item .contact-icon {
-            width: 45px; height: 45px; background: rgba(163,255,59,0.15);
+            width: 35px; height: 35px; background: rgba(163,255,59,0.15);
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem; flex-shrink: 0;
+            font-size: 1rem; flex-shrink: 0;
         }
         .contact-item .contact-label {
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; color: #777;
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1.5px; color: #777;
         }
-        .contact-item .contact-value { font-weight: 600; font-size: 1rem; color: #fff; }
+        .contact-item .contact-value { font-weight: 600; font-size: 0.85rem; color: #fff; }
         .contact-form input, .contact-form textarea {
             width: 100%; background: transparent; border: none;
-            border-bottom: 2px solid #222; padding: 15px 0; color: #fff;
-            font-size: 1.1rem; margin-bottom: 25px; outline: none;
+            border-bottom: 2px solid #222; padding: 12px 0; color: #fff;
+            font-size: 0.95rem; margin-bottom: 18px; outline: none;
             transition: border-color 0.3s; font-family: inherit;
         }
         .contact-form input:focus, .contact-form textarea:focus { border-color: #a3ff3b; }
-        .contact-form textarea { min-height: 120px; resize: vertical; }
+        .contact-form textarea { min-height: 100px; resize: vertical; }
         .contact-form button {
             width: 100%; background: #a3ff3b; color: #000; border: none;
-            padding: 18px; font-size: 1.1rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 2px; cursor: pointer;
+            padding: 14px; font-size: 0.95rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 1.5px; cursor: pointer;
             transition: background 0.3s;
         }
         .contact-form button:hover { background: #fff; }
         .success-message {
             display: none; background: rgba(163,255,59,0.1);
-            border: 1px solid #a3ff3b; padding: 20px; text-align: center;
-            color: #a3ff3b; font-weight: 700; margin-top: 20px;
+            border: 1px solid #a3ff3b; padding: 15px; text-align: center;
+            color: #a3ff3b; font-weight: 700; margin-top: 15px; font-size: 0.9rem;
         }
 
         /* WhatsApp */
         .whatsapp-float {
-            position: fixed; bottom: 25px; right: 25px; background: #25D366;
-            color: #fff; width: 60px; height: 60px; border-radius: 50%;
+            position: fixed; bottom: 20px; right: 20px; background: #25D366;
+            color: #fff; width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            font-size: 1.5rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
         }
-        .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(37,211,102,0.3); }
+        .whatsapp-float:hover { transform: scale(1.1); box-shadow: 0 6px 18px rgba(37,211,102,0.3); }
 
         /* Bouton Galerie */
         .galerie-float {
-            position: fixed; bottom: 100px; right: 25px; background: #a3ff3b;
-            color: #000; width: 60px; height: 60px; border-radius: 50%;
+            position: fixed; bottom: 80px; right: 20px; background: #a3ff3b;
+            color: #000; width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            font-size: 1.4rem; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
         }
-        .galerie-float:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(163,255,59,0.3); }
+        .galerie-float:hover { transform: scale(1.1); box-shadow: 0 6px 18px rgba(163,255,59,0.3); }
 
         /* Bouton Flip */
         .flip-float {
-            position: fixed; bottom: 175px; right: 25px; background: #a3ff3b;
-            color: #000; width: 60px; height: 60px; border-radius: 50%;
+            position: fixed; bottom: 140px; right: 20px; background: #a3ff3b;
+            color: #000; width: 50px; height: 50px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            font-size: 1.3rem; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.4);
             z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
         }
-        .flip-float:hover { transform: scale(1.1); box-shadow: 0 6px 20px rgba(163,255,59,0.3); }
+        .flip-float:hover { transform: scale(1.1); box-shadow: 0 6px 18px rgba(163,255,59,0.3); }
         #flip-toggle { display: none; }
         #flip-popup {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
@@ -358,26 +342,26 @@
         #flip-toggle:checked ~ #flip-popup { display: flex; }
 
         footer {
-            border-top: 1px solid #222; padding: 40px; text-align: center;
-            color: #555; font-size: 0.9rem; position: relative; z-index: 1;
+            border-top: 1px solid #222; padding: 25px; text-align: center;
+            color: #555; font-size: 0.75rem; position: relative; z-index: 1;
         }
-        footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
+        footer .footer-logo { width: 45px; height: auto; margin-bottom: 10px; opacity: 0.7; }
 
         @media (max-width: 768px) {
-            header { padding: 15px 20px; }
-            nav { gap: 12px; }
-            nav a { font-size: 0.7rem; letter-spacing: 1px; }
-            .hero { padding: 40px 20px; min-height: 70vh; }
-            section { padding: 50px 20px; }
+            header { padding: 10px 15px; }
+            nav { gap: 10px; }
+            nav a { font-size: 0.65rem; letter-spacing: 1px; }
+            .hero { padding: 30px 15px; min-height: 50vh; }
+            section { padding: 35px 15px; }
             .about-grid { grid-template-columns: 1fr; }
             .about-img { max-width: 100%; }
             .contact-grid { grid-template-columns: 1fr; }
-            .modeles-scroll { padding: 10px 20px 20px; }
-            .modele-card { width: 280px; }
-            .flip-container-popup { width: 250px; height: 250px; }
-            .whatsapp-float { width: 50px; height: 50px; font-size: 1.5rem; bottom: 15px; right: 15px; }
-            .galerie-float { width: 50px; height: 50px; font-size: 1.5rem; bottom: 80px; right: 15px; }
-            .flip-float { width: 50px; height: 50px; font-size: 1.2rem; bottom: 145px; right: 15px; }
+            .modeles-scroll { padding: 8px 15px 15px; }
+            .modele-card { width: 220px; }
+            .flip-container-popup { width: 200px; height: 200px; }
+            .whatsapp-float { width: 45px; height: 45px; font-size: 1.3rem; bottom: 15px; right: 15px; }
+            .galerie-float { width: 45px; height: 45px; font-size: 1.2rem; bottom: 70px; right: 15px; }
+            .flip-float { width: 45px; height: 45px; font-size: 1.1rem; bottom: 125px; right: 15px; }
         }
     </style>
 </head>
@@ -385,7 +369,7 @@
 
 <!-- Logo watermark fixe en fond -->
 <div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; display:flex; align-items:center; justify-content:center;">
-    <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" style="width:225%; max-width:2700px; opacity:0.19; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">
+    <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" style="width:225%; max-width:2700px; opacity:0.17; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">
 </div>
 
 <header>
@@ -470,29 +454,29 @@
 </section>
 
 <!-- Section Galerie d'Art -->
-<section id="galerie" style="background:#080808; padding:80px 40px; position:relative; z-index:1; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
+<section id="galerie" style="background:#080808; padding:50px 30px; position:relative; z-index:1; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
 
-    <div style="position:relative; z-index:1; max-width:1200px; margin:0 auto;">
+    <div style="position:relative; z-index:1; max-width:1100px; margin:0 auto;">
         
-        <h2 style="font-size:clamp(2rem,5vw,4rem); font-weight:900; text-transform:uppercase; text-align:center; margin-bottom:10px; color:#fff;">
+        <h2 style="font-size:clamp(1.5rem,3.5vw,2.5rem); font-weight:900; text-transform:uppercase; text-align:center; margin-bottom:8px; color:#fff;">
             Galerie <span style="color:#fff;">d'Art</span>
         </h2>
-        <p style="text-align:center; color:#777; font-size:1rem; margin-bottom:15px; font-style:italic;">
+        <p style="text-align:center; color:#777; font-size:0.85rem; margin-bottom:12px; font-style:italic;">
             "Deux regards, une signature."
         </p>
 
-        <div style="margin:30px 0; border-radius:8px; overflow:hidden; border:1px solid #222;">
+        <div style="margin:20px 0; border-radius:8px; overflow:hidden; border:1px solid #222; max-width:700px; margin-left:auto; margin-right:auto;">
             <img src="https://i.postimg.cc/d0yCMyfp/JB_EXPO.jpg" alt="JB EXPO" style="width:100%; height:auto; display:block;">
         </div>
 
-        <p style="text-align:center; color:#999; font-size:1rem; max-width:700px; margin:25px auto 40px; line-height:1.8;">
+        <p style="text-align:center; color:#999; font-size:0.85rem; max-width:600px; margin:20px auto 30px; line-height:1.7;">
             Jennika & Kervens Jean Baptiste — L'art de transformer l'invisible en visible. Chaque toile est une brèche ouverte sur un monde intérieur.<br>
             <strong style="color:#a3ff3b;">Pièces uniques • Sur commande</strong>
         </p>
 
         <!-- Lien article Le Nouvelliste -->
-        <div style="text-align:center; margin-bottom:40px;">
-            <a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:10px 25px; border-radius:25px; text-decoration:none; font-size:0.9rem; font-weight:600; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='#ccc';">
+        <div style="text-align:center; margin-bottom:30px;">
+            <a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:8px 20px; border-radius:20px; text-decoration:none; font-size:0.8rem; font-weight:600; transition:all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'; this.style.color='#fff';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='#ccc';">
                 📰 L'univers pictural de Jennika Jean-Baptiste — Le Nouvelliste
             </a>
         </div>
@@ -508,7 +492,7 @@
                     <p class="card-subtitle">L'histoire enchaînée, la pierre qui résiste.</p>
                     <div class="share-btns">
                         <a href="https://wa.me/?text=Découvre%20«%20La%20Citadelle%20et%20ses%20Entraves%20»%20de%20Kervens%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regard-creatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
                     </div>
                 </div>
             </div>
@@ -522,7 +506,7 @@
                     <p class="card-subtitle">Une œuvre sans titre, une histoire sans fin.</p>
                     <div class="share-btns">
                         <a href="https://wa.me/?text=Découvre%20«%20Là%20où%20la%20pierre%20rêve%20»%20de%20Kervens%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regard-creatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
                     </div>
                 </div>
             </div>
@@ -536,7 +520,7 @@
                     <p class="card-subtitle">Portrait d'une artiste devant ses œuvres — JB EXPO.</p>
                     <div class="share-btns">
                         <a href="https://wa.me/?text=Découvre%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regard-creatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
                     </div>
                 </div>
             </div>
@@ -550,7 +534,7 @@
                     <p class="card-subtitle">La lumière intérieure capturée sur la toile.</p>
                     <div class="share-btns">
                         <a href="https://wa.me/?text=Découvre%20«%20L'éclat%20du%20dedans%20»%20de%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regard-creatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
                     </div>
                 </div>
             </div>
@@ -564,7 +548,7 @@
                     <p class="card-subtitle">Quand les émotions traversent la toile.</p>
                     <div class="share-btns">
                         <a href="https://wa.me/?text=Découvre%20«%20Un%20silence%20qui%20crie%20»%20de%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a>
-                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regard-creatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a>
                     </div>
                 </div>
             </div>
@@ -581,7 +565,7 @@
 
 <section id="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
     <h2 style="text-align:center;">Ce que <span>nos clients</span> disent</h2>
-    <p style="text-align:center; color:#777; margin-bottom:50px;">Votre satisfaction est notre meilleure récompense.</p>
+    <p style="text-align:center; color:#777; margin-bottom:30px; font-size:0.85rem;">Votre satisfaction est notre meilleure récompense.</p>
     <div class="avis-grid">
         <div class="avis-card">
             <div class="avis-stars">★★★★★</div>
@@ -599,8 +583,8 @@
             <span class="avis-author">— Pierre K., Start-up</span>
         </div>
     </div>
-    <div style="text-align:center; margin-top:40px;">
-        <p style="color:#999; margin-bottom:15px;">Vous avez travaillé avec nous ?</p>
+    <div style="text-align:center; margin-top:30px;">
+        <p style="color:#999; margin-bottom:12px; font-size:0.85rem;">Vous avez travaillé avec nous ?</p>
         <a href="https://wa.me/50947873144?text=Bonjour%20Regard%20Créatif,%20je%20veux%20laisser%20un%20avis%20!" target="_blank" class="btn-avis">Laisser un avis ⭐</a>
     </div>
 </section>
@@ -622,7 +606,7 @@
 
 <section id="contact">
     <h2>Prêt à faire naître votre <span>image</span> ?</h2>
-    <p style="color:#999; margin-bottom:30px; max-width:500px;">Contactez-moi directement ou remplissez le formulaire. Je vous réponds sous 24h.</p>
+    <p style="color:#999; margin-bottom:20px; max-width:450px; font-size:0.9rem;">Contactez-moi directement ou remplissez le formulaire. Je vous réponds sous 24h.</p>
     <div class="contact-grid">
         <div class="contact-info">
             <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="contact-logo">
@@ -673,15 +657,15 @@
 </div>
 
 <!-- Compteur protégé par mot de passe -->
-<div style="text-align:center; padding:10px 0; position:relative; z-index:1;" id="compteur-section">
-    <button onclick="showCompteur()" style="background:none; border:1px solid #333; color:#555; padding:5px 15px; cursor:pointer; font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">📊 Stats</button>
+<div style="text-align:center; padding:8px 0; position:relative; z-index:1;" id="compteur-section">
+    <button onclick="showCompteur()" style="background:none; border:1px solid #333; color:#555; padding:4px 12px; cursor:pointer; font-size:0.65rem; text-transform:uppercase; letter-spacing:1px;">📊 Stats</button>
 </div>
 
 <script>
 function showCompteur() {
     var password = prompt("Mot de passe pour voir les statistiques :");
     if (password === "eclipse2024") {
-        document.getElementById("compteur-section").innerHTML = '<img src="https://visitor-badge.laobi.icu/badge?page_id=regard-creatif.regard-creatif&left_text=Visites&left_color=%23080808&right_color=%23a3ff3b" alt="Compteur" style="height:28px;">';
+        document.getElementById("compteur-section").innerHTML = '<img src="https://visitor-badge.laobi.icu/badge?page_id=regardcreatif.regard-creatif&left_text=Visites&left_color=%23080808&right_color=%23a3ff3b" alt="Compteur" style="height:24px;">';
     } else {
         alert("Mot de passe incorrect.");
     }
