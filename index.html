@@ -40,39 +40,37 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* Robot */
-        @keyframes waveArm {
-            0%, 100% { transform: rotate(-5deg); }
-            30% { transform: rotate(25deg); }
-            60% { transform: rotate(-15deg); }
-            85% { transform: rotate(10deg); }
+        /* Robot amélioré */
+        @keyframes waveArmNew {
+            0%, 100% { transform: rotate(15deg); }
+            50% { transform: rotate(-25deg); }
         }
-        @keyframes robotBounce {
+        @keyframes robotBounceNew {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-14px); }
-        }
-        @keyframes eyeBlink {
-            0%, 90%, 100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
+            50% { transform: translateY(-12px); }
         }
         .robot-float {
             position: fixed; bottom: 240px; right: 12px;
-            width: 80px; height: 80px; z-index: 200;
-            cursor: pointer; animation: robotBounce 3s ease-in-out infinite;
+            width: 85px; height: 85px; z-index: 200;
+            cursor: pointer; animation: robotBounceNew 3s ease-in-out infinite;
             transition: transform 0.3s, filter 0.3s;
-            filter: drop-shadow(0 0 10px rgba(163,255,59,0.5));
+            filter: drop-shadow(0 0 12px rgba(163,255,59,0.5));
         }
         .robot-float:hover {
-            transform: scale(1.15);
+            transform: scale(1.1);
             filter: drop-shadow(0 0 25px rgba(163,255,59,0.9));
         }
-        .robot-arm-group {
-            animation: waveArm 1.2s ease-in-out infinite;
-            transform-origin: 30px 55px;
+        .robot-arm-group-new {
+            animation: waveArmNew 1s ease-in-out infinite;
+            transform-origin: 90px 100px;
         }
         .robot-eye {
             animation: eyeBlink 3s ease-in-out infinite;
             transform-origin: center;
+        }
+        @keyframes eyeBlink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
         }
 
         header {
@@ -375,7 +373,7 @@
             position: fixed; bottom: 25px; right: 25px; background: #25D366;
             color: #fff; width: 60px; height: 60px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
             z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
             animation: float 4s ease-in-out infinite;
         }
@@ -392,16 +390,16 @@
         }
         .galerie-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(163,255,59,0.4); }
 
-        /* Bouton Flip */
+        /* Bouton Flip (OR) */
         .flip-float {
-            position: fixed; bottom: 175px; right: 25px; background: #a3ff3b;
+            position: fixed; bottom: 175px; right: 25px; background: linear-gradient(135deg, #FFD700, #FFA500);
             color: #000; width: 60px; height: 60px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            cursor: pointer; box-shadow: 0 4px 15px rgba(255,215,0,0.4);
             z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
             animation: float 4s ease-in-out 1s infinite;
         }
-        .flip-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(163,255,59,0.4); }
+        .flip-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(255,215,0,0.6); }
         #flip-toggle { display: none; }
         #flip-popup {
             position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
@@ -428,9 +426,9 @@
             .modeles-scroll { padding: 10px 20px 20px; }
             .modele-card { width: 280px; }
             .flip-container-popup { width: 250px; height: 250px; }
-            .whatsapp-float { width: 50px; height: 50px; font-size: 1.5rem; bottom: 15px; right: 15px; }
+            .whatsapp-float { width: 50px; height: 50px; bottom: 15px; right: 15px; }
             .galerie-float { width: 50px; height: 50px; font-size: 1.4rem; bottom: 80px; right: 15px; }
-            .flip-float { width: 50px; height: 50px; font-size: 1.2rem; bottom: 145px; right: 15px; }
+            .flip-float { width: 50px; height: 50px; bottom: 145px; right: 15px; }
             .robot-float { width: 65px; height: 65px; bottom: 205px; right: 8px; }
         }
     </style>
@@ -702,14 +700,26 @@
 </section>
 
 <!-- Bouton WhatsApp flottant -->
-<a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">💬</a>
+<a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">
+    <svg viewBox="0 0 24 24" width="32" height="32" fill="#fff">
+        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
+</a>
 
 <!-- Bouton flottant Galerie d'Art -->
 <a href="#galerie" class="galerie-float" title="Voir la Galerie d'Art">🎨</a>
 
-<!-- Bouton flottant Carte Flip -->
+<!-- Bouton flottant Carte Flip (OR) -->
 <input type="checkbox" id="flip-toggle">
-<label for="flip-toggle" class="flip-float" title="Voir l'animation">🃏</label>
+<label for="flip-toggle" class="flip-float" title="Voir l'animation">
+    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="4" width="20" height="16" rx="2" />
+        <line x1="2" y1="10" x2="22" y2="10" />
+        <line x1="8" y1="2" x2="8" y2="6" />
+        <line x1="16" y1="2" x2="16" y2="6" />
+        <circle cx="12" cy="16" r="2" fill="#FFD700" stroke="none"/>
+    </svg>
+</label>
 
 <div id="flip-popup">
     <label for="flip-toggle" style="position:absolute; top:20px; right:30px; color:#fff; font-size:2rem; cursor:pointer; z-index:301;">✕</label>
@@ -730,119 +740,113 @@
 <div class="robot-float" onclick="document.querySelector('#tidio-chat iframe')?.contentWindow?.postMessage('open', '*')" title="Coucou ! Discutons">
     <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
         <defs>
-            <filter id="glow">
+            <filter id="glowR">
                 <feGaussianBlur stdDeviation="3" result="blur"/>
                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
             </filter>
-            <filter id="glowStrong">
-                <feGaussianBlur stdDeviation="5" result="blur"/>
-                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <radialGradient id="bodyGrad" cx="50%" cy="40%" r="60%">
-                <stop offset="0%" style="stop-color:#c5ff5a;stop-opacity:1"/>
-                <stop offset="60%" style="stop-color:#a3ff3b;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#6ab800;stop-opacity:1"/>
+            <radialGradient id="bodyGradR" cx="40%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#e0ff80"/>
+                <stop offset="60%" stop-color="#a3ff3b"/>
+                <stop offset="100%" stop-color="#4a7a00"/>
             </radialGradient>
-            <radialGradient id="headGrad" cx="50%" cy="35%" r="65%">
-                <stop offset="0%" style="stop-color:#d4ff7a;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#8de000;stop-opacity:1"/>
+            <radialGradient id="headGradR" cx="40%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#f0ffb0"/>
+                <stop offset="100%" stop-color="#a3ff3b"/>
             </radialGradient>
-            <radialGradient id="visorGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#0a0a15;stop-opacity:1"/>
-            </radialGradient>
-            <radialGradient id="heartGrad" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" style="stop-color:#fff;stop-opacity:1"/>
-                <stop offset="40%" style="stop-color:#a3ff3b;stop-opacity:1"/>
-                <stop offset="100%" style="stop-color:#5a9900;stop-opacity:1"/>
-            </radialGradient>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FFD700"/>
+                <stop offset="50%" stop-color="#FFA500"/>
+                <stop offset="100%" stop-color="#FF8C00"/>
+            </linearGradient>
+            <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#FF4444"/>
+                <stop offset="100%" stop-color="#CC0000"/>
+            </linearGradient>
         </defs>
         
         <!-- Halo orbital -->
-        <ellipse cx="150" cy="145" rx="120" ry="30" fill="none" stroke="#a3ff3b" stroke-width="1" opacity="0.2" transform="rotate(-15 150 145)" filter="url(#glow)"/>
-        <ellipse cx="150" cy="145" rx="115" ry="25" fill="none" stroke="#a3ff3b" stroke-width="0.5" opacity="0.1" stroke-dasharray="8 6" transform="rotate(-15 150 145)"/>
+        <ellipse cx="150" cy="145" rx="130" ry="35" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.3" transform="rotate(-15 150 145)" filter="url(#glowR)"/>
+        <ellipse cx="150" cy="145" rx="135" ry="20" fill="none" stroke="#FF4444" stroke-width="1" opacity="0.2" transform="rotate(-30 150 145)" stroke-dasharray="6 4"/>
         
         <!-- Antenne -->
-        <line x1="150" y1="38" x2="150" y2="10" stroke="#a3ff3b" stroke-width="4" stroke-linecap="round" filter="url(#glow)"/>
-        <circle cx="150" cy="6" r="10" fill="url(#headGrad)" filter="url(#glowStrong)"/>
-        <circle cx="150" cy="6" r="5" fill="#fff" opacity="0.6"/>
-        <circle cx="150" cy="6" r="2.5" fill="#fff"/>
+        <line x1="150" y1="35" x2="150" y2="10" stroke="#FFD700" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
+        <circle cx="150" cy="6" r="8" fill="url(#goldGrad)" filter="url(#glowR)"/>
         
         <!-- Corps -->
-        <rect x="70" y="115" width="160" height="120" rx="40" fill="url(#bodyGrad)" filter="url(#glow)"/>
+        <rect x="65" y="110" width="170" height="130" rx="45" fill="url(#bodyGradR)" filter="url(#glowR)"/>
         
-        <!-- Épaules -->
-        <rect x="50" y="125" width="40" height="35" rx="15" fill="url(#bodyGrad)"/>
-        <rect x="210" y="125" width="40" height="35" rx="15" fill="url(#bodyGrad)"/>
-        
-        <!-- Détails torse -->
-        <line x1="100" y1="145" x2="200" y2="145" stroke="#080808" stroke-width="2" opacity="0.3"/>
-        <line x1="100" y1="165" x2="200" y2="165" stroke="#080808" stroke-width="2" opacity="0.3"/>
-        <line x1="100" y1="185" x2="200" y2="185" stroke="#080808" stroke-width="2" opacity="0.3"/>
+        <!-- Néons rouges et or sur le corps -->
+        <path d="M 85 140 Q 150 135 215 140" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
+        <path d="M 85 180 Q 150 185 215 180" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" filter="url(#glowR)"/>
+        <path d="M 85 210 Q 150 215 215 210" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
         
         <!-- Plaque centrale -->
-        <rect x="115" y="150" width="70" height="45" rx="10" fill="#080808" opacity="0.4"/>
-        <rect x="120" y="155" width="60" height="35" rx="8" fill="none" stroke="#a3ff3b" stroke-width="1" opacity="0.5"/>
+        <rect x="110" y="150" width="80" height="50" rx="15" fill="#111" opacity="0.8"/>
+        <rect x="115" y="155" width="70" height="40" rx="10" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
         
         <!-- Cœur lumineux -->
-        <circle cx="150" cy="172" r="12" fill="url(#heartGrad)" filter="url(#glowStrong)">
-            <animate attributeName="r" values="10;14;10" dur="1.5s" repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.7;1;0.7" dur="1.5s" repeatCount="indefinite"/>
+        <circle cx="150" cy="175" r="10" fill="url(#redGrad)" filter="url(#glowR)">
+            <animate attributeName="r" values="8;12;8" dur="1.2s" repeatCount="indefinite"/>
         </circle>
-        <circle cx="150" cy="172" r="5" fill="#fff" opacity="0.5"/>
         
         <!-- Tête -->
-        <rect x="80" y="45" width="140" height="80" rx="35" fill="url(#headGrad)" filter="url(#glow)"/>
+        <rect x="75" y="40" width="150" height="85" rx="40" fill="url(#headGradR)" filter="url(#glowR)"/>
         
-        <!-- Oreilles latérales -->
-        <rect x="60" y="70" width="22" height="30" rx="8" fill="url(#bodyGrad)"/>
-        <rect x="218" y="70" width="22" height="30" rx="8" fill="url(#bodyGrad)"/>
+        <!-- Oreilles -->
+        <rect x="55" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
+        <rect x="225" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
+        <circle cx="65" cy="75" r="4" fill="url(#goldGrad)"/>
+        <circle cx="235" cy="75" r="4" fill="url(#goldGrad)"/>
         
         <!-- Visière -->
-        <rect x="95" y="60" width="110" height="50" rx="20" fill="url(#visorGrad)"/>
-        <rect x="98" y="63" width="104" height="44" rx="18" fill="none" stroke="#a3ff3b" stroke-width="1" opacity="0.4"/>
+        <rect x="90" y="55" width="120" height="55" rx="25" fill="#0a0a1a"/>
+        <rect x="95" y="60" width="110" height="45" rx="20" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.6"/>
         
-        <!-- Yeux -->
+        <!-- Yeux expressifs -->
         <g class="robot-eye">
-            <circle cx="125" cy="82" r="12" fill="#a3ff3b" filter="url(#glowStrong)"/>
-            <circle cx="125" cy="82" r="6" fill="#fff" opacity="0.8"/>
-            <circle cx="127" cy="80" r="2.5" fill="#fff"/>
+            <circle cx="125" cy="80" r="14" fill="#a3ff3b" filter="url(#glowR)"/>
+            <circle cx="125" cy="80" r="7" fill="#fff" opacity="0.9"/>
+            <circle cx="127" cy="77" r="3" fill="#fff"/>
         </g>
         <g class="robot-eye">
-            <circle cx="175" cy="82" r="12" fill="#a3ff3b" filter="url(#glowStrong)"/>
-            <circle cx="175" cy="82" r="6" fill="#fff" opacity="0.8"/>
-            <circle cx="177" cy="80" r="2.5" fill="#fff"/>
+            <circle cx="175" cy="80" r="14" fill="#a3ff3b" filter="url(#glowR)"/>
+            <circle cx="175" cy="80" r="7" fill="#fff" opacity="0.9"/>
+            <circle cx="177" cy="77" r="3" fill="#fff"/>
         </g>
         
         <!-- Sourire -->
-        <path d="M120 95 Q150 108 180 95" stroke="#a3ff3b" stroke-width="2" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+        <path d="M125 100 Q150 112 175 100" stroke="#a3ff3b" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glowR)"/>
         
-        <!-- Bras gauche (fait coucou) -->
-        <g class="robot-arm-group">
-            <rect x="35" y="130" width="22" height="12" rx="6" fill="url(#bodyGrad)" filter="url(#glow)"/>
-            <rect x="40" y="88" width="12" height="45" rx="6" fill="url(#headGrad)"/>
-            <circle cx="46" cy="82" r="16" fill="url(#headGrad)" filter="url(#glow)"/>
-            <circle cx="46" cy="82" r="8" fill="#a3ff3b"/>
-            <circle cx="42" cy="78" r="3" fill="#fff" opacity="0.5"/>
-            <rect x="34" y="68" width="6" height="12" rx="3" fill="url(#headGrad)"/>
-            <rect x="44" y="65" width="6" height="12" rx="3" fill="url(#headGrad)"/>
-            <rect x="54" y="70" width="6" height="12" rx="3" fill="url(#headGrad)"/>
+        <!-- Bras GAUCHE (réparé) -->
+        <g class="robot-arm-group-new">
+            <rect x="40" y="125" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
+            <rect x="48" y="85" width="14" height="45" rx="7" fill="url(#headGradR)"/>
+            <circle cx="55" cy="80" r="18" fill="url(#headGradR)" filter="url(#glowR)"/>
+            <circle cx="55" cy="80" r="10" fill="#a3ff3b"/>
+            <circle cx="50" cy="75" r="4" fill="#fff" opacity="0.6"/>
+            <rect x="42" y="62" width="8" height="16" rx="4" fill="url(#headGradR)"/>
+            <rect x="54" y="58" width="8" height="16" rx="4" fill="url(#headGradR)"/>
+            <rect x="66" y="65" width="8" height="16" rx="4" fill="url(#headGradR)"/>
         </g>
         
-        <!-- Bras droit -->
-        <rect x="243" y="140" width="22" height="12" rx="6" fill="url(#bodyGrad)" filter="url(#glow)"/>
-        <rect x="248" y="110" width="12" height="35" rx="6" fill="url(#headGrad)"/>
-        <circle cx="254" cy="105" r="12" fill="url(#headGrad)" filter="url(#glow)"/>
+        <!-- Bras DROIT -->
+        <rect x="235" y="135" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
+        <rect x="238" y="100" width="14" height="40" rx="7" fill="url(#headGradR)"/>
+        <circle cx="245" cy="95" r="15" fill="url(#headGradR)" filter="url(#glowR)"/>
         
         <!-- Jambes -->
-        <rect x="100" y="225" width="35" height="40" rx="15" fill="url(#bodyGrad)" filter="url(#glow)"/>
-        <rect x="165" y="225" width="35" height="40" rx="15" fill="url(#bodyGrad)" filter="url(#glow)"/>
+        <rect x="95" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
+        <rect x="165" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
+        
+        <!-- Genoux or -->
+        <circle cx="115" cy="245" r="5" fill="url(#goldGrad)"/>
+        <circle cx="185" cy="245" r="5" fill="url(#goldGrad)"/>
         
         <!-- Pieds -->
-        <rect x="88" y="258" width="50" height="18" rx="9" fill="#080808" opacity="0.7"/>
-        <rect x="162" y="258" width="50" height="18" rx="9" fill="#080808" opacity="0.7"/>
-        <rect x="88" y="260" width="50" height="2" rx="1" fill="#a3ff3b" opacity="0.4"/>
-        <rect x="162" y="260" width="50" height="2" rx="1" fill="#a3ff3b" opacity="0.4"/>
+        <rect x="85" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
+        <rect x="160" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
+        <rect x="85" y="270" width="55" height="3" rx="1.5" fill="url(#redGrad)" filter="url(#glowR)"/>
+        <rect x="160" y="270" width="55" height="3" rx="1.5" fill="url(#redGrad)" filter="url(#glowR)"/>
     </svg>
 </div>
 
