@@ -30,18 +30,18 @@
         /* Animations au scroll */
         .reveal {
             opacity: 0;
-            transform: translateY(40px);
-            transition: opacity 0.8s ease, transform 0.8s ease;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
         }
         .reveal.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .reveal-delay-1 { transition-delay: 0.1s; }
-        .reveal-delay-2 { transition-delay: 0.2s; }
-        .reveal-delay-3 { transition-delay: 0.3s; }
-        .reveal-delay-4 { transition-delay: 0.4s; }
-        .reveal-delay-5 { transition-delay: 0.5s; }
+        .reveal-delay-1 { transition-delay: 0.03s; }
+        .reveal-delay-2 { transition-delay: 0.06s; }
+        .reveal-delay-3 { transition-delay: 0.09s; }
+        .reveal-delay-4 { transition-delay: 0.12s; }
+        .reveal-delay-5 { transition-delay: 0.15s; }
 
         /* Pulse */
         @keyframes pulse {
@@ -272,6 +272,7 @@
             padding: 15px 35px; text-decoration: none; font-weight: 700;
             text-transform: uppercase; letter-spacing: 2px; font-size: 1rem;
             transition: background 0.3s, transform 0.3s;
+            animation: pulse 2.5s infinite;
         }
         .chat-btn:hover { background: #fff; transform: scale(1.05); }
 
@@ -742,7 +743,7 @@ function revealOnScroll() {
     for (var i = 0; i < reveals.length; i++) {
         var windowHeight = window.innerHeight;
         var elementTop = reveals[i].getBoundingClientRect().top;
-        var elementVisible = 100;
+        var elementVisible = 30;
         if (elementTop < windowHeight - elementVisible) {
             reveals[i].classList.add('visible');
         }
