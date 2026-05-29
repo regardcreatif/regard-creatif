@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogoMaker by Regard Créatif</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#080808">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #111; color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex; flex-direction: column; height: 100vh;
+        }
+        header {
+            background: #080808; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid #222;
+        }
+        header h1 { font-size: 1.1rem; color: #a3ff3b; }
+        header button {
+            background: #a3ff3b; color: #000; border: none;
+            padding: 8px 16px; font-weight: 700; cursor: pointer;
+        }
+        #toolbar {
+            background: #0a0a0a; padding: 10px 15px;
+            display: flex; gap: 8px; flex-wrap: wrap; border-bottom: 1px solid #222;
+        }
+        #toolbar button, #toolbar select {
+            background: #1a1a1a; color: #ccc; border: 1px solid #333;
+            padding: 8px 14px; cursor: pointer; font-size: 0.8rem;
+        }
+        #toolbar button:hover { background: #a3ff3b; color: #000; border-color: #a3ff3b; }
+        #toolbar input[type="color"] { width: 35px; height: 35px; cursor: pointer; border: 1px solid #333; }
+        #canvas-wrap {
+            flex: 1; display: flex; align-items: center; justify-content: center;
+            background: #1a1a1a; padding: 20px;
+        }
+        #templates-bar {
+            background: #0a0a0a; padding: 10px 15px;
+            display: flex; gap: 10px; overflow-x: auto; border-top: 1px solid #222;
+        }
+        .template-btn {
+            flex: 0 0 auto; width: 60px; height: 60px;
+            background: #1a1a1a; border: 2px solid #333; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #a3ff3b;
+        }
+        .template-btn:hover { border-color: #a3ff3b; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🖌️ LogoMaker</h1>
+    <button onclick="downloadLogo()">📥 Télécharger PNG</button>
+</header>
+
+<div id="toolbar">
+    <button onclick="addText()">➕ Texte</button>
+    <button onclick="addCircle()">🔵 Cercle</button>
+    <button onclick="addRect()">⬛ Carré</button>
+    <button onclick="addTriangle()">🔺 Triangle</button>
+    <button onclick="addStar()">⭐ Étoile</button>
+    <input type="color" id="colorPicker" value="#a3ff3b" title="Couleur">
+    <button onclick="deleteSelected()">🗑️ Supprimer</button>
+    <button onclick="clearAll()">🔄 Tout effacer</button>
+</div>
+
+<div id="canvas-wrap">
+    <canvas id="logoCanvas" width="500" height="500"></canvas>
+</div>
+
+<div id="templates-bar">
+    <div class="template-btn" onclick="loadTemplate('minimal')">🔤</div>
+    <div class="template-btn" onclick="loadTemplate('circle')">⭕</div>
+    <div class="template-btn" onclick="loadTemplate('bold')">💪</div>
+    <div class="template-btn" onclick="loadTemplate('tech')">🤖</div>
+    <div class="template-btn" onclick="loadTemplate('luxe')">👑</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script>
+    const canvas = new fabric.Canvas('logoCanvas', {
+        backgroundColor: '#ffffff',
+        width: 500,
+        height: 500
+    });
+
+    function addText() {
+        const text = new fabric.Textbox('Votre Texte', {
+            left: 100, top: 200, width: 300,
+            fontSize: 40, fontFamily: 'Arial Black',
+            fill: document.getElementById('colorPicker').value,
+            textAlign: 'center'
+        });
+        canvas.add(text);
+        canvas.setActiveObject(text);
+    }
+
+    function addCircle() {
+        const circle = new fabric.Circle({
+            left: 180, top: 180, radius: 70,
+            fill: document.getElementById('colorPicker').value
+        });
+        canvas.add(circle);
+        canvas.setActiveObject(circle);
+    }
+
+    function addRect() {
+        const rect = new fabric.Rect({
+            left: 160, top: 160, width: 180, height: 180,
+            fill: document.getElementById('colorPicker').value
+        });
+        canvas.add(rect);
+        canvas.setActiveObject(rect);
+    }
+
+    function addTriangle() {
+        const triangle = new fabric.Triangle({
+            left: 175, top: 150, width: 150, height: 180,
+            fill: document.getElementById('colorPicker').value
+        });
+        canvas.add(triangle);
+        canvas.setActiveObject(triangle);
+    }
+
+    function addStar() {
+        const points = [];
+        for (let i = 0; i < 10; i++) {
+            const angle = (i * Math.PI) / 5 - Math.PI / 2;
+            const r = i % 2 === 0 ? 80 : 35;
+            points.push({ x: 250 + r * Math.cos(angle), y: 250 + r * Math.sin(angle) });
+        }
+        const star = new fabric.Polygon(points, {
+            fill: document.getElementById('colorPicker').value
+        });
+        canvas.add(star);
+        canvas.setActiveObject(star);
+    }
+
+    function deleteSelected() {
+        const active = canvas.getActiveObject();
+        if (active) canvas.remove(active);
+    }
+
+    function clearAll() {
+        canvas.clear();
+        canvas.backgroundColor = '#ffffff';
+    }
+
+    function downloadLogo() {
+        const link = document.createElement('a');
+        link.download = 'mon-logo-regard-creatif.png';
+        link.href = canvas.toDataURL({ format: 'png', quality: 1 });
+        link.click();
+    }
+
+    function loadTemplate(type) {
+        clearAll();
+        canvas.backgroundColor = '#ffffff';
+        const color = document.getElementById('colorPicker').value;
+        
+        if (type === 'minimal') {
+            const text = new fabric.Textbox('MARQUE', {
+                left: 100, top: 210, width: 300, fontSize: 50,
+                fontFamily: 'Arial', fontWeight: 'bold', fill: '#000',
+                letterSpacing: 8, textAlign: 'center'
+            });
+            const line = new fabric.Rect({ left: 180, top: 270, width: 140, height: 3, fill: color });
+            canvas.add(text); canvas.add(line);
+        } else if (type === 'circle') {
+            const c = new fabric.Circle({ left: 170, top: 170, radius: 80, fill: color });
+            const t = new fabric.Textbox('M', {
+                left: 180, top: 200, width: 140, fontSize: 60,
+                fontFamily: 'Arial Black', fill: '#fff', textAlign: 'center'
+            });
+            canvas.add(c); canvas.add(t);
+        } else if (type === 'bold') {
+            const r = new fabric.Rect({ left: 130, top: 160, width: 240, height: 180, fill: '#000' });
+            const t = new fabric.Textbox('BOLD', {
+                left: 140, top: 210, width: 220, fontSize: 45,
+                fontFamily: 'Impact', fill: color, textAlign: 'center'
+            });
+            canvas.add(r); canvas.add(t);
+        } else if (type === 'tech') {
+            const c = new fabric.Circle({ left: 195, top: 195, radius: 55, fill: 'none', stroke: color, strokeWidth: 4 });
+            const t = new fabric.Textbox('TECH', {
+                left: 120, top: 260, width: 260, fontSize: 35,
+                fontFamily: 'Courier New', fontWeight: 'bold', fill: color, textAlign: 'center'
+            });
+            canvas.add(c); canvas.add(t);
+        } else if (type === 'luxe') {
+            const t = new fabric.Textbox('LUXE', {
+                left: 100, top: 200, width: 300, fontSize: 55,
+                fontFamily: 'Georgia', fontStyle: 'italic', fill: '#000', textAlign: 'center'
+            });
+            const line1 = new fabric.Rect({ left: 150, top: 180, width: 200, height: 1.5, fill: '#FFD700' });
+            const line2 = new fabric.Rect({ left: 150, top: 270, width: 200, height: 1.5, fill: '#FFD700' });
+            canvas.add(line1); canvas.add(t); canvas.add(line2);
+        }
+    }
+
+    // Service Worker
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+</script>
+
+</body>
+  </html>
