@@ -1,15 +1,15 @@
 {
-    "name": "LogoMaker by Regard Créatif",
-    "short_name": "LogoMaker",
+    "name": "RC Logo Maker – Regard Créatif",
+    "short_name": "RC Logo Maker",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#080808",
-    "theme_color": "#a3ff3b",
+    "background_color": "#0a0a0f",
+    "theme_color": "#5b6af0",
     "icons": [
         {
-            "src": "https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp",
+            "src": "https://i.postimg.cc/MH5vhHcM/Picsart-26-05-29-19-07-33-506.jpg",
             "sizes": "512x512",
-            "type": "image/webp"
+            "type": "image/jpeg"
         }
     ]
 }
