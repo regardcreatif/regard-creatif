@@ -6,7 +6,7 @@
     <title>RC Logo Maker – Regard Créatif</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0a0a0f">
-    <link rel="icon" href="https://i.postimg.cc/MH5vhHcM/Picsart-26-05-29-19-07-33-506.jpg">
+    <link rel="icon" href="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
@@ -109,11 +109,7 @@
         }
         .popup .dim-item i { display: block; font-size: 1.3rem; margin-bottom: 4px; color: var(--accent-light); }
         .popup .dim-item:hover { border-color: var(--accent); color: var(--text); }
-        .popup .close-btn {
-            position: absolute; top: 12px; right: 16px;
-            background: none; border: none; color: var(--text2);
-            font-size: 1.2rem; cursor: pointer;
-        }
+        .popup .close-btn { position: absolute; top: 12px; right: 16px; background: none; border: none; color: var(--text2); font-size: 1.2rem; cursor: pointer; }
 
         .toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: var(--accent); color: #fff; padding: 10px 22px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; z-index: 999; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
         .toast.show { opacity: 1; }
@@ -122,74 +118,44 @@
 <body>
 
 <div id="home-screen" class="screen active">
-    <!-- Bande jaune -->
     <div id="ticker-bar">
         <span class="ticker-text"><i class="fa-solid fa-palette"></i> Laissez place à votre créativité, libérez le potentiel &nbsp;&nbsp;&nbsp; <i class="fa-solid fa-wand-magic-sparkles"></i> Laissez place à votre créativité, libérez le potentiel &nbsp;&nbsp;&nbsp; <i class="fa-solid fa-rocket"></i> Laissez place à votre créativité, libérez le potentiel</span>
     </div>
 
-    <!-- Header -->
     <div id="home-header">
-        <img src="https://i.postimg.cc/MH5vhHcM/Picsart-26-05-29-19-07-33-506.jpg" alt="RC" class="app-logo">
+        <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" alt="RC" class="app-logo">
         <div class="app-name">RC <span>Logo Maker</span></div>
         <div class="app-subtitle">Créez votre identité en un clin d'œil</div>
     </div>
 
-    <!-- Télécharger APK -->
     <a id="download-apk" href="#" onclick="toast('📥 APK bientôt disponible')">
         <i class="fa-solid fa-download"></i> Télécharger l'application (APK)
     </a>
 
-    <!-- Recherche -->
     <div id="home-search">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" placeholder="Rechercher un style de logo...">
         <i class="fa-solid fa-camera"></i>
     </div>
 
-    <!-- Contenu -->
     <div id="home-content">
         <div class="section-title"><i class="fa-solid fa-fire"></i> Templates tendance</div>
         <div class="template-grid">
-            <div class="tpl-card" onclick="openEditor('minimal')">
-                <div class="preview" style="background:#fff;"><svg viewBox="0 0 80 30" width="55"><rect x="5" y="10" width="70" height="10" rx="3" fill="#1a1a2e"/><text x="40" y="19" text-anchor="middle" font-size="7" font-family="Arial" font-weight="900" fill="#5b6af0">MARQUE</text></svg></div><div class="tpl-name">Minimal</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('circle')">
-                <div class="preview" style="background:#fff;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="22" fill="#5b6af0"/><text x="30" y="38" text-anchor="middle" font-size="18" font-family="Georgia" font-weight="900" fill="#fff">M</text></svg></div><div class="tpl-name">Cercle</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('bold')">
-                <div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="28" text-anchor="middle" font-size="20" font-family="Arial Black" font-weight="900" fill="#5b6af0">BOLD</text></svg></div><div class="tpl-name">Bold</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('tech')">
-                <div class="preview" style="background:#0a0a1a;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="20" fill="none" stroke="#5b6af0" stroke-width="4"/><polygon points="30,18 38,28 22,28" fill="#5b6af0"/></svg></div><div class="tpl-name">Tech</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('luxe')">
-                <div class="preview" style="background:#faf5ef;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="30" text-anchor="middle" font-size="16" font-family="Georgia" font-weight="900" fill="#1a1a2e">LUXE</text><line x1="15" y1="10" x2="65" y2="10" stroke="#d4af37" stroke-width="1.5"/></svg></div><div class="tpl-name">Luxe</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('neon')">
-                <div class="preview" style="background:#0a0a0f;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="30" text-anchor="middle" font-size="16" font-family="Arial" font-weight="900" fill="#ec4899" stroke="#f472b6" stroke-width="0.8">NEON</text></svg></div><div class="tpl-name">Néon</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('nature')">
-                <div class="preview" style="background:#ecfdf5;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="18" fill="#10b981"/><path d="M22 30 Q30 18 38 30" fill="#064e3b"/></svg></div><div class="tpl-name">Nature</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('vintage')">
-                <div class="preview" style="background:#fef3c7;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="28" text-anchor="middle" font-size="14" font-family="Georgia" font-weight="900" fill="#5c3d2e">VINTAGE</text><line x1="20" y1="8" x2="60" y2="8" stroke="#c49a6c" stroke-width="2"/></svg></div><div class="tpl-name">Vintage</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('monogram')">
-                <div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 60 60" width="40"><rect x="8" y="8" width="44" height="44" rx="6" fill="#5b6af0"/><text x="30" y="38" text-anchor="middle" font-size="20" font-family="Georgia" font-weight="900" fill="#fff">AB</text></svg></div><div class="tpl-name">Monogram</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('geometric')">
-                <div class="preview" style="background:#fff;"><svg viewBox="0 0 60 60" width="40"><polygon points="30,8 56,22 46,48 14,48 4,22" fill="#5b6af0" opacity="0.8"/><text x="30" y="36" text-anchor="middle" font-size="10" font-family="Arial" font-weight="900" fill="#fff">GEO</text></svg></div><div class="tpl-name">Géométrique</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('handmade')">
-                <div class="preview" style="background:#fffaf0;"><svg viewBox="0 0 60 60" width="40"><path d="M15 45 C15 25 45 25 45 45" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="30" r="4" fill="#f59e0b"/></svg></div><div class="tpl-name">Artisanal</div>
-            </div>
-            <div class="tpl-card" onclick="openEditor('shield')">
-                <div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 50 60" width="35"><path d="M25 5 L45 12 L45 30 C45 42 25 55 25 55 C25 55 5 42 5 30 L5 12 Z" fill="#5b6af0"/><text x="25" y="35" text-anchor="middle" font-size="8" font-family="Arial" font-weight="900" fill="#fff">PRO</text></svg></div><div class="tpl-name">Blason</div>
-            </div>
+            <div class="tpl-card" onclick="openEditor('minimal')"><div class="preview" style="background:#fff;"><svg viewBox="0 0 80 30" width="55"><rect x="5" y="10" width="70" height="10" rx="3" fill="#1a1a2e"/><text x="40" y="19" text-anchor="middle" font-size="7" font-family="Arial" font-weight="900" fill="#5b6af0">MARQUE</text></svg></div><div class="tpl-name">Minimal</div></div>
+            <div class="tpl-card" onclick="openEditor('circle')"><div class="preview" style="background:#fff;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="22" fill="#5b6af0"/><text x="30" y="38" text-anchor="middle" font-size="18" font-family="Georgia" font-weight="900" fill="#fff">M</text></svg></div><div class="tpl-name">Cercle</div></div>
+            <div class="tpl-card" onclick="openEditor('bold')"><div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="28" text-anchor="middle" font-size="20" font-family="Arial Black" font-weight="900" fill="#5b6af0">BOLD</text></svg></div><div class="tpl-name">Bold</div></div>
+            <div class="tpl-card" onclick="openEditor('tech')"><div class="preview" style="background:#0a0a1a;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="20" fill="none" stroke="#5b6af0" stroke-width="4"/><polygon points="30,18 38,28 22,28" fill="#5b6af0"/></svg></div><div class="tpl-name">Tech</div></div>
+            <div class="tpl-card" onclick="openEditor('luxe')"><div class="preview" style="background:#faf5ef;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="30" text-anchor="middle" font-size="16" font-family="Georgia" font-weight="900" fill="#1a1a2e">LUXE</text><line x1="15" y1="10" x2="65" y2="10" stroke="#d4af37" stroke-width="1.5"/></svg></div><div class="tpl-name">Luxe</div></div>
+            <div class="tpl-card" onclick="openEditor('neon')"><div class="preview" style="background:#0a0a0f;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="30" text-anchor="middle" font-size="16" font-family="Arial" font-weight="900" fill="#ec4899" stroke="#f472b6" stroke-width="0.8">NEON</text></svg></div><div class="tpl-name">Néon</div></div>
+            <div class="tpl-card" onclick="openEditor('nature')"><div class="preview" style="background:#ecfdf5;"><svg viewBox="0 0 60 60" width="40"><circle cx="30" cy="30" r="18" fill="#10b981"/><path d="M22 30 Q30 18 38 30" fill="#064e3b"/></svg></div><div class="tpl-name">Nature</div></div>
+            <div class="tpl-card" onclick="openEditor('vintage')"><div class="preview" style="background:#fef3c7;"><svg viewBox="0 0 80 40" width="55"><text x="40" y="28" text-anchor="middle" font-size="14" font-family="Georgia" font-weight="900" fill="#5c3d2e">VINTAGE</text><line x1="20" y1="8" x2="60" y2="8" stroke="#c49a6c" stroke-width="2"/></svg></div><div class="tpl-name">Vintage</div></div>
+            <div class="tpl-card" onclick="openEditor('monogram')"><div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 60 60" width="40"><rect x="8" y="8" width="44" height="44" rx="6" fill="#5b6af0"/><text x="30" y="38" text-anchor="middle" font-size="20" font-family="Georgia" font-weight="900" fill="#fff">AB</text></svg></div><div class="tpl-name">Monogram</div></div>
+            <div class="tpl-card" onclick="openEditor('geometric')"><div class="preview" style="background:#fff;"><svg viewBox="0 0 60 60" width="40"><polygon points="30,8 56,22 46,48 14,48 4,22" fill="#5b6af0" opacity="0.8"/><text x="30" y="36" text-anchor="middle" font-size="10" font-family="Arial" font-weight="900" fill="#fff">GEO</text></svg></div><div class="tpl-name">Géométrique</div></div>
+            <div class="tpl-card" onclick="openEditor('handmade')"><div class="preview" style="background:#fffaf0;"><svg viewBox="0 0 60 60" width="40"><path d="M15 45 C15 25 45 25 45 45" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-linecap="round"/><circle cx="22" cy="30" r="4" fill="#f59e0b"/></svg></div><div class="tpl-name">Artisanal</div></div>
+            <div class="tpl-card" onclick="openEditor('shield')"><div class="preview" style="background:#1a1a2e;"><svg viewBox="0 0 50 60" width="35"><path d="M25 5 L45 12 L45 30 C45 42 25 55 25 55 C25 55 5 42 5 30 L5 12 Z" fill="#5b6af0"/><text x="25" y="35" text-anchor="middle" font-size="8" font-family="Arial" font-weight="900" fill="#fff">PRO</text></svg></div><div class="tpl-name">Blason</div></div>
         </div>
     </div>
 
-    <!-- Barre du bas -->
     <div id="home-bottom">
         <div class="bottom-btn" onclick="toast('📚 Tutoriel à venir')" title="Apprendre"><i class="fa-solid fa-book-open"></i></div>
         <div class="bottom-btn" onclick="showMenu()" title="Menu"><i class="fa-solid fa-bars"></i></div>
@@ -199,7 +165,6 @@
     </div>
 </div>
 
-<!-- Popup Dimensions -->
 <div class="popup-overlay" id="dim-popup">
     <div class="popup">
         <button class="close-btn" onclick="closeDimensions()">✕</button>
@@ -215,7 +180,6 @@
     </div>
 </div>
 
-<!-- Popup Menu -->
 <div class="popup-overlay" id="menu-popup">
     <div class="popup">
         <button class="close-btn" onclick="closeMenu()">✕</button>
