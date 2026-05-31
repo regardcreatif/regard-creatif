@@ -75,10 +75,28 @@
         .swatch-item.active{border-color:var(--accent);box-shadow:0 0 12px rgba(91,106,240,0.4)}
         .swatch-item .check{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,0.6);display:none;pointer-events:none}
         .swatch-item.active .check{display:block}
-        .layer-vis-btn{width:22px;height:22px;border-radius:4px;background:transparent;border:1px solid transparent;color:var(--text2);cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all var(--transition);flex-shrink:0}
-        .layer-vis-btn:hover{border-color:var(--border);background:rgba(255,255,255,0.05);color:var(--text)}
-        .layer-action-btn{width:44px;height:44px;border-radius:10px;border:2px solid var(--border);background:var(--panel2);color:var(--text2);cursor:pointer;font-size:18px;transition:all var(--transition);display:flex;align-items:center;justify-content:center}
-        .layer-action-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);transform:translateY(-2px)}
+
+        /* ═══════════ NOUVEAU PANNEAU CALQUES DRAG & DROP ═══════════ */
+        .layer-list{display:flex;flex-direction:column;gap:2px}
+        .layer-item{display:flex;align-items:center;gap:6px;padding:6px 7px;border-radius:6px;background:var(--panel2);border:1px solid var(--border);cursor:pointer;font-size:10px;transition:all var(--transition);min-height:36px}
+        .layer-item.selected{border-color:var(--accent);background:rgba(91,106,240,0.1)}
+        .layer-item.dragging{opacity:0.4;border-style:dashed}
+        .layer-item.drag-over{border-color:var(--accent);background:rgba(91,106,240,0.05)}
+        .layer-item .drag-handle{cursor:grab;color:var(--text3);font-size:12px;padding:2px;flex-shrink:0;display:flex;align-items:center}
+        .layer-item .drag-handle:active{cursor:grabbing}
+        .layer-mini{width:24px;height:24px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);flex-shrink:0}
+        .layer-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
+        .layer-name-input{flex:1;min-width:0;background:var(--panel);border:1px solid var(--accent);color:var(--text);border-radius:3px;padding:2px 4px;font-size:10px;font-family:inherit;outline:none}
+        .layer-btn{width:22px;height:22px;border-radius:4px;background:transparent;border:none;color:var(--text2);cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;transition:all var(--transition);flex-shrink:0}
+        .layer-btn:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+        .layer-btn.danger:hover{background:rgba(239,68,68,0.2);color:var(--danger)}
+        .layer-actions-bar{display:flex;gap:3px;margin-top:6px;padding-top:6px;border-top:1px solid var(--border)}
+        .layer-action-btn-small{flex:1;padding:5px;border-radius:5px;background:var(--panel2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:8px;font-family:inherit;text-transform:uppercase;letter-spacing:0.5px;transition:all var(--transition);display:flex;align-items:center;justify-content:center;gap:3px}
+        .layer-action-btn-small:hover{background:rgba(91,106,240,0.15);border-color:var(--accent);color:var(--accent)}
+        .layer-action-btn-small:disabled{opacity:0.3;cursor:not-allowed}
+        .layer-count{font-weight:700;font-size:10px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between}
+        .layer-count span{color:var(--text3);font-weight:400}
+
         .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:8px 18px;border-radius:20px;font-weight:600;font-size:0.75rem;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
         .toast.show{opacity:1}
         .ctx-bar{display:none;position:fixed;top:55px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);border-radius:25px;padding:5px 10px;gap:3px;z-index:500;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
@@ -161,6 +179,8 @@ const SIZES=[[500,500,'Carré'],[600,600,'Logo'],[800,400,'Bannière'],[400,800,
 let elements=[],selectedId=null,history=[],historyIndex=-1,zoom=1,canvasW=500,canvasH=500,canvasBg='#ffffff',lastId=0,currentFlyout=null,activeTab='props';
 let dragEl=null,dragOffX=0,dragOffY=0,resizeDir=null,resizeOrig=null,isDragging=false,isResizing=false;
 let isResizingCanvas=false,startCanvasPos={x:0,y:0},startCanvasWH={w:500,h:500};
+let multiSelectIds=[]; // Pour grouper
+let editingLayerId=null;
 
 function mkId(){return++lastId}
 function makeRect(x,y,w,h){return{id:mkId(),type:'rect',x,y,w,h,fill:'#5b6af0',stroke:'none',strokeW:0,rx:0,opacity:1,rotation:0,visible:true,shadow:null,glow:null}}
@@ -172,8 +192,8 @@ function makeText(x,y,t){return{id:mkId(),type:'text',x,y,text:t,font:'Montserra
 function makeIcon(x,y,c,s){return{id:mkId(),type:'icon',x,y,char:c,size:s||60,fill:'#ffffff',opacity:1,rotation:0,visible:true,shadow:null,glow:null}}
 
 function saveHistory(){history=history.slice(0,historyIndex+1);history.push(JSON.stringify(elements));historyIndex++;if(history.length>40){history.shift();historyIndex--}}
-function undo(){if(historyIndex<=0)return;historyIndex--;elements=JSON.parse(history[historyIndex]);selectedId=null;render();renderProps();renderLayers();toast('↩ Annulé')}
-function redo(){if(historyIndex>=history.length-1)return;historyIndex++;elements=JSON.parse(history[historyIndex]);selectedId=null;render();renderProps();renderLayers();toast('↪ Rétabli')}
+function undo(){if(historyIndex<=0)return;historyIndex--;elements=JSON.parse(history[historyIndex]);selectedId=null;multiSelectIds=[];render();renderProps();renderLayers();toast('↩ Annulé')}
+function redo(){if(historyIndex>=history.length-1)return;historyIndex++;elements=JSON.parse(history[historyIndex]);selectedId=null;multiSelectIds=[];render();renderProps();renderLayers();toast('↪ Rétabli')}
 
 function getPos(e){const rect=canvas.getBoundingClientRect();const cx=e.touches?e.touches[0].clientX:e.clientX;const cy=e.touches?e.touches[0].clientY:e.clientY;return{x:(cx-rect.left)/zoom,y:(cy-rect.top)/zoom};}
 
@@ -184,7 +204,6 @@ function getResizeHandle(pos,el){const bb=getBB(el);const handles={nw:{x:bb.x,y:
 function isPointInElement(pos,el){const bb=getBB(el);return pos.x>=bb.x-10&&pos.x<=bb.x+bb.w+10&&pos.y>=bb.y-10&&pos.y<=bb.y+bb.h+10;}
 function findElementAtPos(pos){for(let i=elements.length-1;i>=0;i--){if(elements[i].visible!==false&&isPointInElement(pos,elements[i]))return elements[i];}return null;}
 
-// ✅ CORRECTIONS 4-5-6 : resizeElement avec ABSOLUTE_MIN
 function resizeElement(el,handle,dx,dy){
     const ABSOLUTE_MIN=30;
     const bb=getBB(el);
@@ -211,60 +230,62 @@ function resizeElement(el,handle,dx,dy){
     render();renderProps();
 }
 
-// ✅ CORRECTION 11 : drawSelection avec poignée de rotation
 function drawSelection(){
     selCtx.clearRect(0,0,canvasW,canvasH);
-    if(selectedId===null)return;
-    const el=elements.find(e=>e.id===selectedId);
-    if(!el)return;
-    const bb=getBB(el);
-    if(!bb)return;
-    // Rectangle de sélection
-    selCtx.strokeStyle='#5b6af0';selCtx.lineWidth=2.5;selCtx.setLineDash([6,3]);
-    selCtx.strokeRect(bb.x-2,bb.y-2,bb.w+4,bb.h+4);selCtx.setLineDash([]);
-    // Poignées de resize
-    const hs=16;
-    const handles=[
-        {x:bb.x,y:bb.y},{x:bb.x+bb.w/2,y:bb.y},{x:bb.x+bb.w,y:bb.y},
-        {x:bb.x,y:bb.y+bb.h/2},{x:bb.x+bb.w,y:bb.y+bb.h/2},
-        {x:bb.x,y:bb.y+bb.h},{x:bb.x+bb.w/2,y:bb.y+bb.h},{x:bb.x+bb.w,y:bb.y+bb.h}
-    ];
-    handles.forEach(h=>{
-        selCtx.fillStyle='#fff';selCtx.shadowColor='rgba(0,0,0,0.3)';selCtx.shadowBlur=4;
-        selCtx.beginPath();selCtx.arc(h.x,h.y,hs/2,0,Math.PI*2);selCtx.fill();selCtx.shadowBlur=0;
-        selCtx.strokeStyle='#5b6af0';selCtx.lineWidth=2;selCtx.stroke();
+    // Dessiner la sélection pour tous les éléments multi-sélectionnés
+    const idsToShow=multiSelectIds.length>0?multiSelectIds:(selectedId!==null?[selectedId]:[]);
+    idsToShow.forEach(id=>{
+        const el=elements.find(e=>e.id===id);
+        if(!el)return;
+        const bb=getBB(el);
+        if(!bb)return;
+        selCtx.strokeStyle='#5b6af0';selCtx.lineWidth=2.5;selCtx.setLineDash([6,3]);
+        selCtx.strokeRect(bb.x-2,bb.y-2,bb.w+4,bb.h+4);selCtx.setLineDash([]);
+        const hs=16;
+        const handles=[
+            {x:bb.x,y:bb.y},{x:bb.x+bb.w/2,y:bb.y},{x:bb.x+bb.w,y:bb.y},
+            {x:bb.x,y:bb.y+bb.h/2},{x:bb.x+bb.w,y:bb.y+bb.h/2},
+            {x:bb.x,y:bb.y+bb.h},{x:bb.x+bb.w/2,y:bb.y+bb.h},{x:bb.x+bb.w,y:bb.y+bb.h}
+        ];
+        handles.forEach(h=>{
+            selCtx.fillStyle='#fff';selCtx.shadowColor='rgba(0,0,0,0.3)';selCtx.shadowBlur=4;
+            selCtx.beginPath();selCtx.arc(h.x,h.y,hs/2,0,Math.PI*2);selCtx.fill();selCtx.shadowBlur=0;
+            selCtx.strokeStyle='#5b6af0';selCtx.lineWidth=2;selCtx.stroke();
+        });
     });
-    // Poignée de rotation
-    const rotX=bb.x+bb.w/2,rotY=bb.y-25;
-    selCtx.strokeStyle='rgba(91,106,240,0.5)';selCtx.lineWidth=1.5;selCtx.setLineDash([3,3]);
-    selCtx.beginPath();selCtx.moveTo(bb.x+bb.w/2,bb.y);selCtx.lineTo(rotX,rotY);selCtx.stroke();
-    selCtx.setLineDash([]);
-    selCtx.fillStyle='#5b6af0';selCtx.shadowColor='rgba(91,106,240,0.4)';selCtx.shadowBlur=8;
-    selCtx.beginPath();selCtx.arc(rotX,rotY,7,0,Math.PI*2);selCtx.fill();selCtx.shadowBlur=0;
-    selCtx.strokeStyle='#fff';selCtx.lineWidth=1.5;selCtx.stroke();
+    // Poignée de rotation pour l'élément principal sélectionné
+    if(selectedId!==null&&multiSelectIds.length<=1){
+        const el=elements.find(e=>e.id===selectedId);
+        if(el){
+            const bb=getBB(el);
+            const rotX=bb.x+bb.w/2,rotY=bb.y-25;
+            selCtx.strokeStyle='rgba(91,106,240,0.5)';selCtx.lineWidth=1.5;selCtx.setLineDash([3,3]);
+            selCtx.beginPath();selCtx.moveTo(bb.x+bb.w/2,bb.y);selCtx.lineTo(rotX,rotY);selCtx.stroke();
+            selCtx.setLineDash([]);
+            selCtx.fillStyle='#5b6af0';selCtx.shadowColor='rgba(91,106,240,0.4)';selCtx.shadowBlur=8;
+            selCtx.beginPath();selCtx.arc(rotX,rotY,7,0,Math.PI*2);selCtx.fill();selCtx.shadowBlur=0;
+            selCtx.strokeStyle='#fff';selCtx.lineWidth=1.5;selCtx.stroke();
+        }
+    }
 }
 
-// ═══════════ CANVAS RESIZE ═══════════
 const canvasResizeHandle=document.getElementById('canvasResizeHandle');
 canvasResizeHandle.addEventListener('pointerdown',function(e){e.preventDefault();e.stopPropagation();isResizingCanvas=true;startCanvasPos={x:e.clientX,y:e.clientY};startCanvasWH={w:canvasW,h:canvasH};canvasResizeHandle.setPointerCapture(e.pointerId);});
 window.addEventListener('pointermove',function(e){if(!isResizingCanvas)return;const dx=e.clientX-startCanvasPos.x;const dy=e.clientY-startCanvasPos.y;const ns=Math.max(300,Math.min(1200,Math.max(startCanvasWH.w+dx,startCanvasWH.h+dy)));canvasW=ns;canvasH=ns;canvas.width=ns;canvas.height=ns;selCanvas.width=ns;selCanvas.height=ns;render();renderCanvasSettings();updateCanvasSizeIndicator();});
 window.addEventListener('pointerup',function(){isResizingCanvas=false;});
 
-// ═══════════ EVENT LISTENERS ═══════════
-canvas.addEventListener('pointerdown',function(e){e.preventDefault();const pos=getPos(e);if(selectedId!==null){const el=elements.find(e2=>e2.id===selectedId);if(el){resizeDir=getResizeHandle(pos,el);if(resizeDir){isResizing=true;resizeOrig=JSON.parse(JSON.stringify(el));dragOffX=pos.x;dragOffY=pos.y;canvas.setPointerCapture(e.pointerId);return}}}const hit=findElementAtPos(pos);if(hit){selectedId=hit.id;isDragging=true;dragOffX=pos.x-hit.x;dragOffY=pos.y-hit.y;canvas.setPointerCapture(e.pointerId);showCtx()}else{selectedId=null;isDragging=false;hideCtx()}render();renderProps();renderLayers()});
+canvas.addEventListener('pointerdown',function(e){e.preventDefault();const pos=getPos(e);if(selectedId!==null){const el=elements.find(e2=>e2.id===selectedId);if(el){resizeDir=getResizeHandle(pos,el);if(resizeDir){isResizing=true;resizeOrig=JSON.parse(JSON.stringify(el));dragOffX=pos.x;dragOffY=pos.y;canvas.setPointerCapture(e.pointerId);return}}}const hit=findElementAtPos(pos);if(hit){if(e.shiftKey){if(multiSelectIds.includes(hit.id)){multiSelectIds=multiSelectIds.filter(id=>id!==hit.id)}else{multiSelectIds.push(hit.id)}if(multiSelectIds.length>0)selectedId=multiSelectIds[multiSelectIds.length-1]}else{selectedId=hit.id;multiSelectIds=[hit.id]}isDragging=true;dragOffX=pos.x-hit.x;dragOffY=pos.y-hit.y;canvas.setPointerCapture(e.pointerId);showCtx()}else{selectedId=null;multiSelectIds=[];isDragging=false;hideCtx()}render();renderProps();renderLayers()});
 canvas.addEventListener('pointermove',function(e){if(!isDragging&&!isResizing)return;e.preventDefault();const pos=getPos(e);if(isResizing&&selectedId!==null){const el=elements.find(e2=>e2.id===selectedId);if(el){const dx=pos.x-dragOffX,dy=pos.y-dragOffY;resizeElement(el,resizeDir,dx,dy);dragOffX=pos.x;dragOffY=pos.y;render();renderProps()}return}if(isDragging&&selectedId!==null){requestAnimationFrame(()=>{const el=elements.find(e2=>e2.id===selectedId);if(el){el.x=pos.x-dragOffX;el.y=pos.y-dragOffY;render()}})}});
 canvas.addEventListener('pointerup',function(){if(isDragging||isResizing)saveHistory();isDragging=false;isResizing=false;resizeDir=null;resizeOrig=null;renderProps()});
 canvas.addEventListener('pointerleave',function(){isDragging=false;isResizing=false;});
 canvas.addEventListener('dblclick',function(e){const pos=getPos(e);const hit=findElementAtPos(pos);if(hit&&hit.type==='text'){const t=prompt('Modifier le texte:',hit.text);if(t!==null){hit.text=t;saveHistory();render();renderProps()}}});
 
-// ✅ CORRECTION 9 : Rotation appliquée dans render()
 function render(){
     ctx.clearRect(0,0,canvasW,canvasH);
     ctx.fillStyle=canvasBg;ctx.fillRect(0,0,canvasW,canvasH);
     elements.filter(e=>e.visible!==false).forEach(e=>{
         ctx.save();
         ctx.globalAlpha=e.opacity??1;
-        // Appliquer rotation
         if(e.rotation){
             const cx=(e.type==='line')?(e.x1+e.x2)/2:e.x;
             const cy=(e.type==='line')?(e.y1+e.y2)/2:e.y;
@@ -292,15 +313,32 @@ function roundRect(c,x,y,w,h,r){r=Math.min(r,w/2,h/2);c.beginPath();c.moveTo(x+r
 function showCtx(){document.getElementById('ctx-bar').classList.add('active')}
 function hideCtx(){document.getElementById('ctx-bar').classList.remove('active')}
 
-function addRect(){const el=makeRect(canvasW/2-60,canvasH/2-40,120,80);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Rectangle')}
-function addCircle(){const el=makeCircle(canvasW/2,canvasH/2,60);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Cercle')}
-function addTriangle(){const el=makeTriangle(canvasW/2,canvasH/2,110);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Triangle')}
-function addStar(){const el=makeStar(canvasW/2,canvasH/2,60,25,5);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Étoile')}
-function addLine(){const el=makeLine(canvasW/2-80,canvasH/2,canvasW/2+80,canvasH/2);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Ligne')}
-function addText(t){const el=makeText(canvasW/2,canvasH/2-20,t||'MON LOGO');elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Texte')}
-function addIcon(c){const el=makeIcon(canvasW/2,canvasH/2,c,70);elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Icône')}
-function deleteSelected(){if(selectedId===null)return;elements=elements.filter(e=>e.id!==selectedId);selectedId=null;hideCtx();saveHistory();render();renderProps();renderLayers();toast('Supprimé')}
-function duplicateSelected(){if(selectedId===null)return;const el=elements.find(e=>e.id===selectedId);if(!el)return;const copy=JSON.parse(JSON.stringify(el));copy.id=mkId();copy.x+=20;copy.y+=20;elements.push(copy);selectedId=copy.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Dupliqué')}
+function addRect(){const el=makeRect(canvasW/2-60,canvasH/2-40,120,80);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Rectangle')}
+function addCircle(){const el=makeCircle(canvasW/2,canvasH/2,60);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Cercle')}
+function addTriangle(){const el=makeTriangle(canvasW/2,canvasH/2,110);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Triangle')}
+function addStar(){const el=makeStar(canvasW/2,canvasH/2,60,25,5);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Étoile')}
+function addLine(){const el=makeLine(canvasW/2-80,canvasH/2,canvasW/2+80,canvasH/2);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Ligne')}
+function addText(t){const el=makeText(canvasW/2,canvasH/2-20,t||'MON LOGO');elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Texte')}
+function addIcon(c){const el=makeIcon(canvasW/2,canvasH/2,c,70);elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Icône')}
+function deleteSelected(){
+    if(multiSelectIds.length>0){
+        elements=elements.filter(e=>!multiSelectIds.includes(e.id));
+        multiSelectIds=[];selectedId=null;
+    }else if(selectedId!==null){
+        elements=elements.filter(e=>e.id!==selectedId);
+        selectedId=null;
+    }
+    hideCtx();saveHistory();render();renderProps();renderLayers();toast('Supprimé')
+}
+function duplicateSelected(){
+    if(selectedId===null)return;
+    const el=elements.find(e=>e.id===selectedId);
+    if(!el)return;
+    const copy=JSON.parse(JSON.stringify(el));
+    copy.id=mkId();copy.x+=20;copy.y+=20;
+    elements.push(copy);selectedId=copy.id;multiSelectIds=[copy.id];
+    saveHistory();render();renderProps();renderLayers();showCtx();toast('Dupliqué')
+}
 
 function bringForward(){if(selectedId===null)return;const idx=elements.findIndex(e=>e.id===selectedId);if(idx<elements.length-1){[elements[idx],elements[idx+1]]=[elements[idx+1],elements[idx]];saveHistory();render();renderLayers();toast('Avant')}}
 function sendBackward(){if(selectedId===null)return;const idx=elements.findIndex(e=>e.id===selectedId);if(idx>0){[elements[idx],elements[idx-1]]=[elements[idx-1],elements[idx]];saveHistory();render();renderLayers();toast('Arrière')}}
@@ -331,16 +369,231 @@ else if(name==='bg')c.innerHTML='<div class="fly-title">Arrière-plan</div><div 
 function applyColor(cl){if(selectedId===null){setCanvasBg(cl);return}const el=elements.find(e=>e.id===selectedId);if(!el)return;el.fill=cl;saveHistory();render();renderProps();toast('Couleur appliquée');if(currentFlyout==='colors')renderFlyout('colors');}
 function setCanvasBg(cl){canvasBg=cl;render();saveHistory()}
 
-// ✅ CORRECTION 10 : render() immédiat dans updateProp
 function renderProps(){const c=document.getElementById('tab-props');if(selectedId===null){c.innerHTML='<div class="no-sel">Sélectionnez un élément</div>';return}const el=elements.find(e=>e.id===selectedId);if(!el)return;const fs=el.fontSize||el.size||40;let h='<div class="pgroup"><div class="plabel">Position</div><div class="prow"><input class="pinp" type="number" value="'+Math.round(el.x)+'" onchange="updateProp(\'x\',+this.value)"><input class="pinp" type="number" value="'+Math.round(el.y)+'" onchange="updateProp(\'y\',+this.value)"></div></div>';if(el.type==='rect')h+='<div class="pgroup"><div class="plabel">Taille</div><div class="prow"><input class="pinp" type="number" value="'+Math.round(el.w)+'" onchange="updateProp(\'w\',+this.value)"><input class="pinp" type="number" value="'+Math.round(el.h)+'" onchange="updateProp(\'h\',+this.value)"></div><div class="prow"><span style="font-size:9px;color:var(--text3)">Rayon</span><input class="pslider" type="range" min="0" max="100" value="'+(el.rx||0)+'" oninput="updateProp(\'rx\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.rx||0)+'px</span></div></div>';if(el.type==='circle')h+='<div class="pgroup"><div class="plabel">Rayon</div><div class="prow"><input class="pslider" type="range" min="5" max="200" value="'+el.r+'" oninput="updateProp(\'r\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+el.r+'px</span></div></div>';if(el.type==='triangle')h+='<div class="pgroup"><div class="plabel">Taille</div><div class="prow"><input class="pslider" type="range" min="20" max="300" value="'+(el.size||60)+'" oninput="updateProp(\'size\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.size||60)+'px</span></div></div>';if(el.type==='star')h+='<div class="pgroup"><div class="plabel">Taille</div><div class="prow"><input class="pslider" type="range" min="10" max="200" value="'+(el.outerR||60)+'" oninput="updateProp(\'outerR\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.outerR||60)+'px</span></div></div>';if(el.type==='line')h+='<div class="pgroup"><div class="plabel">Épaisseur</div><div class="prow"><input class="pslider" type="range" min="1" max="20" value="'+(el.strokeW||3)+'" oninput="updateProp(\'strokeW\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.strokeW||3)+'px</span></div></div>';
-// Slider rotation avec updateProp immédiat
 h+='<div class="pgroup"><div class="plabel">Rotation</div><div class="prow"><input class="pslider" type="range" min="-180" max="180" value="'+(el.rotation||0)+'" oninput="updateProp(\'rotation\',+this.value);this.nextElementSibling.textContent=this.value+\'°\'"><span class="pval">'+(el.rotation||0)+'°</span></div></div>';
-h+='<div class="pgroup"><div class="plabel">Opacité</div><div class="prow"><input class="pslider" type="range" min="0" max="1" step="0.01" value="'+(el.opacity??1)+'" oninput="updateProp(\'opacity\',+this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+\'%\'"><span class="pval">'+Math.round((el.opacity??1)*100)+'%</span></div></div>';if(el.type==='text')h+='<div class="pgroup"><div class="plabel">Texte</div><div class="prow"><textarea class="pinp" rows="2" onchange="updateProp(\'text\',this.value)" style="resize:vertical">'+el.text+'</textarea></div><div class="prow"><select class="psel" onchange="updateProp(\'font\',this.value)">'+FONTS.map(f=>`<option value="${f}" ${el.font===f?'selected':''}>${f}</option>`).join('')+'</select></div><div class="prow"><input class="pinp" type="number" value="'+fs+'" onchange="updateProp(\'fontSize\',+this.value);updateProp(\'size\',+this.value)" placeholder="Taille"><select class="psel" onchange="updateProp(\'weight\',this.value)"><option value="400" '+(el.weight==='400'?'selected':'')+'>Normal</option><option value="700" '+(el.weight==='700'?'selected':'')+'>Gras</option><option value="900" '+(el.weight==='900'?'selected':'')+'>Black</option></select></div><div class="prow"><span style="font-size:9px;color:var(--text3)">Espacement</span><input class="pslider" type="range" min="-5" max="30" value="'+(el.letterSpacing||0)+'" oninput="updateProp(\'letterSpacing\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.letterSpacing||0)+'px</span></div><div class="prow"><span style="font-size:9px;color:var(--text3)">Interligne</span><input class="pslider" type="range" min="0.8" max="3" step="0.1" value="'+(el.lineHeight||1.2)+'" oninput="updateProp(\'lineHeight\',+this.value);this.nextElementSibling.textContent=this.value"><span class="pval">'+(el.lineHeight||1.2)+'</span></div></div>';h+='<div class="pgroup"><div class="plabel">Couleur</div><div class="prow"><input type="color" class="pinp" value="'+(el.fill||el.stroke||'#5b6af0')+'" oninput="updateProp(\''+(el.type==='line'?'stroke':'fill')+'\',this.value)" style="width:36px;height:28px"><input class="pinp" value="'+(el.fill||el.stroke||'#5b6af0')+'" onchange="updateProp(\''+(el.type==='line'?'stroke':'fill')+'\',this.value)"></div></div>';h+='<div class="pgroup"><div class="btn-row"><button class="pbtn" onclick="duplicateSelected()">📋</button><button class="pbtn" onclick="deleteSelected()" style="color:#ef4444">🗑️</button></div></div>';c.innerHTML=h;}
+h+='<div class="pgroup"><div class="plabel">Opacité</div><div class="prow"><input class="pslider" type="range" min="0" max="1" step="0.01" value="'+(el.opacity??1)+'" oninput="updateProp(\'opacity\',+this.value);this.nextElementSibling.textContent=Math.round(this.value*100)+\'%\'"><span class="pval">'+Math.round((el.opacity??1)*100)+'%</span></div></div>';
+if(el.type==='text')h+='<div class="pgroup"><div class="plabel">Texte</div><div class="prow"><textarea class="pinp" rows="2" onchange="updateProp(\'text\',this.value)" style="resize:vertical">'+el.text+'</textarea></div><div class="prow"><select class="psel" onchange="updateProp(\'font\',this.value)">'+FONTS.map(f=>`<option value="${f}" ${el.font===f?'selected':''}>${f}</option>`).join('')+'</select></div><div class="prow"><input class="pinp" type="number" value="'+fs+'" onchange="updateProp(\'fontSize\',+this.value);updateProp(\'size\',+this.value)" placeholder="Taille"><select class="psel" onchange="updateProp(\'weight\',this.value)"><option value="400" '+(el.weight==='400'?'selected':'')+'>Normal</option><option value="700" '+(el.weight==='700'?'selected':'')+'>Gras</option><option value="900" '+(el.weight==='900'?'selected':'')+'>Black</option></select></div><div class="prow"><span style="font-size:9px;color:var(--text3)">Espacement</span><input class="pslider" type="range" min="-5" max="30" value="'+(el.letterSpacing||0)+'" oninput="updateProp(\'letterSpacing\',+this.value);this.nextElementSibling.textContent=this.value+\'px\'"><span class="pval">'+(el.letterSpacing||0)+'px</span></div><div class="prow"><span style="font-size:9px;color:var(--text3)">Interligne</span><input class="pslider" type="range" min="0.8" max="3" step="0.1" value="'+(el.lineHeight||1.2)+'" oninput="updateProp(\'lineHeight\',+this.value);this.nextElementSibling.textContent=this.value"><span class="pval">'+(el.lineHeight||1.2)+'</span></div></div>';
+h+='<div class="pgroup"><div class="plabel">Couleur</div><div class="prow"><input type="color" class="pinp" value="'+(el.fill||el.stroke||'#5b6af0')+'" oninput="updateProp(\''+(el.type==='line'?'stroke':'fill')+'\',this.value)" style="width:36px;height:28px"><input class="pinp" value="'+(el.fill||el.stroke||'#5b6af0')+'" onchange="updateProp(\''+(el.type==='line'?'stroke':'fill')+'\',this.value)"></div></div>';
+h+='<div class="pgroup"><div class="btn-row"><button class="pbtn" onclick="duplicateSelected()">📋</button><button class="pbtn" onclick="deleteSelected()" style="color:#ef4444">🗑️</button></div></div>';c.innerHTML=h;}
 function updateProp(k,v){if(selectedId===null)return;const el=elements.find(e=>e.id===selectedId);if(!el)return;el[k]=v;render();clearTimeout(window._pt);window._pt=setTimeout(()=>saveHistory(),400)}
 
-function renderLayers(){const c=document.getElementById('tab-layers');if(elements.length===0){c.innerHTML='<div class="no-sel">Aucun calque</div>';return}c.innerHTML='<div style="font-weight:700;font-size:10px;margin-bottom:6px">'+elements.length+' éléments</div><div style="display:flex;flex-direction:column;gap:2px">'+[...elements].reverse().map(el=>{const isSelected=el.id===selectedId;const visIcon=el.visible!==false?'👁':'👁‍🗨';const visOpacity=el.visible!==false?1:0.35;return`<div style="display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:5px;background:var(--panel2);border:1px solid ${isSelected?'var(--accent)':'var(--border)'};cursor:pointer;font-size:10px;opacity:${visOpacity}" onclick="selectLayer(${el.id})"><span style="width:20px;height:20px;border-radius:3px;background:${el.fill||el.stroke||'#444'};flex-shrink:0"></span><span style="flex:1">${el.type==='text'?el.text.substring(0,15):el.type}</span><button class="layer-vis-btn" onclick="event.stopPropagation();toggleLayerVisibility(${el.id})" title="${el.visible!==false?'Masquer':'Afficher'}">${visIcon}</button></div>`}).join('')+'</div>';}
-function selectLayer(id){selectedId=id;render();renderProps();renderLayers();showCtx()}
-function toggleLayerVisibility(id){const el=elements.find(e=>e.id===id);if(!el)return;el.visible=el.visible===false?true:false;saveHistory();render();renderLayers();toast(el.visible?'Calque visible':'Calque masqué')}
+// ═══════════ NOUVEAU PANNEAU CALQUES AVEC DRAG & DROP ═══════════
+let dragLayerId=null,dragLayerIndex=null;
+
+function getLayerName(el){
+    if(el.type==='text')return el.text.substring(0,20)||'Texte';
+    const typeNames={rect:'Rectangle',circle:'Cercle',triangle:'Triangle',star:'Étoile',polygon:'Polygone',heart:'Cœur',line:'Ligne',icon:'Icône',text:'Texte'};
+    return typeNames[el.type]||'Élément';
+}
+
+function renderLayers(){
+    const c=document.getElementById('tab-layers');
+    if(elements.length===0){
+        c.innerHTML='<div class="no-sel">Aucun calque</div>';
+        return;
+    }
+    let html='<div class="layer-count">'+elements.length+' éléments<span>⇅ Glisser pour ordonner</span></div>';
+    html+='<div class="layer-list">';
+    // Afficher du haut (dernier élément = premier visuellement)
+    for(let i=elements.length-1;i>=0;i--){
+        const el=elements[i];
+        const isSelected=el.id===selectedId||multiSelectIds.includes(el.id);
+        const visIcon=el.visible!==false?'👁':'👁‍🗨';
+        const visOpacity=el.visible!==false?1:0.35;
+        const color=el.fill||el.stroke||'#888';
+        const name=getLayerName(el);
+        html+=`
+        <div class="layer-item${isSelected?' selected':''}" 
+             data-layer-id="${el.id}" 
+             data-index="${i}"
+             draggable="true"
+             style="opacity:${visOpacity}"
+             ondragstart="handleLayerDragStart(event)"
+             ondragend="handleLayerDragEnd(event)"
+             ondragover="handleLayerDragOver(event)"
+             ondragleave="handleLayerDragLeave(event)"
+             ondrop="handleLayerDrop(event)"
+             onclick="selectLayerFromPanel('${el.id}', event)">
+            <span class="drag-handle" title="Déplacer">⋮⋮</span>
+            <span class="layer-mini" style="background:${color}"></span>
+            ${editingLayerId===el.id?
+                `<input class="layer-name-input" value="${escapeHtml(name)}" 
+                    onblur="commitRename('${el.id}',this.value)"
+                    onkeydown="if(event.key==='Enter')this.blur()"
+                    onclick="event.stopPropagation()"
+                    autofocus>`:
+                `<span class="layer-name" ondblclick="startRename('${el.id}',event)">${escapeHtml(name)}</span>`
+            }
+            <button class="layer-btn" onclick="event.stopPropagation();toggleLayerVisibility('${el.id}')" title="${el.visible!==false?'Masquer':'Afficher'}">${visIcon}</button>
+            <button class="layer-btn danger" onclick="event.stopPropagation();deleteLayerFromPanel('${el.id}')" title="Supprimer">🗑</button>
+        </div>`;
+    }
+    html+='</div>';
+    // Barre d'actions
+    const canGroup=multiSelectIds.length>=2;
+    const hasGroup=multiSelectIds.some(id=>{
+        const el=elements.find(e=>e.id===id);
+        return el&&el.groupId;
+    });
+    html+='<div class="layer-actions-bar">';
+    html+=`<button class="layer-action-btn-small" onclick="groupSelected()" ${canGroup?'':'disabled'}>📁 Grouper</button>`;
+    html+=`<button class="layer-action-btn-small" onclick="ungroupSelected()" ${hasGroup?'':'disabled'}>📂 Dégrouper</button>`;
+    html+=`<button class="layer-action-btn-small" onclick="selectAllLayers()">☐ Tout</button>`;
+    html+=`<button class="layer-action-btn-small danger" onclick="deleteSelected()">🗑 Suppr</button>`;
+    html+='</div>';
+    c.innerHTML=html;
+}
+
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function selectLayerFromPanel(id,event){
+    if(event.shiftKey){
+        if(multiSelectIds.includes(id)){
+            multiSelectIds=multiSelectIds.filter(x=>x!==id);
+        }else{
+            multiSelectIds.push(id);
+        }
+        if(multiSelectIds.length>0)selectedId=multiSelectIds[multiSelectIds.length-1];
+        else selectedId=null;
+    }else{
+        selectedId=id;
+        multiSelectIds=[id];
+    }
+    editingLayerId=null;
+    render();renderProps();renderLayers();showCtx();
+}
+
+function toggleLayerVisibility(id){
+    const el=elements.find(e=>e.id===id);
+    if(!el)return;
+    el.visible=el.visible===false?true:false;
+    saveHistory();render();renderLayers();
+    toast(el.visible?'Calque visible':'Calque masqué');
+}
+
+function deleteLayerFromPanel(id){
+    elements=elements.filter(e=>e.id!==id);
+    if(selectedId===id)selectedId=null;
+    multiSelectIds=multiSelectIds.filter(x=>x!==id);
+    hideCtx();saveHistory();render();renderProps();renderLayers();
+    toast('Calque supprimé');
+}
+
+function startRename(id,event){
+    event.stopPropagation();
+    editingLayerId=id;
+    renderLayers();
+}
+
+function commitRename(id,newName){
+    const el=elements.find(e=>e.id===id);
+    if(!el)return;
+    if(el.type==='text'){
+        el.text=newName.trim()||'Texte';
+    }else{
+        // Stocker un nom personnalisé
+        el.customName=newName.trim()||null;
+    }
+    editingLayerId=null;
+    saveHistory();render();renderLayers();
+}
+
+// ═══════════ DRAG & DROP NATIF ═══════════
+function handleLayerDragStart(e){
+    const item=e.target.closest('.layer-item');
+    if(!item)return;
+    dragLayerId=item.dataset.layerId;
+    dragLayerIndex=parseInt(item.dataset.index);
+    item.classList.add('dragging');
+    e.dataTransfer.effectAllowed='move';
+    e.dataTransfer.setData('text/plain',dragLayerId);
+}
+
+function handleLayerDragEnd(e){
+    const item=e.target.closest('.layer-item');
+    if(item)item.classList.remove('dragging');
+    document.querySelectorAll('.layer-item').forEach(el=>el.classList.remove('drag-over'));
+    dragLayerId=null;
+    dragLayerIndex=null;
+}
+
+function handleLayerDragOver(e){
+    e.preventDefault();
+    e.dataTransfer.dropEffect='move';
+    const item=e.target.closest('.layer-item');
+    if(item&&item.dataset.layerId!==dragLayerId){
+        item.classList.add('drag-over');
+    }
+}
+
+function handleLayerDragLeave(e){
+    const item=e.target.closest('.layer-item');
+    if(item)item.classList.remove('drag-over');
+}
+
+function handleLayerDrop(e){
+    e.preventDefault();
+    const item=e.target.closest('.layer-item');
+    if(!item||!dragLayerId)return;
+    item.classList.remove('drag-over');
+    const targetId=item.dataset.layerId;
+    if(targetId===dragLayerId)return;
+    // Trouver les index dans le tableau (ordre inverse de l'affichage)
+    const actualFromIndex=elements.findIndex(el=>el.id==dragLayerId);
+    const actualToIndex=elements.findIndex(el=>el.id==targetId);
+    if(actualFromIndex===-1||actualToIndex===-1)return;
+    // Déplacer l'élément
+    const [moved]=elements.splice(actualFromIndex,1);
+    elements.splice(actualToIndex,0,moved);
+    saveHistory();render();renderLayers();
+    toast('Calque déplacé');
+}
+
+// ═══════════ GROUPER / DÉGROUPER ═══════════
+let groupCounter=0;
+function groupSelected(){
+    if(multiSelectIds.length<2)return;
+    const groupId='group_'+Date.now()+'_'+(++groupCounter);
+    multiSelectIds.forEach(id=>{
+        const el=elements.find(e=>e.id==id);
+        if(el)el.groupId=groupId;
+    });
+    saveHistory();render();renderLayers();
+    toast(multiSelectIds.length+' éléments groupés');
+}
+
+function ungroupSelected(){
+    const groupIds=new Set();
+    multiSelectIds.forEach(id=>{
+        const el=elements.find(e=>e.id==id);
+        if(el&&el.groupId){
+            groupIds.add(el.groupId);
+            delete el.groupId;
+        }
+    });
+    // Si aucun élément sélectionné n'a de groupe, chercher le groupe du selectedId
+    if(groupIds.size===0&&selectedId!==null){
+        const sel=elements.find(e=>e.id===selectedId);
+        if(sel&&sel.groupId){
+            const gid=sel.groupId;
+            elements.forEach(e=>{if(e.groupId===gid)delete e.groupId});
+            groupIds.add(gid);
+        }
+    }
+    if(groupIds.size>0){
+        saveHistory();render();renderLayers();
+        toast('Groupe dissout');
+    }else{
+        toast('Aucun groupe à dissoudre');
+    }
+}
+
+function selectAllLayers(){
+    multiSelectIds=elements.map(e=>e.id);
+    if(multiSelectIds.length>0)selectedId=multiSelectIds[multiSelectIds.length-1];
+    render();renderProps();renderLayers();
+    toast('Tous les calques sélectionnés');
+}
 
 function updateCanvasSizeIndicator(){document.getElementById('canvasSizeIndicator').textContent=canvasW+' × '+canvasH;}
 
@@ -360,11 +613,11 @@ function exportJPG(){selectedId=null;render();const a=document.createElement('a'
 
 function goHome(){window.location.href='index.html'}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
-document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected()}if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo()}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo()}if(e.ctrlKey&&e.key==='d'){e.preventDefault();duplicateSelected()}if(e.ctrlKey&&e.key==='s'){e.preventDefault();exportPNG()}if(e.ctrlKey&&e.key==='['){e.preventDefault();sendBackward()}if(e.ctrlKey&&e.key===']'){e.preventDefault();bringForward()}if(e.key==='Escape'){document.getElementById('flyout').classList.remove('open');currentFlyout=null}});
+document.addEventListener('keydown',function(e){if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;if(e.key==='Delete'||e.key==='Backspace'){e.preventDefault();deleteSelected()}if(e.ctrlKey&&e.key==='z'){e.preventDefault();undo()}if(e.ctrlKey&&e.key==='y'){e.preventDefault();redo()}if(e.ctrlKey&&e.key==='d'){e.preventDefault();duplicateSelected()}if(e.ctrlKey&&e.key==='s'){e.preventDefault();exportPNG()}if(e.ctrlKey&&e.key==='a'){e.preventDefault();selectAllLayers()}if(e.ctrlKey&&e.key==='g'){e.preventDefault();groupSelected()}if(e.ctrlKey&&e.key==='['){e.preventDefault();sendBackward()}if(e.ctrlKey&&e.key===']'){e.preventDefault();bringForward()}if(e.key==='Escape'){document.getElementById('flyout').classList.remove('open');currentFlyout=null;multiSelectIds=[];selectedId=null;render();renderProps();renderLayers()}});
 
-function addHexagon(){const el={id:mkId(),type:'polygon',x:canvasW/2,y:canvasH/2,size:60,sides:6,fill:'#5b6af0',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Hexagone')}
-function addDiamond(){const el={id:mkId(),type:'polygon',x:canvasW/2,y:canvasH/2,size:55,sides:4,fill:'#7c4af0',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Diamant')}
-function addHeart(){const el={id:mkId(),type:'heart',x:canvasW/2,y:canvasH/2,size:80,fill:'#ef4444',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;saveHistory();render();renderProps();renderLayers();showCtx();toast('Cœur')}
+function addHexagon(){const el={id:mkId(),type:'polygon',x:canvasW/2,y:canvasH/2,size:60,sides:6,fill:'#5b6af0',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Hexagone')}
+function addDiamond(){const el={id:mkId(),type:'polygon',x:canvasW/2,y:canvasH/2,size:55,sides:4,fill:'#7c4af0',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Diamant')}
+function addHeart(){const el={id:mkId(),type:'heart',x:canvasW/2,y:canvasH/2,size:80,fill:'#ef4444',opacity:1,rotation:0,visible:true,shadow:null,glow:null};elements.push(el);selectedId=el.id;multiSelectIds=[el.id];saveHistory();render();renderProps();renderLayers();showCtx();toast('Cœur')}
 
 function init(){canvasBg='#0d0d0f';const bg=makeRect(130,130,240,240);bg.rx=14;bg.fill='#5b6af0';const txt=makeText(250,195,'RC');txt.fontSize=90;txt.size=90;txt.weight='900';txt.fill='#ffffff';const sub=makeText(250,295,'LOGO MAKER');sub.fontSize=15;sub.size=15;sub.weight='600';sub.fill='rgba(255,255,255,0.7)';sub.letterSpacing=3;elements=[bg,txt,sub];saveHistory();render();renderProps();renderLayers();renderCanvasSettings();fitToScreen();updateCanvasSizeIndicator();}
 init();
