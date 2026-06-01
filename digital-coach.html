@@ -307,8 +307,7 @@
   }
 
   // BASE DE CONNAISSANCES ENRICHIE
-  const KNOWLEDGE = {
-    // ────────── MARKETING DIGITAL EXISTANT (rappel) ──────────
+const KNOWLEDGE = {
     "marketing digital": {
       name: "Marketing Digital",
       definition: "Ensemble des actions marketing utilisant les canaux numériques (web, mobile, email, réseaux sociaux, search) pour atteindre et convertir des audiences.",
@@ -317,311 +316,373 @@
       related: ["seo", "sea", "reseaux sociaux", "email marketing", "analytics", "strategie marketing"]
     },
     "seo": {
-      name: "SEO (Search Engine Optimization)",
+      name: "SEO",
       definition: "Optimisation pour le référencement naturel sur les moteurs de recherche (Google, Bing).",
       details: "Trois piliers : technique (balises, vitesse, mobile-first), contenu (mots-clés, qualité) et netlinking (backlinks). Le SEO apporte un trafic durable et gratuit.",
       example: "Un blog e-commerce optimise ses fiches produits avec des mots-clés longue traîne et améliore son temps de chargement pour grimper dans les résultats Google.",
-      related: ["content marketing", "analytics", "reseaux sociaux", "kpi", "webdesigner vs webmaster"]
+      related: ["content marketing", "analytics", "reseaux sociaux", "kpi"]
     },
     "sea": {
-      name: "SEA (Search Engine Advertising)",
+      name: "SEA",
       definition: "Publicité payante sur les moteurs de recherche (Google Ads). Enchères sur mots-clés.",
-      details: "Modèle CPC (coût par clic). Le Quality Score (pertinence, CTR, landing page) détermine le coût. Résultats immédiats, idéal pour campagnes ciblées.",
-      example: "Une agence de voyage lance Google Ads sur 'vol Paris Tokyo' avec extensions de liens et suivi conversion.",
-      related: ["seo", "analytics", "kpi", "content marketing", "strategie marketing"]
+      details: "Modèle CPC. Le Quality Score détermine le coût. Résultats immédiats, idéal pour campagnes ciblées.",
+      example: "Une agence de voyage lance Google Ads sur 'vol Paris Tokyo' avec extensions de liens.",
+      related: ["seo", "analytics", "kpi", "strategie marketing"]
     },
     "reseaux sociaux": {
       name: "Réseaux Sociaux",
-      definition: "Présence et engagement sur les plateformes sociales (Instagram, LinkedIn, TikTok, Facebook, X).",
+      definition: "Présence et engagement sur les plateformes sociales pour générer notoriété, trafic et leads.",
       details: "Contenu adapté à chaque plateforme, community management, social ads, influence. Mesures : engagement, portée, clics.",
       example: "Une marque de cosmétiques utilise Instagram Reels pour des tutoriels et collabore avec des micro-influenceurs.",
-      related: ["branding", "content marketing", "analytics", "copywriting", "psychologie acheteur"]
+      related: ["branding", "content marketing", "analytics", "psychologie acheteur"]
     },
     "email marketing": {
       name: "Email Marketing",
       definition: "Communication par email ciblée : newsletters, séquences automatisées, relances.",
       details: "Segmentation, personnalisation, A/B testing. ROI élevé pour la fidélisation.",
       example: "Un e-commerce envoie une séquence post-achat : confirmation, recommandations, demande d'avis.",
-      related: ["content marketing", "kpi", "analytics", "copywriting"]
+      related: ["content marketing", "kpi", "analytics", "crm"]
     },
     "content marketing": {
       name: "Content Marketing",
-      definition: "Création de contenu pertinent (blogs, vidéos, ebooks) pour attirer et fidéliser une audience.",
+      definition: "Création de contenu pertinent pour attirer et fidéliser une audience.",
       details: "Storytelling, SEO, formats variés, tunnel de conversion. Construit l'autorité et génère des leads qualifiés.",
       example: "Une SaaS publie des études de cas, un blog et des webinaires, puis propose un ebook en échange d'inscription.",
-      related: ["seo", "reseaux sociaux", "copywriting", "branding", "blog marketing"]
+      related: ["seo", "reseaux sociaux", "copywriting", "branding"]
     },
     "branding": {
       name: "Branding",
-      definition: "Construction de l'image de marque (valeurs, identité visuelle, ton) pour se différencier et créer une connexion émotionnelle.",
+      definition: "Construction de l'image de marque pour se différencier et créer une connexion émotionnelle.",
       details: "Cohérence sur tous les points de contact. Fidélise et justifie un prix premium.",
       example: "Apple : minimalisme, innovation, expérience premium.",
-      related: ["reseaux sociaux", "copywriting", "content marketing", "marketing digital", "naissance entreprise"]
+      related: ["reseaux sociaux", "copywriting", "content marketing", "naissance entreprise"]
     },
     "copywriting": {
       name: "Copywriting",
-      definition: "Rédaction persuasive pour pousser à l'action (achat, clic, inscription).",
+      definition: "Rédaction persuasive pour pousser à l'action.",
       details: "Structure AIDA, storytelling, accroches, preuves sociales, CTA percutants.",
       example: "Une landing page : titre choc, bénéfices, témoignages, bouton 'Je m'inscris'.",
-      related: ["branding", "content marketing", "email marketing", "reseaux sociaux", "psychologie acheteur"]
+      related: ["branding", "content marketing", "psychologie acheteur"]
     },
     "analytics": {
-      name: "Analytics (Web Analytics)",
-      definition: "Mesure et analyse des données de trafic et comportement utilisateur (GA4, Matomo).",
+      name: "Analytics",
+      definition: "Mesure et analyse des données de trafic et comportement utilisateur.",
       details: "Suivi des conversions, tunnel, segmentation, heatmaps. Data-driven decisions.",
       example: "Un site découvre que 40% du trafic vient du SEO et renforce cette stratégie.",
-      related: ["kpi", "seo", "sea", "email marketing", "maturite digitale"]
+      related: ["kpi", "seo", "sea", "maturite digitale"]
     },
     "kpi": {
-      name: "KPI (Key Performance Indicators)",
+      name: "KPI",
       definition: "Indicateurs clés de performance (taux de conversion, CAC, LTV, ROI, CTR).",
-      details: "Alignés aux objectifs : notoriété, acquisition, rétention. Piloter via des dashboards.",
+      details: "Alignés aux objectifs. Piloter via des dashboards.",
       example: "ROAS = CA / dépenses pub. ROAS de 4 = 4€ générés pour 1€ investi.",
-      related: ["analytics", "sea", "email marketing", "marketing digital"]
+      related: ["analytics", "sea", "email marketing"]
     },
     "inbound": {
       name: "Inbound Marketing",
-      definition: "Attirer naturellement via contenu utile, SEO, réseaux sociaux (pull marketing).",
-      details: "Méthodologie : Attirer, Convertir, Conclure, Fidéliser. Réduit le coût d'acquisition.",
+      definition: "Attirer naturellement via contenu utile, SEO, réseaux sociaux.",
+      details: "Méthodologie : Attirer, Convertir, Conclure, Fidéliser.",
       example: "HubSpot propose des formations gratuites pour attirer des leads qualifiés.",
-      related: ["content marketing", "seo", "reseaux sociaux", "email marketing", "strategie marketing"]
+      related: ["content marketing", "seo", "funnel marketing", "strategie marketing"]
     },
     "outbound": {
       name: "Outbound Marketing",
-      definition: "Marketing 'push' interrompant l'audience (TV, display, cold emailing).",
+      definition: "Marketing 'push' interrompant l'audience.",
       details: "Plus coûteux, moins ciblé, mais efficace pour la notoriété rapide.",
-      example: "Une startup lance des LinkedIn Ads ciblant des CTO avec un message direct.",
-      related: ["sea", "branding", "copywriting", "kpi"]
+      example: "Une startup lance des LinkedIn Ads ciblant des CTO.",
+      related: ["sea", "branding", "kpi"]
     },
     "strategie marketing": {
       name: "Stratégie Marketing",
       definition: "Faire des choix. Concentrer ses forces pour créer un avantage décisif.",
-      details: "Diagnostic, choix (dire non), cohérence. Définit le 'pourquoi' avant les outils.",
+      details: "Diagnostic, choix, cohérence. Définit le 'pourquoi' avant les outils.",
       example: "Pour un public qui n'aime pas lire, contourner par la vidéo et l'audio.",
-      related: ["marketing digital", "branding", "inbound", "outbound", "diagnostic", "erreurs marketing"]
+      related: ["marketing digital", "branding", "diagnostic", "erreurs marketing"]
     },
     "maturite digitale": {
       name: "Maturité Digitale",
       definition: "Niveau d'intégration du numérique dans l'entreprise.",
-      details: "Niveaux : 1 Inexistant, 2 Présence statique, 3 Interaction, 4 Intégration (digital physique), 5 Pilotage par la donnée.",
+      details: "Niveaux 1 à 5 : Inexistant à Pilotage par la donnée.",
       example: "Un restaurant avec écran menu dynamique est au niveau 4.",
-      related: ["marketing digital", "analytics", "kpi", "multimoment"]
+      related: ["marketing digital", "analytics", "multimoment"]
     },
     "naissance entreprise": {
       name: "Naissance de l'Entreprise",
       definition: "Récit fondateur authentique : pourquoi, épreuves, valeurs.",
-      details: "Actif marketing unique, crée une connexion émotionnelle. Raconter le 'pourquoi' profond.",
+      details: "Actif marketing unique, crée une connexion émotionnelle.",
       example: "'Je ne trouvais pas de meubles résistant au climat, alors je les ai créés.'",
-      related: ["branding", "strategie marketing", "copywriting", "blog marketing"]
+      related: ["branding", "strategie marketing", "copywriting"]
     },
     "multimoment": {
       name: "Multi-Moment",
       definition: "Parcours client omnicanal où la marque doit être cohérente sur tous les points de contact.",
-      details: "Instagram → site → WhatsApp → YouTube → magasin. Orchestrer la cohérence.",
-      example: "Marque cosmétique : Reels, blog, WhatsApp service client, écran boutique.",
-      related: ["marketing digital", "reseaux sociaux", "branding", "maturite digitale"]
+      details: "Instagram → site → WhatsApp → YouTube → magasin.",
+      example: "Marque cosmétique : Reels, blog, WhatsApp, écran boutique.",
+      related: ["marketing digital", "reseaux sociaux", "maturite digitale"]
     },
     "diagnostic": {
       name: "Diagnostic Stratégique",
       definition: "Analyser le marché, client, concurrence et forces/faiblesses avant d'agir.",
-      details: "Exemple : 'Haïtien ki konn li pa renmen li' → contenu visuel et audio privilégié.",
+      details: "Exemple : 'Haïtien ki konn li pa renmen li' → contenu visuel et audio.",
       example: "Au lieu de longs textes, vidéo, créole et images.",
-      related: ["strategie marketing", "erreurs marketing", "marketing digital"]
+      related: ["strategie marketing", "erreurs marketing"]
     },
     "erreurs marketing": {
-      name: "Erreurs Marketing à Éviter",
-      definition: "1) Penser avoir le même profil que ses clients, 2) Laisser le financier dicter, 3) Faire comme d'habitude.",
-      details: "1. Projection, 2. Dictature du budget, 3. Routine. Ces erreurs tuent la différenciation.",
+      name: "Erreurs Marketing",
+      definition: "1) Se projeter, 2) Laisser le financier dicter, 3) La routine.",
+      details: "Ces erreurs tuent la différenciation et éloignent du client.",
       example: "Un entrepreneur qui aime lire fait un site rempli de textes, mais son client n'aime pas lire.",
-      related: ["strategie marketing", "diagnostic", "maturite digitale", "naissance entreprise"]
+      related: ["strategie marketing", "diagnostic"]
     },
     "webdesigner vs webmaster": {
       name: "Webdesigner vs Webmaster",
-      definition: "Webdesigner : design, UX, contenu (attirer/conversion). Webmaster : sécurité, vitesse, technique (confiance).",
-      details: "Deux rôles complémentaires. Le design sert la vision ; la technique assure la fiabilité.",
-      example: "Vidéo sur la page d'accueil : webdesigner la scénarise, webmaster s'assure qu'elle ne ralentit pas le site.",
-      related: ["marketing digital", "seo", "branding", "blog marketing"]
+      definition: "Webdesigner : design, UX, contenu. Webmaster : sécurité, vitesse, technique.",
+      details: "Deux rôles complémentaires indispensables.",
+      example: "Vidéo sur la page d'accueil : webdesigner la scénarise, webmaster assure la performance.",
+      related: ["marketing digital", "seo", "branding"]
     },
     "blog marketing": {
-      name: "Blog Marketing (Hub Central)",
-      definition: "Espace central que vous contrôlez à 100%, racontant votre histoire et vos preuves.",
-      details: "Répond à 'Pourquoi nous choisir ?' Naissance, stratégie, témoignages, connexion durable.",
+      name: "Blog Marketing",
+      definition: "Hub central que vous contrôlez à 100%.",
+      details: "Raconte votre histoire, publie des preuves, crée une connexion durable.",
       example: "Blog avec histoire de l'entreprise, études de cas, newsletter.",
-      related: ["marketing digital", "content marketing", "branding", "naissance entreprise"]
+      related: ["marketing digital", "content marketing", "branding"]
     },
     "psychologie acheteur": {
       name: "Psychologie de l'Acheteur",
       definition: "Mécanismes mentaux influençant l'achat : preuve sociale, rareté, réciprocité, autorité, engagement.",
-      details: "Preuve sociale = 'les autres le font'. Rareté = 'plus que 2'. Réciprocité = donner pour recevoir. Autorité = expertise. Engagement = petit oui conduit à grand oui.",
+      details: "Preuve sociale = 'les autres le font'. Rareté = 'plus que 2'. Réciprocité = donner pour recevoir.",
       example: "Afficher 'Plus que 2 chambres disponibles !' déclenche l'achat par peur de manquer.",
-      related: ["copywriting", "branding", "strategie marketing", "inbound"]
+      related: ["copywriting", "branding", "inbound"]
     },
-
-    // ────────── VIDÉOGRAPHIE & CINÉMA ──────────
     "videographie": {
       name: "Vidéographie",
       definition: "Art de capturer des images en mouvement avec maîtrise de la caméra, du son, de la lumière et du montage.",
-      details: "Contrairement à la photo, la vidéo exige une gestion continue du mouvement et du son. Équipement de base : appareil sans miroir, objectif polyvalent, trépied/stabilisateur, micro externe, éclairage.",
-      example: "Pour filmer un témoignage client, on utilise un trépied, un micro-cravate, un éclairage doux en respectant la règle des 180 degrés.",
-      related: ["cinematographie", "mouvements camera", "eclairage", "regle des 180 degres", "balance des blancs"]
+      details: "Équipement de base : appareil sans miroir, objectif polyvalent, trépied/stabilisateur, micro externe, éclairage.",
+      example: "Pour filmer un témoignage client : trépied, micro-cravate, éclairage doux, règle des 180°.",
+      related: ["cinematographie", "mouvements camera", "montage video"]
     },
     "cinematographie": {
-      name: "Cinématographie (7ᵉ art)",
-      definition: "L'art de raconter une histoire par la lumière, le cadre, le mouvement et la composition visuelle.",
-      details: "Va au-delà de la captation technique. Utilise éclairage, profondeur de champ, ralenti, musique pour créer une émotion. En marketing, vendre une expérience plutôt qu'un produit.",
-      example: "Au lieu de filmer un burger, on utilise un éclairage tamisé, un ralenti, une musique émouvante pour vendre le plaisir.",
-      related: ["videographie", "mouvements camera", "eclairage", "regle des trois tiers", "echelle des plans"]
+      name: "Cinématographie",
+      definition: "L'art de raconter une histoire par la lumière, le cadre, le mouvement et la composition.",
+      details: "Utilise éclairage, profondeur de champ, ralenti, musique pour créer une émotion. Vendre une expérience.",
+      example: "Burger filmé avec éclairage tamisé, ralenti, musique émouvante.",
+      related: ["videographie", "mouvements camera", "etalonnage"]
     },
     "mouvements camera": {
       name: "Mouvements de Caméra",
       definition: "Techniques de déplacement de la caméra pour dynamiser le récit visuel.",
-      details: "Panoramique (horizontal), tilt (vertical), travelling (avant/arrière/latéral), zoom, grue, steadycam. Chaque mouvement a un sens psychologique (ex : travelling avant = immersion, travelling arrière = éloignement émotionnel).",
-      example: "Un travelling avant lent vers le fondateur racontant sa 'naissance' crée une intimité croissante avec le spectateur.",
-      related: ["travelling", "plongee contre plongee", "champ contrechamp", "cinematographie"]
+      details: "Panoramique, tilt, travelling, zoom, grue, steadycam. Chaque mouvement a un sens psychologique.",
+      example: "Travelling avant lent vers le fondateur crée une intimité croissante.",
+      related: ["travelling", "zoom", "plongee contre plongee"]
     },
     "travelling": {
       name: "Travelling",
-      definition: "Déplacement physique de la caméra (sur rails, chariot, steadicam) pendant la prise de vue.",
-      details: "Travelling avant : rapprochement, intensité dramatique. Travelling arrière : éloignement, conclusion. Travelling latéral : suit un sujet, montre un environnement. Le travelling se distingue du zoom qui est un effet optique sans déplacement.",
-      example: "Dans un film d'entreprise, un travelling arrière part du produit et révèle progressivement l'équipe au travail.",
-      related: ["mouvements camera", "cinematographie", "videographie"]
+      definition: "Déplacement physique de la caméra pendant la prise de vue (avant, arrière, latéral).",
+      details: "Travelling avant = intensité dramatique, immersion. Travelling arrière = conclusion, solitude. Travelling latéral = suit l'action, révèle un décor. Matériel : rails, steadicam, slider, drone, gimbal.",
+      example: "Présentation d'un restaurant : travelling avant vers le plat, travelling latéral pour révéler la salle, travelling arrière sur le logo.",
+      related: ["mouvements camera", "cinematographie", "zoom"]
+    },
+    "zoom": {
+      name: "Zoom",
+      definition: "Effet optique modifiant la distance focale pour rapprocher ou éloigner le sujet sans déplacer la caméra.",
+      details: "Zoom avant = isole un sujet, attire l'attention. Zoom arrière = révèle le contexte. Crash zoom = choc visuel. Dolly zoom (effet Vertigo) = travelling + zoom combinés, déformation de la perspective.",
+      example: "Démo d'application mobile : zoom avant sur l'écran, puis zoom arrière pour révéler l'utilisateur dans un café.",
+      related: ["travelling", "mouvements camera", "videographie"]
     },
     "plongee contre plongee": {
       name: "Plongée & Contre-Plongée",
       definition: "Plongée : caméra au-dessus du sujet, le rapetisse. Contre-plongée : caméra en dessous, le grandit.",
-      details: "La plongée exprime la vulnérabilité, la soumission, l'écrasement. La contre-plongée exprime la puissance, la domination, l'héroïsme. Très utilisé en storytelling de marque : contre-plongée sur le fondateur visionnaire, plongée sur les difficultés surmontées.",
-      example: "Interview d'un client satisfait en légère contre-plongée pour le valoriser ; plongée sur les emballages pour montrer la fragilité d'un produit à protéger.",
-      related: ["mouvements camera", "cinematographie", "echelle des plans"]
+      details: "Plongée = vulnérabilité, soumission, écrasement. Contre-plongée = puissance, domination, héroïsme. Utilisé en storytelling de marque : contre-plongée sur le fondateur visionnaire.",
+      example: "Interview client satisfait en légère contre-plongée pour le valoriser.",
+      related: ["mouvements camera", "cinematographie", "champ contrechamp"]
     },
     "champ contrechamp": {
       name: "Champ / Contrechamp",
       definition: "Deux plans successifs montrant alternativement deux personnages qui se font face.",
-      details: "Respecte la règle des 180 degrés. Le champ montre un personnage, le contrechamp montre l'autre. Utilisé pour les dialogues, les témoignages, les démonstrations produit-client. Renforce l'engagement émotionnel.",
-      example: "Témoignage client : champ sur le client qui s'exprime, contrechamp sur le produit qu'il utilise ou le logo de la marque.",
-      related: ["regle des 180 degres", "mouvements camera", "videographie"]
+      details: "Respecte la règle des 180°. Le champ montre un personnage, le contrechamp montre l'autre. Essentiel pour dialogues et témoignages.",
+      example: "Témoignage client : champ sur le client, contrechamp sur le produit ou le logo.",
+      related: ["regle des 180 degres", "videographie"]
     },
     "regle des 180 degres": {
       name: "Règle des 180 Degrés",
-      definition: "Ligne imaginaire entre deux interlocuteurs ; la caméra doit rester du même côté pour maintenir la continuité visuelle.",
-      details: "Si on franchit la ligne, les personnages semblent ne plus se regarder, créant une confusion. Fondamental pour les interviews et scènes de dialogue.",
-      example: "Client à gauche regardant vers la droite ; toutes les caméras restent du même côté de la ligne.",
-      related: ["champ contrechamp", "videographie", "cinematographie"]
+      definition: "Ligne imaginaire entre deux interlocuteurs ; la caméra doit rester du même côté.",
+      details: "Si on franchit la ligne, les personnages semblent ne plus se regarder. Fondamental pour les interviews.",
+      example: "Client à gauche regardant vers la droite ; toutes les caméras restent du même côté.",
+      related: ["champ contrechamp", "videographie"]
     },
     "echelle des plans": {
       name: "Échelle des Plans",
-      definition: "Classification des cadres selon la distance au sujet, chacun ayant un impact psychologique.",
-      details: "Très gros plan (détail), gros plan (émotion), plan américain (action), plan d'ensemble (contexte), plan général (immensité).",
-      example: "Très gros plan sur les mains de l'artisan pour montrer le savoir-faire ; plan d'ensemble du restaurant plein pour la preuve sociale.",
-      related: ["videographie", "cinematographie", "mouvements camera"]
+      definition: "Classification des cadres selon la distance au sujet.",
+      details: "Très gros plan (détail), gros plan (émotion), plan américain (action), plan d'ensemble (contexte).",
+      example: "Très gros plan sur les mains de l'artisan ; plan d'ensemble du restaurant plein.",
+      related: ["videographie", "cinematographie"]
     },
     "regle des trois tiers": {
       name: "Règle des Trois Tiers",
-      definition: "Division du cadre en 9 zones égales. Placer le sujet aux intersections pour une composition dynamique.",
-      details: "Crée du dynamisme, guide le regard. L'espace vide devant le sujet suggère l'avenir.",
-      example: "Fondateur positionné sur un point de tier latéral, regard vers l'intérieur de l'image.",
+      definition: "Division du cadre en 9 zones. Placer le sujet aux intersections.",
+      details: "Crée du dynamisme. L'espace vide devant le sujet suggère l'avenir.",
+      example: "Fondateur positionné sur un point de tier latéral, regard vers l'intérieur.",
       related: ["videographie", "cinematographie", "eclairage"]
     },
     "eclairage": {
       name: "Éclairage",
       definition: "Technique de modelage de la lumière pour donner du volume, de la texture et de l'émotion.",
-      details: "Éclairage 3 points : lumière principale (key), remplissage (fill), contre-jour (back). Lumière douce pour la beauté, dure pour le drame. Température de couleur (kelvin) influence l'ambiance.",
-      example: "Un plat éclairé avec une softbox derrière pour des reflets gourmands et un réflecteur devant pour déboucher les ombres.",
+      details: "Éclairage 3 points : key, fill, back. Lumière douce pour beauté, dure pour drame. Température de couleur en Kelvin.",
+      example: "Plat éclairé avec softbox derrière et réflecteur devant pour des reflets gourmands.",
       related: ["cinematographie", "videographie", "balance des blancs"]
     },
     "balance des blancs": {
       name: "Balance des Blancs",
-      definition: "Réglage de l'appareil photo/caméra pour que les blancs soient neutres, sans dominante de couleur.",
-      details: "Mesurée en Kelvin. 3200K = lumière tungstène (jaune), 5600K = lumière du jour. Cruciale pour la fidélité des couleurs produits. Peut être détournée pour créer une ambiance (chaude pour nostalgie, froide pour modernité).",
-      example: "Une viande mal équilibrée paraît bleuâtre et détruit la confiance. Une scène de fondateur en tons chauds évoque la nostalgie de la création.",
+      definition: "Réglage pour que les blancs soient neutres, sans dominante de couleur.",
+      details: "Mesurée en Kelvin. 3200K = tungstène, 5600K = lumière du jour. Cruciale pour la fidélité des couleurs produits.",
+      example: "Une viande mal équilibrée paraît bleuâtre et détruit la confiance.",
       related: ["eclairage", "videographie", "cinematographie"]
     },
-
-    // ────────── PHOTOGRAPHIE ──────────
     "photographie": {
       name: "Photographie",
-      definition: "Art de capturer des images fixes via un appareil photo, en maîtrisant l'exposition, la composition et la lumière.",
-      details: "Exposition = triangle : ouverture (f/), vitesse (s), ISO. Composition : règle des tiers, lignes de force, symétrie. Formats : RAW (non compressé) ou JPEG (compressé). Résolution en pixels.",
-      example: "Pour un portrait professionnel, utiliser une grande ouverture (f/2.8) pour un flou d'arrière-plan et une vitesse ≥ 1/125s pour figer le mouvement.",
-      related: ["exposition", "pixel", "balance des blancs", "regle des trois tiers", "eclairage"]
+      definition: "Art de capturer des images fixes en maîtrisant l'exposition, la composition et la lumière.",
+      details: "Triangle d'exposition : ouverture, vitesse, ISO. Formats : RAW, JPEG. Résolution en pixels.",
+      example: "Portrait professionnel : f/2.8, 1/125s, ISO 100.",
+      related: ["exposition", "pixel", "regle des trois tiers"]
     },
     "exposition": {
-      name: "Exposition (Triangle d'exposition)",
-      definition: "L'exposition est contrôlée par trois paramètres : l'ouverture, la vitesse d'obturation et la sensibilité ISO.",
-      details: "Ouverture (f/) : contrôle la quantité de lumière et la profondeur de champ. Vitesse (s) : fige ou file le mouvement. ISO : sensibilité du capteur (bruit si élevé). L'équilibre des trois détermine l'exposition correcte.",
-      example: "Photo de paysage : f/11, 1/250s, ISO 100. Photo de sport en intérieur : f/2.8, 1/1000s, ISO 3200.",
+      name: "Exposition",
+      definition: "Contrôlée par l'ouverture, la vitesse d'obturation et l'ISO.",
+      details: "Ouverture (f/) : quantité de lumière et profondeur de champ. Vitesse (s) : fige ou file le mouvement. ISO : sensibilité (bruit si élevé).",
+      example: "Paysage : f/11, 1/250s, ISO 100. Sport : f/2.8, 1/1000s, ISO 3200.",
       related: ["photographie", "balance des blancs", "pixel"]
     },
     "pixel": {
       name: "Pixel et Résolution",
-      definition: "Un pixel est le plus petit élément d'une image numérique. La résolution est le nombre total de pixels (ex : 1920x1080).",
-      details: "Plus il y a de pixels, plus l'image est détaillée et peut être agrandie. Mégapixels (MP) = millions de pixels. 24 MP = 6000x4000 pixels. Important pour l'impression grand format.",
-      example: "Une photo de 12 MP suffit pour le web et les réseaux sociaux. Pour une bâche publicitaire de 2m, il faut au moins 24 MP.",
+      definition: "Un pixel est le plus petit élément d'une image. La résolution est le nombre total de pixels.",
+      details: "Mégapixels (MP) = millions de pixels. 24 MP = 6000x4000 pixels. Impression : 300 DPI. Web : 72 DPI.",
+      example: "Pour une bâche publicitaire de 2m, il faut au moins 24 MP.",
       related: ["photographie", "exposition"]
     },
     "appareil photo": {
       name: "Choisir un Appareil Photo",
-      definition: "Critères de choix : type (reflex, hybride, compact, smartphone), taille du capteur, objectifs disponibles, ergonomie, budget.",
-      details: "Hybride (mirrorless) : le meilleur compromis qualité/compacité. Plein format (full frame) pour la meilleure qualité d'image et faible lumière. APS-C : bon rapport qualité/prix. Micro 4/3 : très compact. Smartphone : pratique, IA intégrée, limité en zoom optique.",
-      example: "Un créateur de contenu débutant choisira un hybride APS-C avec un zoom polyvalent 18-55mm. Un photographe de mariage préférera un plein format avec objectifs lumineux (f/1.4).",
-      related: ["photographie", "exposition", "objectif photo"]
+      definition: "Critères : type, taille du capteur, objectifs, ergonomie, budget.",
+      details: "Hybride = meilleur compromis. Plein format = qualité maximale. APS-C = bon rapport qualité/prix. Smartphone = pratique, limité en zoom.",
+      example: "Un créateur débutant : hybride APS-C avec zoom 18-55mm.",
+      related: ["photographie", "objectif photo"]
     },
     "objectif photo": {
       name: "Objectifs Photo",
-      definition: "L'objectif détermine l'angle de champ, la profondeur de champ et la quantité de lumière atteignant le capteur.",
-      details: "Focale fixe (ex : 50mm f/1.8) : grande ouverture, piqué, encombrement réduit. Zoom (ex : 24-70mm f/2.8) : polyvalence, lourd, moins lumineux. Grand-angle (<35mm) : paysage, architecture. Téléobjectif (>85mm) : portrait, sport, animalier.",
-      example: "Pour un shooting produit, un 100mm macro f/2.8 permet de capturer les détails avec un joli flou.",
-      related: ["photographie", "appareil photo", "exposition"]
+      definition: "Détermine l'angle de champ, la profondeur de champ et la luminosité.",
+      details: "Focale fixe (50mm f/1.8) : lumineux, piqué. Zoom (24-70mm f/2.8) : polyvalent. Grand-angle <35mm. Téléobjectif >85mm.",
+      example: "Shooting produit : 100mm macro f/2.8 pour les détails.",
+      related: ["photographie", "appareil photo"]
     },
     "reglages photo": {
       name: "Réglages et Dimensions Photo",
-      definition: "Comprendre les formats d'image, les ratios et les réglages de base pour différents usages.",
-      details: "Ratios : 3:2 (standard), 4:3 (micro 4/3), 1:1 (carré Instagram), 16:9 (vidéo). Formats de fichier : RAW (retouche), JPEG (partage). Résolution d'impression : 300 DPI pour qualité pro. Taille web : 72 DPI.",
-      example: "Pour une impression A4 de qualité, il faut 2480x3508 pixels (300 DPI). Pour Instagram, 1080x1080 pixels (1:1).",
+      definition: "Formats, ratios et réglages pour différents usages.",
+      details: "Ratios : 3:2, 4:3, 1:1, 16:9. RAW pour retouche, JPEG pour partage. 300 DPI pour impression pro.",
+      example: "Impression A4 : 2480x3508 pixels. Instagram : 1080x1080 pixels.",
       related: ["photographie", "pixel", "exposition"]
     },
-
-    // ────────── GESTION & ÉTHIQUE ──────────
+    "macrophotographie": {
+      name: "Macrophotographie",
+      definition: "Photos en très gros plan avec rapport de reproduction proche du 1:1.",
+      details: "Révèle un monde invisible. Équipement : objectif macro, bagues allonges. Défi : profondeur de champ réduite. Solution : focus stacking.",
+      example: "Marque de montres : macrophotographie du cadran avec focus stacking.",
+      related: ["photographie", "exposition", "eclairage"]
+    },
+    "astrophotographie": {
+      name: "Astrophotographie",
+      definition: "Photographie du ciel nocturne : étoiles, Voie lactée.",
+      details: "Nécessite un ciel sombre. Réglages : grand-angle f/2.8, pose 15-30s, ISO 1600-6400, trépied. Règle des 500.",
+      example: "Publicité tente de camping : photo sous la Voie lactée, 24mm f/1.4, 20s, ISO 3200.",
+      related: ["photographie", "exposition"]
+    },
+    "photo de rue": {
+      name: "Photographie de Rue",
+      definition: "Capture spontanée de scènes de vie quotidienne dans l'espace public.",
+      details: "Appareil discret, 35mm ou 50mm, noir et blanc pour les contrastes. Éthique : respecter les personnes.",
+      example: "Campagne 'Fait en Haïti' : artisans au travail, scènes de marché en noir et blanc.",
+      related: ["photographie", "exposition"]
+    },
+    "photo culinaire": {
+      name: "Photographie Culinaire",
+      definition: "Art de photographier des aliments de manière appétissante.",
+      details: "Styling, éclairage naturel indirect, softbox latérale arrière, composition plongée ou 45°. Couleurs chaudes stimulent l'appétit.",
+      example: "Menu restaurant : plongée du plat signature, éclairé par fenêtre, avec verre et couverts.",
+      related: ["photographie", "eclairage", "reseaux sociaux"]
+    },
+    "montage video": {
+      name: "Montage Vidéo",
+      definition: "Processus d'assemblage, de coupe et de post-production des séquences filmées.",
+      details: "Étapes : dérushage, assemblage, rythme, transitions, étalonnage, mixage audio, export. Logiciels : DaVinci Resolve (gratuit pro), Premiere Pro, CapCut.",
+      example: "Vidéo marketing 60s : alterner plans larges (3s), gros plans (2s), témoignages (5s), musique dynamique.",
+      related: ["videographie", "cinematographie", "etalonnage"]
+    },
+    "transitions": {
+      name: "Transitions Vidéo",
+      definition: "Effets visuels entre deux plans pour assurer la continuité ou marquer une rupture.",
+      details: "CUT (coupe franche), FONDU (noir/blanc/enchaîné), WIPE, J-cut et L-cut (audio). Transition invisible cachée dans un mouvement.",
+      example: "Témoignage client : J-cut (voix avant image), CUT vers produit, fondu noir final avec logo.",
+      related: ["montage video", "videographie"]
+    },
+    "etalonnage": {
+      name: "Étalonnage (Color Grading)",
+      definition: "Correction et stylisation des couleurs pour une ambiance visuelle cohérente.",
+      details: "Correction : équilibrer noirs, blancs, tons moyens. Grading : palette artistique. Outils : roues chromatiques, LUTs. Logiciel : DaVinci Resolve.",
+      example: "Vidéo marque de café : correction blancs purs, puis grading chaud orange/marron.",
+      related: ["montage video", "balance des blancs", "cinematographie"]
+    },
+    "crm": {
+      name: "CRM",
+      definition: "Logiciel et stratégie de gestion de la relation client.",
+      details: "Centralise contacts, historique, pipeline de vente. Automatisation, segmentation. Outils : HubSpot, Salesforce, Pipedrive.",
+      example: "Un graphiste utilise HubSpot pour suivre chaque demande de logo de 'Reçu' à 'Livré'.",
+      related: ["marketing digital", "email marketing", "analytics"]
+    },
+    "funnel marketing": {
+      name: "Funnel Marketing",
+      definition: "Modèle du parcours client de la découverte à l'achat.",
+      details: "Étapes AIDA : Attention, Intérêt, Désir, Action. Optimiser le taux de conversion à chaque étape avec les analytics.",
+      example: "Formation en ligne : article SEO (1000 visiteurs) → ebook gratuit (200 inscrits) → emails (50 démos) → inscriptions (15).",
+      related: ["marketing digital", "inbound", "analytics", "crm"]
+    },
     "gestion entreprise": {
-      name: "Gestion d'Entreprise (Management)",
-      definition: "Pratiques pour diriger, organiser et faire croître une entreprise efficacement.",
-      details: "Leadership : vision, motivation, prise de décision. Gestion d'équipe : recrutement, délégation, feedback. Finances : trésorerie, budget, rentabilité. Stratégie : objectifs SMART, KPIs, pivot si nécessaire. Communication interne : transparence, outils collaboratifs.",
-      example: "Un manager fixe des objectifs trimestriels, délègue les tâches selon les forces de chacun, et organise un point hebdomadaire de 15 minutes pour lever les blocages.",
+      name: "Gestion d'Entreprise",
+      definition: "Pratiques pour diriger, organiser et faire croître une entreprise.",
+      details: "Leadership, gestion d'équipe, finances, stratégie SMART, communication interne.",
+      example: "Manager fixe des objectifs trimestriels, délègue, et fait un point hebdo de 15 min.",
       related: ["strategie marketing", "ethique marketing", "bienseance"]
     },
     "gestion marketing": {
       name: "Gérer un Marketing Efficace",
-      definition: "Coordonner les actions marketing pour atteindre les objectifs business en respectant le budget et les délais.",
-      details: "Plan marketing : objectifs, cibles, canaux, budget, calendrier. Suivi : KPIs, analytics, ajustements. Veille concurrentielle et tendances. Collaboration avec équipes ventes et produit. Automatisation : CRM, emailing, chatbots.",
-      example: "Une PME lance un plan trimestriel : SEO (blog), SEA (Google Ads), social media (Instagram), et mesure le ROI de chaque canal chaque semaine.",
-      related: ["marketing digital", "strategie marketing", "kpi", "ethique marketing"]
+      definition: "Coordonner les actions marketing pour atteindre les objectifs business.",
+      details: "Plan marketing : objectifs, cibles, canaux, budget, calendrier. Suivi KPIs. Veille concurrentielle.",
+      example: "PME : plan trimestriel SEO + SEA + Instagram, mesure ROI chaque semaine.",
+      related: ["marketing digital", "strategie marketing", "kpi"]
     },
     "ethique marketing": {
       name: "Éthique en Marketing",
-      definition: "Principes moraux guidant les pratiques marketing pour respecter les consommateurs et la société.",
-      details: "Vérité : ne pas tromper (publicité mensongère). Respect de la vie privée : consentement, RGPD. Ciblage responsable : éviter les enfants, personnes vulnérables. Durabilité : éviter le greenwashing. Transparence : prix clairs, conditions générales. Équité : ne pas exploiter les biais cognitifs de manière abusive.",
-      example: "Une marque de cosmétiques annonce '90% d'ingrédients naturels' sans cacher les 10% restants, plutôt que de prétendre '100% naturel'.",
-      related: ["bienseance", "gestion entreprise", "strategie marketing"]
+      definition: "Principes moraux pour respecter les consommateurs et la société.",
+      details: "Vérité, respect vie privée (RGPD), ciblage responsable, durabilité (pas de greenwashing), transparence.",
+      example: "Cosmétiques : annoncer '90% d'ingrédients naturels' sans cacher les 10% restants.",
+      related: ["bienseance", "strategie marketing"]
     },
     "bienseance": {
-      name: "Règles de Bienséance (Savoir-Vivre Professionnel)",
-      definition: "Ensemble des comportements et attitudes favorisant des relations professionnelles harmonieuses.",
-      details: "Politesse : bonjour, merci, s'il vous plaît. Ponctualité : respect des horaires. Écoute active : ne pas couper la parole. Discrétion : confidentialité. Présentation : tenue adaptée, soin personnel. Communication non-violente : exprimer ses besoins sans agresser. Respect des cultures et différences.",
-      example: "Lors d'un rendez-vous client, arriver 5 minutes en avance, saluer avec le sourire, ranger son téléphone, et reformuler les besoins du client pour montrer son écoute.",
+      name: "Règles de Bienséance",
+      definition: "Comportements professionnels favorisant des relations harmonieuses.",
+      details: "Politesse, ponctualité, écoute active, discrétion, communication non-violente, respect des cultures.",
+      example: "Rendez-vous client : 5 min en avance, sourire, téléphone rangé, reformulation des besoins.",
       related: ["gestion entreprise", "ethique marketing"]
     },
-
-    // ────────── RÉPONSES COURTES (salutations, etc.) ──────────
     "salutation": {
       name: "Salutations",
-      definition: "Réponses automatiques pour engager la conversation poliment.",
-      details: "Le coach répond aux bonjour, bonsoir, salut, hello de manière chaleureuse et professionnelle.",
-      example: "Bonjour ! Je suis votre Digital Coach. Comment puis-je vous aider aujourd'hui ?",
+      definition: "Réponses automatiques pour engager la conversation.",
+      details: "Le coach répond aux bonjour, salut, hello de manière chaleureuse.",
+      example: "Bonjour ! Je suis votre Digital Coach. Comment puis-je vous aider ?",
       related: []
     },
     "remerciement": {
       name: "Remerciements",
-      definition: "Réponses automatiques aux marques de gratitude.",
-      details: "Le coach répond aux mercis par une note positive et encourageante.",
+      definition: "Réponses aux marques de gratitude.",
+      details: "Le coach répond aux mercis par une note positive.",
       example: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions.",
       related: []
     }
