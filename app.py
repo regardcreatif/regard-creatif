@@ -1,26 +1,26 @@
 import os
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from mistralai import Mistral
+from mistralai.client import MistralClient
+from mistralai.models.chat_completion import ChatMessage
 
 app = Flask(__name__)
 CORS(app)
 
 MISTRAL_KEY = os.environ.get('MISTRAL_KEY')
-client = Mistral(api_key=MISTRAL_KEY)
+client = MistralClient(api_key=MISTRAL_KEY)
 
 @app.route('/ia', methods=['POST'])
 def ia():
     data = request.json
-    response = client.chat.complete(
+    messages = [ChatMessage(role=m['role'], content=m['content']) for m in data.get('messages', [])]
+    response = client.chat(
         model="mistral-small-latest",
-        messages=data.get('messages', []),
+        messages=messages,
         temperature=data.get('temperature', 0.7),
         max_tokens=data.get('max_tokens', 500)
     )
-    return jsonify({
-        'content': response.choices[0].message.content
-    })
+    return jsonify({'content': response.choices[0].message.content})
 
 @app.route('/')
 def home():
