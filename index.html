@@ -96,11 +96,6 @@
         .galerie-card .card-artist { color: #a3ff3b; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px; }
         .galerie-card .card-title { color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 5px; }
         .galerie-card .card-subtitle { color: #999; font-size: 0.9rem; font-style: italic; margin-bottom: 15px; }
-        .share-btns { display: flex; gap: 10px; flex-wrap: wrap; }
-        .share-btn { padding: 6px 12px; border-radius: 20px; text-decoration: none; font-size: 0.7rem; font-weight: 600; color: #fff; transition: transform 0.3s; }
-        .share-btn:hover { transform: scale(1.1); }
-        .share-btn.wa { background: #25D366; }
-        .share-btn.fb { background: #1877F2; }
         .chat-section { background: #0a0a0a; border-top: 1px solid #1a1a1a; border-bottom: 1px solid #1a1a1a; text-align: center; padding: 60px 40px; }
         .chat-section h2 span { color: #a3ff3b; }
         .chat-section p { color: #999; margin-bottom: 25px; font-size: 1.1rem; }
@@ -144,8 +139,6 @@
         #flip-toggle:checked ~ #flip-popup { display: flex; }
         footer { border-top: 1px solid #222; padding: 40px; text-align: center; color: #555; font-size: 0.9rem; position: relative; z-index: 1; }
         footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
-
-        /* SECTION IA OR */
         .ia-test-section { background: linear-gradient(180deg, #0a0a0a 0%, #1a1a10 30%, #1a1a10 70%, #0a0a0a 100%); border-top: 2px solid #B8860B; border-bottom: 2px solid #B8860B; padding: 70px 40px; position: relative; z-index: 1; text-align: center; }
         .ia-test-badge { display: inline-block; background: linear-gradient(135deg, #FFD700, #DAA520, #B8860B); color: #000; padding: 8px 22px; border-radius: 25px; font-weight: 900; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 20px; box-shadow: 0 4px 25px rgba(212,175,55,0.4); animation: pulseGold 2s infinite; }
         @keyframes pulseGold { 0%, 100% { box-shadow: 0 4px 25px rgba(212,175,55,0.4); } 50% { box-shadow: 0 4px 45px rgba(255,215,0,0.7); } }
@@ -155,7 +148,8 @@
         .ia-test-invite { color: #FFD700; font-size: 0.95rem; font-weight: 600; margin-bottom: 25px; letter-spacing: 1px; animation: float 3s ease-in-out infinite; }
         .ia-chat-box { max-width: 700px; margin: 0 auto; background: #0d0d0d; border: 2px solid #B8860B; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.15); }
         .ia-chat-msgs { height: 350px; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: rgba(13,13,13,0.95); }
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; animation: fadeInMsg 0.3s ease-out; }
+        @keyframes fadeInMsg { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg.user { align-self: flex-end; background: #1a1a1a; color: #e0e0e0; border: 1px solid #333; }
         .msg.ai-gold { align-self: flex-start; background: linear-gradient(135deg, #1a1200, #1f1500); color: #FFD700; border: 1px solid #B8860B; }
         .msg.ai-green { align-self: flex-start; background: #1a1a1a; color: #a3ff3b; border: 1px solid #2a2a2a; }
@@ -231,7 +225,7 @@
     <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" class="promo-icon" alt="RC Logo Maker">
     <h3>RC Logo Maker</h3>
     <p>Créez des logos professionnels en quelques minutes avec notre application gratuite. Simple, puissante, et accessible à tous.</p>
-    <a href="https://regardcreatif.github.io/regard-creatif/app-release.apk" class="promo-dl-btn"><i class="fa-solid fa-download"></i> Téléchargez ici</a>
+    <a href="https://regardcreatif.github.io/regard-creatif/app-release.apk" class="promo-dl-btn">📥 Téléchargez l'APK</a>
 </section>
 
 <section id="modeles" class="modeles-section">
@@ -305,7 +299,7 @@
     <div class="success-message" id="success-message">✅ Message envoyé avec succès. Je vous réponds sous 24h.</div>
 </section>
 
-<!-- REGARD CRÉATIF IA -->
+<!-- ═══════════ REGARD CRÉATIF IA ═══════════ -->
 <section id="ia-test" class="ia-test-section">
     <span class="ia-test-badge">✨ Intelligence Artificielle</span>
     <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif IA" class="ia-test-logo">
@@ -323,7 +317,7 @@
     </div>
 </section>
 
-<!-- ASSISTANT -->
+<!-- ═══════════ ASSISTANT ═══════════ -->
 <section id="assistant" class="assistant-section">
     <h2>Regard Créatif <span>Assistant</span></h2>
     <p class="assistant-subtitle">Besoin d'aide avec nos services ? L'assistant est là pour vous guider.</p>
@@ -362,10 +356,10 @@
 <script src="//code.tidio.co/qe52uuulcolwly3l1f5f8zmjjyo1rud1.js" async></script>
 <script data-host="https://app.microanalytics.io" data-dnt="false" src="https://app.microanalytics.io/js/script.js" id="ZwSg9rf6GA" async defer></script>
 
-<!-- ═══════════ SCRIPTS IA ═══════════ -->
+<!-- ═══════════ SCRIPTS IA — MISTRAL ═══════════ -->
 <script>
-const DK = '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';
-const DU = 'https://openrouter.ai/api/v1/chat/completions';
+const MK = 'b6f9d84c-82ab-46bb-8b79-2c3cc13ffb2d';
+const MU = 'https://api.mistral.ai/v1/chat/completions';
 
 async function sendIATest() {
     const input = document.getElementById('ia-test-input');
@@ -381,11 +375,11 @@ async function sendIATest() {
     msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
     try {
-        const r = await fetch(DU, {
+        const r = await fetch(MU, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DK}`, 'HTTP-Referer': 'https://regardcreatif.github.io', 'X-Title': 'Regard Créatif' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MK}` },
             body: JSON.stringify({
-                model: 'deepseek/deepseek-chat',
+                model: 'mistral-small-latest',
                 messages: [
                     { role: 'system', content: 'Tu es Regard Créatif IA, assistant créatif intégré au site Regard Créatif (studio design graphique Haïti). Tu réponds à TOUTES les questions. Tu es chaleureux, pro, tutoies, émojis légers. Prix → devis personnalisé.' },
                     { role: 'user', content: q }
@@ -419,11 +413,11 @@ async function sendAssistant() {
     msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
     try {
-        const r = await fetch(DU, {
+        const r = await fetch(MU, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DK}`, 'HTTP-Referer': 'https://regardcreatif.github.io', 'X-Title': 'Regard Créatif' },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${MK}` },
             body: JSON.stringify({
-                model: 'deepseek/deepseek-chat',
+                model: 'mistral-small-latest',
                 messages: [
                     { role: 'system', content: 'Tu es Regard Créatif Assistant. Services : logo pro, flyer, identité visuelle, bannière RS, branding 72h. App gratuite RC Logo Maker. Contact WhatsApp +509 4787 3144, email regardcreatif@proton.me. ❌ JAMAIS de prix. Si demande prix → "Chaque projet est unique ! Le créateur vous fera un devis sur WhatsApp au +509 4787 3144." Pro, poli, tutoies, émojis légers.' },
                     { role: 'user', content: q }
@@ -444,7 +438,6 @@ async function sendAssistant() {
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
 function showCompteur() {
     var p = prompt("Mot de passe :");
     if (p === "eclipse2024") {
