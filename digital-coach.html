@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
+  <title>Digital Coach · Assistant Marketing & Création</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="theme-color" content="#080808">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #080808;
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      color: #f0f0f0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .app-header {
+      background: #0c0c0c;
+      border-bottom: 1px solid #1f1f1f;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      backdrop-filter: blur(4px);
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      font-size: 28px;
+    }
+    .logo-text h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+      background: linear-gradient(135deg, #00bcd4, #4dd0e1);
+      background-clip: text;
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .logo-text p {
+      font-size: 0.7rem;
+      color: #888;
+    }
+    .badge {
+      background: #00bcd420;
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 0.7rem;
+      border: 1px solid #00bcd480;
+      color: #00bcd4;
+    }
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .message {
+      max-width: 85%;
+      display: flex;
+      flex-direction: column;
+      animation: fadeSlide 0.2s ease-out;
+    }
+    .message.user {
+      align-self: flex-end;
+    }
+    .message.agent {
+      align-self: flex-start;
+    }
+    .bubble {
+      padding: 12px 16px;
+      border-radius: 24px;
+      line-height: 1.45;
+      font-size: 0.95rem;
+      word-break: break-word;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+    }
+    .user .bubble {
+      background: #00bcd4;
+      color: #080808;
+      border-bottom-right-radius: 6px;
+      font-weight: 500;
+    }
+    .agent .bubble {
+      background: #1e1e1e;
+      border: 1px solid #2c2c2c;
+      border-bottom-left-radius: 6px;
+      color: #eaeef2;
+    }
+    .timestamp {
+      font-size: 0.65rem;
+      color: #6c6c6c;
+      margin-top: 6px;
+      margin-left: 12px;
+      margin-right: 12px;
+    }
+    .user .timestamp {
+      text-align: right;
+    }
+    .typing-indicator {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 8px 16px;
+      background: #1e1e1e;
+      border-radius: 24px;
+      width: fit-content;
+      border: 1px solid #2c2c2c;
+    }
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: #00bcd4;
+      border-radius: 50%;
+      display: inline-block;
+      animation: blink 1.4s infinite ease-in-out both;
+    }
+    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    @keyframes blink {
+      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8);}
+      40% { opacity: 1; transform: scale(1);}
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(8px);}
+      to { opacity: 1; transform: translateY(0);}
+    }
+    .topics-bar {
+      background: #0e0e0e;
+      border-top: 1px solid #1c1c1c;
+      border-bottom: 1px solid #1c1c1c;
+      padding: 12px 16px;
+      overflow-x: auto;
+      white-space: nowrap;
+      display: flex;
+      gap: 10px;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+    .topic-btn {
+      background: #1a1a1a;
+      border: 1px solid #2e2e2e;
+      color: #e0e0e0;
+      padding: 8px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .topic-btn:hover, .topic-btn:active {
+      background: #00bcd4;
+      border-color: #00bcd4;
+      color: #080808;
+      transform: scale(0.97);
+    }
+    .input-area {
+      background: #0c0c0c;
+      padding: 12px 16px 20px;
+      border-top: 1px solid #1f1f1f;
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    .input-area input {
+      flex: 1;
+      background: #121212;
+      border: 1px solid #2a2a2a;
+      padding: 12px 16px;
+      border-radius: 32px;
+      color: white;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.2s;
+    }
+    .input-area input:focus {
+      border-color: #00bcd4;
+      box-shadow: 0 0 0 2px #00bcd430;
+    }
+    .input-area button {
+      background: #00bcd4;
+      border: none;
+      color: #080808;
+      font-weight: bold;
+      padding: 0 20px;
+      height: 48px;
+      border-radius: 40px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .input-area button:active {
+      transform: scale(0.96);
+      background: #0097a7;
+    }
+    .input-area button:disabled {
+      opacity: 0.5;
+      transform: none;
+      cursor: not-allowed;
+    }
+    .related-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+      margin-bottom: 6px;
+    }
+    .related-btn {
+      background: #0f2c2e;
+      border: 1px solid #00bcd470;
+      color: #00e5ff;
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: 0.15s;
+      font-weight: 500;
+    }
+    .related-btn:hover, .related-btn:active {
+      background: #00bcd4;
+      color: #080808;
+      border-color: #00bcd4;
+    }
+    hr {
+      margin: 12px 0;
+      border-color: #2c2c2c;
+    }
+    .em-title {
+      font-weight: 700;
+      margin-top: 6px;
+      font-size: 1rem;
+    }
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #141414;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00bcd460;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo-area">
+    <div class="logo-icon">🧠📈</div>
+    <div class="logo-text">
+      <h1>Digital Coach</h1>
+      <p>Assistant marketing & création · 100% intégré</p>
+    </div>
+  </div>
+  <div class="badge">⚡ Base connaissance offline</div>
+</header>
+
+<div class="topics-bar" id="topicsBar"></div>
+
+<div class="chat-container" id="chatContainer">
+  <div class="message agent">
+    <div class="bubble">
+      👋 Bonjour ! Je suis votre <strong>Digital Coach</strong>. <br>
+      Posez-moi toutes vos questions sur <strong>SEO, SEA, stratégie, réseaux sociaux, copywriting, analytics, branding, inbound, psychologie de l'acheteur, vidéographie, photographie, gestion d'entreprise, éthique...</strong><br>
+      Cliquez sur un thème ci-dessus ou tapez votre question.
+    </div>
+    <div class="timestamp">🤖 Coach</div>
+  </div>
+</div>
+
+<div class="input-area">
+  <input type="text" id="userInput" placeholder="Ex : Qu'est-ce que le SEO ? ou Explique-moi le travelling" autocomplete="off">
+  <button id="sendBtn">Envoyer ✨</button>
+</div>
+
+<script>
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  // BASE DE CONNAISSANCES ENRICHIE
+  const KNOWLEDGE = {
+    // ────────── MARKETING DIGITAL EXISTANT (rappel) ──────────
+    "marketing digital": {
+      name: "Marketing Digital",
+      definition: "Ensemble des actions marketing utilisant les canaux numériques (web, mobile, email, réseaux sociaux, search) pour atteindre et convertir des audiences.",
+      details: "Piliers : acquisition (SEO/SEA/social), conversion (UX, copywriting), fidélisation (email, CRM) et analyse (KPIs, analytics). Permet un ciblage précis et un ROI mesurable.",
+      example: "Une startup combine articles SEO, posts Instagram et retargeting Google Ads pour attirer, engager et convertir.",
+      related: ["seo", "sea", "reseaux sociaux", "email marketing", "analytics", "strategie marketing"]
+    },
+    "seo": {
+      name: "SEO (Search Engine Optimization)",
+      definition: "Optimisation pour le référencement naturel sur les moteurs de recherche (Google, Bing).",
+      details: "Trois piliers : technique (balises, vitesse, mobile-first), contenu (mots-clés, qualité) et netlinking (backlinks). Le SEO apporte un trafic durable et gratuit.",
+      example: "Un blog e-commerce optimise ses fiches produits avec des mots-clés longue traîne et améliore son temps de chargement pour grimper dans les résultats Google.",
+      related: ["content marketing", "analytics", "reseaux sociaux", "kpi", "webdesigner vs webmaster"]
+    },
+    "sea": {
+      name: "SEA (Search Engine Advertising)",
+      definition: "Publicité payante sur les moteurs de recherche (Google Ads). Enchères sur mots-clés.",
+      details: "Modèle CPC (coût par clic). Le Quality Score (pertinence, CTR, landing page) détermine le coût. Résultats immédiats, idéal pour campagnes ciblées.",
+      example: "Une agence de voyage lance Google Ads sur 'vol Paris Tokyo' avec extensions de liens et suivi conversion.",
+      related: ["seo", "analytics", "kpi", "content marketing", "strategie marketing"]
+    },
+    "reseaux sociaux": {
+      name: "Réseaux Sociaux",
+      definition: "Présence et engagement sur les plateformes sociales (Instagram, LinkedIn, TikTok, Facebook, X).",
+      details: "Contenu adapté à chaque plateforme, community management, social ads, influence. Mesures : engagement, portée, clics.",
+      example: "Une marque de cosmétiques utilise Instagram Reels pour des tutoriels et collabore avec des micro-influenceurs.",
+      related: ["branding", "content marketing", "analytics", "copywriting", "psychologie acheteur"]
+    },
+    "email marketing": {
+      name: "Email Marketing",
+      definition: "Communication par email ciblée : newsletters, séquences automatisées, relances.",
+      details: "Segmentation, personnalisation, A/B testing. ROI élevé pour la fidélisation.",
+      example: "Un e-commerce envoie une séquence post-achat : confirmation, recommandations, demande d'avis.",
+      related: ["content marketing", "kpi", "analytics", "copywriting"]
+    },
+    "content marketing": {
+      name: "Content Marketing",
+      definition: "Création de contenu pertinent (blogs, vidéos, ebooks) pour attirer et fidéliser une audience.",
+      details: "Storytelling, SEO, formats variés, tunnel de conversion. Construit l'autorité et génère des leads qualifiés.",
+      example: "Une SaaS publie des études de cas, un blog et des webinaires, puis propose un ebook en échange d'inscription.",
+      related: ["seo", "reseaux sociaux", "copywriting", "branding", "blog marketing"]
+    },
+    "branding": {
+      name: "Branding",
+      definition: "Construction de l'image de marque (valeurs, identité visuelle, ton) pour se différencier et créer une connexion émotionnelle.",
+      details: "Cohérence sur tous les points de contact. Fidélise et justifie un prix premium.",
+      example: "Apple : minimalisme, innovation, expérience premium.",
+      related: ["reseaux sociaux", "copywriting", "content marketing", "marketing digital", "naissance entreprise"]
+    },
+    "copywriting": {
+      name: "Copywriting",
+      definition: "Rédaction persuasive pour pousser à l'action (achat, clic, inscription).",
+      details: "Structure AIDA, storytelling, accroches, preuves sociales, CTA percutants.",
+      example: "Une landing page : titre choc, bénéfices, témoignages, bouton 'Je m'inscris'.",
+      related: ["branding", "content marketing", "email marketing", "reseaux sociaux", "psychologie acheteur"]
+    },
+    "analytics": {
+      name: "Analytics (Web Analytics)",
+      definition: "Mesure et analyse des données de trafic et comportement utilisateur (GA4, Matomo).",
+      details: "Suivi des conversions, tunnel, segmentation, heatmaps. Data-driven decisions.",
+      example: "Un site découvre que 40% du trafic vient du SEO et renforce cette stratégie.",
+      related: ["kpi", "seo", "sea", "email marketing", "maturite digitale"]
+    },
+    "kpi": {
+      name: "KPI (Key Performance Indicators)",
+      definition: "Indicateurs clés de performance (taux de conversion, CAC, LTV, ROI, CTR).",
+      details: "Alignés aux objectifs : notoriété, acquisition, rétention. Piloter via des dashboards.",
+      example: "ROAS = CA / dépenses pub. ROAS de 4 = 4€ générés pour 1€ investi.",
+      related: ["analytics", "sea", "email marketing", "marketing digital"]
+    },
+    "inbound": {
+      name: "Inbound Marketing",
+      definition: "Attirer naturellement via contenu utile, SEO, réseaux sociaux (pull marketing).",
+      details: "Méthodologie : Attirer, Convertir, Conclure, Fidéliser. Réduit le coût d'acquisition.",
+      example: "HubSpot propose des formations gratuites pour attirer des leads qualifiés.",
+      related: ["content marketing", "seo", "reseaux sociaux", "email marketing", "strategie marketing"]
+    },
+    "outbound": {
+      name: "Outbound Marketing",
+      definition: "Marketing 'push' interrompant l'audience (TV, display, cold emailing).",
+      details: "Plus coûteux, moins ciblé, mais efficace pour la notoriété rapide.",
+      example: "Une startup lance des LinkedIn Ads ciblant des CTO avec un message direct.",
+      related: ["sea", "branding", "copywriting", "kpi"]
+    },
+    "strategie marketing": {
+      name: "Stratégie Marketing",
+      definition: "Faire des choix. Concentrer ses forces pour créer un avantage décisif.",
+      details: "Diagnostic, choix (dire non), cohérence. Définit le 'pourquoi' avant les outils.",
+      example: "Pour un public qui n'aime pas lire, contourner par la vidéo et l'audio.",
+      related: ["marketing digital", "branding", "inbound", "outbound", "diagnostic", "erreurs marketing"]
+    },
+    "maturite digitale": {
+      name: "Maturité Digitale",
+      definition: "Niveau d'intégration du numérique dans l'entreprise.",
+      details: "Niveaux : 1 Inexistant, 2 Présence statique, 3 Interaction, 4 Intégration (digital physique), 5 Pilotage par la donnée.",
+      example: "Un restaurant avec écran menu dynamique est au niveau 4.",
+      related: ["marketing digital", "analytics", "kpi", "multimoment"]
+    },
+    "naissance entreprise": {
+      name: "Naissance de l'Entreprise",
+      definition: "Récit fondateur authentique : pourquoi, épreuves, valeurs.",
+      details: "Actif marketing unique, crée une connexion émotionnelle. Raconter le 'pourquoi' profond.",
+      example: "'Je ne trouvais pas de meubles résistant au climat, alors je les ai créés.'",
+      related: ["branding", "strategie marketing", "copywriting", "blog marketing"]
+    },
+    "multimoment": {
+      name: "Multi-Moment",
+      definition: "Parcours client omnicanal où la marque doit être cohérente sur tous les points de contact.",
+      details: "Instagram → site → WhatsApp → YouTube → magasin. Orchestrer la cohérence.",
+      example: "Marque cosmétique : Reels, blog, WhatsApp service client, écran boutique.",
+      related: ["marketing digital", "reseaux sociaux", "branding", "maturite digitale"]
+    },
+    "diagnostic": {
+      name: "Diagnostic Stratégique",
+      definition: "Analyser le marché, client, concurrence et forces/faiblesses avant d'agir.",
+      details: "Exemple : 'Haïtien ki konn li pa renmen li' → contenu visuel et audio privilégié.",
+      example: "Au lieu de longs textes, vidéo, créole et images.",
+      related: ["strategie marketing", "erreurs marketing", "marketing digital"]
+    },
+    "erreurs marketing": {
+      name: "Erreurs Marketing à Éviter",
+      definition: "1) Penser avoir le même profil que ses clients, 2) Laisser le financier dicter, 3) Faire comme d'habitude.",
+      details: "1. Projection, 2. Dictature du budget, 3. Routine. Ces erreurs tuent la différenciation.",
+      example: "Un entrepreneur qui aime lire fait un site rempli de textes, mais son client n'aime pas lire.",
+      related: ["strategie marketing", "diagnostic", "maturite digitale", "naissance entreprise"]
+    },
+    "webdesigner vs webmaster": {
+      name: "Webdesigner vs Webmaster",
+      definition: "Webdesigner : design, UX, contenu (attirer/conversion). Webmaster : sécurité, vitesse, technique (confiance).",
+      details: "Deux rôles complémentaires. Le design sert la vision ; la technique assure la fiabilité.",
+      example: "Vidéo sur la page d'accueil : webdesigner la scénarise, webmaster s'assure qu'elle ne ralentit pas le site.",
+      related: ["marketing digital", "seo", "branding", "blog marketing"]
+    },
+    "blog marketing": {
+      name: "Blog Marketing (Hub Central)",
+      definition: "Espace central que vous contrôlez à 100%, racontant votre histoire et vos preuves.",
+      details: "Répond à 'Pourquoi nous choisir ?' Naissance, stratégie, témoignages, connexion durable.",
+      example: "Blog avec histoire de l'entreprise, études de cas, newsletter.",
+      related: ["marketing digital", "content marketing", "branding", "naissance entreprise"]
+    },
+    "psychologie acheteur": {
+      name: "Psychologie de l'Acheteur",
+      definition: "Mécanismes mentaux influençant l'achat : preuve sociale, rareté, réciprocité, autorité, engagement.",
+      details: "Preuve sociale = 'les autres le font'. Rareté = 'plus que 2'. Réciprocité = donner pour recevoir. Autorité = expertise. Engagement = petit oui conduit à grand oui.",
+      example: "Afficher 'Plus que 2 chambres disponibles !' déclenche l'achat par peur de manquer.",
+      related: ["copywriting", "branding", "strategie marketing", "inbound"]
+    },
+
+    // ────────── VIDÉOGRAPHIE & CINÉMA ──────────
+    "videographie": {
+      name: "Vidéographie",
+      definition: "Art de capturer des images en mouvement avec maîtrise de la caméra, du son, de la lumière et du montage.",
+      details: "Contrairement à la photo, la vidéo exige une gestion continue du mouvement et du son. Équipement de base : appareil sans miroir, objectif polyvalent, trépied/stabilisateur, micro externe, éclairage.",
+      example: "Pour filmer un témoignage client, on utilise un trépied, un micro-cravate, un éclairage doux en respectant la règle des 180 degrés.",
+      related: ["cinematographie", "mouvements camera", "eclairage", "regle des 180 degres", "balance des blancs"]
+    },
+    "cinematographie": {
+      name: "Cinématographie (7ᵉ art)",
+      definition: "L'art de raconter une histoire par la lumière, le cadre, le mouvement et la composition visuelle.",
+      details: "Va au-delà de la captation technique. Utilise éclairage, profondeur de champ, ralenti, musique pour créer une émotion. En marketing, vendre une expérience plutôt qu'un produit.",
+      example: "Au lieu de filmer un burger, on utilise un éclairage tamisé, un ralenti, une musique émouvante pour vendre le plaisir.",
+      related: ["videographie", "mouvements camera", "eclairage", "regle des trois tiers", "echelle des plans"]
+    },
+    "mouvements camera": {
+      name: "Mouvements de Caméra",
+      definition: "Techniques de déplacement de la caméra pour dynamiser le récit visuel.",
+      details: "Panoramique (horizontal), tilt (vertical), travelling (avant/arrière/latéral), zoom, grue, steadycam. Chaque mouvement a un sens psychologique (ex : travelling avant = immersion, travelling arrière = éloignement émotionnel).",
+      example: "Un travelling avant lent vers le fondateur racontant sa 'naissance' crée une intimité croissante avec le spectateur.",
+      related: ["travelling", "plongee contre plongee", "champ contrechamp", "cinematographie"]
+    },
+    "travelling": {
+      name: "Travelling",
+      definition: "Déplacement physique de la caméra (sur rails, chariot, steadicam) pendant la prise de vue.",
+      details: "Travelling avant : rapprochement, intensité dramatique. Travelling arrière : éloignement, conclusion. Travelling latéral : suit un sujet, montre un environnement. Le travelling se distingue du zoom qui est un effet optique sans déplacement.",
+      example: "Dans un film d'entreprise, un travelling arrière part du produit et révèle progressivement l'équipe au travail.",
+      related: ["mouvements camera", "cinematographie", "videographie"]
+    },
+    "plongee contre plongee": {
+      name: "Plongée & Contre-Plongée",
+      definition: "Plongée : caméra au-dessus du sujet, le rapetisse. Contre-plongée : caméra en dessous, le grandit.",
+      details: "La plongée exprime la vulnérabilité, la soumission, l'écrasement. La contre-plongée exprime la puissance, la domination, l'héroïsme. Très utilisé en storytelling de marque : contre-plongée sur le fondateur visionnaire, plongée sur les difficultés surmontées.",
+      example: "Interview d'un client satisfait en légère contre-plongée pour le valoriser ; plongée sur les emballages pour montrer la fragilité d'un produit à protéger.",
+      related: ["mouvements camera", "cinematographie", "echelle des plans"]
+    },
+    "champ contrechamp": {
+      name: "Champ / Contrechamp",
+      definition: "Deux plans successifs montrant alternativement deux personnages qui se font face.",
+      details: "Respecte la règle des 180 degrés. Le champ montre un personnage, le contrechamp montre l'autre. Utilisé pour les dialogues, les témoignages, les démonstrations produit-client. Renforce l'engagement émotionnel.",
+      example: "Témoignage client : champ sur le client qui s'exprime, contrechamp sur le produit qu'il utilise ou le logo de la marque.",
+      related: ["regle des 180 degres", "mouvements camera", "videographie"]
+    },
+    "regle des 180 degres": {
+      name: "Règle des 180 Degrés",
+      definition: "Ligne imaginaire entre deux interlocuteurs ; la caméra doit rester du même côté pour maintenir la continuité visuelle.",
+      details: "Si on franchit la ligne, les personnages semblent ne plus se regarder, créant une confusion. Fondamental pour les interviews et scènes de dialogue.",
+      example: "Client à gauche regardant vers la droite ; toutes les caméras restent du même côté de la ligne.",
+      related: ["champ contrechamp", "videographie", "cinematographie"]
+    },
+    "echelle des plans": {
+      name: "Échelle des Plans",
+      definition: "Classification des cadres selon la distance au sujet, chacun ayant un impact psychologique.",
+      details: "Très gros plan (détail), gros plan (émotion), plan américain (action), plan d'ensemble (contexte), plan général (immensité).",
+      example: "Très gros plan sur les mains de l'artisan pour montrer le savoir-faire ; plan d'ensemble du restaurant plein pour la preuve sociale.",
+      related: ["videographie", "cinematographie", "mouvements camera"]
+    },
+    "regle des trois tiers": {
+      name: "Règle des Trois Tiers",
+      definition: "Division du cadre en 9 zones égales. Placer le sujet aux intersections pour une composition dynamique.",
+      details: "Crée du dynamisme, guide le regard. L'espace vide devant le sujet suggère l'avenir.",
+      example: "Fondateur positionné sur un point de tier latéral, regard vers l'intérieur de l'image.",
+      related: ["videographie", "cinematographie", "eclairage"]
+    },
+    "eclairage": {
+      name: "Éclairage",
+      definition: "Technique de modelage de la lumière pour donner du volume, de la texture et de l'émotion.",
+      details: "Éclairage 3 points : lumière principale (key), remplissage (fill), contre-jour (back). Lumière douce pour la beauté, dure pour le drame. Température de couleur (kelvin) influence l'ambiance.",
+      example: "Un plat éclairé avec une softbox derrière pour des reflets gourmands et un réflecteur devant pour déboucher les ombres.",
+      related: ["cinematographie", "videographie", "balance des blancs"]
+    },
+    "balance des blancs": {
+      name: "Balance des Blancs",
+      definition: "Réglage de l'appareil photo/caméra pour que les blancs soient neutres, sans dominante de couleur.",
+      details: "Mesurée en Kelvin. 3200K = lumière tungstène (jaune), 5600K = lumière du jour. Cruciale pour la fidélité des couleurs produits. Peut être détournée pour créer une ambiance (chaude pour nostalgie, froide pour modernité).",
+      example: "Une viande mal équilibrée paraît bleuâtre et détruit la confiance. Une scène de fondateur en tons chauds évoque la nostalgie de la création.",
+      related: ["eclairage", "videographie", "cinematographie"]
+    },
+
+    // ────────── PHOTOGRAPHIE ──────────
+    "photographie": {
+      name: "Photographie",
+      definition: "Art de capturer des images fixes via un appareil photo, en maîtrisant l'exposition, la composition et la lumière.",
+      details: "Exposition = triangle : ouverture (f/), vitesse (s), ISO. Composition : règle des tiers, lignes de force, symétrie. Formats : RAW (non compressé) ou JPEG (compressé). Résolution en pixels.",
+      example: "Pour un portrait professionnel, utiliser une grande ouverture (f/2.8) pour un flou d'arrière-plan et une vitesse ≥ 1/125s pour figer le mouvement.",
+      related: ["exposition", "pixel", "balance des blancs", "regle des trois tiers", "eclairage"]
+    },
+    "exposition": {
+      name: "Exposition (Triangle d'exposition)",
+      definition: "L'exposition est contrôlée par trois paramètres : l'ouverture, la vitesse d'obturation et la sensibilité ISO.",
+      details: "Ouverture (f/) : contrôle la quantité de lumière et la profondeur de champ. Vitesse (s) : fige ou file le mouvement. ISO : sensibilité du capteur (bruit si élevé). L'équilibre des trois détermine l'exposition correcte.",
+      example: "Photo de paysage : f/11, 1/250s, ISO 100. Photo de sport en intérieur : f/2.8, 1/1000s, ISO 3200.",
+      related: ["photographie", "balance des blancs", "pixel"]
+    },
+    "pixel": {
+      name: "Pixel et Résolution",
+      definition: "Un pixel est le plus petit élément d'une image numérique. La résolution est le nombre total de pixels (ex : 1920x1080).",
+      details: "Plus il y a de pixels, plus l'image est détaillée et peut être agrandie. Mégapixels (MP) = millions de pixels. 24 MP = 6000x4000 pixels. Important pour l'impression grand format.",
+      example: "Une photo de 12 MP suffit pour le web et les réseaux sociaux. Pour une bâche publicitaire de 2m, il faut au moins 24 MP.",
+      related: ["photographie", "exposition"]
+    },
+    "appareil photo": {
+      name: "Choisir un Appareil Photo",
+      definition: "Critères de choix : type (reflex, hybride, compact, smartphone), taille du capteur, objectifs disponibles, ergonomie, budget.",
+      details: "Hybride (mirrorless) : le meilleur compromis qualité/compacité. Plein format (full frame) pour la meilleure qualité d'image et faible lumière. APS-C : bon rapport qualité/prix. Micro 4/3 : très compact. Smartphone : pratique, IA intégrée, limité en zoom optique.",
+      example: "Un créateur de contenu débutant choisira un hybride APS-C avec un zoom polyvalent 18-55mm. Un photographe de mariage préférera un plein format avec objectifs lumineux (f/1.4).",
+      related: ["photographie", "exposition", "objectif photo"]
+    },
+    "objectif photo": {
+      name: "Objectifs Photo",
+      definition: "L'objectif détermine l'angle de champ, la profondeur de champ et la quantité de lumière atteignant le capteur.",
+      details: "Focale fixe (ex : 50mm f/1.8) : grande ouverture, piqué, encombrement réduit. Zoom (ex : 24-70mm f/2.8) : polyvalence, lourd, moins lumineux. Grand-angle (<35mm) : paysage, architecture. Téléobjectif (>85mm) : portrait, sport, animalier.",
+      example: "Pour un shooting produit, un 100mm macro f/2.8 permet de capturer les détails avec un joli flou.",
+      related: ["photographie", "appareil photo", "exposition"]
+    },
+    "reglages photo": {
+      name: "Réglages et Dimensions Photo",
+      definition: "Comprendre les formats d'image, les ratios et les réglages de base pour différents usages.",
+      details: "Ratios : 3:2 (standard), 4:3 (micro 4/3), 1:1 (carré Instagram), 16:9 (vidéo). Formats de fichier : RAW (retouche), JPEG (partage). Résolution d'impression : 300 DPI pour qualité pro. Taille web : 72 DPI.",
+      example: "Pour une impression A4 de qualité, il faut 2480x3508 pixels (300 DPI). Pour Instagram, 1080x1080 pixels (1:1).",
+      related: ["photographie", "pixel", "exposition"]
+    },
+
+    // ────────── GESTION & ÉTHIQUE ──────────
+    "gestion entreprise": {
+      name: "Gestion d'Entreprise (Management)",
+      definition: "Pratiques pour diriger, organiser et faire croître une entreprise efficacement.",
+      details: "Leadership : vision, motivation, prise de décision. Gestion d'équipe : recrutement, délégation, feedback. Finances : trésorerie, budget, rentabilité. Stratégie : objectifs SMART, KPIs, pivot si nécessaire. Communication interne : transparence, outils collaboratifs.",
+      example: "Un manager fixe des objectifs trimestriels, délègue les tâches selon les forces de chacun, et organise un point hebdomadaire de 15 minutes pour lever les blocages.",
+      related: ["strategie marketing", "ethique marketing", "bienseance"]
+    },
+    "gestion marketing": {
+      name: "Gérer un Marketing Efficace",
+      definition: "Coordonner les actions marketing pour atteindre les objectifs business en respectant le budget et les délais.",
+      details: "Plan marketing : objectifs, cibles, canaux, budget, calendrier. Suivi : KPIs, analytics, ajustements. Veille concurrentielle et tendances. Collaboration avec équipes ventes et produit. Automatisation : CRM, emailing, chatbots.",
+      example: "Une PME lance un plan trimestriel : SEO (blog), SEA (Google Ads), social media (Instagram), et mesure le ROI de chaque canal chaque semaine.",
+      related: ["marketing digital", "strategie marketing", "kpi", "ethique marketing"]
+    },
+    "ethique marketing": {
+      name: "Éthique en Marketing",
+      definition: "Principes moraux guidant les pratiques marketing pour respecter les consommateurs et la société.",
+      details: "Vérité : ne pas tromper (publicité mensongère). Respect de la vie privée : consentement, RGPD. Ciblage responsable : éviter les enfants, personnes vulnérables. Durabilité : éviter le greenwashing. Transparence : prix clairs, conditions générales. Équité : ne pas exploiter les biais cognitifs de manière abusive.",
+      example: "Une marque de cosmétiques annonce '90% d'ingrédients naturels' sans cacher les 10% restants, plutôt que de prétendre '100% naturel'.",
+      related: ["bienseance", "gestion entreprise", "strategie marketing"]
+    },
+    "bienseance": {
+      name: "Règles de Bienséance (Savoir-Vivre Professionnel)",
+      definition: "Ensemble des comportements et attitudes favorisant des relations professionnelles harmonieuses.",
+      details: "Politesse : bonjour, merci, s'il vous plaît. Ponctualité : respect des horaires. Écoute active : ne pas couper la parole. Discrétion : confidentialité. Présentation : tenue adaptée, soin personnel. Communication non-violente : exprimer ses besoins sans agresser. Respect des cultures et différences.",
+      example: "Lors d'un rendez-vous client, arriver 5 minutes en avance, saluer avec le sourire, ranger son téléphone, et reformuler les besoins du client pour montrer son écoute.",
+      related: ["gestion entreprise", "ethique marketing"]
+    },
+
+    // ────────── RÉPONSES COURTES (salutations, etc.) ──────────
+    "salutation": {
+      name: "Salutations",
+      definition: "Réponses automatiques pour engager la conversation poliment.",
+      details: "Le coach répond aux bonjour, bonsoir, salut, hello de manière chaleureuse et professionnelle.",
+      example: "Bonjour ! Je suis votre Digital Coach. Comment puis-je vous aider aujourd'hui ?",
+      related: []
+    },
+    "remerciement": {
+      name: "Remerciements",
+      definition: "Réponses automatiques aux marques de gratitude.",
+      details: "Le coach répond aux mercis par une note positive et encourageante.",
+      example: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions.",
+      related: []
+    }
+  };
+
+  // Mots-clés enrichis pour la détection
+  const KEYWORDS_MAP = [
+    // Salutations
+    { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir"] },
+    { topic: "remerciement", keywords: ["merci", "thanks", "thx", "super merci", "génial merci"] },
+    // Marketing existant
+    { topic: "marketing digital", keywords: ["marketing digital", "marketing numérique", "digital marketing", "marketing en ligne"] },
+    { topic: "seo", keywords: ["seo", "référencement", "référencement naturel", "optimisation moteur", "référencement seo", "positionner site"] },
+    { topic: "sea", keywords: ["sea", "publicité payante", "google ads", "search ads", "campagne payante", "adwords", "annonce google"] },
+    { topic: "reseaux sociaux", keywords: ["réseaux sociaux", "social media", "facebook", "instagram", "linkedin", "tiktok", "médias sociaux"] },
+    { topic: "email marketing", keywords: ["email marketing", "emailing", "newsletter", "campagne email"] },
+    { topic: "content marketing", keywords: ["content marketing", "marketing de contenu", "stratégie contenu", "blog marketing", "création contenu"] },
+    { topic: "branding", keywords: ["branding", "image de marque", "marque", "identité de marque", "notoriété"] },
+    { topic: "copywriting", keywords: ["copywriting", "rédaction publicitaire", "texte persuasif", "rédaction web"] },
+    { topic: "analytics", keywords: ["analytics", "web analytics", "google analytics", "analyse données", "data marketing"] },
+    { topic: "kpi", keywords: ["kpi", "indicateurs", "indicateur clé", "performance marketing", "roi", "roas"] },
+    { topic: "inbound", keywords: ["inbound", "inbound marketing", "marketing d'attraction", "pull marketing"] },
+    { topic: "outbound", keywords: ["outbound", "outbound marketing", "marketing sortant", "push marketing"] },
+    { topic: "strategie marketing", keywords: ["stratégie marketing", "stratégie", "stratégie digitale", "plan marketing"] },
+    { topic: "maturite digitale", keywords: ["maturité digitale", "niveau numérique", "transformation digitale"] },
+    { topic: "naissance entreprise", keywords: ["naissance entreprise", "histoire entreprise", "récit fondateur", "fondateur"] },
+    { topic: "multimoment", keywords: ["multimoment", "multi-moment", "parcours client", "omnicanal"] },
+    { topic: "diagnostic", keywords: ["diagnostic", "diagnostic stratégique", "analyse marché"] },
+    { topic: "erreurs marketing", keywords: ["erreurs marketing", "pièges marketing", "erreur stratégique"] },
+    { topic: "webdesigner vs webmaster", keywords: ["webdesigner", "webmaster", "différence webdesigner"] },
+    { topic: "blog marketing", keywords: ["blog marketing", "hub central", "blog entreprise"] },
+    // Vidéographie
+    { topic: "videographie", keywords: ["vidéographie", "vidéo", "filmer", "captation vidéo", "création vidéo"] },
+    { topic: "cinematographie", keywords: ["cinématographie", "7ème art", "esthétique vidéo", "art vidéo", "cinéma"] },
+    { topic: "mouvements camera", keywords: ["mouvements de caméra", "mouvement caméra", "panoramique", "tilt", "steadycam"] },
+    { topic: "travelling", keywords: ["travelling", "travelling avant", "travelling arrière"] },
+    { topic: "plongee contre plongee", keywords: ["plongée", "contre-plongée", "plongee", "contre plongee"] },
+    { topic: "champ contrechamp", keywords: ["champ contrechamp", "champ contre champ", "champ/contrechamp"] },
+    { topic: "regle des 180 degres", keywords: ["180 degrés", "règle 180", "saut de ligne", "dialogue caméra"] },
+    { topic: "echelle des plans", keywords: ["échelle des plans", "type de plan", "gros plan", "plan américain", "plan d'ensemble"] },
+    { topic: "regle des trois tiers", keywords: ["règle des trois tiers", "composition", "cadrage", "points forts"] },
+    { topic: "eclairage", keywords: ["éclairage", "lumière", "softbox", "éclairer", "lumière produit", "three point lighting"] },
+    { topic: "balance des blancs", keywords: ["balance des blancs", "white balance", "température couleur", "kelvin"] },
+    // Photographie
+    { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe"] },
+    { topic: "exposition", keywords: ["exposition", "triangle d'exposition", "ouverture", "vitesse", "iso", "vitesse obturation"] },
+    { topic: "pixel", keywords: ["pixel", "résolution", "mégapixels", "mp", "dpi"] },
+    { topic: "appareil photo", keywords: ["appareil photo", "quel appareil", "choisir appareil", "reflex", "hybride", "mirrorless"] },
+    { topic: "objectif photo", keywords: ["objectif", "lentille", "focale", "zoom", "grand angle", "téléobjectif"] },
+    { topic: "reglages photo", keywords: ["réglages photo", "dimension photo", "format photo", "ratio", "raw", "jpeg"] },
+    // Gestion & Éthique
+    { topic: "gestion entreprise", keywords: ["gestion entreprise", "management", "manager", "diriger entreprise", "leadership"] },
+    { topic: "gestion marketing", keywords: ["gérer marketing", "plan marketing", "coordonner marketing"] },
+    { topic: "ethique marketing", keywords: ["éthique marketing", "ethique", "déontologie", "publicité mensongère", "greenwashing"] },
+    { topic: "bienseance", keywords: ["bienséance", "savoir-vivre", "politesse", "ponctualité", "respect"] },
+    { topic: "psychologie acheteur", keywords: ["psychologie acheteur", "psychologie client", "preuve sociale", "rareté", "réciprocité", "autorité"] }
+  ];
+
+  function findTopic(question) {
+    const q = question.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    // Vérifier d'abord les salutations très courtes
+    if (/^(bonjour|salut|hello|coucou|bjr|bonsoir)\b/.test(q)) return "salutation";
+    if (/^(merci|thanks|thx)/.test(q)) return "remerciement";
+    // Parcourir la table de mots-clés
+    for (let mapping of KEYWORDS_MAP) {
+      for (let kw of mapping.keywords) {
+        if (q.includes(kw.toLowerCase())) {
+          return mapping.topic;
+        }
+      }
+    }
+    // Question globale
+    if (q.includes("comment faire un bon marketing") || q.includes("réussir marketing")) return "guide global";
+    return null;
+  }
+
+  function buildAnswerHtml(topicKey) {
+    if (topicKey === "salutation") {
+      return `<p>👋 Bonjour ! Je suis votre <strong>Digital Coach</strong>. Je peux vous aider sur le marketing digital, la vidéo, la photo, la gestion d'entreprise ou l'éthique. Posez-moi votre question !</p>`;
+    }
+    if (topicKey === "remerciement") {
+      return `<p>Avec plaisir ! 🌟 N'hésitez pas si vous avez d'autres questions. Je suis là pour vous aider à progresser.</p>`;
+    }
+    if (topicKey === "guide global") {
+      return `<div class="em-title">📘 Comment faire un bon marketing digital ?</div>
+<p>Un bon marketing digital repose sur <strong>5 étapes clés</strong> :</p>
+<p>1️⃣ <strong>Analyse et diagnostic</strong> : Qui est votre client idéal ? Quels sont ses besoins ? Quel est votre avantage concurrentiel ?</p>
+<p>2️⃣ <strong>Stratégie</strong> : Choisissez les bons canaux (SEO, réseaux sociaux, email) et le message adapté à votre public.</p>
+<p>3️⃣ <strong>Outils et contenu</strong> : Créez un blog central, des vidéos, des visuels. Soyez cohérent sur tous les points de contact (multi-moment).</p>
+<p>4️⃣ <strong>Exécution</strong> : Publiez régulièrement, engagez votre communauté, lancez des campagnes (SEA si nécessaire).</p>
+<p>5️⃣ <strong>Mesure et ajustement</strong> : Utilisez les analytics pour suivre vos KPI et améliorez continuellement.</p>
+<p>💡 <em>N'oubliez pas la psychologie de l'acheteur : preuve sociale, rareté, réciprocité, autorité, cohérence.</em></p>
+<hr>
+<p>🔗 Explorer :</p>`;
+    }
+    const data = KNOWLEDGE[topicKey];
+    if (!data) return "<span>❌ Désolé, cette notion n'est pas encore dans ma base. Essayez un autre thème.</span>";
+    
+    const safeDef = esc(data.definition);
+    const safeDetails = esc(data.details);
+    const safeExample = esc(data.example);
+    
+    let html = `
+      <div class="em-title">📘 Définition</div>
+      <p>${safeDef}</p>
+      <div class="em-title" style="margin-top:12px;">📝 Explication détaillée</div>
+      <p>${safeDetails}</p>
+      <div class="em-title" style="margin-top:12px;">💡 Exemple concret</div>
+      <p>${safeExample}</p>
+      <hr>
+      <div style="font-size:0.85rem; margin: 8px 0 4px;">🔗 Explorer des sujets liés :</div>
+      <div class="related-buttons" id="related-buttons-${topicKey.replace(/\s/g, '')}"></div>
+    `;
+    return html;
+  }
+
+  function attachRelatedButtons(topicKey, containerElement) {
+    if (topicKey === "guide global") {
+      const defaultRelated = ["strategie marketing", "diagnostic", "psychologie acheteur", "marketing digital", "multimoment"];
+      const relatedContainer = containerElement.querySelector(`.related-buttons`);
+      if (relatedContainer) {
+        relatedContainer.innerHTML = "";
+        for (let relKey of defaultRelated) {
+          const relData = KNOWLEDGE[relKey];
+          if (relData) {
+            const btn = document.createElement("button");
+            btn.className = "related-btn";
+            btn.innerText = relData.name || relKey;
+            btn.onclick = () => askTopicDirectly(relKey);
+            relatedContainer.appendChild(btn);
+          }
+        }
+      }
+      return;
+    }
+    const data = KNOWLEDGE[topicKey];
+    if (!data || !data.related) return;
+    const relatedContainer = containerElement.querySelector(`.related-buttons`);
+    if (!relatedContainer) return;
+    relatedContainer.innerHTML = "";
+    for (let relTopicKey of data.related) {
+      const relData = KNOWLEDGE[relTopicKey];
+      if (relData) {
+        const btn = document.createElement("button");
+        btn.className = "related-btn";
+        btn.innerText = relData.name || relTopicKey;
+        btn.onclick = () => askTopicDirectly(relTopicKey);
+        relatedContainer.appendChild(btn);
+      }
+    }
+  }
+
+  // UI globals
+  let isWaiting = false;
+  const chatContainer = document.getElementById("chatContainer");
+  const userInput = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  
+  function addUserMessage(text) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message user";
+    msgDiv.innerHTML = `
+      <div class="bubble">${esc(text)}</div>
+      <div class="timestamp">👤 Vous · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
+    `;
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+  }
+
+  function addAgentMessage(htmlContent, topicKeyForRelated = null) {
+    const msgDiv = document.createElement("div");
+    msgDiv.className = "message agent";
+    const bubbleDiv = document.createElement("div");
+    bubbleDiv.className = "bubble";
+    bubbleDiv.innerHTML = htmlContent;
+    msgDiv.appendChild(bubbleDiv);
+    const timeSpan = document.createElement("div");
+    timeSpan.className = "timestamp";
+    timeSpan.innerText = `🤖 Coach · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+    msgDiv.appendChild(timeSpan);
+    chatContainer.appendChild(msgDiv);
+    scrollToBottom();
+    if (topicKeyForRelated) {
+      attachRelatedButtons(topicKeyForRelated, bubbleDiv);
+    }
+    return msgDiv;
+  }
+  
+  function scrollToBottom() {
+    setTimeout(() => {
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 30);
+  }
+  
+  let typingDiv = null;
+  function showTyping() {
+    if (typingDiv) removeTyping();
+    typingDiv = document.createElement("div");
+    typingDiv.className = "message agent";
+    typingDiv.innerHTML = `
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+        <span style="margin-left:6px; font-size:0.75rem;">Le coach réfléchit...</span>
+      </div>
+    `;
+    chatContainer.appendChild(typingDiv);
+    scrollToBottom();
+  }
+  function removeTyping() {
+    if (typingDiv) {
+      typingDiv.remove();
+      typingDiv = null;
+    }
+  }
+  
+  async function getResponseForQuestion(questionText) {
+    const normalizedQuestion = questionText.trim();
+    if (!normalizedQuestion) return { html: "Posez une question précise." };
+    const topic = findTopic(normalizedQuestion);
+    if (topic) {
+      return { html: buildAnswerHtml(topic), topicKey: topic };
+    } else {
+      const suggestions = Object.keys(KNOWLEDGE).slice(0, 8).map(k => KNOWLEDGE[k].name).join(", ");
+      return { html: `<p>🤔 Je n'ai pas trouvé de sujet correspondant à "<strong>${esc(normalizedQuestion)}</strong>".</p><p>💡 Essayez plutôt : ${esc(suggestions)}...<br>Ou cliquez sur un thème ci-dessus.</p>`, topicKey: null };
+    }
+  }
+  
+  async function sendMessage(userText) {
+    if (isWaiting) return;
+    if (!userText.trim()) return;
+    isWaiting = true;
+    sendBtn.disabled = true;
+    userInput.disabled = true;
+    
+    addUserMessage(userText);
+    userInput.value = "";
+    
+    showTyping();
+    await new Promise(r => setTimeout(r, 350));
+    
+    const responseObj = await getResponseForQuestion(userText);
+    removeTyping();
+    addAgentMessage(responseObj.html, responseObj.topicKey);
+    
+    isWaiting = false;
+    sendBtn.disabled = false;
+    userInput.disabled = false;
+    userInput.focus();
+    scrollToBottom();
+  }
+  
+  function askTopicDirectly(topicKey) {
+    const topicData = KNOWLEDGE[topicKey];
+    if (!topicData) return;
+    const questionPhrase = `Explique-moi ${topicData.name}`;
+    sendMessage(questionPhrase);
+  }
+  
+  function buildTopicsBar() {
+    const topicsBar = document.getElementById("topicsBar");
+    topicsBar.innerHTML = "";
+    // Afficher une sélection de catégories principales
+    const categories = [
+      { key: "marketing digital", icon: "📊" },
+      { key: "seo", icon: "🔍" },
+      { key: "sea", icon: "💰" },
+      { key: "reseaux sociaux", icon: "📱" },
+      { key: "strategie marketing", icon: "🎯" },
+      { key: "psychologie acheteur", icon: "🧠" },
+      { key: "videographie", icon: "🎥" },
+      { key: "mouvements camera", icon: "🎬" },
+      { key: "photographie", icon: "📷" },
+      { key: "exposition", icon: "☀️" },
+      { key: "gestion entreprise", icon: "🏢" },
+      { key: "ethique marketing", icon: "⚖️" },
+      { key: "bienseance", icon: "🤝" }
+    ];
+    for (let cat of categories) {
+      const btn = document.createElement("button");
+      btn.className = "topic-btn";
+      btn.innerHTML = `${cat.icon} ${KNOWLEDGE[cat.key].name}`;
+      btn.addEventListener("click", () => askTopicDirectly(cat.key));
+      topicsBar.appendChild(btn);
+    }
+  }
+  
+  function onSend() {
+    const text = userInput.value.trim();
+    if (text) sendMessage(text);
+  }
+  
+  sendBtn.addEventListener("click", onSend);
+  userInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter" && !isWaiting) {
+      e.preventDefault();
+      onSend();
+    }
+  });
+  
+  buildTopicsBar();
+  scrollToBottom();
+</script>
+</body>
+</html>
