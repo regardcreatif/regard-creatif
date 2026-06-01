@@ -16,6 +16,35 @@
     <meta property="og:image" content="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
     <meta property="og:locale" content="fr_HT">
     <link rel="icon" type="image/webp" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
+    
+    <!-- Transformers.js -->
+    <script type="module">
+        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.0/dist/transformers.min.js';
+        
+        window.chatPipeline = null;
+        window.chatLoading = false;
+        
+        async function loadChat() {
+            if (window.chatPipeline) return;
+            if (window.chatLoading) return;
+            window.chatLoading = true;
+            
+            window.chatPipeline = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct');
+            window.chatLoading = false;
+        }
+        
+        window.generateResponse = async function(prompt) {
+            if (!window.chatPipeline) {
+                await loadChat();
+            }
+            const result = await window.chatPipeline(prompt, { max_new_tokens: 150, temperature: 0.7 });
+            return result[0].generated_text.replace(prompt, '').trim();
+        };
+        
+        // Précharger en arrière-plan
+        loadChat();
+    </script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         body {
@@ -585,6 +614,7 @@
         .assistant-section h2 { margin-bottom: 5px; }
         .assistant-section h2 span { color: #a3ff3b; }
         .assistant-subtitle { color: #888; margin-bottom: 30px; font-size: 1rem; }
+        .loading-text { color: #DAA520; font-size: 0.85rem; margin: 10px 0; }
         @media (max-width: 768px) {
             header { padding: 15px 20px; }
             nav { gap: 12px; }
@@ -739,6 +769,7 @@
     <h2>Regard Créatif IA</h2>
     <p class="ia-subtitle">L'intelligence au service de votre créativité</p>
     <p class="ia-test-invite">💬 <strong>Discutez avec notre IA</strong> — Testez-la gratuitement, posez toutes vos questions !</p>
+    <p class="loading-text" id="ia-loading">⏳ Chargement du modèle IA... (première visite uniquement)</p>
     <div class="ia-chat-box">
         <div class="ia-chat-msgs" id="ia-test-messages">
             <div class="msg ai-gold">🎨 Bonjour ! Je suis <strong>Regard Créatif IA</strong>. Je peux parler de tout : design, créativité, culture générale, ou simplement discuter avec vous. Posez-moi n'importe quelle question !</div>
@@ -861,42 +892,36 @@
 <script src="//code.tidio.co/qe52uuulcolwly3l1f5f8zmjjyo1rud1.js" async></script>
 <script data-host="https://app.microanalytics.io" data-dnt="false" src="https://app.microanalytics.io/js/script.js" id="ZwSg9rf6GA" async defer></script>
 
-<!-- ═══════════ SCRIPTS IA ═══════════ -->
+<!-- SCRIPTS IA - Transformers.js -->
 <script>
-const MU = 'https://regard-creatif-ia.onrender.com/ia';
-
 async function sendIATest() {
     const input = document.getElementById('ia-test-input');
     const btn = document.getElementById('ia-test-btn');
     const msgs = document.getElementById('ia-test-messages');
+    const loading = document.getElementById('ia-loading');
     const q = input.value.trim();
     if (!q) return;
+    
     msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
     input.value = '';
     btn.disabled = true;
     msgs.scrollTop = msgs.scrollHeight;
+    
     const tid = 'ty-ia-' + Date.now();
     msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
+    
     try {
-        const r = await fetch(MU, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: 'Tu es Regard Créatif IA, assistant créatif intégré au site Regard Créatif (studio design graphique Haïti). Tu réponds à TOUTES les questions. Tu es chaleureux, pro, tutoies, émojis légers. Prix → devis personnalisé.' },
-                    { role: 'user', content: q }
-                ],
-                temperature: 0.8, max_tokens: 600
-            })
-        });
-        const d = await r.json();
+        const prompt = `Tu es Regard Créatif IA. Réponds de façon utile et créative à : ${q}`;
+        const reply = await window.generateResponse(prompt);
         document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-gold">${esc(d.content)}</div>`;
+        msgs.innerHTML += `<div class="msg ai-gold">${esc(reply)}</div>`;
+        if (loading) loading.style.display = 'none';
     } catch (e) {
         document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-gold">⚠️ Erreur. Réessaie.</div>`;
+        msgs.innerHTML += `<div class="msg ai-gold">⚠️ Le modèle est en cours de chargement. Réessaie dans quelques secondes.</div>`;
     }
+    
     msgs.scrollTop = msgs.scrollHeight;
     btn.disabled = false;
     input.focus();
@@ -908,32 +933,26 @@ async function sendAssistant() {
     const msgs = document.getElementById('assistant-messages');
     const q = input.value.trim();
     if (!q) return;
+    
     msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
     input.value = '';
     btn.disabled = true;
     msgs.scrollTop = msgs.scrollHeight;
+    
     const tid = 'ty-as-' + Date.now();
     msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
+    
     try {
-        const r = await fetch(MU, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                messages: [
-                    { role: 'system', content: 'Tu es Regard Créatif Assistant. Services : logo pro, flyer, identité visuelle, bannière RS, branding 72h. App gratuite RC Logo Maker. Contact WhatsApp +509 4787 3144, email regardcreatif@proton.me. ❌ JAMAIS de prix. Si demande prix → "Chaque projet est unique ! Le créateur vous fera un devis sur WhatsApp au +509 4787 3144." Pro, poli, tutoies, émojis légers.' },
-                    { role: 'user', content: q }
-                ],
-                temperature: 0.7, max_tokens: 500
-            })
-        });
-        const d = await r.json();
+        const prompt = `Tu es l'assistant de Regard Créatif, studio design Haïti. Services: logo, flyer, branding 72h. App: RC Logo Maker. Contact: +509 4787 3144. Ne donne jamais de prix. Question: ${q}`;
+        const reply = await window.generateResponse(prompt);
         document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-green">${esc(d.content)}</div>`;
+        msgs.innerHTML += `<div class="msg ai-green">${esc(reply)}</div>`;
     } catch (e) {
         document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-green">⚠️ Erreur. Réessaie.</div>`;
+        msgs.innerHTML += `<div class="msg ai-green">⚠️ Le modèle est en cours de chargement. Réessaie dans quelques secondes.</div>`;
     }
+    
     msgs.scrollTop = msgs.scrollHeight;
     btn.disabled = false;
     input.focus();
@@ -948,6 +967,5 @@ function showCompteur() {
     } else { alert("Mot de passe incorrect."); }
 }
 </script>
-
 </body>
 </html>
