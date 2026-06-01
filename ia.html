@@ -50,8 +50,8 @@
 </div>
 
 <script>
-const KEY = 'sk-7a5d20dc45244c8f89c31a3bc35e5551';
-const URL = 'https://api.deepseek.com/chat/completions';
+const KEY = 'b6f9d84c-82ab-46bb-8b79-2c3cc13ffb2d';
+const URL = 'https://api.mistral.ai/v1/chat/completions';
 
 async function send() {
     const input = document.getElementById('q');
@@ -75,7 +75,7 @@ async function send() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KEY}` },
             body: JSON.stringify({
-                model: 'deepseek-chat',
+                model: 'mistral-small-latest',
                 messages: [
                     { role: 'system', content: 'Tu es Regard Créatif IA, une intelligence artificielle créée par Regard Créatif, un studio de design graphique basé en Haïti. Tu es chaleureux, créatif, professionnel. Tu réponds en français. Tu peux parler de tout : design, art, technologie, sciences, culture générale, et aider les utilisateurs avec leurs projets créatifs.' },
                     { role: 'user', content: q }
@@ -89,7 +89,7 @@ async function send() {
             chat.innerHTML += `<div class="msg a">${e(d.choices[0].message.content)}</div>`;
             status.textContent = '● En ligne';
         } else {
-            chat.innerHTML += `<div class="msg a">⚠️ ${d.error?.message || 'Erreur inconnue. Vérifie ta connexion.'}</div>`;
+            chat.innerHTML += `<div class="msg a">⚠️ ${d.error?.message || 'Erreur inconnue.'}</div>`;
             status.textContent = '● Erreur API';
         }
     } catch (x) {
