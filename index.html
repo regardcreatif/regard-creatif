@@ -16,35 +16,6 @@
     <meta property="og:image" content="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
     <meta property="og:locale" content="fr_HT">
     <link rel="icon" type="image/webp" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
-    
-    <!-- Transformers.js -->
-    <script type="module">
-        import { pipeline } from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.4.0/dist/transformers.min.js';
-        
-        window.chatPipeline = null;
-        window.chatLoading = false;
-        
-        async function loadChat() {
-            if (window.chatPipeline) return;
-            if (window.chatLoading) return;
-            window.chatLoading = true;
-            
-            window.chatPipeline = await pipeline('text-generation', 'onnx-community/Qwen2.5-0.5B-Instruct');
-            window.chatLoading = false;
-        }
-        
-        window.generateResponse = async function(prompt) {
-            if (!window.chatPipeline) {
-                await loadChat();
-            }
-            const result = await window.chatPipeline(prompt, { max_new_tokens: 150, temperature: 0.7 });
-            return result[0].generated_text.replace(prompt, '').trim();
-        };
-        
-        // Précharger en arrière-plan
-        loadChat();
-    </script>
-
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         body {
@@ -463,17 +434,17 @@
         }
         footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
 
-        /* SECTION IA OR */
-        .ia-test-section {
+        /* ═══════════ ASSISTANT ═══════════ */
+        .assistant-section {
             background: linear-gradient(180deg, #0a0a0a 0%, #1a1a10 30%, #1a1a10 70%, #0a0a0a 100%);
             border-top: 2px solid #B8860B;
             border-bottom: 2px solid #B8860B;
             padding: 70px 40px;
+            text-align: center;
             position: relative;
             z-index: 1;
-            text-align: center;
         }
-        .ia-test-badge {
+        .assistant-badge {
             display: inline-block;
             background: linear-gradient(135deg, #FFD700, #DAA520, #B8860B);
             color: #000;
@@ -491,9 +462,8 @@
             0%, 100% { box-shadow: 0 4px 25px rgba(212,175,55,0.4); }
             50% { box-shadow: 0 4px 45px rgba(255,215,0,0.7); }
         }
-        .ia-test-logo {
-            width: 90px;
-            height: 90px;
+        .assistant-logo {
+            width: 90px; height: 90px;
             border-radius: 22px;
             margin: 0 auto 20px;
             display: block;
@@ -503,118 +473,67 @@
             padding: 5px;
             object-fit: cover;
         }
-        .ia-test-section h2 {
+        .assistant-section h2 {
             color: #FFD700;
             text-shadow: 0 2px 20px rgba(212,175,55,0.5);
-            margin-bottom: 8px;
+            margin-bottom: 5px;
         }
-        .ia-subtitle { color: #DAA520; font-size: 1rem; margin-bottom: 10px; font-style: italic; }
-        .ia-test-invite {
-            color: #FFD700;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
-            animation: float 3s ease-in-out infinite;
-        }
-        .ia-chat-box {
-            max-width: 700px;
-            margin: 0 auto;
-            background: #0d0d0d;
-            border: 2px solid #B8860B;
-            border-radius: 16px;
-            overflow: hidden;
+        .assistant-section h2 span { color: #a3ff3b; }
+        .assistant-subtitle { color: #DAA520; font-size: 1rem; margin-bottom: 30px; font-style: italic; }
+        
+        .assistant-chat-box {
+            max-width: 700px; margin: 0 auto;
+            background: #0d0d0d; border: 2px solid #B8860B;
+            border-radius: 16px; overflow: hidden;
             box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.15);
         }
-        .ia-chat-msgs {
-            height: 350px;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+        .assistant-chat-msgs {
+            height: 400px; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 10px;
             background: rgba(13,13,13,0.95);
         }
-        .msg {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-            animation: fadeInMsg 0.3s ease-out;
-        }
-        @keyframes fadeInMsg {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; animation: fadeInMsg 0.3s ease-out; }
+        @keyframes fadeInMsg { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .msg.user { align-self: flex-end; background: #1a1a1a; color: #e0e0e0; border: 1px solid #333; }
-        .msg.ai-gold { align-self: flex-start; background: linear-gradient(135deg, #1a1200, #1f1500); color: #FFD700; border: 1px solid #B8860B; }
-        .msg.ai-green { align-self: flex-start; background: #1a1a1a; color: #a3ff3b; border: 1px solid #2a2a2a; }
-        .ia-input-row {
-            display: flex;
-            padding: 12px;
-            gap: 8px;
-            background: #0a0a0a;
-            border-top: 1px solid #B8860B;
+        .msg.agent { align-self: flex-start; background: linear-gradient(135deg, #1a1200, #1f1500); color: #FFD700; border: 1px solid #B8860B; }
+        
+        .assistant-choices {
+            display: flex; flex-wrap: wrap; gap: 8px; padding: 15px;
+            background: #0a0a0a; border-top: 1px solid #B8860B;
+            justify-content: center;
         }
-        .ia-input-row.green-border { border-top: 1px solid #222; }
-        .ia-input-row input {
-            flex: 1;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #FFD700;
-            padding: 14px 18px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            outline: none;
-            font-family: inherit;
+        .assistant-choices button {
+            background: #1a1a1a; color: #FFD700; border: 1px solid #B8860B;
+            padding: 10px 18px; border-radius: 25px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 600; font-family: inherit;
+            transition: all 0.3s; white-space: nowrap;
         }
-        .ia-input-row input:focus { border-color: #FFD700; box-shadow: 0 0 15px rgba(212,175,55,0.2); }
-        .ia-input-row.green-border input { color: #fff; }
-        .ia-input-row.green-border input:focus { border-color: #a3ff3b; box-shadow: 0 0 15px rgba(163,255,59,0.15); }
-        .ia-input-row input::placeholder { color: #555; }
-        .ia-input-row button {
-            background: linear-gradient(135deg, #FFD700, #DAA520);
-            color: #000;
-            border: none;
-            padding: 14px 22px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
-            transition: all 0.3s;
+        .assistant-choices button:hover {
+            background: #FFD700; color: #000; border-color: #FFD700;
+            transform: translateY(-2px); box-shadow: 0 4px 15px rgba(212,175,55,0.4);
         }
-        .ia-input-row button:hover { background: #fff; box-shadow: 0 6px 25px rgba(255,215,0,0.6); transform: translateY(-2px); }
-        .ia-input-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .ia-input-row.green-border button { background: #a3ff3b; box-shadow: none; }
-        .ia-input-row.green-border button:hover { background: #fff; }
+        .assistant-input-row {
+            display: flex; padding: 12px; gap: 8px; background: #0a0a0a; border-top: 1px solid #B8860B;
+        }
+        .assistant-input-row input {
+            flex: 1; background: #1a1a1a; border: 1px solid #333; color: #FFD700;
+            padding: 14px 18px; border-radius: 25px; font-size: 0.95rem; outline: none; font-family: inherit;
+        }
+        .assistant-input-row input:focus { border-color: #FFD700; box-shadow: 0 0 15px rgba(212,175,55,0.2); }
+        .assistant-input-row input::placeholder { color: #555; }
+        .assistant-input-row button {
+            background: linear-gradient(135deg, #FFD700, #DAA520); color: #000; border: none;
+            padding: 14px 22px; border-radius: 25px; font-weight: 700; cursor: pointer;
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3); transition: all 0.3s;
+        }
+        .assistant-input-row button:hover { background: #fff; transform: translateY(-2px); }
+        .assistant-input-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .typing-indicator { display: flex; gap: 4px; padding: 10px 16px; align-self: flex-start; }
-        .typing-indicator span {
-            width: 7px; height: 7px; border-radius: 50%;
-            background: #FFD700; animation: typingBounce 1.2s infinite;
-        }
+        .typing-indicator span { width: 7px; height: 7px; border-radius: 50%; background: #FFD700; animation: typingBounce 1.2s infinite; }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-        @keyframes typingBounce {
-            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-            30% { transform: translateY(-8px); opacity: 1; }
-        }
-        .assistant-section {
-            background: #0a0a0a;
-            border-top: 1px solid #1a1a1a;
-            border-bottom: 1px solid #1a1a1a;
-            padding: 60px 40px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-        }
-        .assistant-section h2 { margin-bottom: 5px; }
-        .assistant-section h2 span { color: #a3ff3b; }
-        .assistant-subtitle { color: #888; margin-bottom: 30px; font-size: 1rem; }
-        .loading-text { color: #DAA520; font-size: 0.85rem; margin: 10px 0; }
+        @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-8px); opacity: 1; } }
         @media (max-width: 768px) {
             header { padding: 15px 20px; }
             nav { gap: 12px; }
@@ -631,8 +550,8 @@
             .galerie-float { width: 50px; height: 50px; font-size: 1.4rem; bottom: 80px; right: 15px; }
             .flip-float { width: 50px; height: 50px; bottom: 145px; right: 15px; }
             .robot-float { width: 65px; height: 65px; bottom: 205px; right: 8px; }
-            .ia-test-section, .assistant-section { padding: 40px 20px; }
-            .ia-chat-msgs { height: 250px; }
+            .assistant-section { padding: 40px 20px; }
+            .assistant-chat-msgs { height: 300px; }
         }
     </style>
 </head>
@@ -653,7 +572,7 @@
         <a href="#galerie">Galerie</a>
         <a href="#avis">Avis</a>
         <a href="#about">À propos</a>
-        <a href="#chat-section">Chat</a>
+        <a href="#assistant">Assistant</a>
         <a href="#contact" class="btn-devis pulse">Devis</a>
     </nav>
 </header>
@@ -686,9 +605,7 @@
     <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" class="promo-icon" alt="RC Logo Maker">
     <h3>RC Logo Maker</h3>
     <p>Créez des logos professionnels en quelques minutes avec notre application gratuite. Simple, puissante, et accessible à tous.</p>
-    <a href="https://regardcreatif.github.io/regard-creatif/app-release.apk" class="promo-dl-btn">
-        <i class="fa-solid fa-download"></i> Téléchargez ici
-    </a>
+    <a href="https://regardcreatif.github.io/regard-creatif/logomaker/editor.html" class="promo-dl-btn">🚀 Accéder à l'application</a>
 </section>
 
 <section id="modeles" class="modeles-section">
@@ -716,12 +633,6 @@
             <div class="galerie-card"><img src="https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg" alt="Un silence qui crie" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Un silence qui crie."</p><p class="card-subtitle">Quand les émotions traversent la toile.</p></div></div>
         </div>
     </div>
-</section>
-
-<section id="chat-section" class="chat-section">
-    <h2>Parlez à <span>Regard Créatif</span></h2>
-    <p>Une question ? Un projet ? Discutez avec notre assistant en direct.</p>
-    <a href="#assistant" class="chat-btn pulse">💬 Ouvrir l'assistant</a>
 </section>
 
 <section id="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
@@ -762,36 +673,28 @@
     <div class="success-message" id="success-message">✅ Message envoyé avec succès. Je vous réponds sous 24h.</div>
 </section>
 
-<!-- REGARD CRÉATIF IA -->
-<section id="ia-test" class="ia-test-section">
-    <span class="ia-test-badge">✨ Intelligence Artificielle</span>
-    <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif IA" class="ia-test-logo">
-    <h2>Regard Créatif IA</h2>
-    <p class="ia-subtitle">L'intelligence au service de votre créativité</p>
-    <p class="ia-test-invite">💬 <strong>Discutez avec notre IA</strong> — Testez-la gratuitement, posez toutes vos questions !</p>
-    <p class="loading-text" id="ia-loading">⏳ Chargement du modèle IA... (première visite uniquement)</p>
-    <div class="ia-chat-box">
-        <div class="ia-chat-msgs" id="ia-test-messages">
-            <div class="msg ai-gold">🎨 Bonjour ! Je suis <strong>Regard Créatif IA</strong>. Je peux parler de tout : design, créativité, culture générale, ou simplement discuter avec vous. Posez-moi n'importe quelle question !</div>
-        </div>
-        <div class="ia-input-row">
-            <input type="text" id="ia-test-input" placeholder="Posez votre question ici..." onkeydown="if(event.key==='Enter')sendIATest()">
-            <button onclick="sendIATest()" id="ia-test-btn">Envoyer</button>
-        </div>
-    </div>
-</section>
-
-<!-- ASSISTANT -->
+<!-- ═══════════ ASSISTANT REGARD CRÉATIF ═══════════ -->
 <section id="assistant" class="assistant-section">
+    <span class="assistant-badge">✨ Assistant Intelligent</span>
+    <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif Assistant" class="assistant-logo">
     <h2>Regard Créatif <span>Assistant</span></h2>
-    <p class="assistant-subtitle">Besoin d'aide avec nos services ? L'assistant est là pour vous guider.</p>
-    <div class="ia-chat-box">
-        <div class="ia-chat-msgs" id="assistant-messages">
-            <div class="msg ai-green">👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services (logo, flyer, branding, RC Logo Maker...), nos délais, et vous mettre en contact avec le créateur.<br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em></div>
+    <p class="assistant-subtitle">Besoin d'aide ? Choisissez une option ou écrivez votre question.</p>
+    
+    <div class="assistant-chat-box">
+        <div class="assistant-chat-msgs" id="assistant-messages">
+            <div class="msg agent">👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services, nos délais, et vous mettre en contact avec le créateur.<br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em></div>
         </div>
-        <div class="ia-input-row green-border">
-            <input type="text" id="assistant-input" placeholder="Comment puis-je vous aider ?" onkeydown="if(event.key==='Enter')sendAssistant()">
-            <button onclick="sendAssistant()" id="assistant-btn">Envoyer</button>
+        <div class="assistant-choices" id="assistant-choices">
+            <button onclick="askAssistant('Quels sont vos services ?')">🎨 Services</button>
+            <button onclick="askAssistant('Quels sont vos délais ?')">⏱️ Délais</button>
+            <button onclick="askAssistant('Comment créer mon logo ?')">🔧 RC Logo Maker</button>
+            <button onclick="askAssistant('Quel est le prix ?')">💰 Tarifs</button>
+            <button onclick="askAssistant('Comment vous contacter ?')">📱 Contact</button>
+            <button onclick="askAssistant('Qui êtes-vous ?')">ℹ️ À propos</button>
+        </div>
+        <div class="assistant-input-row">
+            <input type="text" id="assistant-input" placeholder="Écrivez votre question..." onkeydown="if(event.key==='Enter')askAssistant(document.getElementById('assistant-input').value)">
+            <button onclick="askAssistant(document.getElementById('assistant-input').value)">Envoyer</button>
         </div>
     </div>
 </section>
@@ -892,70 +795,55 @@
 <script src="//code.tidio.co/qe52uuulcolwly3l1f5f8zmjjyo1rud1.js" async></script>
 <script data-host="https://app.microanalytics.io" data-dnt="false" src="https://app.microanalytics.io/js/script.js" id="ZwSg9rf6GA" async defer></script>
 
-<!-- SCRIPTS IA - Transformers.js -->
+<!-- ═══════════ AGENT AUTOMATIQUE ═══════════ -->
 <script>
-async function sendIATest() {
-    const input = document.getElementById('ia-test-input');
-    const btn = document.getElementById('ia-test-btn');
-    const msgs = document.getElementById('ia-test-messages');
-    const loading = document.getElementById('ia-loading');
-    const q = input.value.trim();
-    if (!q) return;
-    
-    msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
-    input.value = '';
-    btn.disabled = true;
-    msgs.scrollTop = msgs.scrollHeight;
-    
-    const tid = 'ty-ia-' + Date.now();
-    msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
-    msgs.scrollTop = msgs.scrollHeight;
-    
-    try {
-        const prompt = `Tu es Regard Créatif IA. Réponds de façon utile et créative à : ${q}`;
-        const reply = await window.generateResponse(prompt);
-        document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-gold">${esc(reply)}</div>`;
-        if (loading) loading.style.display = 'none';
-    } catch (e) {
-        document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-gold">⚠️ Le modèle est en cours de chargement. Réessaie dans quelques secondes.</div>`;
-    }
-    
-    msgs.scrollTop = msgs.scrollHeight;
-    btn.disabled = false;
-    input.focus();
+const responses = {
+    'services': "🎨 Voici nos services :<br><br>✏️ <strong>Logo professionnel</strong> — Votre marque, unique.<br>🖼️ <strong>Flyer & Affiche</strong> — Impact garanti.<br>📐 <strong>Identité visuelle</strong> — Charte complète.<br>📱 <strong>Bannière réseaux</strong> — Présence en ligne.<br>⚡ <strong>Branding 72h</strong> — Pour les pressés.<br><br>👉 Utilisez aussi notre app gratuite <strong>RC Logo Maker</strong> !",
+    'delais': "⏱️ Nos délais :<br><br>📌 <strong>Standard</strong> : 72 heures<br>📌 <strong>Urgent</strong> : 24-48 heures (me contacter)<br>📌 <strong>Branding 72h</strong> : pack complet en 3 jours<br><br>Chaque projet est unique, le délai exact dépend de vos besoins.",
+    'logo': "🔧 <strong>RC Logo Maker</strong> est notre application gratuite pour créer des logos facilement !<br><br>👉 <strong>Accédez-y ici :</strong><br>https://regardcreatif.github.io/regard-creatif/logomaker/editor.html<br><br>📱 Ou téléchargez l'APK pour Android.",
+    'prix': "💰 <strong>Je ne communique pas les prix ici.</strong><br><br>Chaque projet est unique ! Le créateur vous fera un devis personnalisé en quelques minutes.<br><br>📱 <strong>Contactez-le sur WhatsApp :</strong><br>👉 <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a>",
+    'contact': "📱 <strong>Contactez Regard Créatif :</strong><br><br>💬 <strong>WhatsApp :</strong> <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a><br>✉️ <strong>Email :</strong> regardcreatif@proton.me<br><br>⏰ Réponse sous 24h garantie.",
+    'a propos': "ℹ️ <strong>Regard Créatif</strong> est un studio de design graphique basé en Haïti.<br><br>Je suis créatif et passionné par la puissance des images. Mon objectif : offrir une identité visuelle qui frappe, rapidement, sans compromis.<br><br><em>Ici, on ne vend pas des logos. On crée des mémoires.</em>",
+    'bonjour': "👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>.<br><br>Je peux vous renseigner sur :<br>🎨 Nos services<br>⏱️ Nos délais<br>🔧 RC Logo Maker<br>💰 Tarifs (devis personnalisé)<br>📱 Contact<br><br>Cliquez sur un bouton ou écrivez votre question !",
+    'salut': "👋 Salut ! Comment puis-je t'aider ? Choisis une option ou écris ta question.",
+    'merci': "Avec plaisir ! 😊 N'hésite pas si tu as d'autres questions. Bonne création ! 🎨",
+    'default': "Je comprends votre question. Pour plus de détails, je vous invite à :<br><br>📱 <strong>Contacter le créateur sur WhatsApp :</strong><br>👉 <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a><br><br>Il pourra vous répondre avec précision !"
+};
+
+function findResponse(msg) {
+    const m = msg.toLowerCase().trim();
+    if (m.includes('service') || m.includes('créer') || m.includes('offre') || m.includes('faites')) return responses['services'];
+    if (m.includes('délai') || m.includes('temps') || m.includes('quand') || m.includes('livré') || m.includes('livraison')) return responses['delais'];
+    if (m.includes('logo maker') || m.includes('app') || m.includes('application') || m.includes('créer logo') || m.includes('faire logo')) return responses['logo'];
+    if (m.includes('prix') || m.includes('tarif') || m.includes('coût') || m.includes('coûte') || m.includes('combien') || m.includes('devis')) return responses['prix'];
+    if (m.includes('contact') || m.includes('whatsapp') || m.includes('email') || m.includes('téléphone') || m.includes('joindre') || m.includes('parler')) return responses['contact'];
+    if (m.includes('qui') || m.includes('propos') || m.includes('société') || m.includes('entreprise') || m.includes('histoire')) return responses['a propos'];
+    if (m.includes('bonjour') || m.includes('hello') || m.includes('bjr') || m.includes('slt') && m.length < 15) return responses['bonjour'];
+    if (m.includes('salut') || m.includes('hey') || m.includes('coucou')) return responses['salut'];
+    if (m.includes('merci') || m.includes('thanks') || m.includes('super') || m.includes('génial')) return responses['merci'];
+    return responses['default'];
 }
 
-async function sendAssistant() {
+function askAssistant(msg) {
     const input = document.getElementById('assistant-input');
-    const btn = document.getElementById('assistant-btn');
     const msgs = document.getElementById('assistant-messages');
-    const q = input.value.trim();
+    const q = msg || input.value.trim();
     if (!q) return;
     
     msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
-    input.value = '';
-    btn.disabled = true;
+    if (input.value) input.value = '';
     msgs.scrollTop = msgs.scrollHeight;
     
-    const tid = 'ty-as-' + Date.now();
+    const tid = 'ty-' + Date.now();
     msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
     msgs.scrollTop = msgs.scrollHeight;
     
-    try {
-        const prompt = `Tu es l'assistant de Regard Créatif, studio design Haïti. Services: logo, flyer, branding 72h. App: RC Logo Maker. Contact: +509 4787 3144. Ne donne jamais de prix. Question: ${q}`;
-        const reply = await window.generateResponse(prompt);
+    setTimeout(() => {
         document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-green">${esc(reply)}</div>`;
-    } catch (e) {
-        document.getElementById(tid)?.remove();
-        msgs.innerHTML += `<div class="msg ai-green">⚠️ Le modèle est en cours de chargement. Réessaie dans quelques secondes.</div>`;
-    }
-    
-    msgs.scrollTop = msgs.scrollHeight;
-    btn.disabled = false;
-    input.focus();
+        const reply = findResponse(q);
+        msgs.innerHTML += `<div class="msg agent">${reply}</div>`;
+        msgs.scrollTop = msgs.scrollHeight;
+    }, 800 + Math.random() * 800);
 }
 
 function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -967,5 +855,6 @@ function showCompteur() {
     } else { alert("Mot de passe incorrect."); }
 }
 </script>
+
 </body>
 </html>
