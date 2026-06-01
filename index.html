@@ -434,7 +434,7 @@
         }
         footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
 
-        /* ═══════════ SECTION IA OR ═══════════ */
+        /* SECTION IA OR */
         .ia-test-section {
             background: linear-gradient(180deg, #0a0a0a 0%, #1a1a10 30%, #1a1a10 70%, #0a0a0a 100%);
             border-top: 2px solid #B8860B;
@@ -478,124 +478,53 @@
             text-shadow: 0 2px 20px rgba(212,175,55,0.5);
             margin-bottom: 8px;
         }
-        .ia-subtitle {
-            color: #DAA520;
-            font-size: 1rem;
-            margin-bottom: 10px;
-            font-style: italic;
-        }
+        .ia-subtitle { color: #DAA520; font-size: 1rem; margin-bottom: 10px; font-style: italic; }
         .ia-test-invite {
-            color: #FFD700;
-            font-size: 0.95rem;
-            font-weight: 600;
-            margin-bottom: 25px;
-            letter-spacing: 1px;
+            color: #FFD700; font-size: 0.95rem; font-weight: 600;
+            margin-bottom: 25px; letter-spacing: 1px;
             animation: float 3s ease-in-out infinite;
         }
         .ia-chat-box {
-            max-width: 700px;
-            margin: 0 auto;
-            background: #0d0d0d;
-            border: 2px solid #B8860B;
-            border-radius: 16px;
-            overflow: hidden;
+            max-width: 700px; margin: 0 auto;
+            background: #0d0d0d; border: 2px solid #B8860B;
+            border-radius: 16px; overflow: hidden;
             box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.15);
         }
         .ia-chat-msgs {
-            height: 350px;
-            overflow-y: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            height: 350px; overflow-y: auto; padding: 20px;
+            display: flex; flex-direction: column; gap: 10px;
             background: rgba(13,13,13,0.95);
         }
-        .msg {
-            max-width: 80%;
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-        .msg.user {
-            align-self: flex-end;
-            background: #1a1a1a;
-            color: #e0e0e0;
-            border: 1px solid #333;
-        }
-        .msg.ai-gold {
-            align-self: flex-start;
-            background: linear-gradient(135deg, #1a1200, #1f1500);
-            color: #FFD700;
-            border: 1px solid #B8860B;
-        }
-        .msg.ai-green {
-            align-self: flex-start;
-            background: #1a1a1a;
-            color: #a3ff3b;
-            border: 1px solid #2a2a2a;
-        }
-        .ia-input-row {
-            display: flex;
-            padding: 12px;
-            gap: 8px;
-            background: #0a0a0a;
-            border-top: 1px solid #B8860B;
-        }
+        .msg { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 0.9rem; line-height: 1.5; }
+        .msg.user { align-self: flex-end; background: #1a1a1a; color: #e0e0e0; border: 1px solid #333; }
+        .msg.ai-gold { align-self: flex-start; background: linear-gradient(135deg, #1a1200, #1f1500); color: #FFD700; border: 1px solid #B8860B; }
+        .msg.ai-green { align-self: flex-start; background: #1a1a1a; color: #a3ff3b; border: 1px solid #2a2a2a; }
+        .ia-input-row { display: flex; padding: 12px; gap: 8px; background: #0a0a0a; border-top: 1px solid #B8860B; }
         .ia-input-row.green-border { border-top: 1px solid #222; }
         .ia-input-row input {
-            flex: 1;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            color: #FFD700;
-            padding: 14px 18px;
-            border-radius: 25px;
-            font-size: 0.95rem;
-            outline: none;
-            font-family: inherit;
+            flex: 1; background: #1a1a1a; border: 1px solid #333;
+            color: #FFD700; padding: 14px 18px; border-radius: 25px;
+            font-size: 0.95rem; outline: none; font-family: inherit;
         }
-        .ia-input-row input:focus {
-            border-color: #FFD700;
-            box-shadow: 0 0 15px rgba(212,175,55,0.2);
-        }
+        .ia-input-row input:focus { border-color: #FFD700; box-shadow: 0 0 15px rgba(212,175,55,0.2); }
         .ia-input-row.green-border input { color: #fff; }
-        .ia-input-row.green-border input:focus {
-            border-color: #a3ff3b;
-            box-shadow: 0 0 15px rgba(163,255,59,0.15);
-        }
+        .ia-input-row.green-border input:focus { border-color: #a3ff3b; box-shadow: 0 0 15px rgba(163,255,59,0.15); }
         .ia-input-row input::placeholder { color: #555; }
         .ia-input-row button {
             background: linear-gradient(135deg, #FFD700, #DAA520);
-            color: #000;
-            border: none;
-            padding: 14px 22px;
-            border-radius: 25px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            color: #000; border: none; padding: 14px 22px;
+            border-radius: 25px; font-weight: 700; cursor: pointer;
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;
             box-shadow: 0 4px 15px rgba(212,175,55,0.3);
         }
-        .ia-input-row button:hover {
-            background: #fff;
-            box-shadow: 0 6px 25px rgba(255,215,0,0.6);
-            transform: translateY(-2px);
-        }
+        .ia-input-row button:hover { background: #fff; box-shadow: 0 6px 25px rgba(255,215,0,0.6); transform: translateY(-2px); }
         .ia-input-row button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        .ia-input-row.green-border button {
-            background: #a3ff3b;
-            box-shadow: none;
-        }
+        .ia-input-row.green-border button { background: #a3ff3b; box-shadow: none; }
         .ia-input-row.green-border button:hover { background: #fff; }
-
-        .typing-indicator {
-            display: flex; gap: 4px; padding: 10px 16px; align-self: flex-start;
-        }
+        .typing-indicator { display: flex; gap: 4px; padding: 10px 16px; align-self: flex-start; }
         .typing-indicator span {
             width: 7px; height: 7px; border-radius: 50%;
-            background: #FFD700;
-            animation: typingBounce 1.2s infinite;
+            background: #FFD700; animation: typingBounce 1.2s infinite;
         }
         .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
@@ -603,20 +532,14 @@
             0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
             30% { transform: translateY(-8px); opacity: 1; }
         }
-
         .assistant-section {
-            background: #0a0a0a;
-            border-top: 1px solid #1a1a1a;
-            border-bottom: 1px solid #1a1a1a;
-            padding: 60px 40px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
+            background: #0a0a0a; border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a; padding: 60px 40px;
+            text-align: center; position: relative; z-index: 1;
         }
         .assistant-section h2 { margin-bottom: 5px; }
         .assistant-section h2 span { color: #a3ff3b; }
         .assistant-subtitle { color: #888; margin-bottom: 30px; font-size: 1rem; }
-
         @media (max-width: 768px) {
             header { padding: 15px 20px; }
             nav { gap: 12px; }
@@ -663,9 +586,7 @@
 <section class="hero">
     <div class="tag"><span class="line"></span> Studio de Création</div>
     <h1>L'image<br><span class="outline">qui frappe.</span></h1>
-    <div class="hero-banner">
-        <img src="https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg" alt="Flyer Regard Créatif Officiel">
-    </div>
+    <div class="hero-banner"><img src="https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg" alt="Flyer Regard Créatif Officiel"></div>
     <p>Branding visuel rapide pour entrepreneurs, artistes et commerçants. <strong>Logo, flyer, identité visuelle livrés en 72h.</strong></p>
     <a href="#contact" class="cta pulse">Demander un devis gratuit →</a>
 </section>
@@ -679,18 +600,14 @@
         <div class="service-card"><div class="icon">📱</div><h3>Bannière réseaux sociaux</h3><p>Facebook, Instagram, LinkedIn. Une présence numérique qui claque.</p></div>
         <div class="service-card highlight-card"><div class="icon">⚡</div><h3>Branding accéléré</h3><p>Pack complet livré en 72h pour les entrepreneurs pressés qui veulent du pro, tout de suite.</p></div>
     </div>
-    <div class="services-illustration">
-        <img src="https://i.postimg.cc/MpH9pLwJ/vector-man-working-computer-graphic-designing-with-pen-tool-1272652-757.jpg" alt="Design graphique illustration" loading="lazy">
-    </div>
+    <div class="services-illustration"><img src="https://i.postimg.cc/MpH9pLwJ/vector-man-working-computer-graphic-designing-with-pen-tool-1272652-757.jpg" alt="Design graphique illustration" loading="lazy"></div>
 </section>
 
 <section id="promo" class="promo-section">
     <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" class="promo-icon" alt="RC Logo Maker">
     <h3>RC Logo Maker</h3>
     <p>Créez des logos professionnels en quelques minutes avec notre application gratuite. Simple, puissante, et accessible à tous.</p>
-    <a href="https://regardcreatif.github.io/regard-creatif/app-release.apk" class="promo-dl-btn">
-        <i class="fa-solid fa-download"></i> Téléchargez ici
-    </a>
+    <a href="https://regardcreatif.github.io/regard-creatif/app-release.apk" class="promo-dl-btn"><i class="fa-solid fa-download"></i> Téléchargez ici</a>
 </section>
 
 <section id="modeles" class="modeles-section">
@@ -709,13 +626,13 @@
         <p style="text-align:center; color:#777; font-size:1rem; margin-bottom:15px; font-style:italic;">"Deux regards, une signature."</p>
         <div style="margin:30px 0; border-radius:8px; overflow:hidden; border:1px solid #222;"><img src="https://i.postimg.cc/d0yCMyfp/JB_EXPO.jpg" alt="JB EXPO" style="width:100%; height:auto; display:block;"></div>
         <p style="text-align:center; color:#999; font-size:1rem; max-width:700px; margin:25px auto 40px; line-height:1.8;">Jennika & Kervens Jean Baptiste — L'art de transformer l'invisible en visible. Chaque toile est une brèche ouverte sur un monde intérieur.<br><strong style="color:#a3ff3b;">Pièces uniques • Sur commande</strong></p>
-        <div style="text-align:center; margin-bottom:40px;"><a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:10px 25px; border-radius:25px; text-decoration:none; font-size:0.9rem; font-weight:600; transition:all 0.3s;">📰 L'univers pictural de Jennika Jean-Baptiste — Le Nouvelliste</a></div>
+        <div style="text-align:center; margin-bottom:40px;"><a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:10px 25px; border-radius:25px; text-decoration:none; font-size:0.9rem; font-weight:600;">📰 L'univers pictural de Jennika Jean-Baptiste — Le Nouvelliste</a></div>
         <div class="galerie-grid">
-            <div class="galerie-card"><img src="https://i.postimg.cc/ZY114t00/1000158894-(1).jpg" alt="La Citadelle et ses Entraves" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"La Citadelle et ses Entraves"</p><p class="card-subtitle">L'histoire enchaînée, la pierre qui résiste.</p><div class="share-btns"><a href="https://wa.me/?text=Découvre%20«%20La%20Citadelle%20et%20ses%20Entraves%20»%20de%20Kervens%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a><a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a></div></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/9FrvjXWP/IMG-20260114-WA0000-080006.jpg" alt="Là où la pierre rêve" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"Là où la pierre rêve."</p><p class="card-subtitle">Une œuvre sans titre, une histoire sans fin.</p><div class="share-btns"><a href="https://wa.me/?text=Découvre%20«%20Là%20où%20la%20pierre%20rêve%20»%20de%20Kervens%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a><a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a></div></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/v8LWH5my/Picsart-26-05-28-16-37-59-620.jpg" alt="Jennika EXPO" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Elle fait parler les couleurs."</p><p class="card-subtitle">Portrait d'une artiste devant ses œuvres — JB EXPO.</p><div class="share-btns"><a href="https://wa.me/?text=Découvre%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a><a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a></div></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/T3bFpkLC/PXL-20241213-211822586-2-080007.jpg" alt="L'éclat du dedans" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"L'éclat du dedans."</p><p class="card-subtitle">La lumière intérieure capturée sur la toile.</p><div class="share-btns"><a href="https://wa.me/?text=Découvre%20«%20L'éclat%20du%20dedans%20»%20de%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a><a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a></div></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg" alt="Un silence qui crie" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Un silence qui crie."</p><p class="card-subtitle">Quand les émotions traversent la toile.</p><div class="share-btns"><a href="https://wa.me/?text=Découvre%20«%20Un%20silence%20qui%20crie%20»%20de%20Jennika%20Jean%20Baptiste%20sur%20Regard%20Créatif" target="_blank" class="share-btn wa">📱 WhatsApp</a><a href="https://www.facebook.com/sharer/sharer.php?u=https://regardcreatif.github.io/regard-creatif/" target="_blank" class="share-btn fb">📘 Facebook</a></div></div></div>
+            <div class="galerie-card"><img src="https://i.postimg.cc/ZY114t00/1000158894-(1).jpg" alt="La Citadelle et ses Entraves" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"La Citadelle et ses Entraves"</p><p class="card-subtitle">L'histoire enchaînée, la pierre qui résiste.</p></div></div>
+            <div class="galerie-card"><img src="https://i.postimg.cc/9FrvjXWP/IMG-20260114-WA0000-080006.jpg" alt="Là où la pierre rêve" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"Là où la pierre rêve."</p><p class="card-subtitle">Une œuvre sans titre, une histoire sans fin.</p></div></div>
+            <div class="galerie-card"><img src="https://i.postimg.cc/v8LWH5my/Picsart-26-05-28-16-37-59-620.jpg" alt="Jennika EXPO" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Elle fait parler les couleurs."</p><p class="card-subtitle">Portrait d'une artiste devant ses œuvres — JB EXPO.</p></div></div>
+            <div class="galerie-card"><img src="https://i.postimg.cc/T3bFpkLC/PXL-20241213-211822586-2-080007.jpg" alt="L'éclat du dedans" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"L'éclat du dedans."</p><p class="card-subtitle">La lumière intérieure capturée sur la toile.</p></div></div>
+            <div class="galerie-card"><img src="https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg" alt="Un silence qui crie" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Un silence qui crie."</p><p class="card-subtitle">Quand les émotions traversent la toile.</p></div></div>
         </div>
     </div>
 </section>
@@ -764,7 +681,7 @@
     <div class="success-message" id="success-message">✅ Message envoyé avec succès. Je vous réponds sous 24h.</div>
 </section>
 
-<!-- ═══════════ REGARD CRÉATIF IA ═══════════ -->
+<!-- REGARD CRÉATIF IA -->
 <section id="ia-test" class="ia-test-section">
     <span class="ia-test-badge">✨ Intelligence Artificielle</span>
     <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif IA" class="ia-test-logo">
@@ -782,7 +699,7 @@
     </div>
 </section>
 
-<!-- ═══════════ ASSISTANT ═══════════ -->
+<!-- ASSISTANT -->
 <section id="assistant" class="assistant-section">
     <h2>Regard Créatif <span>Assistant</span></h2>
     <p class="assistant-subtitle">Besoin d'aide avec nos services ? L'assistant est là pour vous guider.</p>
@@ -801,7 +718,7 @@
 <a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp"><svg viewBox="0 0 24 24" width="32" height="32" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg></a>
 <a href="#galerie" class="galerie-float" title="Voir la Galerie d'Art">🎨</a>
 <input type="checkbox" id="flip-toggle">
-<label for="flip-toggle" class="flip-float" title="Voir l'animation"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="12" cy="16" r="2" fill="#FFD700" stroke="none"/></svg></label>
+<label for="flip-toggle" class="flip-float" title="Voir l'animation"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><circle cx="12" cy="16" r="2" fill="#FFD700" stroke="none"/></svg></label>
 <div id="flip-popup"><label for="flip-toggle" style="position:absolute; top:20px; right:30px; color:#fff; font-size:2rem; cursor:pointer; z-index:301;">✕</label><div class="flip-container-popup"><div class="flip-card-popup"><div class="flip-face-popup flip-front-popup"><img src="https://i.postimg.cc/tRzpYVNW/Picsart-26-05-29-10-42-56-796.jpg" alt="Face 1"></div><div class="flip-face-popup flip-back-popup"><img src="https://i.postimg.cc/PxsT8W7g/Picsart-26-05-29-10-43-43-796.jpg" alt="Face 2"></div></div></div></div>
 
 <!-- Robot flottant -->
@@ -823,8 +740,7 @@
 
 <script>
 const DK = 'sk-31d84d0271714b09a1a5237cb084ddee';
-const DU = 'https://cors-anywhere.herokuapp.com/https://api.deepseek.com/chat/completions'; 'https://script.google.com/macros/s/AKfycbwPJu81Oi745P1dcRvmIvKv0C7QnC-WokPgyhqn0XbeM78XGPtwrrFzyxPCsJPyNBSb/exec';
-'https://api.deepseek.com/chat/completions';
+const DU = 'https://script.google.com/macros/s/AKfycbwPJu81Oi745P1dcRvmIvKv0C7QnC-WokPgyhqn0XbeM78XGPtwrrFzyxPCsJPyNBSb/exec';
 
 async function sendIATest() {
     const input = document.getElementById('ia-test-input');
@@ -842,7 +758,7 @@ async function sendIATest() {
     try {
         const r = await fetch(DU, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DK}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'deepseek-chat',
                 messages: [
@@ -880,7 +796,7 @@ async function sendAssistant() {
     try {
         const r = await fetch(DU, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DK}` },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 model: 'deepseek-chat',
                 messages: [
