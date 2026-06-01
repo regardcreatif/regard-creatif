@@ -44,7 +44,7 @@
             50% { transform: translateY(-10px); }
         }
 
-        /* Robot amélioré */
+        /* Robot */
         @keyframes waveArmNew {
             0%, 100% { transform: rotate(15deg); }
             50% { transform: rotate(-25deg); }
@@ -428,6 +428,300 @@
             color: #a3ff3b; font-weight: 700; margin-top: 20px;
         }
 
+        /* ═══════════════════════════════════════ */
+        /* 🧪 SECTION TEST IA — OR VÉRITABLE     */
+        /* ═══════════════════════════════════════ */
+        .ia-test-section {
+            background: linear-gradient(180deg, #0a0a0a 0%, #1a1a10 30%, #1a1a10 70%, #0a0a0a 100%);
+            border-top: 2px solid #B8860B;
+            border-bottom: 2px solid #B8860B;
+            padding: 70px 40px;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        .ia-test-section::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at center, rgba(212,175,55,0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .ia-test-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #FFD700, #DAA520, #B8860B);
+            color: #000;
+            padding: 8px 22px;
+            border-radius: 25px;
+            font-weight: 900;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 25px rgba(212,175,55,0.4);
+            animation: pulseGold 2s infinite;
+        }
+        @keyframes pulseGold {
+            0%, 100% { box-shadow: 0 4px 25px rgba(212,175,55,0.4); }
+            50% { box-shadow: 0 4px 45px rgba(255,215,0,0.7); }
+        }
+        .ia-test-logo {
+            width: 90px;
+            height: 90px;
+            border-radius: 22px;
+            margin: 0 auto 20px;
+            display: block;
+            border: 3px solid #DAA520;
+            box-shadow: 0 8px 40px rgba(212,175,55,0.5), inset 0 2px 10px rgba(255,215,0,0.3);
+            background: #0d0d0d;
+            padding: 5px;
+            object-fit: cover;
+        }
+        .ia-test-section h2 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #FFD700;
+            text-shadow: 0 2px 20px rgba(212,175,55,0.5);
+            margin-bottom: 8px;
+        }
+        .ia-test-section .ia-subtitle {
+            color: #DAA520;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        .ia-test-invite {
+            color: #FFD700;
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            letter-spacing: 1px;
+            animation: float 3s ease-in-out infinite;
+        }
+        .ia-test-chat {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #0d0d0d;
+            border: 2px solid #B8860B;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.6), 0 0 30px rgba(212,175,55,0.15);
+        }
+        .ia-test-messages {
+            height: 350px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(13,13,13,0.95);
+        }
+        .ia-test-messages .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: fadeInMsg 0.3s ease-out;
+        }
+        @keyframes fadeInMsg {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .msg.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: #e0e0e0;
+            border: 1px solid #333;
+        }
+        .msg.ai {
+            align-self: flex-start;
+            background: linear-gradient(135deg, #1a1200, #1f1500);
+            color: #FFD700;
+            border: 1px solid #B8860B;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        .ia-test-input-row {
+            display: flex;
+            padding: 12px;
+            gap: 8px;
+            background: #0a0a0a;
+            border-top: 1px solid #B8860B;
+        }
+        .ia-test-input-row input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #FFD700;
+            padding: 14px 18px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .ia-test-input-row input:focus {
+            border-color: #FFD700;
+            box-shadow: 0 0 15px rgba(212,175,55,0.2);
+        }
+        .ia-test-input-row input::placeholder { color: #555; }
+        .ia-test-input-row button {
+            background: linear-gradient(135deg, #FFD700, #DAA520);
+            color: #000;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(212,175,55,0.3);
+        }
+        .ia-test-input-row button:hover {
+            background: #fff;
+            box-shadow: 0 6px 25px rgba(255,215,0,0.6);
+            transform: translateY(-2px);
+        }
+        .ia-test-input-row button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ═══════════════════════════════════════ */
+        /* 💬 SECTION ASSISTANT                   */
+        /* ═══════════════════════════════════════ */
+        .assistant-section {
+            background: #0a0a0a;
+            border-top: 1px solid #1a1a1a;
+            border-bottom: 1px solid #1a1a1a;
+            padding: 60px 40px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+        .assistant-section h2 {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+        .assistant-section h2 span { color: #a3ff3b; }
+        .assistant-subtitle {
+            color: #888;
+            margin-bottom: 30px;
+            font-size: 1rem;
+        }
+        .assistant-chat {
+            max-width: 700px;
+            margin: 0 auto;
+            background: #0d0d0d;
+            border: 2px solid #222;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .assistant-messages {
+            height: 300px;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #0d0d0d;
+        }
+        .assistant-messages .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            animation: fadeInMsg 0.3s ease-out;
+        }
+        .assistant-messages .msg.user {
+            align-self: flex-end;
+            background: #1a2a1a;
+            color: #d0ffd0;
+            border: 1px solid #2a4a2a;
+        }
+        .assistant-messages .msg.ai {
+            align-self: flex-start;
+            background: #1a1a1a;
+            color: #a3ff3b;
+            border: 1px solid #2a2a2a;
+        }
+        .assistant-input-row {
+            display: flex;
+            padding: 12px;
+            gap: 8px;
+            background: #0a0a0a;
+            border-top: 1px solid #222;
+        }
+        .assistant-input-row input {
+            flex: 1;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 25px;
+            font-size: 0.95rem;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .assistant-input-row input:focus {
+            border-color: #a3ff3b;
+            box-shadow: 0 0 15px rgba(163,255,59,0.15);
+        }
+        .assistant-input-row input::placeholder { color: #555; }
+        .assistant-input-row button {
+            background: #a3ff3b;
+            color: #000;
+            border: none;
+            padding: 14px 22px;
+            border-radius: 25px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        .assistant-input-row button:hover {
+            background: #fff;
+            transform: translateY(-2px);
+        }
+        .assistant-input-row button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Typing indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 10px 16px;
+            align-self: flex-start;
+        }
+        .typing-indicator span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #FFD700;
+            animation: typingBounce 1.2s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+
         /* WhatsApp */
         .whatsapp-float {
             position: fixed; bottom: 25px; right: 25px; background: #25D366;
@@ -490,6 +784,9 @@
             .galerie-float { width: 50px; height: 50px; font-size: 1.4rem; bottom: 80px; right: 15px; }
             .flip-float { width: 50px; height: 50px; bottom: 145px; right: 15px; }
             .robot-float { width: 65px; height: 65px; bottom: 205px; right: 8px; }
+            .ia-test-section { padding: 40px 20px; }
+            .assistant-section { padding: 40px 20px; }
+            .ia-test-messages, .assistant-messages { height: 250px; }
         }
     </style>
 </head>
@@ -511,7 +808,8 @@
         <a href="#galerie">Galerie</a>
         <a href="#avis">Avis</a>
         <a href="#about">À propos</a>
-        <a href="#chat-section">Chat</a>
+        <a href="#ia-test">IA</a>
+        <a href="#assistant">Assistant</a>
         <a href="#contact" class="btn-devis pulse">Devis</a>
     </nav>
 </header>
@@ -702,7 +1000,7 @@
 <section id="chat-section" class="chat-section">
     <h2>Parlez à <span>Regard Créatif</span></h2>
     <p>Une question ? Un projet ? Discutez avec notre assistant en direct.</p>
-    <a href="#" class="chat-btn pulse" onclick="document.querySelector('#tidio-chat iframe')?.contentWindow?.postMessage('open', '*'); return false;">💬 Ouvrir le chat</a>
+    <a href="#assistant" class="chat-btn pulse">💬 Ouvrir l'assistant</a>
 </section>
 
 <section id="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
@@ -773,6 +1071,49 @@
     </div>
 </section>
 
+<!-- ═══════════════════════════════════════ -->
+<!-- 🧪 SECTION TEST IA — REGARD CRÉATIF IA -->
+<!-- ═══════════════════════════════════════ -->
+<section id="ia-test" class="ia-test-section">
+    <span class="ia-test-badge">✨ Intelligence Artificielle</span>
+    <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif IA" class="ia-test-logo">
+    <h2>Regard Créatif IA</h2>
+    <p class="ia-subtitle">L'intelligence au service de votre créativité</p>
+    <p class="ia-test-invite">💬 <strong>Discutez avec notre IA</strong> — Testez-la gratuitement, posez toutes vos questions !</p>
+    
+    <div class="ia-test-chat">
+        <div class="ia-test-messages" id="ia-test-messages">
+            <div class="msg ai">
+                🎨 Bonjour ! Je suis <strong>Regard Créatif IA</strong>. Je peux parler de tout : design, créativité, culture générale, ou simplement discuter avec vous. Posez-moi n'importe quelle question !
+            </div>
+        </div>
+        <div class="ia-test-input-row">
+            <input type="text" id="ia-test-input" placeholder="Posez votre question ici..." onkeydown="if(event.key==='Enter')sendIATest()">
+            <button onclick="sendIATest()" id="ia-test-btn">Envoyer</button>
+        </div>
+    </div>
+</section>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 💬 SECTION ASSISTANT — REGARD CRÉATIF ASSISTANT -->
+<!-- ═══════════════════════════════════════ -->
+<section id="assistant" class="assistant-section">
+    <h2>Regard Créatif <span>Assistant</span></h2>
+    <p class="assistant-subtitle">Besoin d'aide avec nos services ? L'assistant est là pour vous guider.</p>
+    
+    <div class="assistant-chat">
+        <div class="assistant-messages" id="assistant-messages">
+            <div class="msg ai">
+                👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services (logo, flyer, branding, RC Logo Maker...), nos délais, et vous mettre en contact avec le créateur. <br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em>
+            </div>
+        </div>
+        <div class="assistant-input-row">
+            <input type="text" id="assistant-input" placeholder="Comment puis-je vous aider ?" onkeydown="if(event.key==='Enter')sendAssistant()">
+            <button onclick="sendAssistant()" id="assistant-btn">Envoyer</button>
+        </div>
+    </div>
+</section>
+
 <!-- Bouton WhatsApp flottant -->
 <a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">
     <svg viewBox="0 0 24 24" width="32" height="32" fill="#fff">
@@ -811,7 +1152,7 @@
 </div>
 
 <!-- Robot futuriste flottant -->
-<div class="robot-float" onclick="document.querySelector('#tidio-chat iframe')?.contentWindow?.postMessage('open', '*')" title="Coucou ! Discutons">
+<div class="robot-float" onclick="document.getElementById('assistant').scrollIntoView({behavior:'smooth'}); document.getElementById('assistant-input').focus();" title="Parler à Regard Créatif Assistant">
     <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
         <defs>
             <filter id="glowR">
@@ -838,45 +1179,35 @@
             </linearGradient>
         </defs>
         
-        <!-- Halo orbital -->
         <ellipse cx="150" cy="145" rx="130" ry="35" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.3" transform="rotate(-15 150 145)" filter="url(#glowR)"/>
         <ellipse cx="150" cy="145" rx="135" ry="20" fill="none" stroke="#FF4444" stroke-width="1" opacity="0.2" transform="rotate(-30 150 145)" stroke-dasharray="6 4"/>
         
-        <!-- Antenne -->
         <line x1="150" y1="35" x2="150" y2="10" stroke="#FFD700" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
         <circle cx="150" cy="6" r="8" fill="url(#goldGrad)" filter="url(#glowR)"/>
         
-        <!-- Corps -->
         <rect x="65" y="110" width="170" height="130" rx="45" fill="url(#bodyGradR)" filter="url(#glowR)"/>
         
-        <!-- Néons rouges et or sur le corps -->
         <path d="M 85 140 Q 150 135 215 140" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
         <path d="M 85 180 Q 150 185 215 180" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" filter="url(#glowR)"/>
         <path d="M 85 210 Q 150 215 215 210" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
         
-        <!-- Plaque centrale -->
         <rect x="110" y="150" width="80" height="50" rx="15" fill="#111" opacity="0.8"/>
         <rect x="115" y="155" width="70" height="40" rx="10" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
         
-        <!-- Cœur lumineux -->
         <circle cx="150" cy="175" r="10" fill="url(#redGrad)" filter="url(#glowR)">
             <animate attributeName="r" values="8;12;8" dur="1.2s" repeatCount="indefinite"/>
         </circle>
         
-        <!-- Tête -->
         <rect x="75" y="40" width="150" height="85" rx="40" fill="url(#headGradR)" filter="url(#glowR)"/>
         
-        <!-- Oreilles -->
         <rect x="55" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
         <rect x="225" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
         <circle cx="65" cy="75" r="4" fill="url(#goldGrad)"/>
         <circle cx="235" cy="75" r="4" fill="url(#goldGrad)"/>
         
-        <!-- Visière -->
         <rect x="90" y="55" width="120" height="55" rx="25" fill="#0a0a1a"/>
         <rect x="95" y="60" width="110" height="45" rx="20" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.6"/>
         
-        <!-- Yeux expressifs -->
         <g class="robot-eye">
             <circle cx="125" cy="80" r="14" fill="#a3ff3b" filter="url(#glowR)"/>
             <circle cx="125" cy="80" r="7" fill="#fff" opacity="0.9"/>
@@ -888,10 +1219,8 @@
             <circle cx="177" cy="77" r="3" fill="#fff"/>
         </g>
         
-        <!-- Sourire -->
         <path d="M125 100 Q150 112 175 100" stroke="#a3ff3b" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glowR)"/>
         
-        <!-- Bras GAUCHE (réparé) -->
         <g class="robot-arm-group-new">
             <rect x="40" y="125" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
             <rect x="48" y="85" width="14" height="45" rx="7" fill="url(#headGradR)"/>
@@ -903,20 +1232,16 @@
             <rect x="66" y="65" width="8" height="16" rx="4" fill="url(#headGradR)"/>
         </g>
         
-        <!-- Bras DROIT -->
         <rect x="235" y="135" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
         <rect x="238" y="100" width="14" height="40" rx="7" fill="url(#headGradR)"/>
         <circle cx="245" cy="95" r="15" fill="url(#headGradR)" filter="url(#glowR)"/>
         
-        <!-- Jambes -->
         <rect x="95" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
         <rect x="165" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
         
-        <!-- Genoux or -->
         <circle cx="115" cy="245" r="5" fill="url(#goldGrad)"/>
         <circle cx="185" cy="245" r="5" fill="url(#goldGrad)"/>
         
-        <!-- Pieds -->
         <rect x="85" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
         <rect x="160" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
         <rect x="85" y="270" width="55" height="3" rx="1.5" fill="url(#redGrad)" filter="url(#glowR)"/>
@@ -929,17 +1254,6 @@
     <button onclick="showCompteur()" style="background:none; border:1px solid #333; color:#555; padding:5px 15px; cursor:pointer; font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">📊 Stats</button>
 </div>
 
-<script>
-function showCompteur() {
-    var password = prompt("Mot de passe pour voir les statistiques :");
-    if (password === "eclipse2024") {
-        document.getElementById("compteur-section").innerHTML = '<img src="https://visitor-badge.laobi.icu/badge?page_id=regardcreatif.regard-creatif&left_text=Visites&left_color=%23080808&right_color=%23a3ff3b" alt="Compteur" style="height:28px;">';
-    } else {
-        alert("Mot de passe incorrect.");
-    }
-}
-</script>
-
 <footer>
     <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="footer-logo">
     <p>© Regard Créatif – L'image qui frappe. Tous droits réservés.</p>
@@ -950,6 +1264,131 @@ function showCompteur() {
 
 <!-- MicroAnalytics -->
 <script data-host="https://app.microanalytics.io" data-dnt="false" src="https://app.microanalytics.io/js/script.js" id="ZwSg9rf6GA" async defer></script>
+
+<!-- ═══════════════════════════════════════ -->
+<!-- 🔧 SCRIPTS IA — DeepSeek API           -->
+<!-- ═══════════════════════════════════════ -->
+<script>
+const DEEPSEEK_KEY = 'sk-31d84d0271714b09a1a5237cb084ddee';
+const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+
+// ═══════════ REGARD CRÉATIF IA (Test - Généraliste) ═══════════
+async function sendIATest() {
+    const input = document.getElementById('ia-test-input');
+    const btn = document.getElementById('ia-test-btn');
+    const messages = document.getElementById('ia-test-messages');
+    const question = input.value.trim();
+    if (!question) return;
+    
+    // Afficher message utilisateur
+    messages.innerHTML += `<div class="msg user">${escapeHTML(question)}</div>`;
+    input.value = '';
+    btn.disabled = true;
+    messages.scrollTop = messages.scrollHeight;
+    
+    // Afficher typing
+    const typingId = 'typing-ia-' + Date.now();
+    messages.innerHTML += `<div class="typing-indicator" id="${typingId}"><span></span><span></span><span></span></div>`;
+    messages.scrollTop = messages.scrollHeight;
+    
+    try {
+        const response = await fetch(DEEPSEEK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
+            body: JSON.stringify({
+                model: 'deepseek-chat',
+                messages: [
+                    { role: 'system', content: 'Tu es Regard Créatif IA, un assistant créatif et intelligent intégré au site Regard Créatif (studio de design graphique en Haïti). Tu réponds à TOUTES les questions sur tous les sujets. Tu es chaleureux, professionnel, et tu utilises des émojis avec parcimonie. Tu tutoies l\'utilisateur. Si on te parle des services (logo, flyer, branding, identité visuelle), tu en parles avec enthousiasme. Si on te demande les prix, tu dis que le créateur fera un devis personnalisé.' },
+                    { role: 'user', content: question }
+                ],
+                temperature: 0.8,
+                max_tokens: 600
+            })
+        });
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
+        
+        // Retirer typing
+        document.getElementById(typingId)?.remove();
+        messages.innerHTML += `<div class="msg ai">${escapeHTML(reply)}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    } catch (e) {
+        document.getElementById(typingId)?.remove();
+        messages.innerHTML += `<div class="msg ai">⚠️ Désolé, une erreur est survenue. Réessaie dans un instant.</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    }
+    btn.disabled = false;
+    input.focus();
+}
+
+// ═══════════ REGARD CRÉATIF ASSISTANT (Services) ═══════════
+async function sendAssistant() {
+    const input = document.getElementById('assistant-input');
+    const btn = document.getElementById('assistant-btn');
+    const messages = document.getElementById('assistant-messages');
+    const question = input.value.trim();
+    if (!question) return;
+    
+    messages.innerHTML += `<div class="msg user">${escapeHTML(question)}</div>`;
+    input.value = '';
+    btn.disabled = true;
+    messages.scrollTop = messages.scrollHeight;
+    
+    const typingId = 'typing-assist-' + Date.now();
+    messages.innerHTML += `<div class="typing-indicator" id="${typingId}"><span></span><span></span><span></span></div>`;
+    messages.scrollTop = messages.scrollHeight;
+    
+    try {
+        const response = await fetch(DEEPSEEK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${DEEPSEEK_KEY}` },
+            body: JSON.stringify({
+                model: 'deepseek-chat',
+                messages: [
+                    { role: 'system', content: `Tu es "Regard Créatif Assistant", l'assistant officiel du site Regard Créatif, un studio de design graphique basé en Haïti. 
+                    
+RÈGLES STRICTES :
+- Tu aides les visiteurs avec des infos sur NOS SERVICES : création de logo professionnel, flyer & affiche, identité visuelle complète, bannière réseaux sociaux, branding accéléré livré en 72h.
+- Nous avons aussi une app gratuite "RC Logo Maker" pour créer des logos soi-même (lien : https://regardcreatif.github.io/regard-creatif/logomaker/editor.html).
+- Nous avons une galerie d'art avec les œuvres de Jennika & Kervens Jean Baptiste.
+- Contact : WhatsApp +509 4787 3144, email regardcreatif@proton.me.
+- ❌ TU NE DONNES JAMAIS DE PRIX. Si on te demande un tarif, tu réponds : "Chaque projet est unique ! Je ne donne pas de prix ici, mais le créateur vous fera un devis personnalisé rapidement. Contactez-le sur WhatsApp au +509 4787 3144."
+- Tu es poli, pro, chaleureux. Tu tutoies. Tu utilises des émojis légers.
+- Si la question ne concerne pas nos services, tu peux répondre brièvement mais tu ramènes toujours vers nos services.` },
+                    { role: 'user', content: question }
+                ],
+                temperature: 0.7,
+                max_tokens: 500
+            })
+        });
+        const data = await response.json();
+        const reply = data.choices[0].message.content;
+        
+        document.getElementById(typingId)?.remove();
+        messages.innerHTML += `<div class="msg ai">${escapeHTML(reply)}</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    } catch (e) {
+        document.getElementById(typingId)?.remove();
+        messages.innerHTML += `<div class="msg ai">⚠️ Désolé, une erreur est survenue. Réessaie dans un instant.</div>`;
+        messages.scrollTop = messages.scrollHeight;
+    }
+    btn.disabled = false;
+    input.focus();
+}
+
+function escapeHTML(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showCompteur() {
+    var password = prompt("Mot de passe pour voir les statistiques :");
+    if (password === "eclipse2024") {
+        document.getElementById("compteur-section").innerHTML = '<img src="https://visitor-badge.laobi.icu/badge?page_id=regardcreatif.regard-creatif&left_text=Visites&left_color=%23080808&right_color=%23a3ff3b" alt="Compteur" style="height:28px;">';
+    } else {
+        alert("Mot de passe incorrect.");
+    }
+}
+</script>
 
 </body>
 </html>
