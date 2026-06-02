@@ -11,6 +11,86 @@
       box-sizing: border-box;
     }
 
+    /* ══════════════════════════════════
+       SPLASH SCREEN
+    ══════════════════════════════════ */
+    #splash-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: linear-gradient(145deg, #0b1e33 0%, #132b44 50%, #1a3a5c 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 22px;
+      animation: splashFadeOut 0.6s ease 3s forwards;
+    }
+
+    #splash-screen .splash-logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 22px;
+      object-fit: cover;
+      box-shadow: 0 20px 60px rgba(0, 180, 216, 0.4), 0 8px 20px rgba(0,0,0,0.4);
+      animation: splashLogoIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+
+    #splash-screen .splash-title {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: white;
+      letter-spacing: -0.5px;
+      animation: splashTitleIn 0.6s ease 0.9s both;
+    }
+
+    #splash-screen .splash-subtitle {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.55);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      animation: splashTitleIn 0.6s ease 1.2s both;
+    }
+
+    #splash-screen .splash-bar {
+      width: 160px;
+      height: 3px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 10px;
+      animation: splashTitleIn 0.4s ease 1.4s both;
+    }
+
+    #splash-screen .splash-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00c9a7, #00b4d8);
+      border-radius: 10px;
+      animation: splashBarFill 1.8s ease 1.4s both;
+    }
+
+    @keyframes splashLogoIn {
+      from { opacity: 0; transform: scale(0.5) translateY(20px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    @keyframes splashTitleIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes splashBarFill {
+      from { width: 0%; }
+      to   { width: 100%; }
+    }
+    @keyframes splashFadeOut {
+      from { opacity: 1; pointer-events: all; }
+      to   { opacity: 0; pointer-events: none; visibility: hidden; }
+    }
+
+    /* ══════════════════════════════════
+       APP
+    ══════════════════════════════════ */
     body {
       font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
       background: linear-gradient(145deg, #f0f4f8 0%, #e9eef3 100%);
@@ -21,6 +101,7 @@
       align-items: center;
       padding: 12px;
       overflow: hidden;
+      overscroll-behavior: none;
     }
 
     .app-container {
@@ -42,44 +123,433 @@
     .header {
       background: linear-gradient(135deg, #0b1e33 0%, #132b44 60%, #1a3a5c 100%);
       color: white;
-      padding: 18px 22px;
+      padding: 14px 18px;
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 12px;
       border-bottom: 1px solid rgba(255,255,255,0.08);
       flex-shrink: 0;
     }
 
-    .header-icon {
-      width: 46px;
-      height: 46px;
-      background: linear-gradient(135deg, #00c9a7, #00b4d8);
-      border-radius: 16px;
+    /* Hamburger */
+    .header-menu-btn {
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 1.1rem;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
-      box-shadow: 0 8px 18px rgba(0,180,216,0.3);
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+    .header-menu-btn:hover { background: rgba(255,255,255,0.2); }
+
+    .header-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      overflow: hidden;
+      flex-shrink: 0;
+      box-shadow: 0 6px 16px rgba(0,180,216,0.3);
+    }
+    .header-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
+    .header-text {
+      flex: 1;
+    }
     .header-text h1 {
-      font-size: 1.25rem;
+      font-size: 1.1rem;
       font-weight: 700;
       letter-spacing: -0.3px;
       line-height: 1.2;
     }
-
     .header-text span {
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       color: rgba(255,255,255,0.7);
       font-weight: 400;
     }
 
+    /* Header right actions */
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .header-action-btn {
+      padding: 7px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 0.73rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .header-action-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .header-action-btn .count-badge {
+      display: inline-block;
+      background: #00c9a7;
+      color: #0b1e33;
+      border-radius: 10px;
+      padding: 1px 6px;
+      font-size: 0.68rem;
+      font-weight: 800;
+      margin-left: 4px;
+    }
+
+    /* ══════════════════════════════════
+       SIDE MENU (HISTORIQUE)
+    ══════════════════════════════════ */
+    .side-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .side-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .side-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100%;
+      background: #0d2137;
+      z-index: 1001;
+      transform: translateX(-100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 4px 0 30px rgba(0,0,0,0.3);
+    }
+    .side-panel.open {
+      transform: translateX(0);
+    }
+
+    .side-panel-header {
+      padding: 20px 18px 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .side-panel-header h3 {
+      color: white;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .side-panel-close {
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.08);
+      border: none;
+      border-radius: 8px;
+      color: rgba(255,255,255,0.7);
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .side-panel-close:hover { background: rgba(255,255,255,0.15); }
+
+    .side-panel-stats {
+      padding: 12px 18px;
+      display: flex;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .side-stat {
+      flex: 1;
+      background: rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .side-stat .val {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #00c9a7;
+      line-height: 1;
+    }
+    .side-stat .lbl {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.5);
+      margin-top: 3px;
+    }
+
+    .side-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 0;
+    }
+    .side-panel-content::-webkit-scrollbar { width: 4px; }
+    .side-panel-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+    .side-section-title {
+      padding: 4px 18px 8px;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .history-item {
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .history-item:hover {
+      background: rgba(255,255,255,0.06);
+      border-left-color: #00b4d8;
+    }
+    .history-item .hi-icon {
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+    .history-item .hi-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.75);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .history-item .hi-time {
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.3);
+      flex-shrink: 0;
+    }
+
+    .side-panel-empty {
+      padding: 30px 18px;
+      text-align: center;
+      color: rgba(255,255,255,0.3);
+      font-size: 0.82rem;
+    }
+
+    /* ══════════════════════════════════
+       MODAL INSCRIPTION / INSCRITS
+    ══════════════════════════════════ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 24px;
+      padding: 28px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+      transform: translateY(20px) scale(0.97);
+      transition: transform 0.3s cubic-bezier(0.34, 1.4, 0.64, 1);
+    }
+    .modal-overlay.open .modal-card {
+      transform: translateY(0) scale(1);
+    }
+
+    .modal-card h2 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #0b1e33;
+      margin-bottom: 6px;
+    }
+    .modal-card p {
+      font-size: 0.82rem;
+      color: #667788;
+      margin-bottom: 20px;
+    }
+
+    .modal-field {
+      margin-bottom: 14px;
+    }
+    .modal-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #334455;
+      margin-bottom: 6px;
+    }
+    .modal-field input {
+      width: 100%;
+      padding: 11px 15px;
+      border: 1.5px solid #dde5ef;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+      background: #f8fafc;
+    }
+    .modal-field input:focus {
+      border-color: #00b4d8;
+      box-shadow: 0 0 0 3px rgba(0,180,216,0.12);
+      background: white;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .modal-btn-primary {
+      flex: 1;
+      padding: 12px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #00b4d8, #0096c7);
+      color: white;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .modal-btn-primary:hover { opacity: 0.88; }
+    .modal-btn-cancel {
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: #f0f4f8;
+      color: #445566;
+      border: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .modal-btn-cancel:hover { background: #e2e8f0; }
+
+    .modal-success {
+      text-align: center;
+      padding: 10px 0 6px;
+    }
+    .modal-success .success-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+    .modal-success h3 {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #0b1e33;
+      margin-bottom: 6px;
+    }
+    .modal-success p {
+      font-size: 0.82rem;
+      color: #667788;
+      margin-bottom: 0;
+    }
+
+    /* Liste des inscrits */
+    .inscrits-list {
+      max-height: 260px;
+      overflow-y: auto;
+      margin-bottom: 16px;
+    }
+    .inscrit-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #f8fafc;
+      margin-bottom: 8px;
+    }
+    .inscrit-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #00c9a7, #00b4d8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+      flex-shrink: 0;
+    }
+    .inscrit-info .inscrit-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #0b1e33;
+    }
+    .inscrit-info .inscrit-email {
+      font-size: 0.75rem;
+      color: #7788aa;
+    }
+    .inscrit-date {
+      margin-left: auto;
+      font-size: 0.68rem;
+      color: #aabbcc;
+    }
+
+    .inscrits-header-stat {
+      background: linear-gradient(135deg, #0b1e33, #1a3a5c);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      display: flex;
+      gap: 20px;
+    }
+    .inscrits-stat-item {
+      text-align: center;
+      flex: 1;
+    }
+    .inscrits-stat-item .val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #00c9a7;
+    }
+    .inscrits-stat-item .lbl {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    /* ══════════════════════════════════
+       TOPICS BAR
+    ══════════════════════════════════ */
     .topics-scroll {
       background: rgba(255,255,255,0.65);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      padding: 12px 16px;
+      padding: 10px 16px;
       overflow-x: auto;
       white-space: nowrap;
       display: flex;
@@ -88,28 +558,19 @@
       flex-shrink: 0;
       scrollbar-width: thin;
       scrollbar-color: #c1cdd9 transparent;
+      overscroll-behavior-x: contain;
     }
-
-    .topics-scroll::-webkit-scrollbar {
-      height: 4px;
-    }
-
-    .topics-scroll::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .topics-scroll::-webkit-scrollbar-thumb {
-      background: #c1cdd9;
-      border-radius: 8px;
-    }
+    .topics-scroll::-webkit-scrollbar { height: 4px; }
+    .topics-scroll::-webkit-scrollbar-track { background: transparent; }
+    .topics-scroll::-webkit-scrollbar-thumb { background: #c1cdd9; border-radius: 8px; }
 
     .topic-btn {
       flex-shrink: 0;
-      padding: 9px 17px;
+      padding: 8px 15px;
       border-radius: 24px;
       background: white;
       border: 1px solid #dfe6ed;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.25s ease;
@@ -118,70 +579,56 @@
       letter-spacing: -0.1px;
       white-space: nowrap;
     }
-
     .topic-btn:hover {
       background: #eef5ff;
       border-color: #00b4d8;
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(0,180,216,0.18);
     }
+    .topic-btn:active { transform: scale(0.96); background: #dff0fa; }
 
-    .topic-btn:active {
-      transform: scale(0.96);
-      background: #dff0fa;
-    }
-
+    /* ══════════════════════════════════
+       CHAT AREA — fix scroll mobile
+    ══════════════════════════════════ */
     .chat-area {
       flex: 1;
       overflow-y: auto;
-      padding: 20px 18px;
+      overflow-x: hidden;
+      padding: 18px 16px;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       background: rgba(250,251,253,0.5);
       scroll-behavior: smooth;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
-
-    .chat-area::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    .chat-area::-webkit-scrollbar-track {
-      background: transparent;
-    }
-
-    .chat-area::-webkit-scrollbar-thumb {
-      background: #ccd7e4;
-      border-radius: 10px;
-    }
+    .chat-area::-webkit-scrollbar { width: 5px; }
+    .chat-area::-webkit-scrollbar-track { background: transparent; }
+    .chat-area::-webkit-scrollbar-thumb { background: #ccd7e4; border-radius: 10px; }
 
     .message {
       display: flex;
       flex-direction: column;
-      max-width: 90%;
+      max-width: 80%;
       animation: fadeSlide 0.3s ease;
     }
-
     @keyframes fadeSlide {
       from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
-    .message.user {
-      align-self: flex-end;
-    }
+    .message.user  { align-self: flex-end; }
+    .message.agent { align-self: flex-start; }
 
-    .message.agent {
-      align-self: flex-start;
-    }
-
+    /* BULLES RÉDUITES */
     .bubble {
-      padding: 14px 18px;
-      border-radius: 22px;
+      padding: 10px 15px;
+      border-radius: 20px;
       line-height: 1.6;
-      font-size: 0.92rem;
+      font-size: 0.88rem;
       word-break: break-word;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      box-shadow: 0 3px 10px rgba(0,0,0,0.04);
     }
 
     .message.user .bubble {
@@ -189,26 +636,19 @@
       color: white;
       border-bottom-right-radius: 6px;
     }
-
     .message.agent .bubble {
       background: white;
       border: 1px solid #e9eef4;
       color: #1a2b3c;
       border-bottom-left-radius: 6px;
     }
-
-    .message.agent .bubble p {
-      margin-bottom: 8px;
-    }
-
-    .message.agent .bubble p:last-child {
-      margin-bottom: 0;
-    }
+    .message.agent .bubble p { margin-bottom: 7px; }
+    .message.agent .bubble p:last-child { margin-bottom: 0; }
 
     .em-title {
       font-weight: 700;
       color: #0b1e33;
-      font-size: 0.96rem;
+      font-size: 0.93rem;
       margin-bottom: 4px;
       display: flex;
       align-items: center;
@@ -216,37 +656,31 @@
     }
 
     .timestamp {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       color: #8899aa;
       margin-top: 4px;
-      padding: 0 6px;
+      padding: 0 4px;
     }
-
-    .message.user .timestamp {
-      text-align: right;
-      color: rgba(255,255,255,0.8);
-    }
+    .message.user .timestamp { text-align: right; color: rgba(255,255,255,0.7); }
 
     .typing-indicator {
       display: flex;
       align-items: center;
       gap: 5px;
-      padding: 14px 18px;
+      padding: 12px 16px;
       background: white;
-      border-radius: 22px;
+      border-radius: 20px;
       border: 1px solid #e9eef4;
       border-bottom-left-radius: 6px;
       width: fit-content;
     }
-
     .typing-indicator span {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: #bcc7d4;
       animation: typingBounce 1.3s infinite;
     }
-
     .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
     .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
 
@@ -258,36 +692,26 @@
     .related-buttons {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 7px;
       margin-top: 8px;
     }
-
     .related-btn {
-      padding: 8px 15px;
-      border-radius: 20px;
+      padding: 7px 13px;
+      border-radius: 18px;
       background: #f0f6fc;
       border: 1px solid #d6e4f0;
-      font-size: 0.8rem;
+      font-size: 0.76rem;
       font-weight: 600;
       cursor: pointer;
       color: #1a3a5c;
       transition: all 0.2s ease;
     }
+    .related-btn:hover { background: #dff0fa; border-color: #00b4d8; transform: translateY(-1px); }
 
-    .related-btn:hover {
-      background: #dff0fa;
-      border-color: #00b4d8;
-      transform: translateY(-1px);
-    }
-
-    hr {
-      border: none;
-      border-top: 1px solid #eef2f7;
-      margin: 14px 0 10px;
-    }
+    hr { border: none; border-top: 1px solid #eef2f7; margin: 12px 0 9px; }
 
     .input-area {
-      padding: 16px 18px;
+      padding: 14px 16px;
       background: rgba(255,255,255,0.8);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
@@ -299,29 +723,28 @@
 
     #userInput {
       flex: 1;
-      padding: 13px 18px;
-      border-radius: 28px;
+      padding: 12px 18px;
+      border-radius: 26px;
       border: 1.5px solid #dde5ef;
-      font-size: 0.93rem;
+      font-size: 0.92rem;
       outline: none;
       background: white;
       transition: all 0.2s ease;
       font-family: inherit;
     }
-
     #userInput:focus {
       border-color: #00b4d8;
       box-shadow: 0 0 0 4px rgba(0,180,216,0.1);
     }
 
     #sendBtn {
-      width: 50px;
-      height: 50px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: linear-gradient(135deg, #00b4d8, #0096c7);
       border: none;
       color: white;
-      font-size: 1.3rem;
+      font-size: 1.2rem;
       cursor: pointer;
       transition: all 0.25s ease;
       box-shadow: 0 6px 18px rgba(0,150,199,0.3);
@@ -329,30 +752,15 @@
       align-items: center;
       justify-content: center;
     }
-
-    #sendBtn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 10px 24px rgba(0,150,199,0.4);
-    }
-
-    #sendBtn:disabled {
-      opacity: 0.5;
-      transform: scale(0.95);
-      cursor: not-allowed;
-      box-shadow: none;
-    }
+    #sendBtn:hover { transform: scale(1.05); box-shadow: 0 10px 24px rgba(0,150,199,0.4); }
+    #sendBtn:disabled { opacity: 0.5; transform: scale(0.95); cursor: not-allowed; box-shadow: none; }
 
     .welcome-message {
       text-align: center;
-      padding: 30px 10px;
+      padding: 26px 10px;
       color: #556b82;
     }
-
-    .welcome-message h2 {
-      font-size: 1.5rem;
-      color: #0b1e33;
-      margin-bottom: 8px;
-    }
+    .welcome-message h2 { font-size: 1.4rem; color: #0b1e33; margin-bottom: 8px; }
 
     @media (max-width: 600px) {
       .app-container {
@@ -361,24 +769,126 @@
         border-radius: 0;
         max-width: 100%;
       }
-      .bubble {
-        font-size: 0.88rem;
-        padding: 12px 15px;
-      }
-      .topic-btn {
-        padding: 7px 14px;
-        font-size: 0.76rem;
-      }
+      .bubble { font-size: 0.84rem; padding: 9px 13px; }
+      .topic-btn { padding: 6px 12px; font-size: 0.74rem; }
+      .header-action-btn { padding: 6px 9px; font-size: 0.68rem; }
     }
   </style>
 </head>
 <body>
+
+<!-- ═══════════════════════════════════
+     SPLASH SCREEN
+════════════════════════════════════ -->
+<div id="splash-screen">
+  <img class="splash-logo" src="https://i.postimg.cc/5tSN1m00/Picsart-26-06-02-09-58-59-862.png" alt="Digital Coach Logo">
+  <div class="splash-title">Digital Coach</div>
+  <div class="splash-subtitle">Marketing · Vidéo · Photo · Business</div>
+  <div class="splash-bar"><div class="splash-bar-fill"></div></div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SIDE MENU OVERLAY
+════════════════════════════════════ -->
+<div class="side-overlay" id="sideOverlay"></div>
+
+<div class="side-panel" id="sidePanel">
+  <div class="side-panel-header">
+    <h3>📋 Historique</h3>
+    <button class="side-panel-close" id="sidePanelClose">✕</button>
+  </div>
+  <div class="side-panel-stats">
+    <div class="side-stat">
+      <div class="val" id="statMessages">0</div>
+      <div class="lbl">Messages</div>
+    </div>
+    <div class="side-stat">
+      <div class="val" id="statSearches">0</div>
+      <div class="lbl">Recherches</div>
+    </div>
+    <div class="side-stat">
+      <div class="val" id="statConnexions">0</div>
+      <div class="lbl">Connexions</div>
+    </div>
+  </div>
+  <div class="side-panel-content" id="sidePanelContent">
+    <div class="side-section-title">Dernières recherches</div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     MODALS
+════════════════════════════════════ -->
+<!-- Modal Inscription -->
+<div class="modal-overlay" id="modalInscription">
+  <div class="modal-card">
+    <div id="inscriptionForm">
+      <h2>👤 S'inscrire</h2>
+      <p>Créez votre profil pour sauvegarder vos préférences et suivre votre progression.</p>
+      <div class="modal-field">
+        <label>Prénom / Nom</label>
+        <input type="text" id="inputNom" placeholder="Ex : Marie Dupont" maxlength="60">
+      </div>
+      <div class="modal-field">
+        <label>Adresse email</label>
+        <input type="email" id="inputEmail" placeholder="Ex : marie@email.com" maxlength="100">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" id="btnAnnulerInscription">Annuler</button>
+        <button class="modal-btn-primary" id="btnValiderInscription">✔ S'inscrire</button>
+      </div>
+    </div>
+    <div id="inscriptionSuccess" style="display:none">
+      <div class="modal-success">
+        <div class="success-icon">🎉</div>
+        <h3>Inscription réussie !</h3>
+        <p id="inscriptionSuccessMsg">Bienvenue sur Digital Coach.</p>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn-primary" id="btnFermerSuccess">Continuer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Liste Inscrits -->
+<div class="modal-overlay" id="modalInscrits">
+  <div class="modal-card">
+    <h2>👥 Inscrits</h2>
+    <div class="inscrits-header-stat">
+      <div class="inscrits-stat-item">
+        <div class="val" id="totalInscrits">0</div>
+        <div class="lbl">Total inscrits</div>
+      </div>
+      <div class="inscrits-stat-item">
+        <div class="val" id="totalConnexionsModal">0</div>
+        <div class="lbl">Connexions</div>
+      </div>
+    </div>
+    <div class="inscrits-list" id="inscritsList"></div>
+    <div class="modal-actions">
+      <button class="modal-btn-primary" id="btnFermerInscrits">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     APP CONTAINER
+════════════════════════════════════ -->
 <div class="app-container">
   <div class="header">
-    <div class="header-icon">🧠</div>
+    <button class="header-menu-btn" id="btnHamburger" title="Historique">☰</button>
+    <div class="header-icon">
+      <img src="https://i.postimg.cc/5tSN1m00/Picsart-26-06-02-09-58-59-862.png" alt="Logo">
+    </div>
     <div class="header-text">
       <h1>Digital Coach</h1>
       <span>Marketing · Vidéo · Photo · Business</span>
+    </div>
+    <div class="header-actions">
+      <button class="header-action-btn" id="btnInscrire">👤 S'inscrire</button>
+      <button class="header-action-btn" id="btnInscrits">👥 Inscrits<span class="count-badge" id="badgeInscrits">0</span></button>
     </div>
   </div>
 
@@ -390,7 +900,7 @@
         <div class="welcome-message">
           <h2>👋 Bienvenue sur Digital Coach</h2>
           <p>Je suis votre assistant expert en marketing digital, création de contenu, technique web et business.</p>
-          <p style="margin-top:10px;font-size:0.85rem;color:#8899aa;">Posez une question ou cliquez sur un thème ci-dessous ⤵️</p>
+          <p style="margin-top:8px;font-size:0.82rem;color:#8899aa;">Posez une question ou cliquez sur un thème ci-dessous ⤵️</p>
         </div>
       </div>
       <div class="timestamp">🤖 Coach · Prêt à vous aider</div>
@@ -407,6 +917,9 @@
 (function() {
   'use strict';
 
+  // ══════════════════════════════════
+  // UTILITAIRES
+  // ══════════════════════════════════
   function esc(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -417,9 +930,195 @@
     });
   }
 
+  // ══════════════════════════════════
+  // LOCALSTORAGE HELPERS
+  // ══════════════════════════════════
+  function lsGet(key, def) {
+    try {
+      const v = localStorage.getItem(key);
+      return v !== null ? JSON.parse(v) : def;
+    } catch(e) { return def; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
+  }
+
+  // ══════════════════════════════════
+  // SYSTÈME INSCRIPTION
+  // ══════════════════════════════════
+  function getInscrits() { return lsGet('dc_inscrits', []); }
+  function saveInscrits(arr) { lsSet('dc_inscrits', arr); }
+
+  function getConnexions() { return lsGet('dc_connexions', 0); }
+  function incrConnexions() {
+    const c = getConnexions() + 1;
+    lsSet('dc_connexions', c);
+    return c;
+  }
+
+  function updateBadgeInscrits() {
+    const n = getInscrits().length;
+    document.getElementById('badgeInscrits').textContent = n;
+  }
+
+  // Connexion comptée à chaque ouverture de page
+  const connexions = incrConnexions();
+
+  // Modal inscription
+  const modalInscription = document.getElementById('modalInscription');
+  const btnInscrire      = document.getElementById('btnInscrire');
+  const btnAnnuler       = document.getElementById('btnAnnulerInscription');
+  const btnValider       = document.getElementById('btnValiderInscription');
+  const btnFermerSuccess = document.getElementById('btnFermerSuccess');
+  const inscriptionForm  = document.getElementById('inscriptionForm');
+  const inscriptionSucc  = document.getElementById('inscriptionSuccess');
+  const inputNom         = document.getElementById('inputNom');
+  const inputEmail       = document.getElementById('inputEmail');
+
+  btnInscrire.addEventListener('click', () => {
+    inscriptionForm.style.display = '';
+    inscriptionSucc.style.display = 'none';
+    inputNom.value = '';
+    inputEmail.value = '';
+    modalInscription.classList.add('open');
+  });
+  btnAnnuler.addEventListener('click', () => modalInscription.classList.remove('open'));
+  modalInscription.addEventListener('click', e => { if (e.target === modalInscription) modalInscription.classList.remove('open'); });
+
+  btnValider.addEventListener('click', () => {
+    const nom   = inputNom.value.trim();
+    const email = inputEmail.value.trim();
+    if (!nom || !email) {
+      inputNom.style.borderColor   = nom   ? '#dde5ef' : '#ff4d6d';
+      inputEmail.style.borderColor = email ? '#dde5ef' : '#ff4d6d';
+      return;
+    }
+    inputNom.style.borderColor   = '#dde5ef';
+    inputEmail.style.borderColor = '#dde5ef';
+
+    const inscrits = getInscrits();
+    const already  = inscrits.find(i => i.email.toLowerCase() === email.toLowerCase());
+    if (already) {
+      document.getElementById('inscriptionSuccessMsg').textContent = `Vous êtes déjà inscrit, ${already.nom} 🎊`;
+    } else {
+      inscrits.push({ nom, email, date: new Date().toLocaleDateString('fr-FR') });
+      saveInscrits(inscrits);
+      updateBadgeInscrits();
+      document.getElementById('inscriptionSuccessMsg').textContent = `Bienvenue ${nom} ! Votre profil est enregistré.`;
+    }
+    inscriptionForm.style.display = 'none';
+    inscriptionSucc.style.display = '';
+  });
+  btnFermerSuccess.addEventListener('click', () => modalInscription.classList.remove('open'));
+
+  // Modal inscrits
+  const modalInscrits   = document.getElementById('modalInscrits');
+  const btnInscritsBtn  = document.getElementById('btnInscrits');
+  const btnFermerInscrits = document.getElementById('btnFermerInscrits');
+
+  btnInscritsBtn.addEventListener('click', () => {
+    renderInscrits();
+    modalInscrits.classList.add('open');
+  });
+  btnFermerInscrits.addEventListener('click', () => modalInscrits.classList.remove('open'));
+  modalInscrits.addEventListener('click', e => { if (e.target === modalInscrits) modalInscrits.classList.remove('open'); });
+
+  function renderInscrits() {
+    const inscrits = getInscrits();
+    document.getElementById('totalInscrits').textContent      = inscrits.length;
+    document.getElementById('totalConnexionsModal').textContent = getConnexions();
+    const list = document.getElementById('inscritsList');
+    if (inscrits.length === 0) {
+      list.innerHTML = '<div style="text-align:center;color:#aaa;padding:20px;font-size:0.85rem;">Aucun inscrit pour l\'instant.</div>';
+      return;
+    }
+    list.innerHTML = inscrits.map(i => `
+      <div class="inscrit-item">
+        <div class="inscrit-avatar">${i.nom.charAt(0).toUpperCase()}</div>
+        <div class="inscrit-info">
+          <div class="inscrit-name">${esc(i.nom)}</div>
+          <div class="inscrit-email">${esc(i.email)}</div>
+        </div>
+        <div class="inscrit-date">${esc(i.date)}</div>
+      </div>
+    `).join('');
+  }
+
+  // ══════════════════════════════════
+  // HISTORIQUE (side panel)
+  // ══════════════════════════════════
+  let searchHistory    = lsGet('dc_history', []);
+  let messageCount     = lsGet('dc_msg_count', 0);
+
+  function saveHistory() { lsSet('dc_history', searchHistory); }
+  function saveMsgCount() { lsSet('dc_msg_count', messageCount); }
+
+  function addToHistory(text, topicKey) {
+    const entry = {
+      text: text.slice(0, 50),
+      topic: topicKey,
+      time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+    };
+    searchHistory.unshift(entry);
+    if (searchHistory.length > 20) searchHistory = searchHistory.slice(0, 20);
+    saveHistory();
+  }
+
+  function renderHistoryPanel() {
+    const statMsgs     = document.getElementById('statMessages');
+    const statSearches = document.getElementById('statSearches');
+    const statConn     = document.getElementById('statConnexions');
+    statMsgs.textContent     = messageCount;
+    statSearches.textContent = searchHistory.length;
+    statConn.textContent     = getConnexions();
+
+    const historyList = document.getElementById('historyList');
+    if (searchHistory.length === 0) {
+      historyList.innerHTML = '<div class="side-panel-empty">Aucune recherche pour l\'instant.<br>Commencez à poser des questions !</div>';
+      return;
+    }
+    historyList.innerHTML = searchHistory.map((entry, idx) => `
+      <div class="history-item" data-idx="${idx}">
+        <span class="hi-icon">🔍</span>
+        <span class="hi-text">${esc(entry.text)}</span>
+        <span class="hi-time">${esc(entry.time)}</span>
+      </div>
+    `).join('');
+
+    historyList.querySelectorAll('.history-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const idx = parseInt(el.dataset.idx);
+        const entry = searchHistory[idx];
+        closeSidePanel();
+        setTimeout(() => sendMessage(entry.text), 200);
+      });
+    });
+  }
+
+  // Side panel controls
+  const sideOverlay   = document.getElementById('sideOverlay');
+  const sidePanel     = document.getElementById('sidePanel');
+  const btnHamburger  = document.getElementById('btnHamburger');
+  const sidePanelClose = document.getElementById('sidePanelClose');
+
+  function openSidePanel() {
+    renderHistoryPanel();
+    sidePanel.classList.add('open');
+    sideOverlay.classList.add('open');
+  }
+  function closeSidePanel() {
+    sidePanel.classList.remove('open');
+    sideOverlay.classList.remove('open');
+  }
+
+  btnHamburger.addEventListener('click',   openSidePanel);
+  sidePanelClose.addEventListener('click', closeSidePanel);
+  sideOverlay.addEventListener('click',    closeSidePanel);
+
+  // ══════════════════════════════════
   // BASE DE CONNAISSANCES ENRICHIE
+  // ══════════════════════════════════
   const KNOWLEDGE = {
-    // ────────── MARKETING DIGITAL ──────────
     "marketing digital": {
       name: "Marketing Digital",
       definition: "Ensemble des actions marketing utilisant les canaux numériques (web, mobile, email, réseaux sociaux, search) pour atteindre et convertir des audiences.",
@@ -623,8 +1322,6 @@
       example: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions.",
       related: []
     },
-
-    // ────────── NOUVEAUX SUJETS WEB MARKETING ──────────
     "seo-avance": {
       name: "SEO Avancé",
       definition: "Techniques poussées de référencement naturel : SEO sémantique, entity-based SEO, E-E-A-T, core web vitals, et stratégies de contenu avancées.",
@@ -730,8 +1427,6 @@
       example: "Notion utilise une boucle de contenu : les utilisateurs créent des templates publics → ces templates sont partagés sur Reddit/Twitter → de nouveaux utilisateurs découvrent Notion → certains créent leurs propres templates. Cette boucle a fait passer Notion de 0 à 30 millions d'utilisateurs.",
       related: ["product-led-growth", "growth hacking", "viral marketing", "funnel marketing"]
     },
-
-    // ────────── CRÉATION DE CONTENU ──────────
     "redaction-web-seo": {
       name: "Rédaction Web SEO",
       definition: "Écriture de contenus web optimisés pour les moteurs de recherche et les lecteurs, alliant technique SEO, copywriting et UX.",
@@ -788,8 +1483,6 @@
       example: "Une agence SEO crée un lead magnet 'Checklist des 50 points SEO technique en 2025' : PDF de 15 pages, design professionnel, 1 case à cocher par point. Landing page : titre 'Notez votre site sur 50', CTA 'Télécharger la checklist gratuite'. En 3 mois, 1200 téléchargements, 15% deviennent des leads commerciaux.",
       related: ["lead generation", "landing page", "email marketing", "cro"]
     },
-
-    // ────────── SUJETS TECHNIQUES ──────────
     "referencement-technique": {
       name: "Référencement Technique",
       definition: "Optimisation de l'infrastructure d'un site web pour les moteurs de recherche : crawl, indexation, vitesse, architecture, données structurées.",
@@ -846,8 +1539,6 @@
       example: "Un freelance crée son site portfolio sur WordPress : installation sur o2switch, thème Kadence gratuit, plugins Yoast SEO + UpdraftPlus + Wordfence + WPForms. Pages : Accueil, Portfolio, Blog, Contact. Optimisé SEO, temps de chargement 1,8s. Il apparaît en première page Google sur 'designer freelance Lyon' en 4 mois.",
       related: ["cms", "hebergement-web", "securite-web", "seo"]
     },
-
-    // ────────── SUJETS BUSINESS ──────────
     "business-plan": {
       name: "Business Plan",
       definition: "Document stratégique décrivant un projet d'entreprise : vision, étude de marché, modèle économique, prévisions financières et plan d'action.",
@@ -932,8 +1623,6 @@
       example: "Un entrepreneur subit l'échec de sa première startup (perte de 100k€ investis). Au lieu d'abandonner, il pratique le post-mortem (analyse des causes), suit une formation en gestion financière, rejoint un mastermind d'entrepreneurs, et lance sa deuxième entreprise. Cette fois, il lève 500k€ et atteint la rentabilité en 18 mois. Il attribue 80% du succès à l'évolution de son mindset.",
       related: ["gestion entreprise", "productivite", "personal-branding", "strategie marketing"]
     },
-
-    // ────────── VIDÉOGRAPHIE ──────────
     "videographie": {
       name: "Vidéographie",
       definition: "Art de capturer des images en mouvement avec maîtrise de la caméra, du son, de la lumière et du montage.",
@@ -1039,8 +1728,6 @@
       example: "Vidéo marque de café : correction blancs purs, puis grading chaud orange/marron.",
       related: ["montage video", "balance des blancs", "cinematographie"]
     },
-
-    // ────────── PHOTOGRAPHIE ──────────
     "photographie": {
       name: "Photographie",
       definition: "Art de capturer des images fixes en maîtrisant l'exposition, la composition et la lumière.",
@@ -1111,16 +1798,16 @@
       example: "Menu restaurant : plongée du plat signature, éclairé par fenêtre, avec verre et couverts.",
       related: ["photographie", "eclairage", "reseaux sociaux"]
     }
-  }; // ← FIN CORRECTE DE KNOWLEDGE
+  };
 
-  // ══════════════════════════════════════════════════════════
-  // KEYWORDS_MAP — détection des sujets
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════
+  // KEYWORDS_MAP
+  // ══════════════════════════════════
   const KEYWORDS_MAP = [
     { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir", "hey", "slt", "cc", "yo", "wsh"] },
     { topic: "remerciement", keywords: ["merci", "thanks", "thx", "mer6", "mci", "mrci", "merci beaucoup", "super merci"] },
     { topic: "marketing digital", keywords: ["marketing digital", "marketing numerique", "digital marketing", "marketing en ligne", "marketing", "mkt"] },
-    { topic: "seo", keywords: ["seo", "referencement", "referencement naturel", "optimisation moteur", "referencement seo", "positionner site", "referencement", "referencement"] },
+    { topic: "seo", keywords: ["seo", "referencement", "referencement naturel", "optimisation moteur", "referencement seo", "positionner site", "referencement"] },
     { topic: "sea", keywords: ["sea", "publicite payante", "google ads", "search ads", "campagne payante", "adwords", "annonce google", "pub google"] },
     { topic: "reseaux sociaux", keywords: ["reseaux sociaux", "social media", "facebook", "instagram", "linkedin", "tiktok", "medias sociaux", "reseau social"] },
     { topic: "email marketing", keywords: ["email marketing", "emailing", "newsletter", "campagne email", "mail marketing"] },
@@ -1131,7 +1818,7 @@
     { topic: "kpi", keywords: ["kpi", "indicateurs", "indicateur cle", "performance marketing", "roi", "roas", "indicateur performance"] },
     { topic: "inbound", keywords: ["inbound", "inbound marketing", "marketing d attraction", "pull marketing", "attirer clients"] },
     { topic: "outbound", keywords: ["outbound", "outbound marketing", "marketing sortant", "push marketing"] },
-    { topic: "strategie marketing", keywords: ["strategie marketing", "strategie", "strategie digitale", "plan marketing", "demarche marketing", "strategie"] },
+    { topic: "strategie marketing", keywords: ["strategie marketing", "strategie", "strategie digitale", "plan marketing", "demarche marketing"] },
     { topic: "maturite digitale", keywords: ["maturite digitale", "niveau numerique", "transformation digitale", "maturite numerique", "maturite"] },
     { topic: "naissance entreprise", keywords: ["naissance entreprise", "histoire entreprise", "creation entreprise", "recit fondateur", "fondateur", "creation"] },
     { topic: "multimoment", keywords: ["multimoment", "multi-moment", "parcours client", "points de contact", "omnicanal", "multi moment"] },
@@ -1142,318 +1829,155 @@
     { topic: "psychologie acheteur", keywords: ["psychologie acheteur", "psychologie client", "preuve sociale", "rarete", "reciprocite", "autorite", "psychologie"] },
     { topic: "crm", keywords: ["crm", "gestion client", "hubspot", "salesforce", "relation client", "pipedrive"] },
     { topic: "funnel marketing", keywords: ["funnel", "tunnel de conversion", "entonnoir", "aida", "tunnel marketing"] },
-    { topic: "marketing automation", keywords: ["marketing automation", "automatisation marketing", "workflow", "email automation", "lead nurturing", "scoring", "campagne automatisee", "drip campaign", "trigger", "drip marketing", "automatisation", "marketing automatise"] },
-    { topic: "programmatic advertising", keywords: ["programmatic", "achat programmatique", "real time bidding", "rtb", "dsp", "ssp", "ad exchange", "programmatique", "programmatique display"] },
-    { topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel retargeting", "recibler", "annonces de reciblage", "annonce post-visite", "ciblage comportemental"] },
-    { topic: "growth hacking", keywords: ["growth hacking", "croissance", "acquisition rapide", "growth", "hacker la croissance", "aarrr", "pirate metrics", "growth marketing", "hacking croissance"] },
-    { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion", "taux conversion"] },
-    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible ideale", "audience cible", "segmentation persona", "customer avatar", "cible", "segmentation", "profil client", "ideal client"] },
-    { topic: "customer journey", keywords: ["customer journey", "cartographie experience", "touchpoints", "map journey", "user journey", "cartographie client", "map experience", "parcours client"] },
-    { topic: "lead generation", keywords: ["lead generation", "generation leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen", "prospection digitale"] },
-    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "reseaux commerciaux", "social prospection", "social commerce", "social vente", "prospection reseaux"] },
-    { topic: "community management", keywords: ["community management", "gestion de communaute", "animatrice communaute", "cm", "moderation", "engagement communaute", "social care", "community manager", "animation communaute", "gestion communaute", "engagement"] },
-    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche a oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige", "viral"] },
-    { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding", "alliance marketing", "partenariat"] },
-    { topic: "affiliation", keywords: ["affiliation", "marketing d affiliation", "affiliate", "programme partenaire", "commission", "referencement affilie", "netlinking", "partenariat remunere"] },
-    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonne", "upsell", "cross-sell", "produits recommandes", "panier moyen", "checkout", "vente en ligne", "ecommerce"] },
-    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidelisation", "cycle de vie", "lifetime value", "clv", "relation client"] },
-    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualise", "adaptation contenu", "recommandation"] },
-    { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse predictive", "machine learning marketing", "data driven", "datamining", "data science"] },
-    { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatise", "bot marketing"] },
-    { topic: "realite augmentee", keywords: ["realite augmentee", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "experience immersive"] },
-    { topic: "gamification", keywords: ["gamification", "ludification", "jeu marketing", "badges", "points", "classement", "defis", "recompenses"] },
-    { topic: "webinar marketing", keywords: ["webinaire", "webinar", "formation en ligne", "live marketing", "masterclass", "evenement digital"] },
-    { topic: "podcast marketing", keywords: ["podcast", "audio marketing", "brand podcast", "publicite podcast", "contenu audio"] },
-    { topic: "user generated content", keywords: ["ugc", "contenu genere utilisateur", "avis clients", "temoignages", "photo client", "preuve sociale", "social proof"] },
-    { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "recit", "emotion marketing"] },
-    { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "emotionnel", "biais cognitifs", "psychologie marketing"] },
-    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunites menaces", "comparaison marche"] },
-    { topic: "etude de marche", keywords: ["etude de marche", "sondage", "enquete client", "focus group", "nps", "csat", "customer satisfaction"] },
-    { topic: "churn", keywords: ["churn", "taux d attrition", "desabonnement", "retention client", "client perdu", "attrition rate"] },
-    { topic: "cac", keywords: ["cac", "cout acquisition client", "customer acquisition cost", "cout par lead", "cpa", "cout par action"] },
-    { topic: "cpc cpm ctr", keywords: ["cpc", "cout par clic", "cpm", "cout pour mille", "ctr", "click through rate", "impressions", "reach", "frequence"] },
-    { topic: "modeles attribution", keywords: ["modele attribution", "attribution marketing", "dernier clic", "premier clic", "lineaire", "time decay", "data driven attribution"] },
-    { topic: "reporting", keywords: ["reporting", "tableau de bord", "dashboard", "datastudio", "power bi", "visualisation donnees", "alerte kpi", "anomalie"] },
-    { topic: "budget marketing", keywords: ["budget marketing", "planning financier", "romi", "retour sur investissement marketing", "roas", "marketing mix modeling", "mmm"] },
-    { topic: "positionnement", keywords: ["positionnement", "differenciation", "ciblage", "segmentation", "niche", "marketing strategique", "4p", "7p"] },
-    { topic: "employer branding", keywords: ["employer branding", "marque employeur", "rh marketing", "attraction talents", "marque interne", "advocacy collaborateur"] },
-    { topic: "e reputation", keywords: ["e-reputation", "veille", "social listening", "sentiment analysis", "alerte google", "review management", "feedback client"] },
-    { topic: "influence marketing", keywords: ["influence", "micro-influenceur", "macro-influenceur", "ambassadeur", "sponsoring", "collaboration influence", "ugc influence"] },
-    { topic: "giveaway", keywords: ["giveaway", "concours", "jeu concours", "lotterie", "freebie", "cadeau", "tirage au sort"] },
-    { topic: "landing page", keywords: ["landing page", "page de capture", "lead gen page", "squeeze page", "microsite"] },
-    { topic: "product marketing", keywords: ["product marketing", "lancement produit", "go to market", "gtm", "pricing", "tarification", "market launch", "roadmap"] },
-    { topic: "fidelisation", keywords: ["fidelisation", "loyalty", "programme fidelite", "cashback", "parrainage", "referencement client", "ambassadeur marque"] },
-    { topic: "seo-avance", keywords: ["seo avance", "seo avancé", "referencement avance", "e-e-a-t", "core web vitals", "entity seo", "semantic seo", "topic cluster", "featured snippet", "seo semantique", "eeat", "rich snippet", "donnees structurees"] },
-    { topic: "sea-avance", keywords: ["sea avance", "sea avancé", "google ads avance", "performance max", "smart bidding", "target roas", "target cpa", "scripts google ads", "audience personnalisee", "cross channel"] },
-    { topic: "social-media-ads", keywords: ["social ads", "publicite sociale", "facebook ads", "instagram ads", "tiktok ads", "linkedin ads", "social media advertising", "lookalike", "audience similaire", "retargeting social"] },
-    { topic: "email-marketing-avance", keywords: ["email marketing avance", "email avancé", "segmentation rfm", "amp email", "email dynamique", "delivrabilite", "email interactif", "personalisation email", "campagne email avancee"] },
-    { topic: "marketing-automation-avance", keywords: ["automation avancee", "automatisation avancee", "lead scoring avance", "workflow multicanal", "progressive profiling", "marketing automation avance", "nurturing avance"] },
-    { topic: "growth-hacking-avance", keywords: ["growth hacking avance", "growth avancé", "growth loop", "effet reseau", "api hacking", "growth engineering", "scraping growth", "hacking avance"] },
-    { topic: "cro-avance", keywords: ["cro avance", "cro avancé", "test multivarie", "personnalisation algorithmique", "analyse predictive cro", "design comportemental", "nudge marketing", "optimisation avancee"] },
-    { topic: "influence-marketing-avance", keywords: ["influence avance", "nano influenceur", "brand ambassador", "co-creation influence", "affiliation influence", "whitelisting", "ugc ads"] },
-    { topic: "content-marketing-avance", keywords: ["content marketing avance", "content ops", "repurposing", "contenu interactif", "ia contenu", "attribution contenu", "topic clusters", "content operations"] },
-    { topic: "analytics-avance", keywords: ["analytics avance", "analyse avancee", "cohort analysis", "analyse cohorte", "attribution data driven", "ltv prediction", "server side tracking", "bigquery", "data warehouse"] },
-    { topic: "neuromarketing-avance", keywords: ["neuromarketing avance", "neurosciences marketing", "economie comportementale", "irm fonctionnel", "eye tracking marketing", "facial coding", "design emotionnel", "biais d ancrage"] },
-    { topic: "storytelling-avance", keywords: ["storytelling avance", "archetypes marque", "voyage du heros", "transmedia", "storydoing", "narrative design", "jung branding", "brand story avance"] },
-    { topic: "branding-avance", keywords: ["branding avance", "brand equity", "architecture marque", "rebranding", "brand activation", "cbbi", "brand asset valuator", "force de marque"] },
-    { topic: "product-led-growth", keywords: ["product led growth", "plg", "croissance produit", "freemium", "essai gratuit", "pql", "product qualified lead", "time to value", "onboarding produit"] },
-    { topic: "growth-loops", keywords: ["growth loops", "boucle de croissance", "boucle virale", "k-factor", "coefficient viral", "loop marketing", "boucle retention", "boucle contenu"] },
-    { topic: "redaction-web-seo", keywords: ["redaction web seo", "redaction seo", "ecrire pour le web", "redacteur web", "cocon semantique", "meta description", "balise title", "score flesch"] },
-    { topic: "videos-courtes", keywords: ["videos courtes", "format court", "reels", "shorts", "tiktok video", "video verticale", "short video", "micro video"] },
-    { topic: "photo-reseaux-sociaux", keywords: ["photo reseaux", "visuel social media", "image instagram", "carrousel instagram", "photo insta", "visuel facebook", "photo linkedin"] },
-    { topic: "design-graphique", keywords: ["design graphique", "graphisme", "identite visuelle", "photoshop", "illustrator", "canva", "figma", "charte graphique", "direction artistique"] },
-    { topic: "montage-video-debutant", keywords: ["montage video debutant", "montage debutant", "capcut", "premiere pro debutant", "apprendre montage", "monter video facile", "tuto montage"] },
-    { topic: "podcasting", keywords: ["podcasting", "podcast", "creation podcast", "micro podcast", "hebergement podcast", "anchor", "acast", "podcast studio"] },
-    { topic: "creation-newsletter", keywords: ["creation newsletter", "newsletter design", "newsletter copywriting", "substack", "convertkit", "mailchimp newsletter", "brevo newsletter"] },
-    { topic: "lead-magnet", keywords: ["lead magnet", "aimant a leads", "ebook gratuit", "checklist", "guide pdf", "swipe file", "template", "quiz marketing", "calculateur"] },
-    { topic: "referencement-technique", keywords: ["referencement technique", "seo technique", "core web vitals", "donnees structurees", "schema", "crawl", "indexation", "sitemap", "robots txt", "screaming frog"] },
-    { topic: "optimisation-mobile", keywords: ["optimisation mobile", "mobile first", "responsive", "amp", "mobile ux", "page speed mobile", "mobile friendly", "adaptation mobile"] },
-    { topic: "accessibilite-web", keywords: ["accessibilite", "a11y", "wcag", "normes accessibilite", "rgaa", "site accessible", "handicap web", "lecteur ecran", "contraste web"] },
+    { topic: "seo-avance", keywords: ["seo avance", "seo avancé", "e-e-a-t", "core web vitals", "entity seo", "semantic seo", "topic cluster", "featured snippet", "seo semantique", "eeat"] },
+    { topic: "sea-avance", keywords: ["sea avance", "sea avancé", "google ads avance", "performance max", "smart bidding", "target roas", "target cpa", "scripts google ads"] },
+    { topic: "social-media-ads", keywords: ["social ads", "publicite sociale", "facebook ads", "instagram ads", "tiktok ads", "linkedin ads", "lookalike"] },
+    { topic: "email-marketing-avance", keywords: ["email marketing avance", "email avancé", "segmentation rfm", "amp email", "email dynamique", "delivrabilite"] },
+    { topic: "marketing-automation-avance", keywords: ["automation avancee", "automatisation avancee", "lead scoring avance", "marketing automation avance"] },
+    { topic: "growth-hacking-avance", keywords: ["growth hacking avance", "growth avancé", "growth loop", "effet reseau", "api hacking"] },
+    { topic: "cro-avance", keywords: ["cro avance", "cro avancé", "test multivarie", "personnalisation algorithmique", "design comportemental", "nudge marketing"] },
+    { topic: "influence-marketing-avance", keywords: ["influence avance", "nano influenceur", "brand ambassador", "co-creation influence", "whitelisting"] },
+    { topic: "content-marketing-avance", keywords: ["content marketing avance", "content ops", "repurposing", "contenu interactif", "attribution contenu", "topic clusters"] },
+    { topic: "analytics-avance", keywords: ["analytics avance", "analyse avancee", "cohort analysis", "analyse cohorte", "attribution data driven", "server side tracking"] },
+    { topic: "neuromarketing-avance", keywords: ["neuromarketing avance", "neurosciences marketing", "economie comportementale", "eye tracking marketing"] },
+    { topic: "storytelling-avance", keywords: ["storytelling avance", "archetypes marque", "voyage du heros", "transmedia", "storydoing", "narrative design"] },
+    { topic: "branding-avance", keywords: ["branding avance", "brand equity", "architecture marque", "rebranding", "brand activation"] },
+    { topic: "product-led-growth", keywords: ["product led growth", "plg", "croissance produit", "freemium", "essai gratuit", "pql", "time to value"] },
+    { topic: "growth-loops", keywords: ["growth loops", "boucle de croissance", "boucle virale", "k-factor", "coefficient viral", "loop marketing"] },
+    { topic: "redaction-web-seo", keywords: ["redaction web seo", "redaction seo", "ecrire pour le web", "redacteur web", "cocon semantique", "meta description", "balise title"] },
+    { topic: "videos-courtes", keywords: ["videos courtes", "format court", "reels", "shorts", "tiktok video", "video verticale", "short video"] },
+    { topic: "photo-reseaux-sociaux", keywords: ["photo reseaux", "visuel social media", "image instagram", "carrousel instagram", "photo insta", "visuel facebook"] },
+    { topic: "design-graphique", keywords: ["design graphique", "graphisme", "identite visuelle", "photoshop", "illustrator", "canva", "figma", "charte graphique"] },
+    { topic: "montage-video-debutant", keywords: ["montage video debutant", "montage debutant", "capcut", "apprendre montage", "monter video facile"] },
+    { topic: "podcasting", keywords: ["podcasting", "podcast", "creation podcast", "micro podcast", "hebergement podcast"] },
+    { topic: "creation-newsletter", keywords: ["creation newsletter", "newsletter design", "newsletter copywriting", "substack", "convertkit", "brevo newsletter"] },
+    { topic: "lead-magnet", keywords: ["lead magnet", "aimant a leads", "ebook gratuit", "checklist", "guide pdf", "swipe file", "quiz marketing"] },
+    { topic: "referencement-technique", keywords: ["referencement technique", "seo technique", "core web vitals", "donnees structurees", "schema", "crawl", "indexation", "sitemap", "robots txt"] },
+    { topic: "optimisation-mobile", keywords: ["optimisation mobile", "mobile first", "responsive", "amp", "mobile ux", "mobile friendly"] },
+    { topic: "accessibilite-web", keywords: ["accessibilite", "a11y", "wcag", "normes accessibilite", "rgaa", "site accessible", "handicap web"] },
     { topic: "securite-web", keywords: ["securite web", "https", "ssl", "firewall", "waf", "cloudflare", "wordfence", "protection site", "cybersecurite web", "rgpd"] },
-    { topic: "hebergement-web", keywords: ["hebergement web", "hebergement", "vps", "serveur", "cloud hosting", "kinsta", "o2switch", "ttfb", "temps de chargement"] },
+    { topic: "hebergement-web", keywords: ["hebergement web", "hebergement", "vps", "serveur", "cloud hosting", "kinsta", "ttfb"] },
     { topic: "noms-de-domaine", keywords: ["nom de domaine", "domaine", "extension", "whois", "tld", "adresse web", "url", "sous-domaine"] },
-    { topic: "cms", keywords: ["cms", "systeme de gestion", "wordpress", "shopify", "webflow", "drupal", "joomla", "headless cms", "contentful"] },
+    { topic: "cms", keywords: ["cms", "systeme de gestion", "wordpress", "shopify", "webflow", "drupal", "joomla", "headless cms"] },
     { topic: "wordpress", keywords: ["wordpress", "wp", "woocommerce", "theme wordpress", "plugin wp", "yoast", "elementor", "gutenberg"] },
-    { topic: "business-plan", keywords: ["business plan", "plan d affaires", "previsionnel", "executive summary", "pitch deck", "plan financier", "creation entreprise"] },
+    { topic: "business-plan", keywords: ["business plan", "plan d affaires", "previsionnel", "executive summary", "pitch deck", "plan financier"] },
     { topic: "modele-economique", keywords: ["modele economique", "business model", "canvas", "revenus", "monetisation", "abonnement", "freemium", "business model canvas"] },
-    { topic: "levee-de-fonds", keywords: ["levee de fonds", "fundraising", "investisseur", "capital risque", "vc", "business angel", "crowdfunding", "serie a", "due diligence"] },
-    { topic: "gestion-equipe", keywords: ["gestion equipe", "management equipe", "leadership", "okr", "feedback", "1:1", "entretien annuel", "team building"] },
-    { topic: "productivite", keywords: ["productivite", "productivity", "gestion du temps", "pomodoro", "deep work", "gtd", "efficacite", "todoist", "notion"] },
+    { topic: "levee-de-fonds", keywords: ["levee de fonds", "fundraising", "investisseur", "capital risque", "vc", "business angel", "crowdfunding", "serie a"] },
+    { topic: "gestion-equipe", keywords: ["gestion equipe", "management equipe", "leadership", "okr", "feedback", "team building"] },
+    { topic: "productivite", keywords: ["productivite", "productivity", "gestion du temps", "pomodoro", "deep work", "gtd", "efficacite"] },
     { topic: "negociation", keywords: ["negociation", "batna", "technique negociation", "vente", "ancrage", "concession", "gagnant gagnant", "négociation"] },
-    { topic: "service-client", keywords: ["service client", "support client", "sav", "zendesk", "intercom", "satisfaction client", "nps", "service apres-vente"] },
-    { topic: "personal-branding", keywords: ["personal branding", "marque personnelle", "image professionnelle", "cv en ligne", "profil linkedin", "notoriete personnelle"] },
-    { topic: "networking", keywords: ["networking", "reseau professionnel", "reseautage", "relationnel", "rencontre pro", "afterwork", "linkedin reseau"] },
-    { topic: "tarification", keywords: ["tarification", "pricing", "prix", "tarif", "politique prix", "yield management", "prix psychologique", "van westendorp"] },
-    { topic: "gestion-financiere", keywords: ["gestion financiere", "finance", "comptabilite", "tresorerie", "ebitda", "bilan", "fiscalite", "charges sociales"] },
-    { topic: "mindset-entrepreneurial", keywords: ["mindset", "etat d esprit", "mental entrepreneur", "resilience", "syndrome imposteur", "growth mindset", "discipline", "psychologie entrepreneur"] },
-    { topic: "videographie", keywords: ["videographie", "video", "filmer", "captation video", "creation video", "videographie"] },
-    { topic: "cinematographie", keywords: ["cinematographie", "7eme art", "esthetique video", "art video", "cinema", "cinematographie"] },
-    { topic: "mouvements camera", keywords: ["mouvements de camera", "mouvement camera", "mouvement de camera", "mouvements camera", "mouvment", "mouvemen", "panoramique", "tilt", "steadycam"] },
-    { topic: "travelling", keywords: ["travelling", "travelling avant", "travelling arriere", "traveling", "travling"] },
+    { topic: "service-client", keywords: ["service client", "support client", "sav", "zendesk", "intercom", "satisfaction client", "nps"] },
+    { topic: "personal-branding", keywords: ["personal branding", "marque personnelle", "image professionnelle", "profil linkedin", "notoriete personnelle"] },
+    { topic: "networking", keywords: ["networking", "reseau professionnel", "reseautage", "relationnel", "rencontre pro", "afterwork"] },
+    { topic: "tarification", keywords: ["tarification", "pricing", "prix", "tarif", "politique prix", "yield management", "prix psychologique"] },
+    { topic: "gestion-financiere", keywords: ["gestion financiere", "finance", "comptabilite", "tresorerie", "ebitda", "bilan", "fiscalite"] },
+    { topic: "mindset-entrepreneurial", keywords: ["mindset", "etat d esprit", "mental entrepreneur", "resilience", "syndrome imposteur", "growth mindset"] },
+    { topic: "videographie", keywords: ["videographie", "video", "filmer", "captation video", "creation video"] },
+    { topic: "cinematographie", keywords: ["cinematographie", "7eme art", "esthetique video", "art video", "cinema"] },
+    { topic: "mouvements camera", keywords: ["mouvements de camera", "mouvement camera", "mouvement de camera", "mouvements camera", "panoramique", "tilt", "steadycam"] },
+    { topic: "travelling", keywords: ["travelling", "travelling avant", "travelling arriere", "traveling"] },
     { topic: "zoom", keywords: ["zoom", "zoom avant", "zoom arriere", "dolly zoom", "zoomer"] },
-    { topic: "plongee contre plongee", keywords: ["plongee", "contre-plongee", "contre plongee", "plonje"] },
-    { topic: "champ contrechamp", keywords: ["champ contrechamp", "champ contre champ", "champ/contrechamp", "contrechamp"] },
-    { topic: "regle des 180 degres", keywords: ["180 degres", "regle 180", "saut de ligne", "dialogue camera", "regle 180"] },
-    { topic: "echelle des plans", keywords: ["echelle des plans", "type de plan", "gros plan", "plan americain", "plan d ensemble", "echelle plan"] },
-    { topic: "regle des trois tiers", keywords: ["regle des trois tiers", "composition", "cadrage", "points forts", "regle 3 tiers"] },
-    { topic: "eclairage", keywords: ["eclairage", "lumiere", "softbox", "eclairer", "lumiere produit", "eclerage"] },
-    { topic: "balance des blancs", keywords: ["balance des blancs", "white balance", "temperature couleur", "kelvin", "balance blanc"] },
+    { topic: "plongee contre plongee", keywords: ["plongee", "contre-plongee", "contre plongee"] },
+    { topic: "champ contrechamp", keywords: ["champ contrechamp", "champ contre champ", "contrechamp"] },
+    { topic: "regle des 180 degres", keywords: ["180 degres", "regle 180", "dialogue camera"] },
+    { topic: "echelle des plans", keywords: ["echelle des plans", "type de plan", "gros plan", "plan americain", "plan d ensemble"] },
+    { topic: "regle des trois tiers", keywords: ["regle des trois tiers", "composition", "cadrage", "points forts"] },
+    { topic: "eclairage", keywords: ["eclairage", "lumiere", "softbox", "eclairer", "lumiere produit"] },
+    { topic: "balance des blancs", keywords: ["balance des blancs", "white balance", "temperature couleur", "kelvin"] },
     { topic: "montage video", keywords: ["montage video", "derushage", "montage"] },
     { topic: "transitions", keywords: ["transitions", "transition video", "cut", "fondu", "transition"] },
-    { topic: "etalonnage", keywords: ["etalonnage", "color grading", "grading", "etalonage"] },
-    { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe", "foto", "fotografi"] },
-    { topic: "exposition", keywords: ["exposition", "triangle d exposition", "ouverture", "vitesse", "iso", "exposicion"] },
+    { topic: "etalonnage", keywords: ["etalonnage", "color grading", "grading"] },
+    { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe", "foto"] },
+    { topic: "exposition", keywords: ["exposition", "triangle d exposition", "ouverture", "vitesse", "iso"] },
     { topic: "pixel", keywords: ["pixel", "resolution", "megapixels", "mp", "dpi"] },
-    { topic: "appareil photo", keywords: ["appareil photo", "quel appareil", "choisir appareil", "reflex", "hybride", "mirrorless", "apn"] },
-    { topic: "objectif photo", keywords: ["objectif", "lentille", "focale", "grand angle", "teleobjectif", "obj"] },
-    { topic: "reglages photo", keywords: ["reglages photo", "dimension photo", "format photo", "ratio", "raw", "jpeg", "reglage"] },
-    { topic: "macrophotographie", keywords: ["macrophotographie", "macro", "macro photo", "macrophoto"] },
-    { topic: "astrophotographie", keywords: ["astrophotographie", "astro photo", "ciel nocturne", "astrophoto"] },
-    { topic: "photo de rue", keywords: ["photo de rue", "street photography", "street photo"] },
-    { topic: "photo culinaire", keywords: ["photo culinaire", "food photography", "food photo", "culinaire"] },
+    { topic: "appareil photo", keywords: ["appareil photo", "quel appareil", "choisir appareil", "reflex", "hybride", "mirrorless"] },
+    { topic: "objectif photo", keywords: ["objectif", "lentille", "focale", "grand angle", "teleobjectif"] },
+    { topic: "reglages photo", keywords: ["reglages photo", "dimension photo", "format photo", "ratio", "raw", "jpeg"] },
+    { topic: "macrophotographie", keywords: ["macrophotographie", "macro", "macro photo"] },
+    { topic: "astrophotographie", keywords: ["astrophotographie", "astro photo", "ciel nocturne"] },
+    { topic: "photo de rue", keywords: ["photo de rue", "street photography"] },
+    { topic: "photo culinaire", keywords: ["photo culinaire", "food photography", "culinaire"] },
     { topic: "gestion entreprise", keywords: ["gestion entreprise", "management", "manager", "diriger entreprise", "leadership", "gestion"] },
     { topic: "gestion marketing", keywords: ["gerer marketing", "plan marketing", "coordonner marketing", "gestion marketing"] },
-    { topic: "ethique marketing", keywords: ["ethique marketing", "ethique", "deontologie", "publicite mensongere", "greenwashing", "etik"] },
-    { topic: "bienseance", keywords: ["bienseance", "savoir-vivre", "politesse", "ponctualite", "respect", "bienseance"] }
+    { topic: "ethique marketing", keywords: ["ethique marketing", "ethique", "deontologie", "publicite mensongere", "greenwashing"] },
+    { topic: "bienseance", keywords: ["bienseance", "savoir-vivre", "politesse", "ponctualite", "respect"] }
   ];
 
-  // ══════════════════════════════════════════════════════════
-  // SYSTÈME ANTI-FAUTES D'ORTHOGRAPHE
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════
+  // ANTI-FAUTES
+  // ══════════════════════════════════
+  const FAUTES = {
+    "mouvement": ["mouvment","mouvemen","mouvmant","muvment"],
+    "camera": ["camra","camerat","kamera"],
+    "travelling": ["traveling","travling","travellin"],
+    "plongee": ["plonge","plonje"],
+    "marketing": ["marketting","markating","marketin","markting"],
+    "digital": ["digitale","dijital","digial"],
+    "referencement": ["ref"],
+    "strategie": ["strateji"],
+    "entreprise": ["entrepise","antreprise"],
+    "photographie": ["fotografi","foto","phot"],
+    "exposition": ["exposicion","expostion"],
+    "eclairage": ["eclerage"],
+    "ethique": ["etique","etik"],
+    "bienseance": ["biensance"],
+    "video": ["viddo","vido"],
+    "reseaux": ["reseau"],
+    "branding": ["brandin"],
+    "copywriting": ["copywritting"],
+    "analytics": ["analitics"],
+    "client": ["clien","cilent","cleint"],
+    "produit": ["produi","produitt"],
+    "qualite": ["qualite"],
+    "budget": ["budjet","bugdet"],
+    "objectif": ["obectif","objectf"],
+    "resultat": ["resulat","resulta"],
+    "analyse": ["analise","analyze"],
+    "communication": ["comunication"],
+    "creation": ["creacion"],
+    "technique": ["technic","teknik"],
+    "graphique": ["graphic","grafique"],
+    "contenu": ["contenue","conten"],
+    "audience": ["audiance","audiense"],
+    "campagne": ["campgne","campane"],
+    "croissance": ["croisance"],
+    "optimisation": ["optimizacion"],
+    "segmentation": ["segmentacion"],
+    "personnalisation": ["personalizacion"],
+    "algorithme": ["algoritme","algorythme"],
+    "plateforme": ["plateform"],
+    "connexion": ["conexion"],
+    "securite": ["securite"],
+    "hebergement": ["ebergement"],
+    "maintenance": ["maintence"],
+    "performance": ["performence"],
+    "interface": ["interfase"],
+    "experience": ["experiense","experiance"],
+    "utilisateur": ["utilisatuer"],
+    "freelance": ["freelanse"],
+    "negociation": ["negociation"]
+  };
 
   function normalize(str) {
-    return str
-      .toLowerCase()
+    return str.toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/['']/g, "'")
       .replace(/[^a-z0-9\s]/g, "");
   }
 
-  const FAUTES = {
-    "mouvement": ["mouvment", "mouvemen", "mouvmant", "muvment", "mouvemant"],
-    "camera": ["camra", "camerat", "kamera", "cam"],
-    "travelling": ["traveling", "travling", "travellin", "travelin"],
-    "plongee": ["plonge", "plongee", "plonje"],
-    "marketing": ["marketting", "markating", "marketin", "markting", "mkt"],
-    "digital": ["digitale", "dijital", "digial"],
-    "referencement": ["referencement", "ref"],
-    "strategie": ["strateji"],
-    "entreprise": ["entrepise", "antreprise"],
-    "photographie": ["fotografi", "foto", "phot", "fotographie"],
-    "exposition": ["exposicion", "expostion"],
-    "eclairage": ["eclerage"],
-    "ethique": ["etique", "etik"],
-    "bienseance": ["biensance", "savoir vivre"],
-    "video": ["viddo", "vido"],
-    "reseaux": ["reseau"],
-    "branding": ["brandin"],
-    "copywriting": ["copywritting", "copyrwriting"],
-    "analytics": ["analitics"],
-    "inbound": ["inboun", "inbond"],
-    "outbound": ["outboun", "outbond"],
-    "fidelisation": ["fidelizacion"],
-    "automatisation": ["automatizacion"],
-    "conversion": ["converssion", "konversion"],
-    "influenceur": ["influenseur"],
-    "deja": ["deja"],
-    "tres": ["tres"],
-    "apres": ["apres"],
-    "etre": ["etre"],
-    "avoir": ["avior"],
-    "faire": ["faore", "faier"],
-    "aller": ["aler"],
-    "venir": ["venr"],
-    "prendre": ["prendr"],
-    "vouloir": ["vouloire"],
-    "pouvoir": ["pouvoire"],
-    "savoir": ["savoire"],
-    "connaitre": ["connaitre", "conaitre"],
-    "client": ["clien", "cilent", "cleint"],
-    "produit": ["produi", "produitt", "prodiut"],
-    "service": ["servise", "servie", "service"],
-    "qualite": ["qualite"],
-    "prix": ["pri", "pris"],
-    "budget": ["budjet", "bugdet", "bujet"],
-    "objectif": ["obectif", "objectf", "objecif"],
-    "resultat": ["resulat", "resulta", "resutlat"],
-    "analyse": ["analise", "analyze", "analize"],
-    "donnee": ["donee", "done", "donne"],
-    "information": ["informacion", "info"],
-    "communication": ["comunication", "comunicacion"],
-    "creation": ["creacion"],
-    "developpement": ["developpement", "devloppement"],
-    "commercial": ["comercial", "commerciale"],
-    "financier": ["financier", "financiere"],
-    "technique": ["technic", "teknik"],
-    "graphique": ["graphic", "grafique"],
-    "contenu": ["contenue", "conten"],
-    "audience": ["audiance", "audiense"],
-    "campagne": ["campgne", "campane"],
-    "abonnement": ["abonement", "abonnment"],
-    "facture": ["fature", "factur"],
-    "paiement": ["payement", "paimant"],
-    "commande": ["comande", "command"],
-    "livraison": ["livraision", "livraision"],
-    "satisfaction": ["satisfacion", "satisfation"],
-    "reclamation": ["reclamacion", "reclamtion"],
-    "garantie": ["garantie", "garatie"],
-    "investissement": ["investisement", "investisment"],
-    "rentabilite": ["rentabilite", "rentabilitee"],
-    "croissance": ["croisance", "croissanse"],
-    "transformation": ["transformacion", "transfomation"],
-    "optimisation": ["optimizacion", "optimisacion"],
-    "segmentation": ["segmentacion", "segmantation"],
-    "personnalisation": ["personalizacion", "personalisacion"],
-    "intelligence": ["inteligence", "intelligence"],
-    "artificielle": ["artificiel", "artifitielle"],
-    "algorithme": ["algoritme", "algorythme"],
-    "plateforme": ["plateforme", "plateform"],
-    "application": ["aplication", "app"],
-    "logiciel": ["logiciel", "logitiel"],
-    "navigateur": ["navigateur", "navigatuer"],
-    "telechargement": ["telechargement", "telechargemant"],
-    "connexion": ["conexion", "connecsion"],
-    "securite": ["securite", "securitee"],
-    "confidentialite": ["confidencialite", "confidantialite"],
-    "authentification": ["authentificacion", "otentification"],
-    "certificat": ["certificat", "sertificat"],
-    "hebergement": ["hebergement", "ebergement"],
-    "maintenance": ["maintenance", "maintence"],
-    "sauvegarde": ["sauvegard", "sauvgarde"],
-    "restauration": ["restaurasion", "restorasion"],
-    "migration": ["migracion", "migrasion"],
-    "integration": ["integracion", "integrasion"],
-    "configuration": ["configurasion", "configurasion"],
-    "installation": ["instalasion", "instalacion"],
-    "desinstallation": ["desinstalacion", "desinstalasion"],
-    "compatibilite": ["compatibilite", "compatibilitee"],
-    "performance": ["performence", "performanse"],
-    "disponibilite": ["disponibilite", "disponibilitee"],
-    "scalabilite": ["scalabilite", "scalabilitee"],
-    "flexibilite": ["flexibilite", "flexibilitee"],
-    "ergonomie": ["ergonomie", "ergonomi"],
-    "interface": ["interfase", "interfae"],
-    "experience": ["experiense", "experiance"],
-    "utilisateur": ["utilisatuer", "utilizateur"],
-    "administrateur": ["administrateur", "administratur"],
-    "moderateur": ["moderateur", "moderatur"],
-    "redacteur": ["redacteur", "redactur"],
-    "correcteur": ["correcteur", "correctur"],
-    "editeur": ["editeur", "editur"],
-    "createur": ["createur", "creatur"],
-    "collaborateur": ["collaborateur", "colaborateur"],
-    "fournisseur": ["fournisseur", "fourniseur"],
-    "prestataire": ["prestataire", "prestater"],
-    "freelance": ["freelance", "freelanse"],
-    "independant": ["independant", "indepandant"],
-    "salarie": ["salarie", "salarié"],
-    "associe": ["associe", "associé"],
-    "actionnaire": ["actionaire", "actionere"],
-    "dirigeant": ["dirigeant", "dirigant"],
-    "president": ["president", "presidant"],
-    "directeur": ["directeur", "directur"],
-    "manager": ["maneger", "managuer"],
-    "coordinateur": ["coordinateur", "coordinatur"],
-    "superviseur": ["superviseur", "supervisur"],
-    "assistant": ["asistant", "assitant"],
-    "stagiaire": ["stagiere", "stagiere"],
-    "alternant": ["alternant", "alternan"],
-    "candidat": ["candidat", "candida"],
-    "recruteur": ["recruteur", "recrutur"],
-    "formateur": ["formateur", "formatur"],
-    "consultant": ["consultant", "consultan"],
-    "expert": ["expert", "exper"],
-    "specialiste": ["specialiste", "specialist"],
-    "generaliste": ["generaliste", "generalist"],
-    "technicien": ["technicien", "teknicien"],
-    "ingenieur": ["ingenieur", "ingénieur"],
-    "developpeur": ["developpeur", "devloppeur"],
-    "designer": ["designer", "designeur"],
-    "photographe": ["photographe", "fotografe"],
-    "videaste": ["videaste", "videast"],
-    "monteur": ["monteur", "monteur"],
-    "realisateur": ["realisateur", "realizateur"],
-    "scenariste": ["scenariste", "senariste"],
-    "ecrivain": ["ecrivain", "ecrivant"],
-    "auteur": ["auteur", "oteur"],
-    "artiste": ["artiste", "artist"],
-    "musicien": ["musicien", "musisien"],
-    "chanteur": ["chanteur", "chantur"],
-    "compositeur": ["compositeur", "compositur"],
-    "producteur": ["producteur", "productur"],
-    "diffuseur": ["diffuseur", "diffusur"],
-    "annonceur": ["annonceur", "anonceur"],
-    "publicitaire": ["publicitaire", "publiciter"],
-    "acheteur": ["acheteur", "achateur"],
-    "vendeur": ["vendeur", "vandeur"],
-    "distributeur": ["distributeur", "distributur"],
-    "grossiste": ["grossiste", "grosiste"],
-    "detaillant": ["detaillant", "detailant"],
-    "consommateur": ["consommateur", "consomateur"],
-    "prospect": ["prospect", "prospe"],
-    "abonne": ["abonne", "aboné"],
-    "membre": ["membre", "mambre"],
-    "visiteur": ["visiteur", "visitur"],
-    "internaute": ["internaute", "internote"],
-    "mobinaute": ["mobinaute", "mobinote"]
-  };
-
   function correctFautes(text) {
     let words = text.split(" ");
     for (let i = 0; i < words.length; i++) {
       for (let [correct, fautes] of Object.entries(FAUTES)) {
-        if (fautes.includes(words[i])) {
-          words[i] = correct;
-        }
+        if (fautes.includes(words[i])) { words[i] = correct; }
       }
     }
     return words.join(" ");
   }
 
-  // ══════════════════════════════════════════════════════════
-  // DÉTECTION DU SUJET
-  // ══════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════
+  // DETECTION DU SUJET
+  // ══════════════════════════════════
   function findTopic(question) {
     let q = correctFautes(question);
     q = normalize(q);
@@ -1463,9 +1987,7 @@
 
     for (let mapping of KEYWORDS_MAP) {
       for (let kw of mapping.keywords) {
-        if (q.includes(normalize(kw))) {
-          return mapping.topic;
-        }
+        if (q.includes(normalize(kw))) return mapping.topic;
       }
     }
 
@@ -1475,10 +1997,9 @@
     return null;
   }
 
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════
   // CONSTRUCTION DES RÉPONSES
-  // ══════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════
   function buildAnswerHtml(topicKey) {
     if (topicKey === "salutation") {
       return `<p>👋 Bonjour ! Je suis votre <strong>Digital Coach</strong>. Je peux vous aider sur le marketing digital, la vidéo, la photo, la gestion d'entreprise, le business, la création de contenu ou la technique web. Posez-moi votre question !</p>`;
@@ -1491,77 +2012,64 @@
 <p>Un bon marketing digital repose sur <strong>5 étapes clés</strong> :</p>
 <p>1️⃣ <strong>Analyse et diagnostic</strong> : Qui est votre client idéal ? Quels sont ses besoins, ses habitudes numériques ? Quel est votre avantage concurrentiel ? Utilisez le SWOT et les personas.</p>
 <p>2️⃣ <strong>Stratégie</strong> : Choisissez les bons canaux (SEO, réseaux sociaux, email, SEA) et le message adapté à votre public. Le copywriting et le storytelling sont vos alliés.</p>
-<p>3️⃣ <strong>Outils et contenu</strong> : Créez un blog central, des vidéos, des visuels pour réseaux sociaux. Pensez multi-moment : soyez cohérent sur tous les points de contact (Instagram, site, WhatsApp, boutique).</p>
-<p>4️⃣ <strong>Exécution</strong> : Publiez régulièrement, engagez votre communauté, lancez des campagnes (SEA, social ads, email automation). Testez et itérez.</p>
-<p>5️⃣ <strong>Mesure et ajustement</strong> : Utilisez les analytics (Google Analytics 4) pour suivre vos KPIs (CAC, ROAS, LTV, taux de conversion) et améliorez continuellement avec le CRO.</p>
-<p>💡 <em>N'oubliez pas la psychologie de l'acheteur : preuve sociale, rareté, réciprocité, autorité, cohérence. Et surtout, évitez les 3 erreurs : se projeter, laisser le financier dicter, tomber dans la routine.</em></p>
+<p>3️⃣ <strong>Outils et contenu</strong> : Créez un blog central, des vidéos, des visuels pour réseaux sociaux. Pensez multi-moment : soyez cohérent sur tous les points de contact.</p>
+<p>4️⃣ <strong>Exécution</strong> : Publiez régulièrement, engagez votre communauté, lancez des campagnes. Testez et itérez.</p>
+<p>5️⃣ <strong>Mesure et ajustement</strong> : Utilisez les analytics pour suivre vos KPIs et améliorez continuellement.</p>
 <hr><p>🔗 Explorer :</p>`;
     }
     const data = KNOWLEDGE[topicKey];
     if (!data) return "<p>❌ Désolé, cette notion n'est pas encore dans ma base de connaissances. Essayez un autre thème ou reformulez votre question.</p>";
-    const safeDef = esc(data.definition);
+    const safeDef     = esc(data.definition);
     const safeDetails = esc(data.details);
     const safeExample = esc(data.example);
-    let html = `
+    return `
       <div class="em-title">📘 Définition</div>
       <p>${safeDef}</p>
-      <div class="em-title" style="margin-top:12px;">📝 Explication détaillée</div>
+      <div class="em-title" style="margin-top:10px;">📝 Explication détaillée</div>
       <p>${safeDetails}</p>
-      <div class="em-title" style="margin-top:12px;">💡 Exemple concret</div>
+      <div class="em-title" style="margin-top:10px;">💡 Exemple concret</div>
       <p>${safeExample}</p>
       <hr>
-      <div style="font-size:0.85rem; margin: 8px 0 4px;">🔗 Explorer des sujets liés :</div>
+      <div style="font-size:0.82rem; margin: 6px 0 4px;">🔗 Sujets liés :</div>
       <div class="related-buttons" id="related-buttons-${topicKey.replace(/\s/g, '')}"></div>
     `;
-    return html;
   }
 
   function attachRelatedButtons(topicKey, containerElement) {
+    let relatedKeys = [];
     if (topicKey === "guide global") {
-      const defaultRelated = ["strategie marketing", "diagnostic", "psychologie acheteur", "marketing digital", "multimoment", "analytics", "cro", "growth hacking"];
-      const relatedContainer = containerElement.querySelector(`.related-buttons`);
-      if (relatedContainer) {
-        relatedContainer.innerHTML = "";
-        for (let relKey of defaultRelated) {
-          const relData = KNOWLEDGE[relKey];
-          if (relData) {
-            const btn = document.createElement("button");
-            btn.className = "related-btn";
-            btn.innerText = relData.name || relKey;
-            btn.onclick = () => askTopicDirectly(relKey);
-            relatedContainer.appendChild(btn);
-          }
-        }
-      }
-      return;
+      relatedKeys = ["strategie marketing", "diagnostic", "psychologie acheteur", "marketing digital", "multimoment", "analytics", "cro-avance", "growth hacking"];
+    } else {
+      const data = KNOWLEDGE[topicKey];
+      if (!data || !data.related) return;
+      relatedKeys = data.related;
     }
-    const data = KNOWLEDGE[topicKey];
-    if (!data || !data.related) return;
-    const relatedContainer = containerElement.querySelector(`.related-buttons`);
+    const relatedContainer = containerElement.querySelector('.related-buttons');
     if (!relatedContainer) return;
     relatedContainer.innerHTML = "";
-    for (let relTopicKey of data.related) {
-      const relData = KNOWLEDGE[relTopicKey];
+    for (let relKey of relatedKeys) {
+      const relData = KNOWLEDGE[relKey];
       if (relData) {
         const btn = document.createElement("button");
         btn.className = "related-btn";
-        btn.innerText = relData.name || relTopicKey;
-        btn.onclick = () => askTopicDirectly(relTopicKey);
+        btn.innerText = relData.name || relKey;
+        btn.onclick = () => askTopicDirectly(relKey);
         relatedContainer.appendChild(btn);
       }
     }
   }
 
-  // ══════════════════════════════════════════════════════════
+  // ══════════════════════════════════
   // LOGIQUE DE CHAT
-  // ══════════════════════════════════════════════════════════
-
+  // ══════════════════════════════════
   let isWaiting = false;
   const chatContainer = document.getElementById("chatContainer");
-  const userInput = document.getElementById("userInput");
-  const sendBtn = document.getElementById("sendBtn");
+  const userInput     = document.getElementById("userInput");
+  const sendBtn       = document.getElementById("sendBtn");
 
   function addUserMessage(text) {
+    messageCount++;
+    saveMsgCount();
     const msgDiv = document.createElement("div");
     msgDiv.className = "message user";
     msgDiv.innerHTML = `<div class="bubble">${esc(text)}</div><div class="timestamp">👤 Vous · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>`;
@@ -1570,6 +2078,8 @@
   }
 
   function addAgentMessage(htmlContent, topicKeyForRelated = null) {
+    messageCount++;
+    saveMsgCount();
     const msgDiv = document.createElement("div");
     msgDiv.className = "message agent";
     const bubbleDiv = document.createElement("div");
@@ -1582,9 +2092,7 @@
     msgDiv.appendChild(timeSpan);
     chatContainer.appendChild(msgDiv);
     scrollToBottom();
-    if (topicKeyForRelated) {
-      attachRelatedButtons(topicKeyForRelated, bubbleDiv);
-    }
+    if (topicKeyForRelated) attachRelatedButtons(topicKeyForRelated, bubbleDiv);
     return msgDiv;
   }
 
@@ -1597,7 +2105,7 @@
     if (typingDiv) removeTyping();
     typingDiv = document.createElement("div");
     typingDiv.className = "message agent";
-    typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span><span style="margin-left:6px; font-size:0.75rem;">Le coach réfléchit...</span></div>`;
+    typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span><span style="margin-left:6px; font-size:0.72rem;">Le coach réfléchit...</span></div>`;
     chatContainer.appendChild(typingDiv);
     scrollToBottom();
   }
@@ -1606,30 +2114,30 @@
   }
 
   async function getResponseForQuestion(questionText) {
-    const normalizedQuestion = questionText.trim();
-    if (!normalizedQuestion) return { html: "Posez une question précise pour que je puisse vous aider." };
-    const topic = findTopic(normalizedQuestion);
-    if (topic) {
-      return { html: buildAnswerHtml(topic), topicKey: topic };
-    } else {
-      const suggestions = Object.keys(KNOWLEDGE).slice(0, 10).map(k => KNOWLEDGE[k].name).join(", ");
-      return { html: `<p>🤔 Je n'ai pas trouvé de sujet correspondant à "<strong>${esc(normalizedQuestion)}</strong>".</p><p>💡 Voici des sujets sur lesquels je peux vous aider : ${esc(suggestions)}...<br>Essayez de reformuler ou cliquez sur un thème ci-dessus.</p>`, topicKey: null };
-    }
+    const q = questionText.trim();
+    if (!q) return { html: "Posez une question précise pour que je puisse vous aider." };
+    const topic = findTopic(q);
+    if (topic) return { html: buildAnswerHtml(topic), topicKey: topic };
+    const suggestions = Object.keys(KNOWLEDGE).slice(0, 10).map(k => KNOWLEDGE[k].name).join(", ");
+    return { html: `<p>🤔 Je n'ai pas trouvé de sujet correspondant à "<strong>${esc(q)}</strong>".</p><p>💡 Voici des sujets disponibles : ${esc(suggestions)}...<br>Essayez de reformuler ou cliquez sur un thème.</p>`, topicKey: null };
   }
 
   async function sendMessage(userText) {
-    if (isWaiting) return;
-    if (!userText.trim()) return;
+    if (isWaiting || !userText.trim()) return;
     isWaiting = true;
     sendBtn.disabled = true;
     userInput.disabled = true;
     addUserMessage(userText);
     userInput.value = "";
     showTyping();
-    await new Promise(r => setTimeout(r, 450));
+    await new Promise(r => setTimeout(r, 420));
     const responseObj = await getResponseForQuestion(userText);
     removeTyping();
     addAgentMessage(responseObj.html, responseObj.topicKey);
+    // Sauvegarder dans l'historique
+    if (responseObj.topicKey && responseObj.topicKey !== 'salutation' && responseObj.topicKey !== 'remerciement') {
+      addToHistory(userText, responseObj.topicKey);
+    }
     isWaiting = false;
     sendBtn.disabled = false;
     userInput.disabled = false;
@@ -1640,8 +2148,7 @@
   function askTopicDirectly(topicKey) {
     const topicData = KNOWLEDGE[topicKey];
     if (!topicData) return;
-    const questionPhrase = `Explique-moi ${topicData.name}`;
-    sendMessage(questionPhrase);
+    sendMessage(`Explique-moi ${topicData.name}`);
   }
 
   function buildTopicsBar() {
@@ -1654,9 +2161,9 @@
       { key: "reseaux sociaux", icon: "📱" },
       { key: "strategie marketing", icon: "🎯" },
       { key: "psychologie acheteur", icon: "🧠" },
-      { key: "growth hacking", icon: "🚀" },
-      { key: "cro", icon: "📈" },
-      { key: "storytelling", icon: "📖" },
+      { key: "growth-hacking-avance", icon: "🚀" },
+      { key: "cro-avance", icon: "📈" },
+      { key: "storytelling-avance", icon: "📖" },
       { key: "personal-branding", icon: "👤" },
       { key: "videographie", icon: "🎥" },
       { key: "photographie", icon: "📷" },
@@ -1688,15 +2195,15 @@
   }
 
   sendBtn.addEventListener("click", onSend);
-  userInput.addEventListener("keypress", (e) => {
-    if (e.key === "Enter" && !isWaiting) {
-      e.preventDefault();
-      onSend();
-    }
+  userInput.addEventListener("keypress", e => {
+    if (e.key === "Enter" && !isWaiting) { e.preventDefault(); onSend(); }
   });
 
+  // Init
   buildTopicsBar();
+  updateBadgeInscrits();
   scrollToBottom();
+
 })();
 </script>
 </body>
