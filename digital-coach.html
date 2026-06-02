@@ -8,260 +8,46 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="theme-color" content="#080808">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background-color: #080808;
-      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-      color: #f0f0f0;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .app-header {
-      background: #0c0c0c;
-      border-bottom: 1px solid #1f1f1f;
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 8px;
-      backdrop-filter: blur(4px);
-    }
-    .logo-area {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo-icon {
-      font-size: 28px;
-    }
-    .logo-text h1 {
-      font-size: 1.35rem;
-      font-weight: 600;
-      letter-spacing: -0.3px;
-      background: linear-gradient(135deg, #00bcd4, #4dd0e1);
-      background-clip: text;
-      -webkit-background-clip: text;
-      color: transparent;
-    }
-    .logo-text p {
-      font-size: 0.7rem;
-      color: #888;
-    }
-    .badge {
-      background: #00bcd420;
-      padding: 4px 12px;
-      border-radius: 40px;
-      font-size: 0.7rem;
-      border: 1px solid #00bcd480;
-      color: #00bcd4;
-    }
-    .chat-container {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      scroll-behavior: smooth;
-    }
-    .message {
-      max-width: 85%;
-      display: flex;
-      flex-direction: column;
-      animation: fadeSlide 0.2s ease-out;
-    }
-    .message.user {
-      align-self: flex-end;
-    }
-    .message.agent {
-      align-self: flex-start;
-    }
-    .bubble {
-      padding: 12px 16px;
-      border-radius: 24px;
-      line-height: 1.45;
-      font-size: 0.95rem;
-      word-break: break-word;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.3);
-    }
-    .user .bubble {
-      background: #00bcd4;
-      color: #080808;
-      border-bottom-right-radius: 6px;
-      font-weight: 500;
-    }
-    .agent .bubble {
-      background: #1e1e1e;
-      border: 1px solid #2c2c2c;
-      border-bottom-left-radius: 6px;
-      color: #eaeef2;
-    }
-    .timestamp {
-      font-size: 0.65rem;
-      color: #6c6c6c;
-      margin-top: 6px;
-      margin-left: 12px;
-      margin-right: 12px;
-    }
-    .user .timestamp {
-      text-align: right;
-    }
-    .typing-indicator {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-      padding: 8px 16px;
-      background: #1e1e1e;
-      border-radius: 24px;
-      width: fit-content;
-      border: 1px solid #2c2c2c;
-    }
-    .typing-indicator span {
-      width: 8px;
-      height: 8px;
-      background: #00bcd4;
-      border-radius: 50%;
-      display: inline-block;
-      animation: blink 1.4s infinite ease-in-out both;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background-color: #080808; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; color: #f0f0f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    .app-header { background: #0c0c0c; border-bottom: 1px solid #1f1f1f; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; backdrop-filter: blur(4px); }
+    .logo-area { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { font-size: 28px; }
+    .logo-text h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.3px; background: linear-gradient(135deg, #00bcd4, #4dd0e1); background-clip: text; -webkit-background-clip: text; color: transparent; }
+    .logo-text p { font-size: 0.7rem; color: #888; }
+    .badge { background: #00bcd420; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; border: 1px solid #00bcd480; color: #00bcd4; }
+    .chat-container { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+    .message { max-width: 85%; display: flex; flex-direction: column; animation: fadeSlide 0.2s ease-out; }
+    .message.user { align-self: flex-end; }
+    .message.agent { align-self: flex-start; }
+    .bubble { padding: 12px 16px; border-radius: 24px; line-height: 1.45; font-size: 0.95rem; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    .user .bubble { background: #00bcd4; color: #080808; border-bottom-right-radius: 6px; font-weight: 500; }
+    .agent .bubble { background: #1e1e1e; border: 1px solid #2c2c2c; border-bottom-left-radius: 6px; color: #eaeef2; }
+    .timestamp { font-size: 0.65rem; color: #6c6c6c; margin-top: 6px; margin-left: 12px; margin-right: 12px; }
+    .user .timestamp { text-align: right; }
+    .typing-indicator { display: flex; gap: 6px; align-items: center; padding: 8px 16px; background: #1e1e1e; border-radius: 24px; width: fit-content; border: 1px solid #2c2c2c; }
+    .typing-indicator span { width: 8px; height: 8px; background: #00bcd4; border-radius: 50%; display: inline-block; animation: blink 1.4s infinite ease-in-out both; }
     .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
     .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-    @keyframes blink {
-      0%, 80%, 100% { opacity: 0.3; transform: scale(0.8);}
-      40% { opacity: 1; transform: scale(1);}
-    }
-    @keyframes fadeSlide {
-      from { opacity: 0; transform: translateY(8px);}
-      to { opacity: 1; transform: translateY(0);}
-    }
-    .topics-bar {
-      background: #0e0e0e;
-      border-top: 1px solid #1c1c1c;
-      border-bottom: 1px solid #1c1c1c;
-      padding: 12px 16px;
-      overflow-x: auto;
-      white-space: nowrap;
-      display: flex;
-      gap: 10px;
-      scrollbar-width: thin;
-      -webkit-overflow-scrolling: touch;
-    }
-    .topic-btn {
-      background: #1a1a1a;
-      border: 1px solid #2e2e2e;
-      color: #e0e0e0;
-      padding: 8px 18px;
-      border-radius: 40px;
-      font-size: 0.85rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .topic-btn:hover, .topic-btn:active {
-      background: #00bcd4;
-      border-color: #00bcd4;
-      color: #080808;
-      transform: scale(0.97);
-    }
-    .input-area {
-      background: #0c0c0c;
-      padding: 12px 16px 20px;
-      border-top: 1px solid #1f1f1f;
-      display: flex;
-      gap: 12px;
-      align-items: flex-end;
-    }
-    .input-area input {
-      flex: 1;
-      background: #121212;
-      border: 1px solid #2a2a2a;
-      padding: 12px 16px;
-      border-radius: 32px;
-      color: white;
-      font-size: 1rem;
-      outline: none;
-      transition: 0.2s;
-    }
-    .input-area input:focus {
-      border-color: #00bcd4;
-      box-shadow: 0 0 0 2px #00bcd430;
-    }
-    .input-area button {
-      background: #00bcd4;
-      border: none;
-      color: #080808;
-      font-weight: bold;
-      padding: 0 20px;
-      height: 48px;
-      border-radius: 40px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .input-area button:active {
-      transform: scale(0.96);
-      background: #0097a7;
-    }
-    .input-area button:disabled {
-      opacity: 0.5;
-      transform: none;
-      cursor: not-allowed;
-    }
-    .related-buttons {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 16px;
-      margin-bottom: 6px;
-    }
-    .related-btn {
-      background: #0f2c2e;
-      border: 1px solid #00bcd470;
-      color: #00e5ff;
-      padding: 6px 16px;
-      border-radius: 30px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      transition: 0.15s;
-      font-weight: 500;
-    }
-    .related-btn:hover, .related-btn:active {
-      background: #00bcd4;
-      color: #080808;
-      border-color: #00bcd4;
-    }
-    hr {
-      margin: 12px 0;
-      border-color: #2c2c2c;
-    }
-    .em-title {
-      font-weight: 700;
-      margin-top: 6px;
-      font-size: 1rem;
-    }
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #141414;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #00bcd460;
-      border-radius: 10px;
-    }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .topics-bar { background: #0e0e0e; border-top: 1px solid #1c1c1c; border-bottom: 1px solid #1c1c1c; padding: 12px 16px; overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
+    .topic-btn { background: #1a1a1a; border: 1px solid #2e2e2e; color: #e0e0e0; padding: 8px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
+    .topic-btn:hover, .topic-btn:active { background: #00bcd4; border-color: #00bcd4; color: #080808; transform: scale(0.97); }
+    .input-area { background: #0c0c0c; padding: 12px 16px 20px; border-top: 1px solid #1f1f1f; display: flex; gap: 12px; align-items: flex-end; }
+    .input-area input { flex: 1; background: #121212; border: 1px solid #2a2a2a; padding: 12px 16px; border-radius: 32px; color: white; font-size: 1rem; outline: none; transition: 0.2s; }
+    .input-area input:focus { border-color: #00bcd4; box-shadow: 0 0 0 2px #00bcd430; }
+    .input-area button { background: #00bcd4; border: none; color: #080808; font-weight: bold; padding: 0 20px; height: 48px; border-radius: 40px; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+    .input-area button:active { transform: scale(0.96); background: #0097a7; }
+    .input-area button:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
+    .related-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; margin-bottom: 6px; }
+    .related-btn { background: #0f2c2e; border: 1px solid #00bcd470; color: #00e5ff; padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; cursor: pointer; transition: 0.15s; font-weight: 500; }
+    .related-btn:hover, .related-btn:active { background: #00bcd4; color: #080808; border-color: #00bcd4; }
+    hr { margin: 12px 0; border-color: #2c2c2c; }
+    .em-title { font-weight: 700; margin-top: 6px; font-size: 1rem; }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: #141414; }
+    ::-webkit-scrollbar-thumb { background: #00bcd460; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -307,7 +93,7 @@
   }
 
   // BASE DE CONNAISSANCES ENRICHIE
-const KNOWLEDGE = {
+  const KNOWLEDGE = {
     "marketing digital": {
       name: "Marketing Digital",
       definition: "Ensemble des actions marketing utilisant les canaux numériques (web, mobile, email, réseaux sociaux, search) pour atteindre et convertir des audiences.",
@@ -688,10 +474,10 @@ const KNOWLEDGE = {
     }
   };
 
-  // Mots-clés enrichis pour la détection
-const KEYWORDS_MAP = [
+  // Mots-clés enrichis pour la détection - TOUT FUSIONNÉ, CORRIGÉ
+  const KEYWORDS_MAP = [
     // Salutations
-    { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir", "hey", "slt", "cc", "yo", "wsh", "bonsoir"] },
+    { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir", "hey", "slt", "cc", "yo", "wsh"] },
     { topic: "remerciement", keywords: ["merci", "thanks", "thx", "mer6", "mci", "mrci", "merci beaucoup", "super merci"] },
     
     // Marketing existant
@@ -724,18 +510,18 @@ const KEYWORDS_MAP = [
     { topic: "programmatic advertising", keywords: ["programmatic", "achat programmatique", "real time bidding", "rtb", "dsp", "ssp", "ad exchange", "programmatique", "programmatique display"] },
     { topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel retargeting", "recibler", "annonces de reciblage", "annonce post-visite", "ciblage comportemental"] },
     { topic: "growth hacking", keywords: ["growth hacking", "croissance", "acquisition rapide", "growth", "hacker la croissance", "aarrr", "pirate metrics", "growth marketing", "hacking croissance"] },
-    { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion"] },
-    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible idéale", "audience cible", "segmentation persona", "customer avatar"] },
-    { topic: "customer journey", keywords: ["customer journey", "parcours client", "cartographie expérience", "touchpoints", "points de contact", "map journey", "user journey", "cartographie client"] },
-    { topic: "lead generation", keywords: ["lead generation", "génération leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen"] },
-    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "réseaux commerciaux", "social prospection", "social commerce"] },
-    { topic: "community management", keywords: ["community management", "gestion de communauté", "animatrice communauté", "cm", "modération", "engagement communauté", "social care", "community manager"] },
-    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche à oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige"] },
-    { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding", "alliance marketing"] },
-    { topic: "affiliation", keywords: ["affiliation", "marketing d'affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié", "netlinking partenaire"] },
-    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonné", "upsell", "cross-sell", "produits recommandés", "panier moyen", "checkout", "vente en ligne"] },
-    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidélisation", "cycle de vie", "lifetime value", "clv"] },
-    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualisé", "adaptation contenu"] },
+    { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion", "taux conversion"] },
+    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible idéale", "audience cible", "segmentation persona", "customer avatar", "cible", "segmentation", "profil client", "idéal client"] },
+    { topic: "customer journey", keywords: ["customer journey", "parcours client", "cartographie expérience", "touchpoints", "points de contact", "map journey", "user journey", "cartographie client", "map expérience"] },
+    { topic: "lead generation", keywords: ["lead generation", "génération leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen", "prospection digitale"] },
+    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "réseaux commerciaux", "social prospection", "social commerce", "social vente", "prospection réseaux"] },
+    { topic: "community management", keywords: ["community management", "gestion de communauté", "animatrice communauté", "cm", "modération", "engagement communauté", "social care", "community manager", "animation communauté", "gestion communauté", "engagement"] },
+    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche à oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige", "viral"] },
+    { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding", "alliance marketing", "partenariat"] },
+    { topic: "affiliation", keywords: ["affiliation", "marketing d'affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié", "netlinking", "partenariat rémunéré"] },
+    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonné", "upsell", "cross-sell", "produits recommandés", "panier moyen", "checkout", "vente en ligne", "ecommerce"] },
+    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidélisation", "cycle de vie", "lifetime value", "clv", "relation client"] },
+    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualisé", "adaptation contenu", "recommandation"] },
     { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse prédictive", "machine learning marketing", "data driven", "datamining", "data science"] },
     { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatisé", "bot marketing"] },
     { topic: "realite augmentee", keywords: ["réalité augmentée", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "expérience immersive"] },
@@ -745,7 +531,7 @@ const KEYWORDS_MAP = [
     { topic: "user generated content", keywords: ["ugc", "contenu généré utilisateur", "avis clients", "témoignages", "photo client", "preuve sociale", "social proof"] },
     { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "récit", "émotion marketing"] },
     { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "émotionnel", "biais cognitifs", "psychologie marketing"] },
-    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunités menaces"] },
+    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunités menaces", "comparaison marché"] },
     { topic: "etude de marche", keywords: ["étude de marché", "sondage", "enquête client", "focus group", "nps", "csat", "customer satisfaction"] },
     { topic: "churn", keywords: ["churn", "taux d'attrition", "désabonnement", "rétention client", "client perdu", "attrition rate"] },
     { topic: "cac", keywords: ["cac", "coût acquisition client", "customer acquisition cost", "cout par lead", "cpa", "coût par action"] },
@@ -762,7 +548,7 @@ const KEYWORDS_MAP = [
     { topic: "product marketing", keywords: ["product marketing", "lancement produit", "go to market", "gtm", "pricing", "tarification", "market launch", "roadmap"] },
     { topic: "fidelisation", keywords: ["fidélisation", "loyalty", "programme fidélité", "cashback", "parrainage", "référencement client", "ambassadeur marque"] },
     
-    // Vidéo existants
+    // Vidéo
     { topic: "videographie", keywords: ["vidéographie", "vidéo", "filmer", "captation vidéo", "création vidéo", "video", "videographie"] },
     { topic: "cinematographie", keywords: ["cinématographie", "7ème art", "esthétique vidéo", "art vidéo", "cinéma", "cinematographie"] },
     { topic: "mouvements camera", keywords: ["mouvements de caméra", "mouvement caméra", "mouvement de caméra", "mouvements camera", "mouvment", "mouvemen", "panoramique", "tilt", "steadycam"] },
@@ -779,7 +565,7 @@ const KEYWORDS_MAP = [
     { topic: "transitions", keywords: ["transitions", "transition vidéo", "cut", "fondu", "transition"] },
     { topic: "etalonnage", keywords: ["étalonnage", "etalonnage", "color grading", "grading", "etalonage"] },
     
-    // Photo existants
+    // Photo
     { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe", "foto", "fotografi"] },
     { topic: "exposition", keywords: ["exposition", "triangle d'exposition", "ouverture", "vitesse", "iso", "exposicion"] },
     { topic: "pixel", keywords: ["pixel", "résolution", "mégapixels", "mp", "dpi", "resolution"] },
@@ -796,14 +582,12 @@ const KEYWORDS_MAP = [
     { topic: "gestion marketing", keywords: ["gérer marketing", "plan marketing", "coordonner marketing", "gestion marketing"] },
     { topic: "ethique marketing", keywords: ["éthique marketing", "ethique", "déontologie", "publicité mensongère", "greenwashing", "etik"] },
     { topic: "bienseance", keywords: ["bienséance", "savoir-vivre", "politesse", "ponctualité", "respect", "bienseance"] }
-];
+  ];
 
   function findTopic(question) {
     const q = question.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    // Vérifier d'abord les salutations très courtes
     if (/^(bonjour|salut|hello|coucou|bjr|bonsoir)\b/.test(q)) return "salutation";
     if (/^(merci|thanks|thx)/.test(q)) return "remerciement";
-    // Parcourir la table de mots-clés
     for (let mapping of KEYWORDS_MAP) {
       for (let kw of mapping.keywords) {
         if (q.includes(kw.toLowerCase())) {
@@ -811,7 +595,6 @@ const KEYWORDS_MAP = [
         }
       }
     }
-    // Question globale
     if (q.includes("comment faire un bon marketing") || q.includes("réussir marketing")) return "guide global";
     return null;
   }
@@ -832,16 +615,13 @@ const KEYWORDS_MAP = [
 <p>4️⃣ <strong>Exécution</strong> : Publiez régulièrement, engagez votre communauté, lancez des campagnes (SEA si nécessaire).</p>
 <p>5️⃣ <strong>Mesure et ajustement</strong> : Utilisez les analytics pour suivre vos KPI et améliorez continuellement.</p>
 <p>💡 <em>N'oubliez pas la psychologie de l'acheteur : preuve sociale, rareté, réciprocité, autorité, cohérence.</em></p>
-<hr>
-<p>🔗 Explorer :</p>`;
+<hr><p>🔗 Explorer :</p>`;
     }
     const data = KNOWLEDGE[topicKey];
     if (!data) return "<span>❌ Désolé, cette notion n'est pas encore dans ma base. Essayez un autre thème.</span>";
-    
     const safeDef = esc(data.definition);
     const safeDetails = esc(data.details);
     const safeExample = esc(data.example);
-    
     let html = `
       <div class="em-title">📘 Définition</div>
       <p>${safeDef}</p>
@@ -892,7 +672,6 @@ const KEYWORDS_MAP = [
     }
   }
 
-  // UI globals
   let isWaiting = false;
   const chatContainer = document.getElementById("chatContainer");
   const userInput = document.getElementById("userInput");
@@ -901,10 +680,7 @@ const KEYWORDS_MAP = [
   function addUserMessage(text) {
     const msgDiv = document.createElement("div");
     msgDiv.className = "message user";
-    msgDiv.innerHTML = `
-      <div class="bubble">${esc(text)}</div>
-      <div class="timestamp">👤 Vous · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>
-    `;
+    msgDiv.innerHTML = `<div class="bubble">${esc(text)}</div><div class="timestamp">👤 Vous · ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>`;
     chatContainer.appendChild(msgDiv);
     scrollToBottom();
   }
@@ -929,9 +705,7 @@ const KEYWORDS_MAP = [
   }
   
   function scrollToBottom() {
-    setTimeout(() => {
-      chatContainer.scrollTop = chatContainer.scrollHeight;
-    }, 30);
+    setTimeout(() => { chatContainer.scrollTop = chatContainer.scrollHeight; }, 30);
   }
   
   let typingDiv = null;
@@ -939,20 +713,12 @@ const KEYWORDS_MAP = [
     if (typingDiv) removeTyping();
     typingDiv = document.createElement("div");
     typingDiv.className = "message agent";
-    typingDiv.innerHTML = `
-      <div class="typing-indicator">
-        <span></span><span></span><span></span>
-        <span style="margin-left:6px; font-size:0.75rem;">Le coach réfléchit...</span>
-      </div>
-    `;
+    typingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span><span style="margin-left:6px; font-size:0.75rem;">Le coach réfléchit...</span></div>`;
     chatContainer.appendChild(typingDiv);
     scrollToBottom();
   }
   function removeTyping() {
-    if (typingDiv) {
-      typingDiv.remove();
-      typingDiv = null;
-    }
+    if (typingDiv) { typingDiv.remove(); typingDiv = null; }
   }
   
   async function getResponseForQuestion(questionText) {
@@ -973,17 +739,13 @@ const KEYWORDS_MAP = [
     isWaiting = true;
     sendBtn.disabled = true;
     userInput.disabled = true;
-    
     addUserMessage(userText);
     userInput.value = "";
-    
     showTyping();
     await new Promise(r => setTimeout(r, 350));
-    
     const responseObj = await getResponseForQuestion(userText);
     removeTyping();
     addAgentMessage(responseObj.html, responseObj.topicKey);
-    
     isWaiting = false;
     sendBtn.disabled = false;
     userInput.disabled = false;
@@ -1001,7 +763,6 @@ const KEYWORDS_MAP = [
   function buildTopicsBar() {
     const topicsBar = document.getElementById("topicsBar");
     topicsBar.innerHTML = "";
-    // Afficher une sélection de catégories principales
     const categories = [
       { key: "marketing digital", icon: "📊" },
       { key: "seo", icon: "🔍" },
