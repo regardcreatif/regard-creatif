@@ -1,87 +1,3 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-  <title>Digital Coach · Assistant Marketing & Création</title>
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="theme-color" content="#080808">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { background-color: #080808; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif; color: #f0f0f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-    .app-header { background: #0c0c0c; border-bottom: 1px solid #1f1f1f; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; backdrop-filter: blur(4px); }
-    .logo-area { display: flex; align-items: center; gap: 12px; }
-    .logo-icon { font-size: 28px; }
-    .logo-text h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.3px; background: linear-gradient(135deg, #00bcd4, #4dd0e1); background-clip: text; -webkit-background-clip: text; color: transparent; }
-    .logo-text p { font-size: 0.7rem; color: #888; }
-    .badge { background: #00bcd420; padding: 4px 12px; border-radius: 40px; font-size: 0.7rem; border: 1px solid #00bcd480; color: #00bcd4; }
-    .chat-container { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-    .message { max-width: 85%; display: flex; flex-direction: column; animation: fadeSlide 0.2s ease-out; }
-    .message.user { align-self: flex-end; }
-    .message.agent { align-self: flex-start; }
-    .bubble { padding: 12px 16px; border-radius: 24px; line-height: 1.45; font-size: 0.95rem; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
-    .user .bubble { background: #00bcd4; color: #080808; border-bottom-right-radius: 6px; font-weight: 500; }
-    .agent .bubble { background: #1e1e1e; border: 1px solid #2c2c2c; border-bottom-left-radius: 6px; color: #eaeef2; }
-    .timestamp { font-size: 0.65rem; color: #6c6c6c; margin-top: 6px; margin-left: 12px; margin-right: 12px; }
-    .user .timestamp { text-align: right; }
-    .typing-indicator { display: flex; gap: 6px; align-items: center; padding: 8px 16px; background: #1e1e1e; border-radius: 24px; width: fit-content; border: 1px solid #2c2c2c; }
-    .typing-indicator span { width: 8px; height: 8px; background: #00bcd4; border-radius: 50%; display: inline-block; animation: blink 1.4s infinite ease-in-out both; }
-    .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
-    .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
-    @keyframes blink { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
-    @keyframes fadeSlide { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .topics-bar { background: #0e0e0e; border-top: 1px solid #1c1c1c; border-bottom: 1px solid #1c1c1c; padding: 12px 16px; overflow-x: auto; white-space: nowrap; display: flex; gap: 10px; scrollbar-width: thin; -webkit-overflow-scrolling: touch; }
-    .topic-btn { background: #1a1a1a; border: 1px solid #2e2e2e; color: #e0e0e0; padding: 8px 18px; border-radius: 40px; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px; }
-    .topic-btn:hover, .topic-btn:active { background: #00bcd4; border-color: #00bcd4; color: #080808; transform: scale(0.97); }
-    .input-area { background: #0c0c0c; padding: 12px 16px 20px; border-top: 1px solid #1f1f1f; display: flex; gap: 12px; align-items: flex-end; }
-    .input-area input { flex: 1; background: #121212; border: 1px solid #2a2a2a; padding: 12px 16px; border-radius: 32px; color: white; font-size: 1rem; outline: none; transition: 0.2s; }
-    .input-area input:focus { border-color: #00bcd4; box-shadow: 0 0 0 2px #00bcd430; }
-    .input-area button { background: #00bcd4; border: none; color: #080808; font-weight: bold; padding: 0 20px; height: 48px; border-radius: 40px; font-size: 1rem; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
-    .input-area button:active { transform: scale(0.96); background: #0097a7; }
-    .input-area button:disabled { opacity: 0.5; transform: none; cursor: not-allowed; }
-    .related-buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; margin-bottom: 6px; }
-    .related-btn { background: #0f2c2e; border: 1px solid #00bcd470; color: #00e5ff; padding: 6px 16px; border-radius: 30px; font-size: 0.8rem; cursor: pointer; transition: 0.15s; font-weight: 500; }
-    .related-btn:hover, .related-btn:active { background: #00bcd4; color: #080808; border-color: #00bcd4; }
-    hr { margin: 12px 0; border-color: #2c2c2c; }
-    .em-title { font-weight: 700; margin-top: 6px; font-size: 1rem; }
-    ::-webkit-scrollbar { width: 5px; }
-    ::-webkit-scrollbar-track { background: #141414; }
-    ::-webkit-scrollbar-thumb { background: #00bcd460; border-radius: 10px; }
-  </style>
-</head>
-<body>
-
-<header class="app-header">
-  <div class="logo-area">
-    <div class="logo-icon">🧠📈</div>
-    <div class="logo-text">
-      <h1>Digital Coach</h1>
-      <p>Assistant marketing & création · 100% intégré</p>
-    </div>
-  </div>
-  <div class="badge">⚡ Base connaissance offline</div>
-</header>
-
-<div class="topics-bar" id="topicsBar"></div>
-
-<div class="chat-container" id="chatContainer">
-  <div class="message agent">
-    <div class="bubble">
-      👋 Bonjour ! Je suis votre <strong>Digital Coach</strong>. <br>
-      Posez-moi toutes vos questions sur <strong>SEO, SEA, stratégie, réseaux sociaux, copywriting, analytics, branding, inbound, psychologie de l'acheteur, vidéographie, photographie, gestion d'entreprise, éthique...</strong><br>
-      Cliquez sur un thème ci-dessus ou tapez votre question.
-    </div>
-    <div class="timestamp">🤖 Coach</div>
-  </div>
-</div>
-
-<div class="input-area">
-  <input type="text" id="userInput" placeholder="Ex : Qu'est-ce que le SEO ? ou Explique-moi le travelling" autocomplete="off">
-  <button id="sendBtn">Envoyer ✨</button>
-</div>
-
-<script>
   function esc(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -94,6 +10,7 @@
 
   // BASE DE CONNAISSANCES ENRICHIE
   const KNOWLEDGE = {
+    // ────────── MARKETING DIGITAL ──────────
     "marketing digital": {
       name: "Marketing Digital",
       definition: "Ensemble des actions marketing utilisant les canaux numériques (web, mobile, email, réseaux sociaux, search) pour atteindre et convertir des audiences.",
@@ -241,6 +158,353 @@
       example: "Afficher 'Plus que 2 chambres disponibles !' déclenche l'achat par peur de manquer.",
       related: ["copywriting", "branding", "inbound"]
     },
+    "crm": {
+      name: "CRM",
+      definition: "Logiciel et stratégie de gestion de la relation client.",
+      details: "Centralise contacts, historique, pipeline de vente. Automatisation, segmentation. Outils : HubSpot, Salesforce, Pipedrive.",
+      example: "Un graphiste utilise HubSpot pour suivre chaque demande de logo de 'Reçu' à 'Livré'.",
+      related: ["marketing digital", "email marketing", "analytics"]
+    },
+    "funnel marketing": {
+      name: "Funnel Marketing",
+      definition: "Modèle du parcours client de la découverte à l'achat.",
+      details: "Étapes AIDA : Attention, Intérêt, Désir, Action. Optimiser le taux de conversion à chaque étape avec les analytics.",
+      example: "Formation en ligne : article SEO (1000 visiteurs) → ebook gratuit (200 inscrits) → emails (50 démos) → inscriptions (15).",
+      related: ["marketing digital", "inbound", "analytics", "crm"]
+    },
+    "gestion entreprise": {
+      name: "Gestion d'Entreprise",
+      definition: "Pratiques pour diriger, organiser et faire croître une entreprise.",
+      details: "Leadership, gestion d'équipe, finances, stratégie SMART, communication interne.",
+      example: "Manager fixe des objectifs trimestriels, délègue, et fait un point hebdo de 15 min.",
+      related: ["strategie marketing", "ethique marketing", "bienseance"]
+    },
+    "gestion marketing": {
+      name: "Gérer un Marketing Efficace",
+      definition: "Coordonner les actions marketing pour atteindre les objectifs business.",
+      details: "Plan marketing : objectifs, cibles, canaux, budget, calendrier. Suivi KPIs. Veille concurrentielle.",
+      example: "PME : plan trimestriel SEO + SEA + Instagram, mesure ROI chaque semaine.",
+      related: ["marketing digital", "strategie marketing", "kpi"]
+    },
+    "ethique marketing": {
+      name: "Éthique en Marketing",
+      definition: "Principes moraux pour respecter les consommateurs et la société.",
+      details: "Vérité, respect vie privée (RGPD), ciblage responsable, durabilité (pas de greenwashing), transparence.",
+      example: "Cosmétiques : annoncer '90% d'ingrédients naturels' sans cacher les 10% restants.",
+      related: ["bienseance", "strategie marketing"]
+    },
+    "bienseance": {
+      name: "Règles de Bienséance",
+      definition: "Comportements professionnels favorisant des relations harmonieuses.",
+      details: "Politesse, ponctualité, écoute active, discrétion, communication non-violente, respect des cultures.",
+      example: "Rendez-vous client : 5 min en avance, sourire, téléphone rangé, reformulation des besoins.",
+      related: ["gestion entreprise", "ethique marketing"]
+    },
+    "salutation": {
+      name: "Salutations",
+      definition: "Réponses automatiques pour engager la conversation.",
+      details: "Le coach répond aux bonjour, salut, hello de manière chaleureuse.",
+      example: "Bonjour ! Je suis votre Digital Coach. Comment puis-je vous aider ?",
+      related: []
+    },
+    "remerciement": {
+      name: "Remerciements",
+      definition: "Réponses aux marques de gratitude.",
+      details: "Le coach répond aux mercis par une note positive.",
+      example: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions.",
+      related: []
+    },
+
+    // ────────── NOUVEAUX SUJETS MARKETING DIGITAL ──────────
+    "marketing automation": {
+      name: "Marketing Automation",
+      definition: "Utilisation de logiciels pour automatiser des tâches marketing répétitives (emails, publication, scoring).",
+      details: "Permet de gagner du temps et de personnaliser les messages à grande échelle. Workflows : série d'e-mails déclenchés par un comportement (inscription, achat, abandon panier). Lead scoring : attribution de points aux prospects selon leurs actions pour identifier les plus chauds. Outils : HubSpot, ActiveCampaign, Mailchimp.",
+      example: "Un lead télécharge un ebook → reçoit automatiquement 3 e-mails de bienvenue, puis une offre de démonstration s'il clique sur un lien.",
+      related: ["crm", "email marketing", "lead generation"]
+    },
+    "programmatic advertising": {
+      name: "Programmatic Advertising",
+      definition: "Achat et vente d'espaces publicitaires en ligne de manière automatisée, via des enchères en temps réel (RTB).",
+      details: "Implique des plateformes : DSP (Demand Side Platform) pour les annonceurs, SSP (Supply Side Platform) pour les éditeurs, et Ad Exchange. Le ciblage est ultra-précis (données socio-démo, comportement, contexte).",
+      example: "Une marque cible les amateurs de running dans une zone géographique précise avec une bannière achetée en 0,1 seconde via enchère RTB.",
+      related: ["sea", "retargeting", "cpc cpm ctr"]
+    },
+    "retargeting": {
+      name: "Retargeting (Remarketing)",
+      definition: "Technique qui affiche des publicités aux personnes ayant déjà visité votre site ou interagi avec votre marque.",
+      details: "Fonctionne avec un pixel (cookie) déposé sur le navigateur du visiteur. Permet de relancer les visiteurs qui n'ont pas acheté. Très efficace pour augmenter le taux de conversion.",
+      example: "Un visiteur regarde une paire de chaussures sans l'acheter → plus tard, il voit une pub pour ces mêmes chaussures sur Facebook.",
+      related: ["programmatic advertising", "cro", "cpc cpm ctr"]
+    },
+    "growth hacking": {
+      name: "Growth Hacking",
+      definition: "Stratégie d'acquisition rapide combinant marketing, produit et données, souvent avec des techniques créatives et peu coûteuses.",
+      details: "Popularisé par les startups. Utilise des boucles virales, le référencement, les partenariats, l'optimisation produit. Le framework AARRR (Acquisition, Activation, Rétention, Revenu, Référence) guide les actions.",
+      example: "Dropbox offrait 500 Mo de stockage gratuit pour chaque ami parrainé, multipliant sa base d'utilisateurs.",
+      related: ["marketing digital", "inbound", "viral marketing"]
+    },
+    "cro": {
+      name: "CRO (Conversion Rate Optimization)",
+      definition: "Optimisation du taux de conversion : transformer plus de visiteurs en clients.",
+      details: "Méthodes : A/B testing (comparer deux versions d'une page), heatmaps (zones de clic), session replay. Améliorer les landing pages, les CTA, les formulaires.",
+      example: "Un site e-commerce teste deux couleurs de bouton 'Acheter' : le rouge obtient 15% de clics en plus que le vert.",
+      related: ["analytics", "landing page", "kpi"]
+    },
+    "persona": {
+      name: "Buyer Persona",
+      definition: "Représentation semi-fictive de votre client idéal, basée sur des données et des hypothèses.",
+      details: "Comprend : démographie, motivations, freins, canaux préférés. Aide à personnaliser le contenu et les offres. On peut avoir plusieurs personas.",
+      example: "Pour une marque de café : 'Paul, 35 ans, cadre, achète en ligne des grains de spécialité le dimanche soir'.",
+      related: ["positionnement", "customer journey", "strategie marketing"]
+    },
+    "customer journey": {
+      name: "Customer Journey (Parcours Client)",
+      definition: "Chemin emprunté par un client avant, pendant et après l'achat, via différents points de contact.",
+      details: "Cartographier le parcours permet d'identifier les frictions et les opportunités. Étapes types : Découverte, Considération, Décision, Achat, Fidélisation.",
+      example: "Un client découvre une marque sur Instagram, lit les avis sur Google, visite le site, reçoit un e-mail automatique, achète en magasin.",
+      related: ["persona", "multimoment", "funnel marketing"]
+    },
+    "lead generation": {
+      name: "Lead Generation (Génération de Leads)",
+      definition: "Processus pour attirer et capturer des prospects qualifiés.",
+      details: "Tactiques : contenu premium (ebooks, webinaires), landing pages avec formulaire, publicités ciblées. Le lead magnet est l'offre gratuite échangée contre les coordonnées.",
+      example: "Une agence offre un audit SEO gratuit en échange d'une adresse e-mail.",
+      related: ["cro", "landing page", "crm"]
+    },
+    "social selling": {
+      name: "Social Selling",
+      definition: "Utiliser les réseaux sociaux pour établir des relations et vendre.",
+      details: "Trouver des prospects, partager du contenu, interagir, construire la confiance avant de vendre. LinkedIn est la plateforme clé.",
+      example: "Un commercial commente les posts de prospects, partage des articles de blog, puis propose un message personnalisé.",
+      related: ["reseaux sociaux", "crm", "personalisation"]
+    },
+    "community management": {
+      name: "Community Management",
+      definition: "Animer, modérer et faire grandir une communauté en ligne.",
+      details: "Le CM répond aux commentaires, crée des discussions, gère les conflits, organise des événements. La communauté devient ambassadrice.",
+      example: "Une marque de jeux vidéo a un CM qui organise des tournois, répond aux bugs signalés et partage les meilleurs clips des joueurs.",
+      related: ["reseaux sociaux", "branding", "fidelisation"]
+    },
+    "viral marketing": {
+      name: "Viral Marketing",
+      definition: "Stratégie incitant les utilisateurs à partager massivement un contenu.",
+      details: "Contenu émotionnel, humour, choc, utilité. L'effet boule de neige génère une portée exponentielle. Difficile à prédire.",
+      example: "La vidéo 'Dumb Ways to Die' pour la sécurité ferroviaire, partagée des millions de fois.",
+      related: ["content marketing", "reseaux sociaux", "growth hacking"]
+    },
+    "co-marketing": {
+      name: "Co-Marketing",
+      definition: "Partenariat où deux marques créent et promeuvent un contenu commun.",
+      details: "Partage d'audience, co-création d'ebooks, webinaires conjoints. Gagnant-gagnant si les marques sont complémentaires.",
+      example: "Une plateforme CRM et une agence marketing co-organisent un webinaire sur l'automatisation.",
+      related: ["content marketing", "influence marketing", "strategie marketing"]
+    },
+    "affiliation": {
+      name: "Marketing d'Affiliation",
+      definition: "Un affilié promeut un produit et touche une commission sur chaque vente.",
+      details: "Basé sur la performance. Plateformes : Amazon Associates, Awin. Lien traqué via cookie.",
+      example: "Un blogueur recommande un logiciel avec son lien affilié ; il touche 20% si le visiteur achète.",
+      related: ["ecommerce marketing", "kpi", "cpc cpm ctr"]
+    },
+    "ecommerce marketing": {
+      name: "E-Commerce Marketing",
+      definition: "Stratégies pour attirer du trafic et convertir sur une boutique en ligne.",
+      details: "SEO produit, SEA Shopping, réseaux sociaux, emails de relance panier abandonné, upsell/cross-sell, avis clients.",
+      example: "Une boutique de vêtements envoie un e-mail 'Tu as oublié ça ?' avec une photo de l'article et une réduction de 10%.",
+      related: ["seo", "sea", "email marketing"]
+    },
+    "crm marketing": {
+      name: "CRM Marketing",
+      definition: "Utiliser le CRM pour des campagnes personnalisées basées sur les données client.",
+      details: "Segmentation RFM (Récence, Fréquence, Montant), campagnes de réactivation, programmes de fidélité, cycle de vie.",
+      example: "Le CRM détecte qu'un client n'a pas acheté depuis 3 mois ; il déclenche un e-mail 'Tu nous manques' avec une offre.",
+      related: ["crm", "email marketing", "fidelisation"]
+    },
+    "personalisation": {
+      name: "Personnalisation",
+      definition: "Adapter le contenu, les offres ou l'expérience à chaque utilisateur.",
+      details: "Basée sur le comportement de navigation, l'historique d'achat, les données CRM. 'Bonjour [Prénom]' n'est que la surface.",
+      example: "Netflix personnalise les miniatures des films selon les goûts de l'utilisateur.",
+      related: ["crm marketing", "cro", "big data marketing"]
+    },
+    "big data marketing": {
+      name: "Big Data Marketing",
+      definition: "Utiliser de grands volumes de données pour analyser, prédire et optimiser les actions.",
+      details: "Analyse prédictive : anticiper le churn, recommander des produits. Segmentation avancée.",
+      example: "Une banque analyse les transactions pour proposer un crédit au moment où le client en a besoin.",
+      related: ["analytics", "personalisation", "crm"]
+    },
+    "chatbot marketing": {
+      name: "Chatbot Marketing",
+      definition: "Agent conversationnel automatisé pour engager, qualifier et convertir.",
+      details: "Sur site web, Messenger, WhatsApp. Qualifie les leads 24/7, répond aux FAQ, prend des RDV.",
+      example: "Un visiteur demande les tarifs sur le site → le chatbot pose 3 questions et propose un devis personnalisé.",
+      related: ["lead generation", "crm", "marketing automation"]
+    },
+    "realite augmentee": {
+      name: "Réalité Augmentée (AR Marketing)",
+      definition: "Superposer des éléments virtuels au monde réel pour engager les clients.",
+      details: "Filtres Instagram/Snapchat, essayage virtuel (lunettes, maquillage), visualisation de meubles chez soi.",
+      example: "IKEA Place permet de voir le canapé dans son salon avant d'acheter.",
+      related: ["reseaux sociaux", "gamification", "ecommerce marketing"]
+    },
+    "gamification": {
+      name: "Gamification",
+      definition: "Intégrer des mécaniques de jeu dans le marketing pour augmenter l'engagement.",
+      details: "Points, badges, classements, défis, récompenses. Stimule la motivation et la fidélité.",
+      example: "L'appli Duolingo utilise des séries, des gemmes et des ligues pour motiver à apprendre chaque jour.",
+      related: ["fidelisation", "community management", "growth hacking"]
+    },
+    "webinar marketing": {
+      name: "Webinar Marketing",
+      definition: "Utiliser des conférences en ligne pour éduquer et convertir.",
+      details: "Génération de leads B2B puissante. Contenu éducatif, démo produit, session Q&R. Souvent en échange d'une inscription.",
+      example: "Une entreprise SaaS organise un webinar 'Comment automatiser votre compta', récolte 200 leads qualifiés.",
+      related: ["lead generation", "content marketing", "funnel marketing"]
+    },
+    "podcast marketing": {
+      name: "Podcast Marketing",
+      definition: "Créer ou sponsoriser des podcasts pour atteindre une audience niche.",
+      details: "Contenu audio engageant, écouté en mobilité. Brand podcast pour l'autorité, sponsoring pour la notoriété.",
+      example: "Une marque de matelas sponsorise un podcast sur le sommeil.",
+      related: ["content marketing", "branding", "influence marketing"]
+    },
+    "user generated content": {
+      name: "User Generated Content (UGC)",
+      definition: "Contenu créé par les clients (avis, photos, vidéos) utilisé par la marque.",
+      details: "Preuve sociale puissante, confiance, authenticité. Encourager avec des hashtags, concours.",
+      example: "Une marque de sneakers repartage sur Instagram les photos de clients portant ses produits avec #MaMarque.",
+      related: ["reseaux sociaux", "fidelisation", "psychologie acheteur"]
+    },
+    "storytelling": {
+      name: "Storytelling",
+      definition: "Art de raconter une histoire pour créer une connexion émotionnelle.",
+      details: "Pas juste des faits : un héros, un conflit, une résolution. La marque devient le guide, le client le héros.",
+      example: "La pub 'Think Different' d'Apple ne parle pas d'ordinateurs, mais de ceux qui changent le monde.",
+      related: ["branding", "copywriting", "content marketing"]
+    },
+    "neuromarketing": {
+      name: "Neuromarketing",
+      definition: "Application des neurosciences au marketing pour comprendre les décisions inconscientes.",
+      details: "Eye tracking, EEG, IRM. Biais cognitifs, émotions, couleurs. Optimise le packaging, les prix, la pub.",
+      example: "Un supermarché place des produits chers à hauteur des yeux pour maximiser les ventes.",
+      related: ["psychologie acheteur", "cro", "branding"]
+    },
+    "benchmark": {
+      name: "Benchmark Concurrentiel",
+      definition: "Analyse comparative des concurrents pour identifier les meilleures pratiques et se positionner.",
+      details: "Étudier prix, fonctionnalités, marketing, service client. SWOT : Forces, Faiblesses, Opportunités, Menaces.",
+      example: "Un nouvel hôtel analyse les tarifs et les avis des 5 hôtels voisins pour fixer son prix.",
+      related: ["strategie marketing", "positionnement", "etude de marche"]
+    },
+    "etude de marche": {
+      name: "Étude de Marché",
+      definition: "Collecte et analyse de données sur un marché, ses clients et concurrents.",
+      details: "Méthodes : sondages, interviews, focus groups, analyse de données secondaires. Valide une idée avant le lancement.",
+      example: "Avant d'ouvrir un café, une étude de marché révèle que 70% des habitants boivent du café à emporter.",
+      related: ["benchmark", "persona", "strategie marketing"]
+    },
+    "churn": {
+      name: "Churn (Attrition)",
+      definition: "Taux de clients perdus sur une période donnée.",
+      details: "Se calcule : (Clients perdus / Clients début de période) x 100. Coûte moins cher de retenir que d'acquérir.",
+      example: "Un service de streaming avec 5% de churn mensuel perd la moitié de ses clients en un an.",
+      related: ["fidelisation", "kpi", "crm"]
+    },
+    "cac": {
+      name: "CAC (Coût d'Acquisition Client)",
+      definition: "Montant dépensé pour acquérir un nouveau client.",
+      details: "CAC = (Dépenses marketing + ventes) / Nombre de nouveaux clients. À comparer avec la LTV (Lifetime Value).",
+      example: "Si une campagne de 1000€ génère 10 clients, le CAC est de 100€.",
+      related: ["kpi", "budget marketing", "funnel marketing"]
+    },
+    "cpc cpm ctr": {
+      name: "CPC, CPM, CTR",
+      definition: "Métriques publicitaires clés : Coût Par Clic, Coût Pour Mille, Taux de Clic.",
+      details: "CPC = coût / clics. CPM = coût / 1000 impressions. CTR = (clics / impressions) x 100. Mesurent l'efficacité des annonces.",
+      example: "Une annonce avec 1000 impressions et 50 clics a un CTR de 5%.",
+      related: ["sea", "programmatic advertising", "kpi"]
+    },
+    "modeles attribution": {
+      name: "Modèles d'Attribution",
+      definition: "Règle qui détermine quel canal reçoit le crédit pour une conversion.",
+      details: "Dernier clic (par défaut), premier clic, linéaire, time decay, data-driven. Influence les budgets.",
+      example: "Un client voit une pub Facebook, puis Google, puis achète. Le dernier clic donne 100% à Google.",
+      related: ["analytics", "sea", "kpi"]
+    },
+    "reporting": {
+      name: "Reporting Marketing",
+      definition: "Présenter les résultats marketing de façon claire pour piloter les décisions.",
+      details: "Dashboards (Data Studio, Power BI), KPIs, visualisations. Fréquence : hebdo, mensuel. Raconter une histoire avec les données.",
+      example: "Un rapport mensuel montre que le SEO a généré 60% des leads, on augmente le budget contenu.",
+      related: ["analytics", "kpi", "budget marketing"]
+    },
+    "budget marketing": {
+      name: "Budget Marketing",
+      definition: "Allocation des ressources financières aux actions marketing.",
+      details: "Méthodes : pourcentage du CA, aligné sur les objectifs, basé sur la concurrence. ROMI = retour sur investissement marketing.",
+      example: "Une startup alloue 20% de son CA au marketing : 50% en digital, 30% en contenu, 20% en événementiel.",
+      related: ["kpi", "reporting", "cac"]
+    },
+    "positionnement": {
+      name: "Positionnement",
+      definition: "Place qu'occupe une marque dans l'esprit des consommateurs par rapport aux concurrents.",
+      details: "Défini par la différenciation et la cible. Énoncé : 'Pour [cible], [marque] est [différence] car [raison].'",
+      example: "Pour les athlètes, Nike est la performance et l'inspiration car 'Just Do It'.",
+      related: ["branding", "strategie marketing", "persona"]
+    },
+    "employer branding": {
+      name: "Employer Branding (Marque Employeur)",
+      definition: "Stratégie pour promouvoir une entreprise comme un lieu de travail attractif.",
+      details: "Réseaux sociaux, site carrière, témoignages collaborateurs. Attire les talents et réduit le turnover.",
+      example: "Une startup publie les portraits de ses employés sur LinkedIn avec #LifeAtStartup.",
+      related: ["branding", "reseaux sociaux", "gestion entreprise"]
+    },
+    "e reputation": {
+      name: "E-Réputation",
+      definition: "Image d'une marque en ligne, formée par les avis, les réseaux sociaux et les contenus.",
+      details: "Surveiller avec des outils (Alertes Google, Mention). Gérer les avis négatifs, répondre avec transparence.",
+      example: "Un hôtel répond à chaque avis TripAdvisor, remercie les positifs et propose une solution aux négatifs.",
+      related: ["reseaux sociaux", "community management", "fidelisation"]
+    },
+    "influence marketing": {
+      name: "Marketing d'Influence",
+      definition: "Collaborer avec des leaders d'opinion pour promouvoir une marque.",
+      details: "Micro-influenceurs (<100k abonnés, engagement élevé), macro-influenceurs (portée). Stories, posts sponsorisés, codes promo.",
+      example: "Une marque de thé offre un code promo à 10 influenceuses pour qu'elles partagent leur rituel matinal.",
+      related: ["reseaux sociaux", "user generated content", "branding"]
+    },
+    "giveaway": {
+      name: "Giveaway (Jeu Concours)",
+      definition: "Cadeau offert en échange d'une action (like, commentaire, partage).",
+      details: "Boom de followers, engagement, leads. Respecter les règles locales.",
+      example: "'Like et identifie 2 amis pour gagner un iPhone' génère 5000 commentaires.",
+      related: ["reseaux sociaux", "lead generation", "viral marketing"]
+    },
+    "landing page": {
+      name: "Landing Page (Page d'Atterrissage)",
+      definition: "Page conçue pour convertir les visiteurs (inscription, achat, téléchargement).",
+      details: "Pas de menu de navigation. Titre clair, bénéfices, CTA unique, formulaire court. Optimisée pour le SEO et les campagnes.",
+      example: "Une page pour un ebook gratuit : titre '10 secrets du growth hacking', formulaire prénom/email, bouton 'Télécharger'.",
+      related: ["lead generation", "cro", "sea"]
+    },
+    "product marketing": {
+      name: "Product Marketing",
+      definition: "Lien entre le produit, le marketing et la vente pour le lancement et la croissance.",
+      details: "Positionnement, messagerie, lancement (Go-To-Market). Comprendre les besoins clients et former les équipes de vente.",
+      example: "Avant le lancement d'une nouvelle fonctionnalité, le PM crée une page dédiée, un script pour les vendeurs et un webinar.",
+      related: ["positionnement", "branding", "growth hacking"]
+    },
+    "fidelisation": {
+      name: "Fidélisation Client",
+      definition: "Stratégies pour retenir les clients et maximiser leur valeur à long terme.",
+      details: "Programmes de fidélité, avantages exclusifs, service client exceptionnel, communication régulière.",
+      example: "Une compagnie aérienne offre des miles, un accès salon et une carte prioritaire à ses membres fidèles.",
+      related: ["churn", "crm marketing", "kpi"]
+    },
+
+    // ────────── VIDÉOGRAPHIE & CINÉMA ──────────
     "videographie": {
       name: "Vidéographie",
       definition: "Art de capturer des images en mouvement avec maîtrise de la caméra, du son, de la lumière et du montage.",
@@ -325,6 +589,29 @@
       example: "Une viande mal équilibrée paraît bleuâtre et détruit la confiance.",
       related: ["eclairage", "videographie", "cinematographie"]
     },
+    "montage video": {
+      name: "Montage Vidéo",
+      definition: "Processus d'assemblage, de coupe et de post-production des séquences filmées.",
+      details: "Étapes : dérushage, assemblage, rythme, transitions, étalonnage, mixage audio, export. Logiciels : DaVinci Resolve (gratuit pro), Premiere Pro, CapCut.",
+      example: "Vidéo marketing 60s : alterner plans larges (3s), gros plans (2s), témoignages (5s), musique dynamique.",
+      related: ["videographie", "cinematographie", "etalonnage"]
+    },
+    "transitions": {
+      name: "Transitions Vidéo",
+      definition: "Effets visuels entre deux plans pour assurer la continuité ou marquer une rupture.",
+      details: "CUT (coupe franche), FONDU (noir/blanc/enchaîné), WIPE, J-cut et L-cut (audio). Transition invisible cachée dans un mouvement.",
+      example: "Témoignage client : J-cut (voix avant image), CUT vers produit, fondu noir final avec logo.",
+      related: ["montage video", "videographie"]
+    },
+    "etalonnage": {
+      name: "Étalonnage (Color Grading)",
+      definition: "Correction et stylisation des couleurs pour une ambiance visuelle cohérente.",
+      details: "Correction : équilibrer noirs, blancs, tons moyens. Grading : palette artistique. Outils : roues chromatiques, LUTs. Logiciel : DaVinci Resolve.",
+      example: "Vidéo marque de café : correction blancs purs, puis grading chaud orange/marron.",
+      related: ["montage video", "balance des blancs", "cinematographie"]
+    },
+
+    // ────────── PHOTOGRAPHIE ──────────
     "photographie": {
       name: "Photographie",
       definition: "Art de capturer des images fixes en maîtrisant l'exposition, la composition et la lumière.",
@@ -394,210 +681,190 @@
       details: "Styling, éclairage naturel indirect, softbox latérale arrière, composition plongée ou 45°. Couleurs chaudes stimulent l'appétit.",
       example: "Menu restaurant : plongée du plat signature, éclairé par fenêtre, avec verre et couverts.",
       related: ["photographie", "eclairage", "reseaux sociaux"]
-    },
-    "montage video": {
-      name: "Montage Vidéo",
-      definition: "Processus d'assemblage, de coupe et de post-production des séquences filmées.",
-      details: "Étapes : dérushage, assemblage, rythme, transitions, étalonnage, mixage audio, export. Logiciels : DaVinci Resolve (gratuit pro), Premiere Pro, CapCut.",
-      example: "Vidéo marketing 60s : alterner plans larges (3s), gros plans (2s), témoignages (5s), musique dynamique.",
-      related: ["videographie", "cinematographie", "etalonnage"]
-    },
-    "transitions": {
-      name: "Transitions Vidéo",
-      definition: "Effets visuels entre deux plans pour assurer la continuité ou marquer une rupture.",
-      details: "CUT (coupe franche), FONDU (noir/blanc/enchaîné), WIPE, J-cut et L-cut (audio). Transition invisible cachée dans un mouvement.",
-      example: "Témoignage client : J-cut (voix avant image), CUT vers produit, fondu noir final avec logo.",
-      related: ["montage video", "videographie"]
-    },
-    "etalonnage": {
-      name: "Étalonnage (Color Grading)",
-      definition: "Correction et stylisation des couleurs pour une ambiance visuelle cohérente.",
-      details: "Correction : équilibrer noirs, blancs, tons moyens. Grading : palette artistique. Outils : roues chromatiques, LUTs. Logiciel : DaVinci Resolve.",
-      example: "Vidéo marque de café : correction blancs purs, puis grading chaud orange/marron.",
-      related: ["montage video", "balance des blancs", "cinematographie"]
-    },
-    "crm": {
-      name: "CRM",
-      definition: "Logiciel et stratégie de gestion de la relation client.",
-      details: "Centralise contacts, historique, pipeline de vente. Automatisation, segmentation. Outils : HubSpot, Salesforce, Pipedrive.",
-      example: "Un graphiste utilise HubSpot pour suivre chaque demande de logo de 'Reçu' à 'Livré'.",
-      related: ["marketing digital", "email marketing", "analytics"]
-    },
-    "funnel marketing": {
-      name: "Funnel Marketing",
-      definition: "Modèle du parcours client de la découverte à l'achat.",
-      details: "Étapes AIDA : Attention, Intérêt, Désir, Action. Optimiser le taux de conversion à chaque étape avec les analytics.",
-      example: "Formation en ligne : article SEO (1000 visiteurs) → ebook gratuit (200 inscrits) → emails (50 démos) → inscriptions (15).",
-      related: ["marketing digital", "inbound", "analytics", "crm"]
-    },
-    "gestion entreprise": {
-      name: "Gestion d'Entreprise",
-      definition: "Pratiques pour diriger, organiser et faire croître une entreprise.",
-      details: "Leadership, gestion d'équipe, finances, stratégie SMART, communication interne.",
-      example: "Manager fixe des objectifs trimestriels, délègue, et fait un point hebdo de 15 min.",
-      related: ["strategie marketing", "ethique marketing", "bienseance"]
-    },
-    "gestion marketing": {
-      name: "Gérer un Marketing Efficace",
-      definition: "Coordonner les actions marketing pour atteindre les objectifs business.",
-      details: "Plan marketing : objectifs, cibles, canaux, budget, calendrier. Suivi KPIs. Veille concurrentielle.",
-      example: "PME : plan trimestriel SEO + SEA + Instagram, mesure ROI chaque semaine.",
-      related: ["marketing digital", "strategie marketing", "kpi"]
-    },
-    "ethique marketing": {
-      name: "Éthique en Marketing",
-      definition: "Principes moraux pour respecter les consommateurs et la société.",
-      details: "Vérité, respect vie privée (RGPD), ciblage responsable, durabilité (pas de greenwashing), transparence.",
-      example: "Cosmétiques : annoncer '90% d'ingrédients naturels' sans cacher les 10% restants.",
-      related: ["bienseance", "strategie marketing"]
-    },
-    "bienseance": {
-      name: "Règles de Bienséance",
-      definition: "Comportements professionnels favorisant des relations harmonieuses.",
-      details: "Politesse, ponctualité, écoute active, discrétion, communication non-violente, respect des cultures.",
-      example: "Rendez-vous client : 5 min en avance, sourire, téléphone rangé, reformulation des besoins.",
-      related: ["gestion entreprise", "ethique marketing"]
-    },
-    "salutation": {
-      name: "Salutations",
-      definition: "Réponses automatiques pour engager la conversation.",
-      details: "Le coach répond aux bonjour, salut, hello de manière chaleureuse.",
-      example: "Bonjour ! Je suis votre Digital Coach. Comment puis-je vous aider ?",
-      related: []
-    },
-    "remerciement": {
-      name: "Remerciements",
-      definition: "Réponses aux marques de gratitude.",
-      details: "Le coach répond aux mercis par une note positive.",
-      example: "Avec plaisir ! N'hésitez pas si vous avez d'autres questions.",
-      related: []
     }
   };
 
-  // Mots-clés enrichis pour la détection - TOUT FUSIONNÉ, CORRIGÉ
+  // ══════════════════════════════════════════════════════════
+  // KEYWORDS_MAP — détection des sujets
+  // ══════════════════════════════════════════════════════════
   const KEYWORDS_MAP = [
-    // Salutations
     { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir", "hey", "slt", "cc", "yo", "wsh"] },
     { topic: "remerciement", keywords: ["merci", "thanks", "thx", "mer6", "mci", "mrci", "merci beaucoup", "super merci"] },
-    
-    // Marketing existant
-    { topic: "marketing digital", keywords: ["marketing digital", "marketing numérique", "digital marketing", "marketing en ligne", "marketing", "mkt"] },
-    { topic: "seo", keywords: ["seo", "référencement", "référencement naturel", "optimisation moteur", "référencement seo", "positionner site", "reférencement", "referencement"] },
-    { topic: "sea", keywords: ["sea", "publicité payante", "google ads", "search ads", "campagne payante", "adwords", "annonce google", "pub google"] },
-    { topic: "reseaux sociaux", keywords: ["réseaux sociaux", "social media", "facebook", "instagram", "linkedin", "tiktok", "médias sociaux", "reseau social"] },
+    { topic: "marketing digital", keywords: ["marketing digital", "marketing numerique", "digital marketing", "marketing en ligne", "marketing", "mkt"] },
+    { topic: "seo", keywords: ["seo", "referencement", "referencement naturel", "optimisation moteur", "referencement seo", "positionner site", "referencement", "referencement"] },
+    { topic: "sea", keywords: ["sea", "publicite payante", "google ads", "search ads", "campagne payante", "adwords", "annonce google", "pub google"] },
+    { topic: "reseaux sociaux", keywords: ["reseaux sociaux", "social media", "facebook", "instagram", "linkedin", "tiktok", "medias sociaux", "reseau social"] },
     { topic: "email marketing", keywords: ["email marketing", "emailing", "newsletter", "campagne email", "mail marketing"] },
-    { topic: "content marketing", keywords: ["content marketing", "marketing de contenu", "stratégie contenu", "blog marketing", "création contenu", "contenu"] },
-    { topic: "branding", keywords: ["branding", "image de marque", "marque", "identité de marque", "notoriété", "brand"] },
-    { topic: "copywriting", keywords: ["copywriting", "rédaction publicitaire", "texte persuasif", "rédaction web", "écrire pour vendre", "copywriter"] },
-    { topic: "analytics", keywords: ["analytics", "web analytics", "google analytics", "analyse données", "data marketing", "mesure trafic", "analytique"] },
-    { topic: "kpi", keywords: ["kpi", "indicateurs", "indicateur clé", "performance marketing", "roi", "roas", "indicateur performance"] },
-    { topic: "inbound", keywords: ["inbound", "inbound marketing", "marketing d'attraction", "pull marketing", "attirer clients"] },
+    { topic: "content marketing", keywords: ["content marketing", "marketing de contenu", "strategie contenu", "blog marketing", "creation contenu", "contenu"] },
+    { topic: "branding", keywords: ["branding", "image de marque", "marque", "identite de marque", "notoriete", "brand"] },
+    { topic: "copywriting", keywords: ["copywriting", "redaction publicitaire", "texte persuasif", "redaction web", "ecrire pour vendre", "copywriter"] },
+    { topic: "analytics", keywords: ["analytics", "web analytics", "google analytics", "analyse donnees", "data marketing", "mesure trafic", "analytique"] },
+    { topic: "kpi", keywords: ["kpi", "indicateurs", "indicateur cle", "performance marketing", "roi", "roas", "indicateur performance"] },
+    { topic: "inbound", keywords: ["inbound", "inbound marketing", "marketing d attraction", "pull marketing", "attirer clients"] },
     { topic: "outbound", keywords: ["outbound", "outbound marketing", "marketing sortant", "push marketing"] },
-    { topic: "strategie marketing", keywords: ["stratégie marketing", "stratégie", "stratégie digitale", "plan marketing", "démarche marketing", "strategie"] },
-    { topic: "maturite digitale", keywords: ["maturité digitale", "niveau numérique", "transformation digitale", "maturité numérique", "maturite"] },
-    { topic: "naissance entreprise", keywords: ["naissance entreprise", "histoire entreprise", "création entreprise", "récit fondateur", "fondateur", "creation"] },
+    { topic: "strategie marketing", keywords: ["strategie marketing", "strategie", "strategie digitale", "plan marketing", "demarche marketing", "strategie"] },
+    { topic: "maturite digitale", keywords: ["maturite digitale", "niveau numerique", "transformation digitale", "maturite numerique", "maturite"] },
+    { topic: "naissance entreprise", keywords: ["naissance entreprise", "histoire entreprise", "creation entreprise", "recit fondateur", "fondateur", "creation"] },
     { topic: "multimoment", keywords: ["multimoment", "multi-moment", "parcours client", "points de contact", "omnicanal", "multi moment"] },
-    { topic: "diagnostic", keywords: ["diagnostic", "diagnostic stratégique", "analyse marché", "comprendre client", "diagnostique"] },
-    { topic: "erreurs marketing", keywords: ["erreurs marketing", "pièges marketing", "erreur stratégique", "ne pas faire", "erreur marketing"] },
-    { topic: "webdesigner vs webmaster", keywords: ["webdesigner", "webmaster", "différence webdesigner", "rôle webmaster", "web designer"] },
+    { topic: "diagnostic", keywords: ["diagnostic", "diagnostic strategique", "analyse marche", "comprendre client", "diagnostique"] },
+    { topic: "erreurs marketing", keywords: ["erreurs marketing", "pieges marketing", "erreur strategique", "ne pas faire", "erreur marketing"] },
+    { topic: "webdesigner vs webmaster", keywords: ["webdesigner", "webmaster", "difference webdesigner", "role webmaster", "web designer"] },
     { topic: "blog marketing", keywords: ["blog marketing", "hub central", "blog entreprise", "site vitrine", "blog"] },
-    { topic: "psychologie acheteur", keywords: ["psychologie acheteur", "psychologie client", "preuve sociale", "rareté", "réciprocité", "autorité", "psychologie"] },
+    { topic: "psychologie acheteur", keywords: ["psychologie acheteur", "psychologie client", "preuve sociale", "rarete", "reciprocite", "autorite", "psychologie"] },
     { topic: "crm", keywords: ["crm", "gestion client", "hubspot", "salesforce", "relation client", "pipedrive"] },
     { topic: "funnel marketing", keywords: ["funnel", "tunnel de conversion", "entonnoir", "aida", "tunnel marketing"] },
-    
-    // Nouveaux topics marketing digital
-    { topic: "marketing automation", keywords: ["marketing automation", "automatisation marketing", "workflow", "email automation", "lead nurturing", "scoring", "campagne automatisée", "drip campaign", "trigger", "drip marketing"] },
+    { topic: "marketing automation", keywords: ["marketing automation", "automatisation marketing", "workflow", "email automation", "lead nurturing", "scoring", "campagne automatisee", "drip campaign", "trigger", "drip marketing"] },
     { topic: "programmatic advertising", keywords: ["programmatic", "achat programmatique", "real time bidding", "rtb", "dsp", "ssp", "ad exchange", "programmatique", "programmatique display"] },
     { topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel retargeting", "recibler", "annonces de reciblage", "annonce post-visite", "ciblage comportemental"] },
     { topic: "growth hacking", keywords: ["growth hacking", "croissance", "acquisition rapide", "growth", "hacker la croissance", "aarrr", "pirate metrics", "growth marketing", "hacking croissance"] },
     { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion", "taux conversion"] },
-    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible idéale", "audience cible", "segmentation persona", "customer avatar", "cible", "segmentation", "profil client", "idéal client"] },
-    { topic: "customer journey", keywords: ["customer journey", "parcours client", "cartographie expérience", "touchpoints", "points de contact", "map journey", "user journey", "cartographie client", "map expérience"] },
-    { topic: "lead generation", keywords: ["lead generation", "génération leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen", "prospection digitale"] },
-    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "réseaux commerciaux", "social prospection", "social commerce", "social vente", "prospection réseaux"] },
-    { topic: "community management", keywords: ["community management", "gestion de communauté", "animatrice communauté", "cm", "modération", "engagement communauté", "social care", "community manager", "animation communauté", "gestion communauté", "engagement"] },
-    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche à oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige", "viral"] },
+    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible ideale", "audience cible", "segmentation persona", "customer avatar", "cible", "segmentation", "profil client", "ideal client"] },
+    { topic: "customer journey", keywords: ["customer journey", "cartographie experience", "touchpoints", "map journey", "user journey", "cartographie client", "map experience"] },
+    { topic: "lead generation", keywords: ["lead generation", "generation leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen", "prospection digitale"] },
+    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "reseaux commerciaux", "social prospection", "social commerce", "social vente", "prospection reseaux"] },
+    { topic: "community management", keywords: ["community management", "gestion de communaute", "animatrice communaute", "cm", "moderation", "engagement communaute", "social care", "community manager", "animation communaute", "gestion communaute", "engagement"] },
+    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche a oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige", "viral"] },
     { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding", "alliance marketing", "partenariat"] },
-    { topic: "affiliation", keywords: ["affiliation", "marketing d'affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié", "netlinking", "partenariat rémunéré"] },
-    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonné", "upsell", "cross-sell", "produits recommandés", "panier moyen", "checkout", "vente en ligne", "ecommerce"] },
-    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidélisation", "cycle de vie", "lifetime value", "clv", "relation client"] },
-    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualisé", "adaptation contenu", "recommandation"] },
-    { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse prédictive", "machine learning marketing", "data driven", "datamining", "data science"] },
-    { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatisé", "bot marketing"] },
-    { topic: "realite augmentee", keywords: ["réalité augmentée", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "expérience immersive"] },
-    { topic: "gamification", keywords: ["gamification", "ludification", "jeu marketing", "badges", "points", "classement", "défis", "récompenses"] },
+    { topic: "affiliation", keywords: ["affiliation", "marketing d affiliation", "affiliate", "programme partenaire", "commission", "referencement affilie", "netlinking", "partenariat remunere"] },
+    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonne", "upsell", "cross-sell", "produits recommandes", "panier moyen", "checkout", "vente en ligne", "ecommerce"] },
+    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidelisation", "cycle de vie", "lifetime value", "clv", "relation client"] },
+    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualise", "adaptation contenu", "recommandation"] },
+    { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse predictive", "machine learning marketing", "data driven", "datamining", "data science"] },
+    { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatise", "bot marketing"] },
+    { topic: "realite augmentee", keywords: ["realite augmentee", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "experience immersive"] },
+    { topic: "gamification", keywords: ["gamification", "ludification", "jeu marketing", "badges", "points", "classement", "defis", "recompenses"] },
     { topic: "webinar marketing", keywords: ["webinaire", "webinar", "formation en ligne", "live marketing", "masterclass", "evenement digital"] },
-    { topic: "podcast marketing", keywords: ["podcast", "audio marketing", "brand podcast", "publicité podcast", "contenu audio"] },
-    { topic: "user generated content", keywords: ["ugc", "contenu généré utilisateur", "avis clients", "témoignages", "photo client", "preuve sociale", "social proof"] },
-    { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "récit", "émotion marketing"] },
-    { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "émotionnel", "biais cognitifs", "psychologie marketing"] },
-    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunités menaces", "comparaison marché"] },
-    { topic: "etude de marche", keywords: ["étude de marché", "sondage", "enquête client", "focus group", "nps", "csat", "customer satisfaction"] },
-    { topic: "churn", keywords: ["churn", "taux d'attrition", "désabonnement", "rétention client", "client perdu", "attrition rate"] },
-    { topic: "cac", keywords: ["cac", "coût acquisition client", "customer acquisition cost", "cout par lead", "cpa", "coût par action"] },
-    { topic: "cpc cpm ctr", keywords: ["cpc", "coût par clic", "cpm", "coût pour mille", "ctr", "click through rate", "impressions", "reach", "fréquence"] },
-    { topic: "modeles attribution", keywords: ["modèle attribution", "attribution marketing", "dernier clic", "premier clic", "linéaire", "time decay", "data driven attribution"] },
-    { topic: "reporting", keywords: ["reporting", "tableau de bord", "dashboard", "datastudio", "power bi", "visualisation données", "alerte kpi", "anomalie"] },
+    { topic: "podcast marketing", keywords: ["podcast", "audio marketing", "brand podcast", "publicite podcast", "contenu audio"] },
+    { topic: "user generated content", keywords: ["ugc", "contenu genere utilisateur", "avis clients", "temoignages", "photo client", "preuve sociale", "social proof"] },
+    { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "recit", "emotion marketing"] },
+    { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "emotionnel", "biais cognitifs", "psychologie marketing"] },
+    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunites menaces", "comparaison marche"] },
+    { topic: "etude de marche", keywords: ["etude de marche", "sondage", "enquete client", "focus group", "nps", "csat", "customer satisfaction"] },
+    { topic: "churn", keywords: ["churn", "taux d attrition", "desabonnement", "retention client", "client perdu", "attrition rate"] },
+    { topic: "cac", keywords: ["cac", "cout acquisition client", "customer acquisition cost", "cout par lead", "cpa", "cout par action"] },
+    { topic: "cpc cpm ctr", keywords: ["cpc", "cout par clic", "cpm", "cout pour mille", "ctr", "click through rate", "impressions", "reach", "frequence"] },
+    { topic: "modeles attribution", keywords: ["modele attribution", "attribution marketing", "dernier clic", "premier clic", "lineaire", "time decay", "data driven attribution"] },
+    { topic: "reporting", keywords: ["reporting", "tableau de bord", "dashboard", "datastudio", "power bi", "visualisation donnees", "alerte kpi", "anomalie"] },
     { topic: "budget marketing", keywords: ["budget marketing", "planning financier", "romi", "retour sur investissement marketing", "roas", "marketing mix modeling", "mmm"] },
-    { topic: "positionnement", keywords: ["positionnement", "différenciation", "ciblage", "segmentation", "niche", "marketing stratégique", "4p", "7p"] },
+    { topic: "positionnement", keywords: ["positionnement", "differenciation", "ciblage", "segmentation", "niche", "marketing strategique", "4p", "7p"] },
     { topic: "employer branding", keywords: ["employer branding", "marque employeur", "rh marketing", "attraction talents", "marque interne", "advocacy collaborateur"] },
-    { topic: "e reputation", keywords: ["e-réputation", "veille", "social listening", "sentiment analysis", "alerte google", "review management", "feedback client"] },
+    { topic: "e reputation", keywords: ["e-reputation", "veille", "social listening", "sentiment analysis", "alerte google", "review management", "feedback client"] },
     { topic: "influence marketing", keywords: ["influence", "micro-influenceur", "macro-influenceur", "ambassadeur", "sponsoring", "collaboration influence", "ugc influence"] },
     { topic: "giveaway", keywords: ["giveaway", "concours", "jeu concours", "lotterie", "freebie", "cadeau", "tirage au sort"] },
-    { topic: "landing page", keywords: ["landing page", "page de capture", "lead gen page", "squeeze page", "microsite", "cta", "formulaire conversion"] },
+    { topic: "landing page", keywords: ["landing page", "page de capture", "lead gen page", "squeeze page", "microsite"] },
     { topic: "product marketing", keywords: ["product marketing", "lancement produit", "go to market", "gtm", "pricing", "tarification", "market launch", "roadmap"] },
-    { topic: "fidelisation", keywords: ["fidélisation", "loyalty", "programme fidélité", "cashback", "parrainage", "référencement client", "ambassadeur marque"] },
-    
-    // Vidéo
-    { topic: "videographie", keywords: ["vidéographie", "vidéo", "filmer", "captation vidéo", "création vidéo", "video", "videographie"] },
-    { topic: "cinematographie", keywords: ["cinématographie", "7ème art", "esthétique vidéo", "art vidéo", "cinéma", "cinematographie"] },
-    { topic: "mouvements camera", keywords: ["mouvements de caméra", "mouvement caméra", "mouvement de caméra", "mouvements camera", "mouvment", "mouvemen", "panoramique", "tilt", "steadycam"] },
-    { topic: "travelling", keywords: ["travelling", "travelling avant", "travelling arrière", "traveling", "travling"] },
-    { topic: "zoom", keywords: ["zoom", "zoom avant", "zoom arrière", "dolly zoom", "zoomer"] },
-    { topic: "plongee contre plongee", keywords: ["plongée", "contre-plongée", "plongee", "contre plongee", "plonje"] },
+    { topic: "fidelisation", keywords: ["fidelisation", "loyalty", "programme fidelite", "cashback", "parrainage", "referencement client", "ambassadeur marque"] },
+    { topic: "videographie", keywords: ["videographie", "video", "filmer", "captation video", "creation video", "videographie"] },
+    { topic: "cinematographie", keywords: ["cinematographie", "7eme art", "esthetique video", "art video", "cinema", "cinematographie"] },
+    { topic: "mouvements camera", keywords: ["mouvements de camera", "mouvement camera", "mouvement de camera", "mouvements camera", "mouvment", "mouvemen", "panoramique", "tilt", "steadycam"] },
+    { topic: "travelling", keywords: ["travelling", "travelling avant", "travelling arriere", "traveling", "travling"] },
+    { topic: "zoom", keywords: ["zoom", "zoom avant", "zoom arriere", "dolly zoom", "zoomer"] },
+    { topic: "plongee contre plongee", keywords: ["plongee", "contre-plongee", "contre plongee", "plonje"] },
     { topic: "champ contrechamp", keywords: ["champ contrechamp", "champ contre champ", "champ/contrechamp", "contrechamp"] },
-    { topic: "regle des 180 degres", keywords: ["180 degrés", "règle 180", "saut de ligne", "dialogue caméra", "regle 180"] },
-    { topic: "echelle des plans", keywords: ["échelle des plans", "type de plan", "gros plan", "plan américain", "plan d'ensemble", "echelle plan"] },
-    { topic: "regle des trois tiers", keywords: ["règle des trois tiers", "composition", "cadrage", "points forts", "regle 3 tiers"] },
-    { topic: "eclairage", keywords: ["éclairage", "lumière", "softbox", "éclairer", "lumière produit", "eclerage", "eclairage"] },
-    { topic: "balance des blancs", keywords: ["balance des blancs", "white balance", "température couleur", "kelvin", "balance blanc"] },
-    { topic: "montage video", keywords: ["montage vidéo", "montage video", "dérushage", "derushage", "montage"] },
-    { topic: "transitions", keywords: ["transitions", "transition vidéo", "cut", "fondu", "transition"] },
-    { topic: "etalonnage", keywords: ["étalonnage", "etalonnage", "color grading", "grading", "etalonage"] },
-    
-    // Photo
+    { topic: "regle des 180 degres", keywords: ["180 degres", "regle 180", "saut de ligne", "dialogue camera", "regle 180"] },
+    { topic: "echelle des plans", keywords: ["echelle des plans", "type de plan", "gros plan", "plan americain", "plan d ensemble", "echelle plan"] },
+    { topic: "regle des trois tiers", keywords: ["regle des trois tiers", "composition", "cadrage", "points forts", "regle 3 tiers"] },
+    { topic: "eclairage", keywords: ["eclairage", "lumiere", "softbox", "eclairer", "lumiere produit", "eclerage"] },
+    { topic: "balance des blancs", keywords: ["balance des blancs", "white balance", "temperature couleur", "kelvin", "balance blanc"] },
+    { topic: "montage video", keywords: ["montage video", "derushage", "montage"] },
+    { topic: "transitions", keywords: ["transitions", "transition video", "cut", "fondu", "transition"] },
+    { topic: "etalonnage", keywords: ["etalonnage", "color grading", "grading", "etalonage"] },
     { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe", "foto", "fotografi"] },
-    { topic: "exposition", keywords: ["exposition", "triangle d'exposition", "ouverture", "vitesse", "iso", "exposicion"] },
-    { topic: "pixel", keywords: ["pixel", "résolution", "mégapixels", "mp", "dpi", "resolution"] },
+    { topic: "exposition", keywords: ["exposition", "triangle d exposition", "ouverture", "vitesse", "iso", "exposicion"] },
+    { topic: "pixel", keywords: ["pixel", "resolution", "megapixels", "mp", "dpi"] },
     { topic: "appareil photo", keywords: ["appareil photo", "quel appareil", "choisir appareil", "reflex", "hybride", "mirrorless", "apn"] },
-    { topic: "objectif photo", keywords: ["objectif", "lentille", "focale", "zoom", "grand angle", "téléobjectif", "obj"] },
-    { topic: "reglages photo", keywords: ["réglages photo", "dimension photo", "format photo", "ratio", "raw", "jpeg", "reglage"] },
+    { topic: "objectif photo", keywords: ["objectif", "lentille", "focale", "grand angle", "teleobjectif", "obj"] },
+    { topic: "reglages photo", keywords: ["reglages photo", "dimension photo", "format photo", "ratio", "raw", "jpeg", "reglage"] },
     { topic: "macrophotographie", keywords: ["macrophotographie", "macro", "macro photo", "macrophot"] },
     { topic: "astrophotographie", keywords: ["astrophotographie", "astro photo", "ciel nocturne", "astrophoto"] },
     { topic: "photo de rue", keywords: ["photo de rue", "street photography", "street photo"] },
     { topic: "photo culinaire", keywords: ["photo culinaire", "food photography", "food photo", "culinaire"] },
-    
-    // Gestion
     { topic: "gestion entreprise", keywords: ["gestion entreprise", "management", "manager", "diriger entreprise", "leadership", "gestion"] },
-    { topic: "gestion marketing", keywords: ["gérer marketing", "plan marketing", "coordonner marketing", "gestion marketing"] },
-    { topic: "ethique marketing", keywords: ["éthique marketing", "ethique", "déontologie", "publicité mensongère", "greenwashing", "etik"] },
-    { topic: "bienseance", keywords: ["bienséance", "savoir-vivre", "politesse", "ponctualité", "respect", "bienseance"] }
+    { topic: "gestion marketing", keywords: ["gerer marketing", "plan marketing", "coordonner marketing", "gestion marketing"] },
+    { topic: "ethique marketing", keywords: ["ethique marketing", "ethique", "deontologie", "publicite mensongere", "greenwashing", "etik"] },
+    { topic: "bienseance", keywords: ["bienseance", "savoir-vivre", "politesse", "ponctualite", "respect", "bienseance"] }
   ];
 
+  // ══════════════════════════════════════════════════════════
+  // SYSTÈME ANTI-FAUTES D'ORTHOGRAPHE
+  // ══════════════════════════════════════════════════════════
+
+  function normalize(str) {
+    return str
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/['']/g, "'")
+      .replace(/[^a-z0-9\s]/g, "");
+  }
+
+  const FAUTES = {
+    "mouvement": ["mouvment", "mouvemen", "mouvmant", "muvment", "mouvemant"],
+    "camera": ["camra", "camerat", "kamera", "cam"],
+    "travelling": ["traveling", "travling", "travellin", "travelin"],
+    "plongee": ["plonge", "plongee", "plonje"],
+    "marketing": ["marketting", "markating", "marketin", "markting", "mkt"],
+    "digital": ["digitale", "dijital", "digial"],
+    "referencement": ["referencement", "ref"],
+    "strategie": ["strateji"],
+    "entreprise": ["entrepise", "antreprise"],
+    "photographie": ["fotografi", "foto", "phot", "fotographie"],
+    "exposition": ["exposicion", "expostion"],
+    "eclairage": ["eclerage"],
+    "ethique": ["etique", "etik"],
+    "bienseance": ["biensance", "savoir vivre"],
+    "video": ["viddo", "vido"],
+    "reseaux": ["reseau"],
+    "branding": ["brandin"],
+    "copywriting": ["copywritting", "copyrwriting"],
+    "analytics": ["analitics"],
+    "inbound": ["inboun", "inbond"],
+    "outbound": ["outboun", "outbond"],
+    "fidelisation": ["fidelizacion"],
+    "automatisation": ["automatizacion"],
+    "conversion": ["converssion", "konversion"],
+    "influenceur": ["influenseur"]
+  };
+
+  function correctFautes(text) {
+    let words = text.split(" ");
+    for (let i = 0; i < words.length; i++) {
+      for (let [correct, fautes] of Object.entries(FAUTES)) {
+        if (fautes.includes(words[i])) {
+          words[i] = correct;
+        }
+      }
+    }
+    return words.join(" ");
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // DÉTECTION DU SUJET
+  // ══════════════════════════════════════════════════════════
+
   function findTopic(question) {
-    const q = question.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    if (/^(bonjour|salut|hello|coucou|bjr|bonsoir)\b/.test(q)) return "salutation";
-    if (/^(merci|thanks|thx)/.test(q)) return "remerciement";
+    let q = correctFautes(question);
+    q = normalize(q);
+
+    if (/^(bonjour|salut|hello|coucou|bjr|bonsoir|hey|slt|cc|yo|wsh)\b/.test(q)) return "salutation";
+    if (/^(merci|thanks|thx|mer6|mci|mrci)\b/.test(q)) return "remerciement";
+
     for (let mapping of KEYWORDS_MAP) {
       for (let kw of mapping.keywords) {
-        if (q.includes(kw.toLowerCase())) {
+        if (q.includes(normalize(kw))) {
           return mapping.topic;
         }
       }
     }
-    if (q.includes("comment faire un bon marketing") || q.includes("réussir marketing")) return "guide global";
+
+    if (q.includes("comment faire un bon marketing") || q.includes("reussir marketing")) return "guide global";
+    if (q.includes("c est quoi le marketing") || q.includes("definition marketing")) return "marketing digital";
+
     return null;
   }
+
+  // ══════════════════════════════════════════════════════════
+  // CONSTRUCTION DES RÉPONSES
+  // ══════════════════════════════════════════════════════════
 
   function buildAnswerHtml(topicKey) {
     if (topicKey === "salutation") {
@@ -672,11 +939,15 @@
     }
   }
 
+  // ══════════════════════════════════════════════════════════
+  // LOGIQUE DE CHAT
+  // ══════════════════════════════════════════════════════════
+
   let isWaiting = false;
   const chatContainer = document.getElementById("chatContainer");
   const userInput = document.getElementById("userInput");
   const sendBtn = document.getElementById("sendBtn");
-  
+
   function addUserMessage(text) {
     const msgDiv = document.createElement("div");
     msgDiv.className = "message user";
@@ -703,11 +974,11 @@
     }
     return msgDiv;
   }
-  
+
   function scrollToBottom() {
     setTimeout(() => { chatContainer.scrollTop = chatContainer.scrollHeight; }, 30);
   }
-  
+
   let typingDiv = null;
   function showTyping() {
     if (typingDiv) removeTyping();
@@ -720,7 +991,7 @@
   function removeTyping() {
     if (typingDiv) { typingDiv.remove(); typingDiv = null; }
   }
-  
+
   async function getResponseForQuestion(questionText) {
     const normalizedQuestion = questionText.trim();
     if (!normalizedQuestion) return { html: "Posez une question précise." };
@@ -732,7 +1003,7 @@
       return { html: `<p>🤔 Je n'ai pas trouvé de sujet correspondant à "<strong>${esc(normalizedQuestion)}</strong>".</p><p>💡 Essayez plutôt : ${esc(suggestions)}...<br>Ou cliquez sur un thème ci-dessus.</p>`, topicKey: null };
     }
   }
-  
+
   async function sendMessage(userText) {
     if (isWaiting) return;
     if (!userText.trim()) return;
@@ -752,14 +1023,14 @@
     userInput.focus();
     scrollToBottom();
   }
-  
+
   function askTopicDirectly(topicKey) {
     const topicData = KNOWLEDGE[topicKey];
     if (!topicData) return;
     const questionPhrase = `Explique-moi ${topicData.name}`;
     sendMessage(questionPhrase);
   }
-  
+
   function buildTopicsBar() {
     const topicsBar = document.getElementById("topicsBar");
     topicsBar.innerHTML = "";
@@ -786,12 +1057,12 @@
       topicsBar.appendChild(btn);
     }
   }
-  
+
   function onSend() {
     const text = userInput.value.trim();
     if (text) sendMessage(text);
   }
-  
+
   sendBtn.addEventListener("click", onSend);
   userInput.addEventListener("keypress", (e) => {
     if (e.key === "Enter" && !isWaiting) {
@@ -799,9 +1070,6 @@
       onSend();
     }
   });
-  
+
   buildTopicsBar();
   scrollToBottom();
-</script>
-</body>
-</html>
