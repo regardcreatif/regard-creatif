@@ -689,12 +689,12 @@ const KNOWLEDGE = {
   };
 
   // Mots-clés enrichis pour la détection
- const KEYWORDS_MAP = [
+const KEYWORDS_MAP = [
     // Salutations
     { topic: "salutation", keywords: ["bonjour", "salut", "hello", "coucou", "bjr", "bonsoir", "hey", "slt", "cc", "yo", "wsh", "bonsoir"] },
     { topic: "remerciement", keywords: ["merci", "thanks", "thx", "mer6", "mci", "mrci", "merci beaucoup", "super merci"] },
     
-    // Marketing existant (conservé)
+    // Marketing existant
     { topic: "marketing digital", keywords: ["marketing digital", "marketing numérique", "digital marketing", "marketing en ligne", "marketing", "mkt"] },
     { topic: "seo", keywords: ["seo", "référencement", "référencement naturel", "optimisation moteur", "référencement seo", "positionner site", "reférencement", "referencement"] },
     { topic: "sea", keywords: ["sea", "publicité payante", "google ads", "search ads", "campagne payante", "adwords", "annonce google", "pub google"] },
@@ -719,7 +719,50 @@ const KNOWLEDGE = {
     { topic: "crm", keywords: ["crm", "gestion client", "hubspot", "salesforce", "relation client", "pipedrive"] },
     { topic: "funnel marketing", keywords: ["funnel", "tunnel de conversion", "entonnoir", "aida", "tunnel marketing"] },
     
-    // Vidéo (existants)
+    // Nouveaux topics marketing digital
+    { topic: "marketing automation", keywords: ["marketing automation", "automatisation marketing", "workflow", "email automation", "lead nurturing", "scoring", "campagne automatisée", "drip campaign", "trigger", "drip marketing"] },
+    { topic: "programmatic advertising", keywords: ["programmatic", "achat programmatique", "real time bidding", "rtb", "dsp", "ssp", "ad exchange", "programmatique", "programmatique display"] },
+    { topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel retargeting", "recibler", "annonces de reciblage", "annonce post-visite", "ciblage comportemental"] },
+    { topic: "growth hacking", keywords: ["growth hacking", "croissance", "acquisition rapide", "growth", "hacker la croissance", "aarrr", "pirate metrics", "growth marketing", "hacking croissance"] },
+    { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion"] },
+    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible idéale", "audience cible", "segmentation persona", "customer avatar"] },
+    { topic: "customer journey", keywords: ["customer journey", "parcours client", "cartographie expérience", "touchpoints", "points de contact", "map journey", "user journey", "cartographie client"] },
+    { topic: "lead generation", keywords: ["lead generation", "génération leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta", "lead gen"] },
+    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "réseaux commerciaux", "social prospection", "social commerce"] },
+    { topic: "community management", keywords: ["community management", "gestion de communauté", "animatrice communauté", "cm", "modération", "engagement communauté", "social care", "community manager"] },
+    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche à oreille", "passage viral", "contenu viral", "marketing buzz", "effet boule de neige"] },
+    { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding", "alliance marketing"] },
+    { topic: "affiliation", keywords: ["affiliation", "marketing d'affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié", "netlinking partenaire"] },
+    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonné", "upsell", "cross-sell", "produits recommandés", "panier moyen", "checkout", "vente en ligne"] },
+    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidélisation", "cycle de vie", "lifetime value", "clv"] },
+    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualisé", "adaptation contenu"] },
+    { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse prédictive", "machine learning marketing", "data driven", "datamining", "data science"] },
+    { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatisé", "bot marketing"] },
+    { topic: "realite augmentee", keywords: ["réalité augmentée", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "expérience immersive"] },
+    { topic: "gamification", keywords: ["gamification", "ludification", "jeu marketing", "badges", "points", "classement", "défis", "récompenses"] },
+    { topic: "webinar marketing", keywords: ["webinaire", "webinar", "formation en ligne", "live marketing", "masterclass", "evenement digital"] },
+    { topic: "podcast marketing", keywords: ["podcast", "audio marketing", "brand podcast", "publicité podcast", "contenu audio"] },
+    { topic: "user generated content", keywords: ["ugc", "contenu généré utilisateur", "avis clients", "témoignages", "photo client", "preuve sociale", "social proof"] },
+    { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "récit", "émotion marketing"] },
+    { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "émotionnel", "biais cognitifs", "psychologie marketing"] },
+    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunités menaces"] },
+    { topic: "etude de marche", keywords: ["étude de marché", "sondage", "enquête client", "focus group", "nps", "csat", "customer satisfaction"] },
+    { topic: "churn", keywords: ["churn", "taux d'attrition", "désabonnement", "rétention client", "client perdu", "attrition rate"] },
+    { topic: "cac", keywords: ["cac", "coût acquisition client", "customer acquisition cost", "cout par lead", "cpa", "coût par action"] },
+    { topic: "cpc cpm ctr", keywords: ["cpc", "coût par clic", "cpm", "coût pour mille", "ctr", "click through rate", "impressions", "reach", "fréquence"] },
+    { topic: "modeles attribution", keywords: ["modèle attribution", "attribution marketing", "dernier clic", "premier clic", "linéaire", "time decay", "data driven attribution"] },
+    { topic: "reporting", keywords: ["reporting", "tableau de bord", "dashboard", "datastudio", "power bi", "visualisation données", "alerte kpi", "anomalie"] },
+    { topic: "budget marketing", keywords: ["budget marketing", "planning financier", "romi", "retour sur investissement marketing", "roas", "marketing mix modeling", "mmm"] },
+    { topic: "positionnement", keywords: ["positionnement", "différenciation", "ciblage", "segmentation", "niche", "marketing stratégique", "4p", "7p"] },
+    { topic: "employer branding", keywords: ["employer branding", "marque employeur", "rh marketing", "attraction talents", "marque interne", "advocacy collaborateur"] },
+    { topic: "e reputation", keywords: ["e-réputation", "veille", "social listening", "sentiment analysis", "alerte google", "review management", "feedback client"] },
+    { topic: "influence marketing", keywords: ["influence", "micro-influenceur", "macro-influenceur", "ambassadeur", "sponsoring", "collaboration influence", "ugc influence"] },
+    { topic: "giveaway", keywords: ["giveaway", "concours", "jeu concours", "lotterie", "freebie", "cadeau", "tirage au sort"] },
+    { topic: "landing page", keywords: ["landing page", "page de capture", "lead gen page", "squeeze page", "microsite", "cta", "formulaire conversion"] },
+    { topic: "product marketing", keywords: ["product marketing", "lancement produit", "go to market", "gtm", "pricing", "tarification", "market launch", "roadmap"] },
+    { topic: "fidelisation", keywords: ["fidélisation", "loyalty", "programme fidélité", "cashback", "parrainage", "référencement client", "ambassadeur marque"] },
+    
+    // Vidéo existants
     { topic: "videographie", keywords: ["vidéographie", "vidéo", "filmer", "captation vidéo", "création vidéo", "video", "videographie"] },
     { topic: "cinematographie", keywords: ["cinématographie", "7ème art", "esthétique vidéo", "art vidéo", "cinéma", "cinematographie"] },
     { topic: "mouvements camera", keywords: ["mouvements de caméra", "mouvement caméra", "mouvement de caméra", "mouvements camera", "mouvment", "mouvemen", "panoramique", "tilt", "steadycam"] },
@@ -736,7 +779,7 @@ const KNOWLEDGE = {
     { topic: "transitions", keywords: ["transitions", "transition vidéo", "cut", "fondu", "transition"] },
     { topic: "etalonnage", keywords: ["étalonnage", "etalonnage", "color grading", "grading", "etalonage"] },
     
-    // Photo (existants)
+    // Photo existants
     { topic: "photographie", keywords: ["photographie", "photo", "shooting", "photographe", "foto", "fotografi"] },
     { topic: "exposition", keywords: ["exposition", "triangle d'exposition", "ouverture", "vitesse", "iso", "exposicion"] },
     { topic: "pixel", keywords: ["pixel", "résolution", "mégapixels", "mp", "dpi", "resolution"] },
@@ -748,73 +791,11 @@ const KNOWLEDGE = {
     { topic: "photo de rue", keywords: ["photo de rue", "street photography", "street photo"] },
     { topic: "photo culinaire", keywords: ["photo culinaire", "food photography", "food photo", "culinaire"] },
     
-    // Gestion (existants)
+    // Gestion
     { topic: "gestion entreprise", keywords: ["gestion entreprise", "management", "manager", "diriger entreprise", "leadership", "gestion"] },
     { topic: "gestion marketing", keywords: ["gérer marketing", "plan marketing", "coordonner marketing", "gestion marketing"] },
     { topic: "ethique marketing", keywords: ["éthique marketing", "ethique", "déontologie", "publicité mensongère", "greenwashing", "etik"] },
-    { topic: "bienseance", keywords: ["bienséance", "savoir-vivre", "politesse", "ponctualité", "respect", "bienseance"] },
-
-    // ***** NOUVEAUX TOPICS MARKETING DIGITAL (200 keywords ajoutés) *****
-    { topic: "marketing automation", keywords: ["marketing automation", "automatisation marketing", "workflow", "email automation", "lead nurturing", "scoring", "campagne automatisée", "drip campaign", "trigger"] },
-    { topic: "programmatic advertising", keywords: ["programmatic", "achat programmatique", "real time bidding", "rtb", "dsp", "ssp", "ad exchange", "programmatique"] },
-    { topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel retargeting", "recibler", "annonces de reciblage"] },
-    { topic: "growth hacking", keywords: ["growth hacking", "croissance", "acquisition rapide", "growth", "hacker la croissance", "aarrr", "pirate metrics"] },
-    { topic: "cro", keywords: ["cro", "conversion rate optimization", "optimisation des conversions", "taux de conversion", "a/b testing", "test split", "multivariate", "heatmap", "session replay"] },
-    { topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "profil type", "cible idéale", "audience cible", "segmentation persona"] },
-    { topic: "customer journey", keywords: ["customer journey", "parcours client", "cartographie expérience", "touchpoints", "points de contact", "map journey", "user journey"] },
-    { topic: "lead generation", keywords: ["lead generation", "génération leads", "prospection", "captation leads", "lead magnet", "landing page", "formulaire", "call to action", "cta"] },
-    { topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "réseaux commerciaux", "social prospection"] },
-    { topic: "community management", keywords: ["community management", "gestion de communauté", "animatrice communauté", "cm", "modération", "engagement communauté", "social care"] },
-    { topic: "viral marketing", keywords: ["viral marketing", "marketing viral", "buzz", "bouche à oreille", "passage viral", "contenu viral"] },
-    { topic: "co-marketing", keywords: ["co-marketing", "partenariat marketing", "joint venture", "collaboration marque", "co-branding"] },
-    { topic: "affiliation", keywords: ["affiliation", "marketing d'affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié"] },
-    { topic: "ecommerce marketing", keywords: ["ecommerce marketing", "marketing e-commerce", "panier abandonné", "upsell", "cross-sell", "produits recommandés", "panier moyen"] },
-    { topic: "crm marketing", keywords: ["crm marketing", "marketing relationnel", "segmentation client", "campagne crm", "fidélisation", "cycle de vie", "lifetime value", "clv"] },
-    { topic: "personalisation", keywords: ["personalisation", "personnalisation", "contenu dynamique", "recommandation produit", "one-to-one", "marketing individualisé"] },
-    { topic: "big data marketing", keywords: ["big data", "data marketing", "analyse prédictive", "machine learning marketing", "data driven", "datamining"] },
-    { topic: "chatbot marketing", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatisé"] },
-    { topic: "realite augmentee", keywords: ["réalité augmentée", "ar marketing", "filtre instagram", "essai virtuel", "ar shopping", "expérience immersive"] },
-    { topic: "gamification", keywords: ["gamification", "ludification", "jeu marketing", "badges", "points", "classement", "défis", "récompenses"] },
-    { topic: "webinar marketing", keywords: ["webinaire", "webinar", "formation en ligne", "live marketing", "masterclass", "evenement digital"] },
-    { topic: "podcast marketing", keywords: ["podcast", "audio marketing", "brand podcast", "publicité podcast", "contenu audio"] },
-    { topic: "user generated content", keywords: ["ugc", "contenu généré utilisateur", "avis clients", "témoignages", "photo client", "preuve sociale", "social proof"] },
-    { topic: "storytelling", keywords: ["storytelling", "narration", "brand story", "histoire de marque", "récit", "émotion marketing"] },
-    { topic: "neuromarketing", keywords: ["neuromarketing", "marketing sensoriel", "eye tracking", "émotionnel", "biais cognitifs", "psychologie marketing"] },
-    { topic: "benchmark", keywords: ["benchmark", "analyse concurrentielle", "veille concurrente", "swot", "forces faiblesses", "opportunités menaces", "comparaison marché"] },
-    { topic: "etude de marche", keywords: ["étude de marché", "sondage", "enquête client", "focus group", "nps", "csat", "customer satisfaction"] },
-    { topic: "churn", keywords: ["churn", "taux d'attrition", "désabonnement", "rétention client", "client perdu", "attrition rate"] },
-    { topic: "cac", keywords: ["cac", "coût acquisition client", "customer acquisition cost", "cout par lead", "cpa", "coût par action"] },
-    { topic: "cpc cpm ctr", keywords: ["cpc", "coût par clic", "cpm", "coût pour mille", "ctr", "click through rate", "impressions", "reach", "fréquence"] },
-    { topic: "modeles attribution", keywords: ["modèle attribution", "attribution marketing", "dernier clic", "premier clic", "linéaire", "time decay", "data driven attribution"] },
-    { topic: "reporting", keywords: ["reporting", "tableau de bord", "dashboard", "datastudio", "power bi", "visualisation données", "alerte kpi", "anomalie"] },
-    { topic: "budget marketing", keywords: ["budget marketing", "planning financier", "romi", "retour sur investissement marketing", "roas", "merketing mix modeling", "mmm"] },
-    { topic: "positionnement", keywords: ["positionnement", "différenciation", "ciblage", "segmentation", "niche", "marketing stratégique", "4p", "7p"] },
-    { topic: "employer branding", keywords: ["employer branding", "marque employeur", "rh marketing", "attraction talents", "marque interne", "advocacy collaborateur"] },
-    { topic: "e reputation", keywords: ["e-réputation", "veille", "social listening", "sentiment analysis", "alerte google", "review management", "feedback client"] },
-    { topic: "influence marketing", keywords: ["influence", "micro-influenceur", "macro-influenceur", "ambassadeur", "sponsoring", "collaboration influence", "ugc influence"] },
-    { topic: "giveaway", keywords: ["giveaway", "concours", "jeu concours", "lotterie", "freebie", "cadeau", "tirage au sort"] },
-    { topic: "landing page", keywords: ["landing page", "page de capture", "lead gen page", "squeeze page", "microsite", "cta", "formulaire conversion"] },
-    { topic: "product marketing", keywords: ["product marketing", "lancement produit", "go to market", "gtm", "pricing", "tarification", "market launch", "roadmap"] },
-    { topic: "fidelisation", keywords: ["fidélisation", "loyalty", "programme fidélité", "cashback", "parrainage", "référencement client", "ambassadeur marque"] }
-// ----- 182 nouveaux keywords marketing digital (pour atteindre 500 au total) -----
-{ topic: "marketing automation", keywords: ["automation marketing", "workflow", "lead nurturing", "scoring", "drip campaign", "trigger", "campagne automatisée", "email automation", "drip marketing"] },
-{ topic: "programmatic", keywords: ["programmatic", "rtb", "real time bidding", "dsp", "ssp", "ad exchange", "achat programmatique", "programmatique display"] },
-{ topic: "retargeting", keywords: ["retargeting", "remarketing", "reciblage", "pixel", "recibler", "annonce post-visite", "ciblage comportemental"] },
-{ topic: "growth hacking", keywords: ["growth hacking", "croissance", "aarrr", "pirate metrics", "acquisition rapide", "growth marketing", "hacking croissance"] },
-{ topic: "cro", keywords: ["cro", "conversion rate", "a/b testing", "test split", "multivariate", "heatmap", "session replay", "optimisation conversion", "taux conversion"] },
-{ topic: "persona", keywords: ["persona", "buyer persona", "avatar client", "cible", "segmentation", "profil client", "idéal client", "customer avatar"] },
-{ topic: "customer journey", keywords: ["customer journey", "parcours client", "touchpoints", "points de contact", "user journey", "map expérience", "cartographie client"] },
-{ topic: "lead generation", keywords: ["lead gen", "captation leads", "lead magnet", "landing page", "formulaire", "cta", "call to action", "prospection digitale"] },
-{ topic: "social selling", keywords: ["social selling", "vente sociale", "linkedin sales", "social vente", "prospection réseaux", "social commerce"] },
-{ topic: "community management", keywords: ["community manager", "cm", "animation communauté", "modération", "social care", "gestion communauté", "engagement"] },
-{ topic: "viral marketing", keywords: ["viral", "buzz", "bouche à oreille", "contenu viral", "marketing buzz", "passage viral", "effet boule de neige"] },
-{ topic: "co marketing", keywords: ["co-marketing", "partenariat", "joint venture", "collaboration marque", "co-branding", "alliance marketing"] },
-{ topic: "affiliation", keywords: ["affiliation", "affiliate", "programme partenaire", "commission", "référencement affilié", "netlinking", "partenariat rémunéré"] },
-{ topic: "ecommerce marketing", keywords: ["ecommerce", "panier abandonné", "upsell", "cross-sell", "recommandation produit", "checkout", "vente en ligne"] },
-{ topic: "crm marketing", keywords: ["crm", "relation client", "cycle de vie", "lifetime value", "clv", "fidélisation", "segmentation client", "campagne crm"] },
-{ topic: "personalisation", keywords: ["personalisation", "contenu dynamique", "one to one", "marketing individualisé", "recommandation", "adaptation contenu"] },
-{ topic: "big data", keywords: ["big data", "data driven", "datamining", "analyse prédictive", "machine learning marketing", "data science"] },
-{ topic: "chatbot", keywords: ["chatbot", "conversationnel", "assistant virtuel", "messenger bot", "lead qualification", "service client automatisé", "bot marketing"] }	
+    { topic: "bienseance", keywords: ["bienséance", "savoir-vivre", "politesse", "ponctualité", "respect", "bienseance"] }
 ];
 
   function findTopic(question) {
