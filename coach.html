@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Coach - IA Marketing</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+#coach-container{position:fixed;bottom:20px;right:20px;z-index:9999;font-family:'Segoe UI',system-ui,sans-serif}
+#coach-btn{width:65px;height:65px;border-radius:50%;background:linear-gradient(135deg,#1a3a5c,#132b44);border:none;color:white;font-size:30px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.4);transition:transform 0.2s;display:flex;align-items:center;justify-content:center}
+#coach-btn:hover{transform:scale(1.1)}
+#coach-chat{display:none;position:fixed;bottom:95px;right:20px;width:380px;height:550px;background:white;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);flex-direction:column;overflow:hidden;max-width:90vw}
+#coach-chat.open{display:flex}
+.coach-header{background:linear-gradient(135deg,#1a3a5c,#132b44);color:white;padding:15px 20px;font-weight:700;font-size:18px;display:flex;align-items:center;gap:8px}
+.coach-header button{background:none;border:none;color:white;font-size:20px;cursor:pointer;margin-left:auto}
+.coach-messages{flex:1;overflow-y:auto;padding:15px;background:#fafbfc}
+.coach-messages::-webkit-scrollbar{width:4px}
+.coach-messages::-webkit-scrollbar-thumb{background:#ccd7e4;border-radius:10px}
+.coach-input-area{display:flex;padding:10px;border-top:1px solid #eee;background:white}
+.coach-input-area input{flex:1;padding:12px;border:1px solid #ddd;border-radius:25px;outline:none;font-size:14px;font-family:inherit}
+.coach-input-area input:focus{border-color:#1a3a5c}
+.coach-input-area button{width:45px;height:45px;border-radius:50%;background:linear-gradient(135deg,#1a3a5c,#132b44);border:none;color:white;font-size:18px;margin-left:8px;cursor:pointer;flex-shrink:0}
+.coach-msg{padding:10px 15px;border-radius:18px;margin:8px 0;max-width:85%;word-break:break-word;font-size:14px;line-height:1.5;animation:fadeIn 0.3s}
+.coach-msg.user{background:#1a3a5c;color:white;margin-left:auto;border-bottom-right-radius:6px}
+.coach-msg.bot{background:#f0f2f5;color:#333;border-bottom-left-radius:6px}
+.coach-msg.bot .details{font-size:13px;color:#555;margin-top:6px}
+.coach-msg.bot .example{background:#e8f0f8;padding:8px 12px;border-radius:10px;margin-top:6px;font-size:13px;border-left:3px solid #1a3a5c}
+.coach-suggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.coach-suggestions button{padding:6px 12px;border-radius:15px;border:1px solid #1a3a5c;background:white;color:#1a3a5c;font-size:11px;cursor:pointer;transition:all 0.2s;font-family:inherit}
+.coach-suggestions button:hover{background:#1a3a5c;color:white}
+.coach-typing{display:flex;align-items:center;gap:5px;padding:10px 15px}
+.coach-typing span{width:8px;height:8px;border-radius:50%;background:#bcc7d4;animation:bounce 1.3s infinite}
+.coach-typing span:nth-child(2){animation-delay:0.2s}
+.coach-typing span:nth-child(3){animation-delay:0.4s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:0.4}30%{transform:translateY(-8px);opacity:1}}
+</style>
+</head>
+<body>
+
+<div id="coach-container">
+  <button id="coach-btn" onclick="openCoach()">💬</button>
+  <div id="coach-chat">
+    <div class="coach-header">
+      🧠 Le Coach
+      <button onclick="closeCoach()">✕</button>
+    </div>
+    <div class="coach-messages" id="coachMessages">
+      <div class="coach-msg bot">👋 Bonjour ! Je suis <b>Le Coach</b>, votre expert marketing. Posez votre question !</div>
+    </div>
+    <div class="coach-input-area">
+      <input id="coachInput" placeholder="Votre question..." onkeypress="if(event.key==='Enter')sendCoach()">
+      <button onclick="sendCoach()">➤</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+var GEMINI_KEY = localStorage.getItem("coach_gemini_key") || "";
+
+var BRAIN={
+"strategie marketing efficace":{name:"Stratégie Marketing Efficace",def:"Feuille de route pour atteindre vos objectifs business.",details:"5 piliers : analyse marché, objectifs SMART, choix canaux, contenu, mesure résultats.",example:"Marque cosmétiques : cible 25-40 ans, Instagram + email, +30% ventes en 6 mois.",related:["plan marketing","analyse SWOT","persona marketing"]},
+"plan marketing":{name:"Plan Marketing",def:"Document détaillant les actions marketing sur une période.",details:"Inclut : analyse, objectifs, stratégie, budget, calendrier, KPIs.",example:"Plan trimestriel : SEO + blog, social media, email. Budget 15k€, 500 leads.",related:["strategie marketing efficace","budget marketing"]},
+"SEO":{name:"SEO",def:"Optimisation pour apparaître dans les résultats naturels de Google.",details:"3 piliers : technique, contenu, netlinking. Résultats en 3-6 mois.",example:"Blog optimisé + mots-clés + backlinks = +40% trafic en 6 mois.",related:["SEA","SEO technique","content marketing"]},
+"SEA":{name:"SEA",def:"Publicité payante sur Google Ads : enchères sur mots-clés.",details:"CPC, Quality Score, résultats immédiats.",example:"Campagne 'vol Paris Tokyo', CPC 0,80€, ROAS 5.",related:["SEO","Google Ads","CPC"]},
+"marketing digital":{name:"Marketing Digital",def:"Actions marketing via canaux numériques.",details:"SEO, SEA, réseaux sociaux, email, contenu, analytics.",example:"Startup : blog SEO + Instagram + Google Ads + email nurturing.",related:["SEO","SEA","reseaux sociaux"]},
+"branding":{name:"Branding",def:"Construction de l'image de marque.",details:"Logo, valeurs, ton, identité visuelle. Se différencier.",example:"Apple : simplicité, innovation, premium. Marque valorisée 500Md$.",related:["identite visuelle","storytelling"]},
+"copywriting":{name:"Copywriting",def:"Rédaction persuasive pour pousser à l'action.",details:"Structure AIDA. Verbes d'action, preuves sociales, CTA.",example:"Page vente : titre choc, bénéfices, témoignages, CTA.",related:["AIDA","storytelling","CRO"]},
+"growth hacking":{name:"Growth Hacking",def:"Techniques créatives low-cost pour croissance rapide.",details:"Framework AARRR. Tests continus.",example:"Dropbox : parrainage 500Mo. +3900% en 15 mois.",related:["AARRR","CRO","viral marketing"]},
+"CRO":{name:"CRO",def:"Optimisation du taux de conversion.",details:"Analyser, hypothèses, A/B testing, implémenter.",example:"Bouton 'Acheter' vs 'Ajouter au panier - Gratuit'. +18% conversion.",related:["A/B testing","landing page"]},
+"business plan":{name:"Business Plan",def:"Document décrivant un projet d'entreprise.",details:"Vision, marché, business model, finances, besoins.",example:"Startup drones : 2Md€ marché, CA 500k€ an 1, besoin 200k€.",related:["modele economique","levee de fonds"]},
+"videographie":{name:"Vidéographie",def:"Art de capturer des images en mouvement.",details:"Caméra, lumière, son, narration. Son = 50% de la vidéo.",example:"Interview client : trépied, micro-cravate, softbox.",related:["cinematographie","montage video"]},
+"photographie":{name:"Photographie",def:"Art de capturer des images fixes.",details:"Triangle : ouverture, vitesse, ISO. RAW pour retouche.",example:"Portrait : f/2.8, 1/125s, ISO 100.",related:["exposition","eclairage"]},
+"email marketing":{name:"Email Marketing",def:"Communication par email.",details:"ROI 36€ pour 1€. Taux ouverture 20-30%, clic 2-5%.",example:"Newsletter 5000 abonnés, 35% ouverture, CA 2000€/mois.",related:["newsletter","marketing automation"]},
+"reseaux sociaux":{name:"Réseaux Sociaux",def:"Présence sur plateformes sociales.",details:"Contenu adapté, community management, social ads.",example:"Marque : Reels + TikTok, 100k followers en 6 mois.",related:["Instagram","LinkedIn","TikTok"]},
+"gestion equipe":{name:"Gestion d'Équipe",def:"Diriger, motiver, développer une équipe.",details:"OKR, 1:1, feedback, délégation, développement.",example:"Manager : OKR trimestriels, 1:1 hebdo, +30% productivité.",related:["OKR","productivite"]},
+"productivite":{name:"Productivité",def:"Max de valeur avec min d'effort.",details:"Pomodoro, time blocking, deep work, GTD.",example:"Time blocking 8h-11h deep work. 2x plus de projets.",related:["gestion equipe","OKR"]},
+"salutation":{name:"Salutations",def:"Le Coach vous répond chaleureusement.",details:"Dites bonjour, salut, hello...",example:"👋 Bonjour ! Je suis Le Coach.",related:[]},
+"remerciement":{name:"Remerciements",def:"Le Coach répond aux mercis.",details:"Avec plaisir !",example:"🌟 Avec plaisir !",related:[]}
+};
+
+function esc(s){if(!s)return'';return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function normalize(s){return s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\s]/g,'').trim()}
+var FAUTES={"marketing":["marketting","marketin","markting","mkt","mkg"],"digital":["dijital"],"strategie":["strateji"],"entreprise":["entrepise"],"referencement":["referencement"],"branding":["brandin"],"copywriting":["copywritting"],"conversion":["converssion","konversion"],"budget":["budjet"],"client":["clien","cilent"],"produit":["produi"],"deja":["deja"],"tres":["tres"],"apres":["apres"],"etre":["etre"],"faire":["faore"],"vendre":["vand"],"probleme":["pb"],"beaucoup":["bcp"],"pourquoi":["pk","pq"],"comment":["coment"],"business":["bizness"]};
+function correctFautes(t){var w=t.split(' ');for(var i=0;i<w.length;i++){for(var c in FAUTES){if(FAUTES[c].indexOf(w[i])>=0)w[i]=c}}return w.join(' ')}
+
+function findLocal(q){
+var o=correctFautes(q);var n=normalize(o);var words=n.split(/\s+/).filter(function(w){return w.length>1});
+if(words.length===0)return null;
+var best=null;var bestScore=0;
+for(var k in BRAIN){
+var nk=normalize(k);var kw=nk.split(/\s+/);var score=0;
+for(var i=0;i<words.length;i++){for(var j=0;j<kw.length;j++){if(kw[j].length>1&&words[i].indexOf(kw[j])>=0)score+=3;else if(words[i].length>2&&kw[j].indexOf(words[i])>=0)score+=2}}
+if(score>bestScore){bestScore=score;best=k}
+}
+if(best&&bestScore>=1)return BRAIN[best];
+for(var k in BRAIN){var nk=normalize(k);for(var i=0;i<words.length;i++){if(words[i].length>=4&&nk.indexOf(words[i])>=0)return BRAIN[k]}}
+return null;
+}
+
+async function askGemini(q){
+if(!GEMINI_KEY)return null;
+try{
+var res=await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key="+GEMINI_KEY,{
+method:"POST",headers:{"Content-Type":"application/json"},
+body:JSON.stringify({contents:[{parts:[{text:"Tu es Le Coach, expert en marketing digital, vidéo, photo, business. Réponds en français avec : définition courte, explication détaillée, exemple concret, 3-5 sujets liés. Question : "+q}]}]})
+});
+var data=await res.json();
+if(data.candidates&&data.candidates[0]&&data.candidates[0].content&&data.candidates[0].content.parts&&data.candidates[0].content.parts[0]){
+return data.candidates[0].content.parts[0].text;
+}
+return null;
+}catch(e){return null}
+}
+
+function addMsg(txt,type){var d=document.createElement("div");d.className="coach-msg "+type;d.innerHTML=txt;document.getElementById("coachMessages").appendChild(d);document.getElementById("coachMessages").scrollTop=document.getElementById("coachMessages").scrollHeight;return d}
+function addTyping(){var d=document.createElement("div");d.className="coach-msg bot";d.innerHTML='<div class="coach-typing"><span></span><span></span><span></span></div>';d.id="typingIndicator";document.getElementById("coachMessages").appendChild(d);document.getElementById("coachMessages").scrollTop=document.getElementById("coachMessages").scrollHeight}
+function removeTyping(){var d=document.getElementById("typingIndicator");if(d)d.remove()}
+
+window.openCoach=function(){
+if(!GEMINI_KEY){
+var key=prompt("🔑 Entrez votre clé API Gemini (gratuite sur https://aistudio.google.com) :");
+if(key&&key.trim()){GEMINI_KEY=key.trim();localStorage.setItem("coach_gemini_key",GEMINI_KEY);addMsg("✅ Clé enregistrée ! Vous pouvez maintenant poser vos questions. L'IA Gemini est activée.","bot");}
+}
+document.getElementById("coach-chat").classList.add("open");
+}
+window.closeCoach=function(){document.getElementById("coach-chat").classList.remove("open")}
+
+window.sendCoach=async function(){
+var inp=document.getElementById("coachInput");var q=inp.value.trim();if(!q)return;
+addMsg(q,"user");inp.value="";
+addTyping();
+var local=findLocal(q);
+if(local){
+removeTyping();
+var h='<b>📘 '+esc(local.name)+'</b><br><br>'+esc(local.def)+'<br><br><div class="details"><b>📝 Détails :</b> '+esc(local.details)+'</div><div class="example"><span class="ex-title">💡 Exemple :</span><br>'+esc(local.example)+'</div>';
+if(local.related&&local.related.length>0){h+='<div class="coach-suggestions">';for(var i=0;i<Math.min(local.related.length,6);i++){h+='<button onclick="window.sendRelated(\''+esc(local.related[i])+'\')">'+esc(local.related[i])+'</button>'}h+='</div>'}
+addMsg(h,"bot");
+}else{
+if(!GEMINI_KEY){
+removeTyping();
+addMsg('⚠️ <b>Clé API non configurée.</b><br><br>Fermez et rouvrez le chat pour entrer votre clé Gemini gratuite (https://aistudio.google.com).<br><br>En attendant, essayez ces sujets :<div class="coach-suggestions"><button onclick="window.sendRelated(\'SEO\')">SEO</button><button onclick="window.sendRelated(\'SEA\')">SEA</button><button onclick="window.sendRelated(\'marketing digital\')">Marketing Digital</button></div>',"bot");
+}else{
+var geminiReply=await askGemini(q);
+removeTyping();
+if(geminiReply){
+addMsg('<b>🤖 Réponse IA :</b><br><br>'+esc(geminiReply).replace(/\n/g,'<br>')+'<br><br><div class="coach-suggestions"><button onclick="window.sendRelated(\'SEO\')">SEO</button><button onclick="window.sendRelated(\'SEA\')">SEA</button><button onclick="window.sendRelated(\'marketing digital\')">Marketing Digital</button><button onclick="window.sendRelated(\'branding\')">Branding</button></div>',"bot");
+}else{
+addMsg('❌ Erreur de connexion à l\'IA. Vérifiez votre clé API ou réessayez.',"bot");
+}
+}
+}
+}
+window.sendRelated=function(t){document.getElementById("coachInput").value=t;window.sendCoach()}
+})();
+</script>
+</body>
+</html>
