@@ -486,10 +486,12 @@ function toggleCoach() {
   document.getElementById("coach-chat").classList.toggle("active");
 }
 
-document.getElementById("coach-btn").addEventListener("click", toggleCoach);
-document.getElementById("coachSendBtn").addEventListener("click", askCoach);
-document.getElementById("coachInput").addEventListener("keypress", function(e) {
-  if(e.key === "Enter") askCoach();
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("coach-btn").addEventListener("click", toggleCoach);
+  document.getElementById("coachSendBtn").addEventListener("click", askCoach);
+  document.getElementById("coachInput").addEventListener("keypress", function(e) {
+    if(e.key === "Enter") askCoach();
+  });
 });
 
 })();
