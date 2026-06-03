@@ -15,7 +15,7 @@
        SPLASH SCREEN
     ══════════════════════════════════ */
     #splash-screen {
-      document.getElementById('coachIframe').src = 'coach/index.html';position: fixed;
+      position: fixed;
       inset: 0;
       z-index: 9999;
       background: linear-gradient(145deg, #0b1e33 0%, #132b44 50%, #1a3a5c 100%);
@@ -773,163 +773,9 @@
       .topic-btn { padding: 6px 12px; font-size: 0.74rem; }
       .header-action-btn { padding: 6px 9px; font-size: 0.68rem; }
     }
-  
-.coach-menu-btn {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 1000;
-  background: #1a3a5c;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 10px 20px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.3s;
-  font-family: inherit;
-}
-.coach-menu-btn:hover {
-  background: #132b44;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-}
-.coach-overlay {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.65);
-  z-index: 10000;
-  justify-content: center;
-  align-items: center;
-}
-.coach-overlay.active {
-  display: flex;
-}
-.coach-overlay-frame {
-  background: white;
-  width: 95%;
-  max-width: 800px;
-  height: 90%;
-  border-radius: 20px;
-  overflow: hidden;
-  position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-.coach-overlay-close {
-  position: absolute;
-  top: 12px;
-  right: 15px;
-  z-index: 10001;
-  background: #e74c3c;
-  color: white;
-  border: none;
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-.coach-overlay-close:hover {
-  background: #c0392b;
-  transform: scale(1.1);
-}
-.coach-overlay-iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-.admin-btn {
-  font-size: 0.7rem;
-  color: #999;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px 8px;
-}
-.admin-btn:hover {
-  color: #555;
-}
-.admin-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.7);
-  z-index: 20000;
-  justify-content: center;
-  align-items: center;
-}
-.admin-modal.active {
-  display: flex;
-}
-.admin-modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 15px;
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
-.admin-modal-content h3 {
-  margin-bottom: 15px;
-  color: #1a3a5c;
-}
-.admin-modal-content input {
-  width: 100%;
-  padding: 10px;
-  margin: 5px 0 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-}
-.admin-modal-content button {
-  background: #1a3a5c;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
-  cursor: pointer;
-}
-.admin-list {
-  margin: 15px 0;
-  max-height: 250px;
-  overflow-y: auto;
-}
-.admin-list-item {
-  padding: 8px;
-  border-bottom: 1px solid #eee;
-  font-size: 13px;
-}
   </style>
 </head>
 <body>
-
-<button class="coach-menu-btn" onclick="openCoach()">
-  &#x1F9E0; Coach IA
-</button>
-
-<div class="coach-overlay" id="coachOverlay">
-  <div class="coach-overlay-frame">
-    <button class="coach-overlay-close" onclick="closeCoach()">&#x2715;</button>
-    <iframe class="coach-overlay-iframe" id="coachIframe" src=""></iframe>
-  </div>
-</div>
-
 
 <!-- ═══════════════════════════════════
      SPLASH SCREEN
@@ -1041,8 +887,8 @@
       <span>Marketing · Vidéo · Photo · Business</span>
     </div>
     <div class="header-actions">
-      <button class="header-action-btn" id="btnInscrire" style="display:none">👤 S'inscrire</button>
-      <button class="header-action-btn" id="btnInscrits" style="display:none">👥 Inscrits<span class="count-badge" id="badgeInscrits">0</span></button>
+      <button class="header-action-btn" id="btnInscrire">👤 S'inscrire</button>
+      <button class="header-action-btn" id="btnInscrits">👥 Inscrits<span class="count-badge" id="badgeInscrits">0</span></button>
     </div>
   </div>
 
@@ -2358,86 +2204,7 @@
   updateBadgeInscrits();
   scrollToBottom();
 
-
-function openCoach() {
-  document.getElementById('coachOverlay').classList.add('active');
-  document.getElementById('coachIframe').src = 'Coach/index.html';
-}
-function closeCoach() {
-  document.getElementById('coachOverlay').classList.remove('active');
-}
-document.getElementById('coachOverlay').addEventListener('click', function(e) {
-  if (e.target === e.currentTarget) closeCoach();
-});
-
-function showAdminPanel() {
-  var pwd = prompt('Mot de passe administrateur :');
-  if (pwd !== '101214bureau') {
-    alert('Acces refuse');
-    return;
-  }
-  document.getElementById('adminModal').classList.add('active');
-  refreshAdminList();
-}
-function closeAdminPanel() {
-  document.getElementById('adminModal').classList.remove('active');
-}
-function refreshAdminList() {
-  var users = JSON.parse(localStorage.getItem('digitalCoachUsers') || '[]');
-  document.getElementById('adminCount').textContent = users.length;
-  var listEl = document.getElementById('adminList');
-  if (users.length === 0) {
-    listEl.innerHTML = '<p style="color:#999;">Aucun inscrit pour le moment.</p>';
-  } else {
-    listEl.innerHTML = users.map(function(u) {
-      return '<div class="admin-list-item"><strong>' + u.name + '</strong> - ' + u.email + ' - <small>' + u.date + '</small></div>';
-    }).join('');
-  }
-}
-function addSubscriber() {
-  var name = document.getElementById('adminName').value.trim();
-  var email = document.getElementById('adminEmail').value.trim();
-  if (!name || !email) {
-    alert('Veuillez remplir tous les champs.');
-    return;
-  }
-  var users = JSON.parse(localStorage.getItem('digitalCoachUsers') || '[]');
-  users.push({
-    name: name,
-    email: email,
-    date: new Date().toLocaleDateString('fr-FR')
-  });
-  localStorage.setItem('digitalCoachUsers', JSON.stringify(users));
-  document.getElementById('adminName').value = '';
-  document.getElementById('adminEmail').value = '';
-  refreshAdminList();
-  alert('Inscription ajoutee !');
-}
-document.getElementById('adminModal').addEventListener('click', function(e) {
-  if (e.target === e.currentTarget) closeAdminPanel();
-});
-
 })();
 </script>
-
-<button class="admin-btn" onclick="showAdminPanel()" title="Administration">&#x1F4CB;</button>
-
-<div class="admin-modal" id="adminModal">
-  <div class="admin-modal-content">
-    <h3>&#x1F4CA; Administration - Inscriptions</h3>
-    <p>Total inscrits : <strong id="adminCount">0</strong></p>
-    <div class="admin-list" id="adminList">
-      <p style="color:#999;">Aucun inscrit pour le moment.</p>
-    </div>
-    <hr style="margin:15px 0;">
-    <h4>&#x2795; Nouvelle inscription</h4>
-    <input type="text" id="adminName" placeholder="Nom complet">
-    <input type="email" id="adminEmail" placeholder="Email">
-    <button onclick="addSubscriber()">S'inscrire</button>
-    <br><br>
-    <button onclick="closeAdminPanel()" style="background:#999;">Fermer</button>
-  </div>
-</div>
-
 </body>
 </html>
