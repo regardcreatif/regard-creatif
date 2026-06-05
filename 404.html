@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page introuvable | Regard Créatif</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: linear-gradient(145deg, #0b1e33 0%, #132b44 50%, #1a3a5c 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .error-container h1 {
+      font-size: 6rem;
+      font-weight: 900;
+      color: #00b4d8;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+    .error-container h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 15px;
+    }
+    .error-container p {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 30px;
+    }
+    .btn-home {
+      display: inline-block;
+      padding: 14px 30px;
+      background: linear-gradient(135deg, #00b4d8, #0096c7);
+      color: white;
+      text-decoration: none;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    .btn-home:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,180,216,0.4);
+    }
+    .logo {
+      font-size: 3rem;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="error-container">
+    <div class="logo">🎥</div>
+    <h1>404</h1>
+    <h2>Page introuvable</h2>
+    <p>Désolé, la page que vous cherchez n'existe pas ou a été déplacée.</p>
+    <a href="/regard-creatif/" class="btn-home">🏠 Retour à l'accueil</a>
+  </div>
+</body>
+</html>
