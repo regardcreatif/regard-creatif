@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://regardcreatif.github.io/regard-creatif/sitemap.xml
