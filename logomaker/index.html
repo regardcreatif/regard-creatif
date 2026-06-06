@@ -352,9 +352,7 @@
         .tpl-badge.new  { background: #dcfce7; color: #166534; }
         .tpl-badge.hot  { background: #fef3c7; color: #92400e; }
         .tpl-badge.pro  { background: linear-gradient(135deg,#c9973a,#e8b84b); color: #fff; }
-        .tpl-badge.user { background: linear-gradient(135deg,#10b981,#059669); color: #fff; }
-        .user-tpl-section { margin-top: 8px; }
-
+        .tpl-badge.user { background: linear-gradient(135deg,#5b6af0,#7c4af0); color: #fff; }
 
         #no-results {
             display: none; flex-direction: column;
@@ -1155,8 +1153,6 @@ function renderHomeTemplates() {
     const noRes = document.getElementById('no-results');
     const countEl = document.getElementById('tpl-count');
     grid.innerHTML = '';
-    // Remove previously injected user-template sections
-    document.querySelectorAll('.user-tpl-section, #user-templates-grid').forEach(el => el.remove());
     let visible = 0;
     TEMPLATES.forEach((tpl, i) => {
         const catMatch = currentCat === 'all' || tpl.cat === currentCat;
@@ -1170,43 +1166,32 @@ function renderHomeTemplates() {
         grid.appendChild(card);
         visible++;
     });
-    // ── User-published templates ──────────────────────────────
-    let userTemplates = [];
-    try { userTemplates = JSON.parse(localStorage.getItem('rc_user_templates') || '[]'); } catch(e) {}
-
-    // Filter by category and query
-    const filteredUserTpls = userTemplates.filter(tpl => {
-        const catMatch = currentCat === 'all' || tpl.cat === currentCat;
-        const qMatch   = !currentQuery || tpl.name.toLowerCase().includes(currentQuery) || (tpl.cat||'').toLowerCase().includes(currentQuery);
-        return catMatch && qMatch;
-    });
-
-    if (filteredUserTpls.length > 0) {
-        // Section title
-        const secTitle = document.createElement('div');
-        secTitle.className = 'section-title user-tpl-section';
-        secTitle.innerHTML = '<i class="fa-solid fa-user-pen" style="color:var(--green)"></i> Créés par la communauté <span class="badge-count" style="background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.3);color:var(--green)">' + filteredUserTpls.length + '</span>';
-        grid.parentElement.insertBefore(secTitle, grid.nextSibling);
-
-        // User templates grid
-        const userGrid = document.createElement('div');
-        userGrid.className = 'template-grid';
-        userGrid.id = 'user-templates-grid';
-        grid.parentElement.insertBefore(userGrid, secTitle.nextSibling);
-
-        filteredUserTpls.forEach(tpl => {
-            visible++;
-            const card = document.createElement('div');
+    // ── Projets publiés par l'utilisateur ──────────────────────
+    try {
+        var publishedProjects = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
+        publishedProjects.forEach(function(proj) {
+            var catMatch = currentCat === 'all' || currentCat === 'user';
+            var qMatch   = !currentQuery || (proj.name || '').toLowerCase().includes(currentQuery);
+            if (!catMatch || !qMatch) return;
+            var card = document.createElement('div');
             card.className = 'tpl-card';
-            // Generate a simple SVG preview based on category color
-            const catColors = {luxe:'#c9973a',tech:'#5b6af0',nature:'#10b981',vintage:'#92400e',sport:'#ef4444',minimal:'#444'};
-            const clr = catColors[tpl.cat] || '#5b6af0';
-            const previewSvg = `<svg viewBox="0 0 80 80" width="54"><rect x="5" y="5" width="70" height="70" rx="8" fill="${clr}" opacity="0.15"/><rect x="5" y="5" width="70" height="70" rx="8" fill="none" stroke="${clr}" stroke-width="2"/><text x="40" y="38" text-anchor="middle" font-size="11" font-family="Arial Black,sans-serif" font-weight="900" fill="${clr}">${escHtml(tpl.name.substring(0,6).toUpperCase())}</text><text x="40" y="54" text-anchor="middle" font-size="7" font-family="Arial" fill="${clr}" opacity="0.7" letter-spacing="1">${escHtml(tpl.cat.toUpperCase())}</text></svg>`;
-            card.innerHTML = `<span class="tpl-badge user">👤 Utilisateur</span><div class="preview" style="background:linear-gradient(135deg,#f8f8f8,#efefef)">${previewSvg}</div><div class="tpl-name">${escHtml(tpl.name)}</div>`;
-            card.addEventListener('click', () => loadUserTemplate(tpl.id));
-            userGrid.appendChild(card);
+            var previewContent = proj.preview
+                ? '<img src="' + proj.preview + '" style="width:100%;height:100%;object-fit:contain;border-radius:4px">'
+                : '<div style="font-size:2rem;color:var(--text2)">🖼</div>';
+            card.innerHTML =
+                '<span class="tpl-badge user">👤 Utilisateur</span>' +
+                '<div class="preview" style="background:linear-gradient(135deg,#f0f2ff,#e8ecff);padding:4px;overflow:hidden">' + previewContent + '</div>' +
+                '<div class="tpl-name">' + escHtml(proj.name) + '</div>';
+            card.addEventListener('click', (function(p){ return function() {
+                sessionStorage.setItem('rcProject', JSON.stringify(p.data));
+                toast('📂 Ouverture de "' + p.name + '"…');
+                setTimeout(function() { window.location.href = 'editor.html?project=1'; }, 900);
+            }; })(proj));
+            grid.appendChild(card);
+            visible++;
         });
-    }
+    } catch(userProjErr) { console.warn('rc_published_projects error:', userProjErr); }
+    // ─────────────────────────────────────────────────────────────
 
     noRes.style.display = visible === 0 ? 'flex' : 'none';
     countEl.textContent = visible;
@@ -1260,17 +1245,6 @@ function loadTemplate(index) {
     sessionStorage.setItem('rcTemplate', JSON.stringify(TEMPLATES[index]));
     toast('📐 Modèle "' + TEMPLATES[index].name + '" chargé !');
     setTimeout(() => { window.location.href = 'editor.html?template=' + index; }, 900);
-}
-
-
-function loadUserTemplate(id) {
-    let userTemplates = [];
-    try { userTemplates = JSON.parse(localStorage.getItem('rc_user_templates') || '[]'); } catch(e) {}
-    const tpl = userTemplates.find(t => t.id === id);
-    if (!tpl) { toast('❌ Template introuvable'); return; }
-    sessionStorage.setItem('rcUserTemplate', JSON.stringify(tpl.data));
-    toast('📐 Modèle "' + tpl.name + '" chargé !');
-    setTimeout(() => { window.location.href = 'editor.html?usertemplate=1'; }, 900);
 }
 
 // ══════════════════════════════════════════════
