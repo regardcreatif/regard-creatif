@@ -438,6 +438,41 @@ const S = {
   cartoonData: null,
 };
 
+// ─── RÉCUPÉRER LE TEMPLATE DEPUIS L'URL ───
+const urlParams = new URLSearchParams(window.location.search);
+const templateIndex = urlParams.get('template');
+
+if (templateIndex !== null) {
+    const stored = sessionStorage.getItem('rcTemplate');
+    if (stored) {
+        const tpl = JSON.parse(stored);
+        console.log('📐 Template chargé :', tpl.name);
+        window.loadedTemplate = tpl;
+    }
+}
+
+// ─── CHARGER LE TEMPLATE DANS L'ÉDITEUR ───
+if (window.loadedTemplate) {
+    const tpl = window.loadedTemplate;
+    console.log('🎨 Chargement du template dans l\'éditeur :', tpl.name);
+    
+    // Créer un rectangle de fond
+    const bgRect = makeRect(50, 50, 400, 400);
+    bgRect.fill = '#5b6af0';
+    bgRect.rx = 20;
+    S.elements.push(bgRect);
+    
+    // Ajouter le texte du template
+    const txt = makeText(250, 250, tpl.name);
+    txt.fontSize = 80;
+    txt.weight = '900';
+    txt.fill = '#ffffff';
+    S.elements.push(txt);
+    
+    // Sélectionner le premier élément
+    S.selectedIds = [bgRect.id];
+}
+
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
 const mainCanvas = document.getElementById('main-canvas');
 const selCanvas  = document.getElementById('sel-canvas');
