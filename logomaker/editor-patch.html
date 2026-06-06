@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Patch éditeur texte</title>
+</head>
+<body>
+<script>
+// ─── PATCH POUR ÉDITION DIRECTE DU TEXTE ─────────────────────
+
+// Cette fonction remplace le comportement des presets de texte
+function patchTextPresets() {
+    // Attendre que le DOM soit chargé
+    setTimeout(() => {
+        const flyContent = document.getElementById('fly-content');
+        if (!flyContent) return;
+        
+        // Observer les changements dans le flyout
+        const observer = new MutationObserver(() => {
+            const presets = flyContent.querySelectorAll('.text-preset');
+            presets.forEach(btn => {
+                // Éviter de dupliquer les événements
+                if (btn.dataset.patched) return;
+                btn.dataset.patched = 'true';
+                
+                // Remplacer l'événement click
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Créer un élément texte avec les bonnes propriétés
+                    const text = this.dataset.t || 'TEXTE';
+                    const size = parseInt(this.dataset.s) || 40;
+                    const weight = this.dataset.w || '900';
+                    
+                    const el = mkText(text);
+                    el.fontSize = size;
+                    el.size = size;
+                    el.weight = weight;
+                    
+                    // Ajouter l'élément
+                    addElement(el);
+                    
+                    // Ouvrir l'éditeur de texte directement
+                    setTimeout(() => {
+                        // Trouver l'élément ajouté
+                        const target = S.elements.find(e => e.id === el.id);
+                        if (!target) return;
+                        
+                        // Simuler un double-clic
+                        const pos = {x: target.x, y: target.y};
+                        const hit = elementAt(pos);
+                        if (hit?.type === 'text') {
+                            const bb = getBB(hit);
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.value = hit.text || '';
+                            input.style.position = 'fixed';
+                            input.style.left = (bb.x * S.zoom + canvasArea.getBoundingClientRect().left) + 'px';
+                            input.style.top = (bb.y * S.zoom + canvasArea.getBoundingClientRect().top) + 'px';
+                            input.style.width = (bb.w * S.zoom) + 'px';
+                            input.style.height = (bb.h * S.zoom) + 'px';
+                            input.style.background = 'rgba(22,22,31,0.95)';
+                            input.style.border = '2px solid #5b6af0';
+                            input.style.borderRadius = '6px';
+                            input.style.color = '#e8e8ee';
+                            input.style.fontSize = (hit.fontSize || 40) * S.zoom + 'px';
+                            input.style.fontFamily = hit.font || 'Montserrat';
+                            input.style.fontWeight = hit.weight || '900';
+                            input.style.textAlign = hit.align || 'center';
+                            input.style.padding = '8px';
+                            input.style.outline = 'none';
+                            input.style.zIndex = '9999';
+                            input.style.boxShadow = '0 4px 20px rgba(0,0,0,0.6)';
+                            
+                            document.body.appendChild(input);
+                            input.focus();
+                            input.select();
+                            
+                            const done = () => {
+                                if (input.value.trim() !== '') {
+                                    hit.text = input.value;
+                                    saveHistory();
+                                    render();
+                                    updatePropsPanel();
+                                }
+                                input.remove();
+                            };
+                            
+                            input.addEventListener('blur', done);
+                            input.addEventListener('keydown', e2 => {
+                                if (e2.key === 'Enter') { input.blur(); }
+                                if (e2.key === 'Escape') { input.remove(); }
+                            });
+                        }
+                    }, 100);
+                });
+            });
+        });
+        
+        observer.observe(flyContent, { childList: true, subtree: true });
+    }, 1000);
+}
+
+// Exécuter le patch après le chargement
+document.addEventListener('DOMContentLoaded', patchTextPresets);
+
+</script>
+</body>
+</html>
