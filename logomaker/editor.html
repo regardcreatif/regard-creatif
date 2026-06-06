@@ -252,7 +252,7 @@ button{font-family:inherit;cursor:pointer}
 <div id="app">
   <!-- TOP BAR -->
   <div id="topbar">
-    <button class="tbtn" id="btn-back" title="Retour à l'accueil" onclick="window.location.href='index.html'" style="padding:6px 10px;color:var(--text2);border-color:var(--border)"><i class="fa-solid fa-arrow-left"></i></button>
+    <button class="tbtn" id="btn-back" title="Retour à l'accueil" onclick="sessionStorage.setItem('rc_skip_splash','1');window.location.href='index.html'" style="padding:6px 10px;color:var(--text2);border-color:var(--border)"><i class="fa-solid fa-arrow-left"></i></button>
     <span class="logo-text">RC Logo Maker</span>
     <span class="canvas-dim" id="canvas-dims">500 × 500</span>
     <div class="spacer"></div>
@@ -2162,8 +2162,15 @@ document.getElementById('publish-confirm').addEventListener('click', function() 
     activeFilterId: S.activeFilterId,
     activeFilterCSS: S.activeFilterCSS
   };
+  // Miniature réduite (JPEG 15% qualité, canvas 120px max) pour éviter le quota localStorage
   var preview = '';
-  try { preview = mainCanvas.toDataURL('image/png', 0.4); } catch(e) {}
+  try {
+    var thumb = document.createElement('canvas');
+    var ratio = S.canvasH / S.canvasW;
+    thumb.width = 120; thumb.height = Math.round(120 * ratio);
+    thumb.getContext('2d').drawImage(mainCanvas, 0, 0, thumb.width, thumb.height);
+    preview = thumb.toDataURL('image/jpeg', 0.15);
+  } catch(e) {}
   var published = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
   published.unshift({
     id: Date.now(),
@@ -2172,9 +2179,21 @@ document.getElementById('publish-confirm').addEventListener('click', function() 
     data: projectData,
     preview: preview
   });
-  localStorage.setItem('rc_published_projects', JSON.stringify(published));
-  closePublishModal();
-  toast('📤 Template "' + name + '" publié !');
+  // Garde au maximum 20 projets publiés pour éviter le quota
+  if (published.length > 20) published = published.slice(0, 20);
+  try {
+    localStorage.setItem('rc_published_projects', JSON.stringify(published));
+    closePublishModal();
+    toast('📤 Template "' + name + '" publié !');
+  } catch(e) {
+    // Si quota dépassé, on réessaie sans les previews
+    try {
+      var slim = published.map(function(p){ return Object.assign({}, p, { preview: '' }); });
+      localStorage.setItem('rc_published_projects', JSON.stringify(slim));
+      closePublishModal();
+      toast('📤 Template "' + name + '" publié (sans aperçu) !');
+    } catch(e2) { toast('⚠️ Stockage plein — supprime des projets anciens.'); }
+  }
 });
 document.getElementById('publish-name').addEventListener('keydown', function(e) {
   if (e.key === 'Enter')  document.getElementById('publish-confirm').click();
