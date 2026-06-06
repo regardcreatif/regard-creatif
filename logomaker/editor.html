@@ -232,16 +232,14 @@ button{font-family:inherit;cursor:pointer}
 /* PUBLISH MODAL */
 #publish-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9000}
 #publish-modal.hidden{display:none}
-.publish-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.8)}
-.publish-box h3{font-weight:700;font-size:15px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
-.publish-field{margin-bottom:14px}
-.publish-field label{display:block;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
-.publish-field input[type=text],.publish-field select{width:100%;font-size:13px;padding:7px 10px}
-.publish-actions{display:flex;gap:8px;margin-top:18px}
-.publish-btn-ok{flex:1;padding:9px;border-radius:8px;background:linear-gradient(135deg,#5b6af0,#7c4af0);border:none;color:#fff;font-size:13px;font-family:inherit;font-weight:700;cursor:pointer}
-.publish-btn-ok:hover{opacity:.9}
-.publish-btn-cancel{flex:1;padding:9px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:13px;font-family:inherit;cursor:pointer}
-.publish-btn-cancel:hover{border-color:var(--accent);color:var(--text)}
+.publish-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:300px;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.publish-box h3{font-weight:700;font-size:14px;margin-bottom:16px}
+.pub-field{margin-bottom:12px}
+.pub-field label{display:block;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.pub-actions{display:flex;gap:8px;margin-top:16px}
+.pub-ok{flex:1;padding:8px;border-radius:8px;background:linear-gradient(135deg,#5b6af0,#7c4af0);border:none;color:#fff;font-size:12px;font-family:inherit;font-weight:700;cursor:pointer}
+.pub-cancel{flex:1;padding:8px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:12px;font-family:inherit;cursor:pointer}
+.pub-cancel:hover{border-color:var(--accent);color:var(--text)}
 </style>
 </head>
 <body>
@@ -262,7 +260,7 @@ button{font-family:inherit;cursor:pointer}
     <button class="tbtn" id="btn-dup" title="Dupliquer (Ctrl+D)">⧉</button>
     <button class="tbtn danger" id="btn-del" title="Supprimer (Suppr)">✕</button>
     <button class="tbtn" id="btn-save" title="Enregistrer (Ctrl+S)" style="color:#22c55e;border-color:rgba(34,197,94,.3)">💾 <span id="save-status" class="save-status"></span></button>
-    <button class="tbtn" id="btn-publish" title="Publier ce template" style="color:#10b981;border-color:rgba(16,185,129,.3)">📤 Publier</button>
+    <button class="tbtn" id="btn-publish" style="color:#10b981;border-color:rgba(16,185,129,.3)">📤 Publier</button>
     <button class="tbtn primary" id="btn-export">↓ Exporter</button>
   </div>
 
@@ -380,11 +378,11 @@ button{font-family:inherit;cursor:pointer}
   <div id="publish-modal" class="hidden">
     <div class="publish-box">
       <h3>📤 Publier ce template</h3>
-      <div class="publish-field">
+      <div class="pub-field">
         <label>Nom du template</label>
         <input type="text" id="pub-name" placeholder="Ex: Mon Logo Luxe…" maxlength="40">
       </div>
-      <div class="publish-field">
+      <div class="pub-field">
         <label>Catégorie</label>
         <select id="pub-cat">
           <option value="luxe">💎 Luxe</option>
@@ -395,9 +393,9 @@ button{font-family:inherit;cursor:pointer}
           <option value="minimal">➖ Minimal</option>
         </select>
       </div>
-      <div class="publish-actions">
-        <button class="publish-btn-cancel" id="pub-cancel">Annuler</button>
-        <button class="publish-btn-ok" id="pub-ok">✓ Valider</button>
+      <div class="pub-actions">
+        <button class="pub-cancel" id="pub-cancel">Annuler</button>
+        <button class="pub-ok" id="pub-ok">✓ Valider</button>
       </div>
     </div>
   </div>
@@ -487,50 +485,17 @@ const templateIndex = urlParams.get('template');
 if (templateIndex !== null) {
     const stored = sessionStorage.getItem('rcTemplate');
     if (stored) {
-        const tpl = JSON.parse(stored);
-        console.log('📐 Template chargé :', tpl.name);
-        window.loadedTemplate = tpl;
+        try { window.loadedTemplate = JSON.parse(stored); } catch(e) {}
     }
 }
 
-// ─── CHARGER LE TEMPLATE DANS L'ÉDITEUR ───
-if (window.loadedTemplate) {
-    const tpl = window.loadedTemplate;
-    console.log('🎨 Chargement du template dans l\'éditeur :', tpl.name);
-    
-    // Créer un rectangle de fond
-    const bgRect = makeRect(50, 50, 400, 400);
-    bgRect.fill = '#5b6af0';
-    bgRect.rx = 20;
-    S.elements.push(bgRect);
-    
-    // Ajouter le texte du template
-    const txt = makeText(250, 250, tpl.name);
-    txt.fontSize = 80;
-    txt.weight = '900';
-    txt.fill = '#ffffff';
-    S.elements.push(txt);
-    
-    // Sélectionner le premier élément
-    S.selectedIds = [bgRect.id];
-}
-
-
-// ─── CHARGER UN TEMPLATE UTILISATEUR DEPUIS L'URL ───
+// user-published template param
 const userTplParam = urlParams.get('usertemplate');
 if (userTplParam !== null) {
-  try {
-    const storedUserTpl = sessionStorage.getItem('rcUserTemplate');
-    if (storedUserTpl) {
-      const userTpl = JSON.parse(storedUserTpl);
-      // Restore canvas settings
-      if (userTpl.canvasW) { S.canvasW = userTpl.canvasW; }
-      if (userTpl.canvasH) { S.canvasH = userTpl.canvasH; }
-      if (userTpl.canvasBg) { S.canvasBg = userTpl.canvasBg; }
-      // Restore elements (rebuilt after DOM ready)
-      window._pendingUserTplElements = userTpl.elements || [];
+    const stored2 = sessionStorage.getItem('rcUserTemplate');
+    if (stored2) {
+        try { window.loadedUserTemplate = JSON.parse(stored2); } catch(e) {}
     }
-  } catch(e) { console.warn('Erreur chargement template utilisateur', e); }
 }
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
@@ -2080,56 +2045,87 @@ function applyCartoonFilter() {
 }
 
 
+// ─── APPLY TEMPLATE (safe: called from INIT after all fns defined) ───────────
+function applyTemplateToCanvas(tpl) {
+    S.elements = [];
+    S.selectedIds = [];
+    const catColors = {
+        luxe:    { bg:'#1a1206', fill:'#c9973a', textFill:'#f5e5a0' },
+        tech:    { bg:'#0c0c22', fill:'#5b6af0', textFill:'#ffffff'  },
+        nature:  { bg:'#022c1a', fill:'#10b981', textFill:'#d1fae5'  },
+        vintage: { bg:'#2c1a0a', fill:'#92400e', textFill:'#fde68a'  },
+        sport:   { bg:'#1a0505', fill:'#ef4444', textFill:'#ffffff'  },
+        minimal: { bg:'#f5f5f5', fill:'#1a1a1a', textFill:'#1a1a1a' },
+    };
+    const scheme = catColors[tpl.cat] || catColors.tech;
+    S.canvasBg = scheme.bg;
+
+    // Background rect (full canvas)
+    const bgEl = mkRect();
+    bgEl.x = 0; bgEl.y = 0; bgEl.w = S.canvasW; bgEl.h = S.canvasH;
+    bgEl.fill = scheme.bg; bgEl.rx = 0; bgEl.stroke = 'none';
+    S.elements.push(bgEl);
+
+    // Accent band
+    const band = mkRect();
+    band.x = Math.round(S.canvasW * 0.08);
+    band.y = Math.round(S.canvasH * 0.44);
+    band.w = Math.round(S.canvasW * 0.84);
+    band.h = Math.round(S.canvasH * 0.10);
+    band.fill = scheme.fill; band.rx = 4; band.stroke = 'none';
+    S.elements.push(band);
+
+    // Main name text
+    const txt = mkText();
+    txt.x = S.canvasW / 2; txt.y = S.canvasH / 2 - 35;
+    txt.text = (tpl.name || 'LOGO').toUpperCase();
+    txt.fontSize = 52; txt.weight = '900';
+    txt.fill = scheme.textFill; txt.font = 'Montserrat';
+    txt.letterSpacing = 4;
+    S.elements.push(txt);
+
+    // Subtitle text
+    const sub = mkText();
+    sub.x = S.canvasW / 2; sub.y = S.canvasH / 2 + 52;
+    sub.text = 'MON LOGO';
+    sub.fontSize = 14; sub.weight = '400';
+    sub.fill = scheme.fill; sub.font = 'Montserrat';
+    sub.letterSpacing = 8;
+    S.elements.push(sub);
+
+    saveHistory();
+    render();
+    updateRightPanel();
+    toast('🎨 Template "' + tpl.name + '" chargé !');
+}
+
 // ─── PUBLISH TEMPLATE ─────────────────────────────────────────────────────────
-document.getElementById('btn-publish').addEventListener('click', openPublishModal);
-
-function openPublishModal() {
-  document.getElementById('pub-name').value = '';
-  document.getElementById('pub-cat').value = 'luxe';
-  document.getElementById('publish-modal').classList.remove('hidden');
-}
-
-function closePublishModal() {
-  document.getElementById('publish-modal').classList.add('hidden');
-}
-
-document.getElementById('pub-cancel').addEventListener('click', closePublishModal);
-document.getElementById('pub-ok').addEventListener('click', function() {
-  const name = document.getElementById('pub-name').value.trim();
-  const cat  = document.getElementById('pub-cat').value;
-  if (!name) { toast('⚠ Veuillez nommer votre template'); return; }
-
-  // Serialize project data (no img objects)
-  const elementsData = JSON.parse(JSON.stringify(S.elements, (k,v) => k === 'img' ? undefined : v));
-  const projectData = {
-    elements: elementsData,
-    canvasBg: S.canvasBg,
-    canvasW:  S.canvasW,
-    canvasH:  S.canvasH
-  };
-
-  // Load existing user templates
-  let userTemplates = [];
-  try { userTemplates = JSON.parse(localStorage.getItem('rc_user_templates') || '[]'); } catch(e) {}
-
-  // Add new template
-  const tplId = 'utpl_' + Date.now();
-  userTemplates.unshift({
-    id:   tplId,
-    name: name,
-    cat:  cat,
-    date: new Date().toLocaleDateString('fr-FR'),
-    data: projectData
-  });
-
-  localStorage.setItem('rc_user_templates', JSON.stringify(userTemplates));
-  closePublishModal();
-  toast('✅ Template "' + name + '" publié !');
+document.getElementById('btn-publish').addEventListener('click', function() {
+    document.getElementById('pub-name').value = '';
+    document.getElementById('pub-cat').value = 'luxe';
+    document.getElementById('publish-modal').classList.remove('hidden');
 });
-
-// Close publish modal on outside click
+document.getElementById('pub-cancel').addEventListener('click', function() {
+    document.getElementById('publish-modal').classList.add('hidden');
+});
 document.getElementById('publish-modal').addEventListener('click', function(e) {
-  if (e.target === this) closePublishModal();
+    if (e.target === this) document.getElementById('publish-modal').classList.add('hidden');
+});
+document.getElementById('pub-ok').addEventListener('click', function() {
+    const name = document.getElementById('pub-name').value.trim();
+    const cat  = document.getElementById('pub-cat').value;
+    if (!name) { toast('⚠ Veuillez nommer votre template'); return; }
+    const elementsData = JSON.parse(JSON.stringify(S.elements, (k, v) => k === 'img' ? undefined : v));
+    let userTemplates = [];
+    try { userTemplates = JSON.parse(localStorage.getItem('rc_user_templates') || '[]'); } catch(e) {}
+    userTemplates.unshift({
+        id: 'utpl_' + Date.now(), name, cat,
+        date: new Date().toLocaleDateString('fr-FR'),
+        data: { elements: elementsData, canvasBg: S.canvasBg, canvasW: S.canvasW, canvasH: S.canvasH }
+    });
+    localStorage.setItem('rc_user_templates', JSON.stringify(userTemplates));
+    document.getElementById('publish-modal').classList.add('hidden');
+    toast('✅ Template "' + name + '" publié !');
 });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -2138,36 +2134,39 @@ updateTopBarButtons();
 updateContextBar();
 updateRightPanel();
 updatePanelToggle();
-if (loadProject()) {
-  toast('✓ Projet restauré');
+if (window.loadedUserTemplate) {
+    // Restore a user-published template
+    const _utpl = window.loadedUserTemplate;
+    S.elements = [];
+    if (_utpl.canvasW) {
+        S.canvasW = _utpl.canvasW;
+        mainCanvas.width  = _utpl.canvasW;
+        selCanvas.width   = _utpl.canvasW;
+        drawCanvas.width  = _utpl.canvasW;
+    }
+    if (_utpl.canvasH) {
+        S.canvasH = _utpl.canvasH;
+        mainCanvas.height  = _utpl.canvasH;
+        selCanvas.height   = _utpl.canvasH;
+        drawCanvas.height  = _utpl.canvasH;
+    }
+    if (_utpl.canvasBg !== undefined) S.canvasBg = _utpl.canvasBg;
+    if (_utpl.elements) restoreElements(JSON.parse(JSON.stringify(_utpl.elements)));
+    applyZoom();
+    render();
+    updateRightPanel();
+    updateContextBar();
+    document.getElementById('canvas-dims').textContent = S.canvasW + ' × ' + S.canvasH;
+    toast('📐 Template utilisateur chargé');
+} else if (window.loadedTemplate) {
+    applyTemplateToCanvas(window.loadedTemplate);
+} else if (loadProject()) {
+    toast('✓ Projet restauré');
 } else {
-  render();
+    render();
 }
 initDrawCanvas();
 setInterval(saveProject, 60000);
-
-// Restore user template elements if any
-if (window._pendingUserTplElements && window._pendingUserTplElements.length > 0) {
-  restoreElements(window._pendingUserTplElements);
-  // Rebuild img objects
-  S.elements.forEach(el => {
-    if (el.type === 'image' && el.src && !el.img) {
-      const img = new Image();
-      img.onload = () => render();
-      img.src = el.src;
-      el.img = img;
-    }
-  });
-  mainCanvas.width  = S.canvasW;
-  mainCanvas.height = S.canvasH;
-  selCanvas.width   = S.canvasW;
-  selCanvas.height  = S.canvasH;
-  drawCanvas.width  = S.canvasW;
-  drawCanvas.height = S.canvasH;
-  render();
-  document.getElementById('canvas-dims').textContent = S.canvasW + ' × ' + S.canvasH;
-  toast('📐 Template utilisateur chargé');
-}
 </script>
 </body>
 </html>
