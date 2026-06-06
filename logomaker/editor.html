@@ -477,40 +477,11 @@ const S = {
   cartoonData: null,
 };
 
-// ─── RÉCUPÉRER LE TEMPLATE DEPUIS L'URL ───
+// ─── RÉCUPÉRER LE TEMPLATE/PROJET DEPUIS L'URL ───
 const urlParams = new URLSearchParams(window.location.search);
-const templateIndex = urlParams.get('template');
-
-if (templateIndex !== null) {
-    const stored = sessionStorage.getItem('rcTemplate');
-    if (stored) {
-        const tpl = JSON.parse(stored);
-        console.log('📐 Template chargé :', tpl.name);
-        window.loadedTemplate = tpl;
-    }
-}
-
-// ─── CHARGER LE TEMPLATE DANS L'ÉDITEUR ───
-if (window.loadedTemplate) {
-    const tpl = window.loadedTemplate;
-    console.log('🎨 Chargement du template dans l\'éditeur :', tpl.name);
-    
-    // Créer un rectangle de fond
-    const bgRect = makeRect(50, 50, 400, 400);
-    bgRect.fill = '#5b6af0';
-    bgRect.rx = 20;
-    S.elements.push(bgRect);
-    
-    // Ajouter le texte du template
-    const txt = makeText(250, 250, tpl.name);
-    txt.fontSize = 80;
-    txt.weight = '900';
-    txt.fill = '#ffffff';
-    S.elements.push(txt);
-    
-    // Sélectionner le premier élément
-    S.selectedIds = [bgRect.id];
-}
+const _urlTemplate = urlParams.get('template');
+const _urlProject = urlParams.get('project');
+const _urlImport = urlParams.get('import');
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
 const mainCanvas = document.getElementById('main-canvas');
@@ -2064,12 +2035,104 @@ updateTopBarButtons();
 updateContextBar();
 updateRightPanel();
 updatePanelToggle();
-if (loadProject()) {
-  toast('✓ Projet restauré');
-} else {
-  render();
-}
 initDrawCanvas();
+
+// ─── CHARGEMENT INTELLIGENT (template / projet / import / sauvegarde) ─────
+(function loadTemplateIfNeeded() {
+    // CAS 1 : Ouverture d'un projet publié ou d'une création
+    if (_urlProject) {
+        const raw = sessionStorage.getItem('rcProject');
+        if (raw) {
+            try {
+                const data = JSON.parse(raw);
+                S.canvasW = data.canvasW || 500;
+                S.canvasH = data.canvasH || 500;
+                S.canvasBg = data.canvasBg || '#ffffff';
+                S.activeFilterId = data.activeFilterId || 'none';
+                S.activeFilterCSS = data.activeFilterCSS || null;
+                restoreElements(data.elements || []);
+                S.elements.forEach(el => { const n = +el.id; if (n > uid) uid = n; });
+                applyCanvasSize();
+                saveHistory();
+                render();
+                updateRightPanel();
+                toast('📂 Projet chargé !');
+                return;
+            } catch(e) { console.warn('Erreur projet:', e); }
+        }
+    }
+    // CAS 2 : Chargement d'un template (index.html → clic sur template)
+    if (_urlTemplate !== null) {
+        const raw = sessionStorage.getItem('rcTemplate');
+        if (raw) {
+            try {
+                const tpl = JSON.parse(raw);
+                newProject(); // repart d'une base vide propre
+                // Rectangle de fond avec la couleur du template
+                const bgRect = mkRect();
+                bgRect.x = 50;
+                bgRect.y = 50;
+                bgRect.w = S.canvasW - 100;
+                bgRect.h = S.canvasH - 100;
+                bgRect.fill = '#5b6af0';
+                bgRect.rx = 20;
+                S.elements.push(bgRect);
+                // Texte avec le nom du template
+                const txt = mkText(tpl.name.toUpperCase());
+                txt.fontSize = 60;
+                txt.weight = '900';
+                txt.fill = '#ffffff';
+                S.elements.push(txt);
+                S.selectedIds = [bgRect.id];
+                saveHistory();
+                render();
+                updateRightPanel();
+                updateContextBar();
+                toast('📐 Template "' + tpl.name + '" chargé !');
+                return;
+            } catch(e) { console.warn('Erreur template:', e); }
+        }
+    }
+    // CAS 3 : Import d'une image depuis index.html
+    if (_urlImport) {
+        const imgData = sessionStorage.getItem('rcImportedImage');
+        if (imgData) {
+            const img = new Image();
+            img.onload = function() {
+                const maxW = Math.min(400, S.canvasW * 0.8);
+                const ratio = img.height / img.width;
+                const el = {
+                    id: mkId(),
+                    type: 'image',
+                    x: cx() - maxW/2,
+                    y: cy() - (maxW*ratio)/2,
+                    w: maxW,
+                    h: maxW * ratio,
+                    src: imgData,
+                    img: img,
+                    opacity: 1,
+                    rotation: 0,
+                    visible: true
+                };
+                S.elements.push(el);
+                S.selectedIds = [el.id];
+                saveHistory();
+                render();
+                updateRightPanel();
+                updateContextBar();
+                toast('🖼️ Image importée !');
+            };
+            img.src = imgData;
+            return;
+        }
+    }
+    // CAS 4 (défaut) : Restaurer la dernière sauvegarde automatique
+    if (loadProject()) {
+        toast('✓ Projet restauré');
+    } else {
+        render();
+    }
+})();
 
 // ─── PUBLISH AS TEMPLATE ─────────────────────────────────────
 function openPublishModal() {
