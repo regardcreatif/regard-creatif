@@ -228,6 +228,20 @@ button{font-family:inherit;cursor:pointer}
 
 /* IMAGE PROPS */
 .img-opacity-row{margin-bottom:6px;}
+
+/* PUBLISH MODAL */
+#publish-modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:9000}
+#publish-modal.hidden{display:none}
+.publish-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:24px;width:320px;box-shadow:0 20px 60px rgba(0,0,0,.8)}
+.publish-box h3{font-weight:700;font-size:15px;margin-bottom:18px;display:flex;align-items:center;gap:8px}
+.publish-field{margin-bottom:14px}
+.publish-field label{display:block;font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:5px}
+.publish-field input[type=text],.publish-field select{width:100%;font-size:13px;padding:7px 10px}
+.publish-actions{display:flex;gap:8px;margin-top:18px}
+.publish-btn-ok{flex:1;padding:9px;border-radius:8px;background:linear-gradient(135deg,#5b6af0,#7c4af0);border:none;color:#fff;font-size:13px;font-family:inherit;font-weight:700;cursor:pointer}
+.publish-btn-ok:hover{opacity:.9}
+.publish-btn-cancel{flex:1;padding:9px;border-radius:8px;background:transparent;border:1px solid var(--border);color:var(--text2);font-size:13px;font-family:inherit;cursor:pointer}
+.publish-btn-cancel:hover{border-color:var(--accent);color:var(--text)}
 </style>
 </head>
 <body>
@@ -248,6 +262,7 @@ button{font-family:inherit;cursor:pointer}
     <button class="tbtn" id="btn-dup" title="Dupliquer (Ctrl+D)">⧉</button>
     <button class="tbtn danger" id="btn-del" title="Supprimer (Suppr)">✕</button>
     <button class="tbtn" id="btn-save" title="Enregistrer (Ctrl+S)" style="color:#22c55e;border-color:rgba(34,197,94,.3)">💾 <span id="save-status" class="save-status"></span></button>
+    <button class="tbtn" id="btn-publish" title="Publier ce template" style="color:#10b981;border-color:rgba(16,185,129,.3)">📤 Publier</button>
     <button class="tbtn primary" id="btn-export">↓ Exporter</button>
   </div>
 
@@ -356,6 +371,33 @@ button{font-family:inherit;cursor:pointer}
         <button class="export-fmt" data-fmt="png2x"><span class="export-fmt-icon">🔆</span><div><span class="export-fmt-name" id="png2x-label">PNG @2x</span><span class="export-fmt-desc">Résolution Retina</span></div></button>
         <button class="export-fmt" data-fmt="jpg"><span class="export-fmt-icon">📷</span><div><span class="export-fmt-name">JPG</span><span class="export-fmt-desc">Qualité 92% — web</span></div></button>
         <button class="export-fmt" data-fmt="svg"><span class="export-fmt-icon">✏️</span><div><span class="export-fmt-name">SVG</span><span class="export-fmt-desc">Vectoriel — impression</span></div></button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- PUBLISH MODAL -->
+  <div id="publish-modal" class="hidden">
+    <div class="publish-box">
+      <h3>📤 Publier ce template</h3>
+      <div class="publish-field">
+        <label>Nom du template</label>
+        <input type="text" id="pub-name" placeholder="Ex: Mon Logo Luxe…" maxlength="40">
+      </div>
+      <div class="publish-field">
+        <label>Catégorie</label>
+        <select id="pub-cat">
+          <option value="luxe">💎 Luxe</option>
+          <option value="tech">⚡ Tech</option>
+          <option value="nature">🌿 Nature</option>
+          <option value="vintage">🕰 Vintage</option>
+          <option value="sport">🏆 Sport</option>
+          <option value="minimal">➖ Minimal</option>
+        </select>
+      </div>
+      <div class="publish-actions">
+        <button class="publish-btn-cancel" id="pub-cancel">Annuler</button>
+        <button class="publish-btn-ok" id="pub-ok">✓ Valider</button>
       </div>
     </div>
   </div>
@@ -471,6 +513,24 @@ if (window.loadedTemplate) {
     
     // Sélectionner le premier élément
     S.selectedIds = [bgRect.id];
+}
+
+
+// ─── CHARGER UN TEMPLATE UTILISATEUR DEPUIS L'URL ───
+const userTplParam = urlParams.get('usertemplate');
+if (userTplParam !== null) {
+  try {
+    const storedUserTpl = sessionStorage.getItem('rcUserTemplate');
+    if (storedUserTpl) {
+      const userTpl = JSON.parse(storedUserTpl);
+      // Restore canvas settings
+      if (userTpl.canvasW) { S.canvasW = userTpl.canvasW; }
+      if (userTpl.canvasH) { S.canvasH = userTpl.canvasH; }
+      if (userTpl.canvasBg) { S.canvasBg = userTpl.canvasBg; }
+      // Restore elements (rebuilt after DOM ready)
+      window._pendingUserTplElements = userTpl.elements || [];
+    }
+  } catch(e) { console.warn('Erreur chargement template utilisateur', e); }
 }
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
@@ -2019,6 +2079,59 @@ function applyCartoonFilter() {
   toast('🎨 Filtre Cartoon appliqué');
 }
 
+
+// ─── PUBLISH TEMPLATE ─────────────────────────────────────────────────────────
+document.getElementById('btn-publish').addEventListener('click', openPublishModal);
+
+function openPublishModal() {
+  document.getElementById('pub-name').value = '';
+  document.getElementById('pub-cat').value = 'luxe';
+  document.getElementById('publish-modal').classList.remove('hidden');
+}
+
+function closePublishModal() {
+  document.getElementById('publish-modal').classList.add('hidden');
+}
+
+document.getElementById('pub-cancel').addEventListener('click', closePublishModal);
+document.getElementById('pub-ok').addEventListener('click', function() {
+  const name = document.getElementById('pub-name').value.trim();
+  const cat  = document.getElementById('pub-cat').value;
+  if (!name) { toast('⚠ Veuillez nommer votre template'); return; }
+
+  // Serialize project data (no img objects)
+  const elementsData = JSON.parse(JSON.stringify(S.elements, (k,v) => k === 'img' ? undefined : v));
+  const projectData = {
+    elements: elementsData,
+    canvasBg: S.canvasBg,
+    canvasW:  S.canvasW,
+    canvasH:  S.canvasH
+  };
+
+  // Load existing user templates
+  let userTemplates = [];
+  try { userTemplates = JSON.parse(localStorage.getItem('rc_user_templates') || '[]'); } catch(e) {}
+
+  // Add new template
+  const tplId = 'utpl_' + Date.now();
+  userTemplates.unshift({
+    id:   tplId,
+    name: name,
+    cat:  cat,
+    date: new Date().toLocaleDateString('fr-FR'),
+    data: projectData
+  });
+
+  localStorage.setItem('rc_user_templates', JSON.stringify(userTemplates));
+  closePublishModal();
+  toast('✅ Template "' + name + '" publié !');
+});
+
+// Close publish modal on outside click
+document.getElementById('publish-modal').addEventListener('click', function(e) {
+  if (e.target === this) closePublishModal();
+});
+
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 applyZoom();
 updateTopBarButtons();
@@ -2032,6 +2145,29 @@ if (loadProject()) {
 }
 initDrawCanvas();
 setInterval(saveProject, 60000);
+
+// Restore user template elements if any
+if (window._pendingUserTplElements && window._pendingUserTplElements.length > 0) {
+  restoreElements(window._pendingUserTplElements);
+  // Rebuild img objects
+  S.elements.forEach(el => {
+    if (el.type === 'image' && el.src && !el.img) {
+      const img = new Image();
+      img.onload = () => render();
+      img.src = el.src;
+      el.img = img;
+    }
+  });
+  mainCanvas.width  = S.canvasW;
+  mainCanvas.height = S.canvasH;
+  selCanvas.width   = S.canvasW;
+  selCanvas.height  = S.canvasH;
+  drawCanvas.width  = S.canvasW;
+  drawCanvas.height = S.canvasH;
+  render();
+  document.getElementById('canvas-dims').textContent = S.canvasW + ' × ' + S.canvasH;
+  toast('📐 Template utilisateur chargé');
+}
 </script>
 </body>
 </html>
