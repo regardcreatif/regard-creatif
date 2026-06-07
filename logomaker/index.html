@@ -1,1555 +1,227 @@
-<!doctype html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
-    <title>RC Logo Maker – Regard Créatif</title>
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#0a0a0f" />
-    <link rel="icon" href="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700;0,9..40,900;1,9..40,300&display=swap" rel="stylesheet" />
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation } from 'wouter';
+import { Search, X, BookOpen, Plus, FolderHeart, Settings, LayoutTemplate } from 'lucide-react';
+import { TEMPLATES } from '@/lib/templates';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useToast } from '@/hooks/use-toast';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
-    <style>
-        :root {
-            --bg:        #faf8f5;
-            --panel:     #f2efe9;
-            --panel2:    #ffffff;
-            --border:    #e6e0d8;
-            --text:      #181818;
-            --text2:     #8a8a9a;
-            --accent:    #5b6af0;
-            --accent2:   #7c4af0;
-            --gold:      #c9973a;
-            --red:       #e53e3e;
-            --green:     #10b981;
-            --radius:    16px;
-            --radius-sm: 11px;
-            --safe-bottom: env(safe-area-inset-bottom, 8px);
-            --shadow:    0 2px 14px rgba(0,0,0,0.07);
-            --shadow-lg: 0 8px 28px rgba(91,106,240,0.18);
-        }
+export default function Home() {
+  const [splashVisible, setSplashVisible] = useState(true);
+  const [search, setSearch] = useState('');
+  const [category, setCategory] = useState('Tous');
+  const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
-        /* ══════════════ DARK THEME ══════════════ */
-        body.dark {
-            --bg:     #0f0f1a;
-            --panel:  #1a1a2e;
-            --panel2: #16213e;
-            --border: #2a2a4e;
-            --text:   #f0f0f5;
-            --text2:  #8a8aaa;
-            --shadow: 0 2px 14px rgba(0,0,0,0.35);
-            --shadow-lg: 0 8px 28px rgba(91,106,240,0.28);
-        }
+  useEffect(() => {
+    const skipSplash = sessionStorage.getItem('rc_skip_splash');
+    if (skipSplash === '1') {
+      setSplashVisible(false);
+    } else {
+      const timer = setTimeout(() => {
+        setSplashVisible(false);
+        sessionStorage.setItem('rc_skip_splash', '1');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
-        *, *::before, *::after {
-            margin: 0; padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-        html, body {
-            width: 100%; height: 100%;
-            overflow: hidden;
-            position: fixed; top: 0; left: 0;
-        }
-        body {
-            background: var(--bg);
-            font-family: "DM Sans", "Inter", system-ui, sans-serif;
-            user-select: none;
-            -webkit-user-select: none;
-            touch-action: manipulation;
-            transition: background 0.3s, color 0.3s;
-        }
+  const publishedProjects = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
 
-        /* ══════════════ SPLASH ══════════════ */
-        #splash {
-            position: fixed; inset: 0;
-            z-index: 9999;
-            background: #08080f;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.55s ease;
-        }
-        #splash.fade-out { opacity: 0; pointer-events: none; }
-        #splash.hidden   { display: none; }
+  const categories = ['Tous', 'Luxe', 'Tech', 'Nature', 'Vintage', 'Sport', 'Minimal', 'Publiés'];
 
-        #particleCanvas {
-            position: absolute; inset: 0;
-            width: 100%; height: 100%;
-        }
+  const filteredTemplates = category === 'Publiés' 
+    ? publishedProjects 
+    : TEMPLATES.filter(t => 
+        (category === 'Tous' || t.cat.toLowerCase() === category.toLowerCase()) &&
+        (t.name.toLowerCase().includes(search.toLowerCase()))
+      );
 
-        #splash-glow {
-            position: absolute;
-            width: 340px; height: 340px;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(91,106,240,0.22) 0%, transparent 70%);
-            animation: pulse-glow 3s ease-in-out infinite;
-            z-index: 1;
-        }
-        @keyframes pulse-glow {
-            0%,100% { transform: scale(1);   opacity: 0.7; }
-            50%      { transform: scale(1.12); opacity: 1;   }
-        }
+  const handleTemplateClick = (template: any, isPublished = false) => {
+    if (isPublished) {
+      sessionStorage.setItem('rcProject', JSON.stringify(template));
+    } else {
+      sessionStorage.setItem('rcTemplate', JSON.stringify(template));
+    }
+    setLocation('/editor');
+  };
 
-        #robotGif {
-            position: relative;
-            z-index: 2;
-            height: 70vh;
-            max-height: 520px;
-            width: auto;
-            max-width: 92%;
-            opacity: 0;
-            transform: scale(0.92);
-            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22,1,0.36,1);
-            border-radius: 18px;
-            filter: drop-shadow(0 0 40px rgba(91,106,240,0.55));
-        }
-        #robotGif.visible { opacity: 1; transform: scale(1); }
+  const handleNewLogo = (width: number, height: number) => {
+    sessionStorage.setItem('rcCanvasSize', JSON.stringify({ width, height }));
+    setLocation('/editor');
+  };
 
-        #splashCredit {
-            position: absolute;
-            bottom: 22px; left: 50%;
-            transform: translateX(-50%);
-            font-size: 11.5px; font-weight: 400;
-            color: rgba(255,255,255,0.5);
-            white-space: nowrap; z-index: 4;
-            letter-spacing: 0.4px;
-        }
-
-        #splash-loader {
-            position: absolute;
-            bottom: 60px; left: 50%;
-            transform: translateX(-50%);
-            width: 120px; height: 3px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px; z-index: 4; overflow: hidden;
-        }
-        #splash-loader-bar {
-            height: 100%; width: 0%;
-            background: linear-gradient(90deg, #5b6af0, #7c4af0);
-            border-radius: 2px;
-            transition: width 0.1s linear;
-        }
-
-        /* ══════════════ SCREENS ══════════════ */
-        .screen {
-            display: none; height: 100%;
-            flex-direction: column; overflow: hidden;
-            color: var(--text); background: var(--bg);
-            opacity: 0; transform: translateY(8px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-        .screen.active { display: flex; }
-        .screen.visible { opacity: 1; transform: translateY(0); }
-
-        /* ══════════════ TICKER ══════════════ */
-        #ticker-bar {
-            background: linear-gradient(90deg, #b8822a, #e8b84b, #c9973a, #e8b84b, #b8822a);
-            background-size: 200%;
-            animation: ticker-shine 4s linear infinite;
-            color: #fff; padding: 5.5px 0;
-            overflow: hidden; white-space: nowrap;
-            font-weight: 700; font-size: 0.66rem;
-            letter-spacing: 1.1px; text-transform: uppercase; flex-shrink: 0;
-        }
-        @keyframes ticker-shine {
-            0%   { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
-        #ticker-bar .ticker-text {
-            display: inline-block;
-            animation: ticker-scroll 32s linear infinite;
-        }
-        @keyframes ticker-scroll {
-            0%   { transform: translateX(100vw); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* ══════════════ HEADER ══════════════ */
-        #home-header {
-            padding: 11px 18px 9px;
-            display: flex; align-items: center; gap: 11px;
-            border-bottom: 1px solid var(--border);
-            background: var(--panel2); flex-shrink: 0;
-            box-shadow: 0 1px 12px rgba(0,0,0,0.05);
-        }
-        #home-header .app-logo {
-            width: 42px; height: 42px;
-            border-radius: 12px; flex-shrink: 0;
-            box-shadow: 0 2px 8px rgba(91,106,240,0.2);
-        }
-        #home-header .header-text { flex: 1; min-width: 0; }
-        #home-header .app-name {
-            font-weight: 900; font-size: 1.08rem;
-            color: var(--text); line-height: 1.2;
-        }
-        #home-header .app-name span { color: var(--accent); }
-        #home-header .app-subtitle {
-            font-size: 0.62rem; color: var(--text2);
-            letter-spacing: 0.2px; font-weight: 400;
-        }
-        #header-pro-badge {
-            display: flex; align-items: center; gap: 4px;
-            background: linear-gradient(135deg, rgba(201,151,58,0.12), rgba(232,184,75,0.12));
-            border: 1px solid rgba(201,151,58,0.35);
-            border-radius: 20px; padding: 4px 10px;
-            font-size: 0.62rem; font-weight: 800;
-            color: var(--gold); cursor: pointer; transition: all 0.2s;
-            letter-spacing: 0.3px; white-space: nowrap;
-        }
-        #header-pro-badge:hover {
-            background: linear-gradient(135deg, rgba(201,151,58,0.22), rgba(232,184,75,0.2));
-            transform: scale(1.04);
-        }
-
-        /* User avatar in header */
-        #header-user-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
-            font-weight: 900;
-            color: #fff;
-            cursor: pointer;
-            flex-shrink: 0;
-            border: 2px solid var(--accent);
-            transition: all 0.2s;
-            background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            box-shadow: 0 2px 8px rgba(91,106,240,0.3);
-        }
-        #header-user-avatar:hover {
-            transform: scale(1.08);
-            box-shadow: 0 4px 14px rgba(91,106,240,0.4);
-        }
-        #header-user-avatar.visible { display: flex; }
-
-        /* ══════════════ APK BUTTON ══════════════ */
-        #download-apk {
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            border: none; margin: 9px 16px 4px;
-            padding: 10px 18px; border-radius: 30px;
-            color: #fff; font-weight: 800; font-size: 0.74rem;
-            cursor: pointer; text-decoration: none; transition: all 0.22s;
-            flex-shrink: 0; box-shadow: 0 4px 16px rgba(91,106,240,0.32);
-            letter-spacing: 0.2px; position: relative; overflow: hidden;
-        }
-        #download-apk::after {
-            content: ''; position: absolute;
-            top: 0; left: -100%; width: 60%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
-            animation: shimmer 2.5s infinite;
-        }
-        @keyframes shimmer {
-            0%   { left: -100%; }
-            100% { left: 200%; }
-        }
-        #download-apk:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(91,106,240,0.42); }
-
-        /* ══════════════ SEARCH ══════════════ */
-        #home-search {
-            margin: 6px 16px 4px;
-            display: flex; align-items: center;
-            background: var(--panel2);
-            border: 1.5px solid var(--border);
-            border-radius: 30px; padding: 10px 16px; gap: 9px;
-            flex-shrink: 0; box-shadow: var(--shadow);
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        #home-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(91,106,240,0.1); }
-        #home-search i { color: var(--text2); font-size: 0.82rem; }
-        #home-search input {
-            flex: 1; background: none; border: none;
-            color: var(--text); font-size: 0.82rem;
-            font-family: inherit; outline: none;
-        }
-        #home-search input::placeholder { color: var(--text2); }
-        #clear-search { color: var(--text2); font-size: 0.78rem; cursor: pointer; display: none; }
-        #clear-search.visible { display: block; }
-
-        /* ══════════════ CATEGORY CHIPS ══════════════ */
-        #category-row {
-            display: flex; gap: 7px;
-            padding: 5px 16px 4px;
-            overflow-x: auto; flex-shrink: 0; scrollbar-width: none;
-        }
-        #category-row::-webkit-scrollbar { display: none; }
-        .cat-chip {
-            display: flex; align-items: center; gap: 5px;
-            padding: 6px 13px; border-radius: 20px;
-            border: 1.5px solid var(--border);
-            background: var(--panel2); font-size: 0.68rem;
-            font-weight: 700; color: var(--text2);
-            cursor: pointer; white-space: nowrap;
-            transition: all 0.18s; box-shadow: var(--shadow);
-        }
-        .cat-chip:hover { border-color: var(--accent); color: var(--accent); }
-        .cat-chip.active {
-            background: var(--accent); border-color: var(--accent);
-            color: #fff; box-shadow: 0 3px 10px rgba(91,106,240,0.28);
-        }
-
-        /* ══════════════ CONTENT ══════════════ */
-        #home-content {
-            flex: 1; overflow-y: auto;
-            padding: 0 14px 12px;
-            -webkit-overflow-scrolling: touch;
-        }
-        .section-title {
-            font-weight: 800; font-size: 0.76rem;
-            margin: 13px 0 9px; color: var(--text);
-            display: flex; align-items: center; gap: 7px;
-            text-transform: uppercase; letter-spacing: 0.6px;
-        }
-        .section-title i { color: var(--accent); }
-        .section-title .badge-count {
-            margin-left: auto; font-size: 0.58rem;
-            background: var(--panel); border: 1px solid var(--border);
-            color: var(--text2); border-radius: 10px;
-            padding: 2px 7px; font-weight: 700;
-        }
-
-        /* ══════════════ TEMPLATE GRID ══════════════ */
-        .template-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 9px;
-        }
-        .tpl-card {
-            background: var(--panel2); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); overflow: hidden;
-            cursor: pointer; transition: all 0.24s cubic-bezier(0.4,0,0.2,1);
-            aspect-ratio: 1; box-shadow: var(--shadow);
-            display: flex; flex-direction: column; position: relative;
-        }
-        .tpl-card:hover, .tpl-card:active {
-            border-color: var(--accent);
-            transform: scale(1.05) translateY(-3px);
-            box-shadow: var(--shadow-lg); z-index: 1;
-        }
-        .tpl-card .preview {
-            flex: 1; display: flex; align-items: center;
-            justify-content: center; padding: 10px;
-        }
-        .tpl-card .tpl-name {
-            padding: 5px 3px; font-size: 0.57rem; font-weight: 800;
-            color: var(--text2); text-align: center;
-            background: var(--panel2); border-top: 1px solid var(--border);
-            letter-spacing: 0.5px; text-transform: uppercase;
-        }
-        .tpl-card .tpl-badge {
-            position: absolute; top: 6px; right: 6px;
-            font-size: 0.48rem; font-weight: 800;
-            padding: 2px 5px; border-radius: 6px;
-            text-transform: uppercase; letter-spacing: 0.3px;
-        }
-        .tpl-badge.new  { background: #dcfce7; color: #166534; }
-        .tpl-badge.hot  { background: #fef3c7; color: #92400e; }
-        .tpl-badge.pro  { background: linear-gradient(135deg,#c9973a,#e8b84b); color: #fff; }
-        .tpl-badge.user { background: linear-gradient(135deg,#5b6af0,#7c4af0); color: #fff; }
-
-        #no-results {
-            display: none; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 40px 20px; color: var(--text2);
-            text-align: center; gap: 10px;
-        }
-        #no-results i { font-size: 2.2rem; opacity: 0.3; }
-        #no-results p { font-size: 0.8rem; font-weight: 600; }
-
-        /* ══════════════ BOTTOM NAV ══════════════ */
-        #home-bottom {
-            display: flex; align-items: center; justify-content: center;
-            gap: 10px;
-            padding: 10px 10px calc(12px + var(--safe-bottom));
-            border-top: 1px solid var(--border);
-            background: var(--panel2); flex-shrink: 0;
-            box-shadow: 0 -2px 16px rgba(0,0,0,0.06);
-        }
-        .bottom-btn {
-            width: 43px; height: 43px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; border: 1.5px solid var(--border);
-            background: var(--panel2); color: var(--text2);
-            font-size: 0.9rem; transition: all 0.2s;
-            box-shadow: var(--shadow); position: relative;
-        }
-        .bottom-btn:hover, .bottom-btn:active {
-            border-color: var(--accent); color: var(--accent);
-            transform: scale(1.1); box-shadow: 0 4px 14px rgba(91,106,240,0.2);
-        }
-        .bottom-btn.main {
-            width: 54px; height: 54px;
-            background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            color: #fff; border: none; font-size: 1.45rem;
-            box-shadow: 0 5px 18px rgba(91,106,240,0.42);
-            transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
-        }
-        .bottom-btn.main:hover { transform: scale(1.12) rotate(90deg); box-shadow: 0 8px 26px rgba(91,106,240,0.52); }
-        .bottom-btn.main.open { transform: scale(1.1) rotate(45deg); }
-        .bottom-btn.gold { border-color: rgba(201,151,58,0.5); color: var(--gold); }
-        .bottom-btn.gold:hover { background: rgba(201,151,58,0.07); border-color: var(--gold); }
-        .btn-tooltip {
-            position: absolute; bottom: calc(100% + 8px); left: 50%;
-            transform: translateX(-50%); background: #1a1a2e; color: #fff;
-            font-size: 0.6rem; font-weight: 700; padding: 4px 9px;
-            border-radius: 8px; white-space: nowrap;
-            pointer-events: none; opacity: 0; transition: opacity 0.18s; letter-spacing: 0.3px;
-        }
-        .bottom-btn:hover .btn-tooltip { opacity: 1; }
-
-        /* ══════════════ POPUP OVERLAY ══════════════ */
-        .popup-overlay {
-            position: fixed; inset: 0;
-            background: rgba(10,10,20,0.5); z-index: 500;
-            display: none; align-items: flex-end; justify-content: center;
-            backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-        }
-        .popup-overlay.active { display: flex; }
-        .popup {
-            background: var(--panel2);
-            border-radius: var(--radius) var(--radius) 0 0;
-            padding: 20px 16px 28px; width: 100%; max-width: 480px;
-            animation: slideUp 0.3s cubic-bezier(0.32,0.72,0,1);
-            position: relative; box-shadow: 0 -4px 30px rgba(0,0,0,0.12);
-        }
-        @keyframes slideUp {
-            from { transform: translateY(100%); }
-            to   { transform: translateY(0); }
-        }
-        .popup-handle {
-            width: 40px; height: 4px; background: var(--border);
-            border-radius: 2px; margin: 0 auto 16px;
-        }
-        .popup h3 {
-            font-size: 0.94rem; margin-bottom: 16px;
-            text-align: center; color: var(--text); font-weight: 900;
-        }
-        .popup .close-btn {
-            position: absolute; top: 16px; right: 16px;
-            background: var(--panel); border: 1.5px solid var(--border);
-            color: var(--text2); font-size: 0.78rem; cursor: pointer;
-            width: 30px; height: 30px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.18s;
-        }
-        .popup .close-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-        /* ══════════════ MENU ══════════════ */
-        .dim-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
-        .dim-item {
-            background: var(--bg); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); padding: 14px 10px;
-            text-align: center; cursor: pointer; color: var(--text2);
-            font-size: 0.74rem; font-weight: 700; transition: all 0.18s; line-height: 1.5;
-        }
-        .dim-item:hover {
-            border-color: var(--accent); color: var(--accent);
-            background: rgba(91,106,240,0.05); transform: translateY(-1px);
-        }
-
-        /* ══════════════ PLUS MENU ══════════════ */
-        .plus-options { display: flex; flex-direction: column; gap: 10px; }
-        .plus-option {
-            display: flex; align-items: center; gap: 14px;
-            background: var(--bg); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); padding: 14px 16px;
-            cursor: pointer; transition: all 0.2s; text-decoration: none;
-        }
-        .plus-option:hover, .plus-option:active {
-            border-color: var(--accent);
-            background: rgba(91,106,240,0.05); transform: translateX(4px);
-        }
-        .plus-option .opt-icon {
-            width: 42px; height: 42px; border-radius: 11px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.18rem; flex-shrink: 0;
-        }
-        .opt-icon.shapes   { background: linear-gradient(135deg,#5b6af0,#7c4af0); color:#fff; }
-        .opt-icon.image    { background: linear-gradient(135deg,#10b981,#059669); color:#fff; }
-        .opt-icon.template { background: linear-gradient(135deg,#f59e0b,#d97706); color:#fff; }
-        .plus-option .opt-text { display:flex; flex-direction:column; gap:2px; }
-        .plus-option .opt-title { font-weight:800; font-size:0.88rem; color:var(--text); }
-        .plus-option .opt-desc  { font-size:0.67rem; color:var(--text2); }
-        .plus-option .opt-arrow { margin-left:auto; color:var(--text2); font-size:0.8rem; flex-shrink:0; }
-
-        /* ══════════════ TEMPLATE PICKER ══════════════ */
-        #template-popup .tpl-picker-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr);
-            gap: 9px; max-height: 62vh; overflow-y: auto; padding-right: 2px;
-        }
-        .tpl-picker-card {
-            background: var(--bg); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); overflow: hidden;
-            cursor: pointer; transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
-            aspect-ratio: 1; display: flex; flex-direction: column;
-        }
-        .tpl-picker-card:hover, .tpl-picker-card:active {
-            border-color: var(--accent); transform: scale(1.04); box-shadow: var(--shadow-lg);
-        }
-        .tpl-picker-card .tpl-prev {
-            flex: 1; display: flex; align-items: center;
-            justify-content: center; padding: 9px;
-        }
-        .tpl-picker-card .tpl-lbl {
-            padding: 4px 3px; font-size: 0.53rem; font-weight: 800;
-            color: var(--text2); text-align: center;
-            background: var(--panel2); border-top: 1px solid var(--border);
-            text-transform: uppercase; letter-spacing: 0.4px;
-        }
-
-        /* ══════════════ TOAST & INPUT ══════════════ */
-        #importInput { display: none; }
-        .toast {
-            position: fixed; bottom: 110px; left: 50%;
-            transform: translateX(-50%) translateY(8px);
-            background: linear-gradient(135deg,#1a1a2e,#2a2a4e);
-            color: #fff; padding: 10px 22px; border-radius: 24px;
-            font-weight: 700; font-size: 0.76rem; z-index: 9999;
-            opacity: 0; transition: opacity 0.28s, transform 0.28s;
-            pointer-events: none; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
-            white-space: nowrap; border: 1px solid rgba(91,106,240,0.2);
-        }
-        .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-        /* ══════════════ SHARED FORM STYLES ══════════════ */
-        .form-input {
-            width: 100%; background: var(--bg);
-            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-            padding: 12px 14px; color: var(--text); font-size: 0.84rem;
-            font-family: inherit; outline: none; transition: border-color 0.2s;
-            margin-bottom: 10px; user-select: text; -webkit-user-select: text;
-        }
-        .form-input:focus { border-color: var(--accent); }
-        .form-input::placeholder { color: var(--text2); }
-        .action-btn {
-            width: 100%; padding: 13px; border-radius: var(--radius-sm);
-            border: none; background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            color: #fff; font-size: 0.88rem; font-weight: 800;
-            font-family: inherit; cursor: pointer; transition: all 0.22s;
-            letter-spacing: 0.2px; box-shadow: 0 4px 14px rgba(91,106,240,0.28);
-        }
-        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(91,106,240,0.38); }
-        .action-btn.gold-btn {
-            background: linear-gradient(135deg, #c9973a, #e8b84b);
-            box-shadow: 0 4px 14px rgba(201,151,58,0.3);
-        }
-        .action-btn.gold-btn:hover { box-shadow: 0 6px 20px rgba(201,151,58,0.42); }
-        .action-btn.red-btn {
-            background: linear-gradient(135deg, #e53e3e, #c53030);
-            box-shadow: 0 4px 14px rgba(229,62,62,0.28);
-        }
-        .action-btn.outline-btn {
-            background: var(--bg); color: var(--accent);
-            border: 1.5px solid var(--accent); box-shadow: none;
-        }
-        .action-btn.outline-btn:hover { background: rgba(91,106,240,0.07); }
-        .form-link {
-            display: block; text-align: center; margin-top: 12px;
-            font-size: 0.76rem; color: var(--text2); cursor: pointer;
-        }
-        .form-link span { color: var(--accent); font-weight: 700; }
-        .form-divider {
-            display: flex; align-items: center; gap: 10px;
-            margin: 12px 0; color: var(--text2); font-size: 0.72rem;
-        }
-        .form-divider::before, .form-divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--border);
-        }
-
-        /* ══════════════ SETTINGS ══════════════ */
-        .settings-row {
-            display: flex; align-items: center; justify-content: space-between;
-            padding: 14px 0; border-bottom: 1px solid var(--border);
-        }
-        .settings-row:last-child { border-bottom: none; }
-        .settings-row-label {
-            display: flex; align-items: center; gap: 10px;
-            font-size: 0.84rem; font-weight: 700; color: var(--text);
-        }
-        .settings-row-label i {
-            width: 32px; height: 32px; border-radius: 9px;
-            background: var(--panel); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.78rem; color: var(--accent);
-        }
-        .toggle-switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; cursor: pointer; inset: 0;
-            background: var(--border); border-radius: 13px; transition: background 0.28s;
-        }
-        .toggle-slider::before {
-            content: ''; position: absolute;
-            width: 20px; height: 20px; left: 3px; top: 3px;
-            background: #fff; border-radius: 50%;
-            transition: transform 0.28s; box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-        }
-        .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
-        .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
-
-        /* ══════════════ MESSAGE ══════════════ */
-        .msg-textarea {
-            width: 100%; min-height: 110px; background: var(--bg);
-            border: 1.5px solid var(--border); border-radius: var(--radius-sm);
-            padding: 12px; color: var(--text); font-size: 0.84rem;
-            font-family: inherit; resize: none; outline: none;
-            transition: border-color 0.2s; margin-bottom: 12px;
-            user-select: text; -webkit-user-select: text;
-        }
-        .msg-textarea:focus { border-color: var(--accent); }
-        .msg-textarea::placeholder { color: var(--text2); }
-
-        /* ══════════════ CREATIONS LIST ══════════════ */
-        .creations-list {
-            display: flex; flex-direction: column; gap: 8px;
-            max-height: 46vh; overflow-y: auto; margin-bottom: 12px;
-        }
-        .creation-item {
-            display: flex; align-items: center; gap: 12px;
-            background: var(--bg); border: 1.5px solid var(--border);
-            border-radius: var(--radius-sm); padding: 12px 14px;
-            cursor: pointer; transition: all 0.18s;
-        }
-        .creation-item:hover { border-color: var(--accent); background: rgba(91,106,240,0.05); }
-        .creation-item .ci-icon {
-            width: 36px; height: 36px; border-radius: 9px;
-            background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1rem; color: #fff; flex-shrink: 0;
-        }
-        .creation-item .ci-info { flex: 1; min-width: 0; }
-        .creation-item .ci-name {
-            font-weight: 800; font-size: 0.82rem; color: var(--text);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .creation-item .ci-date { font-size: 0.62rem; color: var(--text2); margin-top: 2px; }
-        .creation-item .ci-del {
-            color: var(--text2); font-size: 0.78rem; padding: 4px;
-            cursor: pointer; flex-shrink: 0; transition: color 0.18s;
-        }
-        .creation-item .ci-del:hover { color: var(--red); }
-        .creations-empty {
-            text-align: center; padding: 28px 0;
-            color: var(--text2); font-size: 0.8rem;
-        }
-        .creations-empty i { font-size: 2rem; margin-bottom: 8px; display: block; opacity: 0.3; }
-
-        /* ══════════════ PREMIUM ══════════════ */
-        .premium-feature {
-            display: flex; align-items: center; gap: 12px;
-            padding: 11px 0; border-bottom: 1px solid var(--border);
-            font-size: 0.82rem; color: var(--text);
-        }
-        .premium-feature:last-of-type { border-bottom: none; }
-        .premium-feature .pf-icon {
-            width: 34px; height: 34px; border-radius: 9px;
-            background: linear-gradient(135deg, rgba(201,151,58,0.15), rgba(232,184,75,0.12));
-            border: 1px solid rgba(201,151,58,0.3);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.88rem; flex-shrink: 0;
-        }
-        .premium-feature .pf-text { flex: 1; font-weight: 700; }
-        .premium-feature .pf-check { color: var(--green); font-size: 0.8rem; }
-
-        /* ══════════════ PROFILE POPUP ══════════════ */
-        .profile-avatar-block {
-            display: flex; flex-direction: column; align-items: center;
-            gap: 8px; margin-bottom: 18px;
-        }
-        .profile-big-avatar {
-            width: 72px; height: 72px; border-radius: 50%;
-            background: linear-gradient(135deg, #5b6af0, #7c4af0);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 2rem; font-weight: 900; color: #fff;
-            box-shadow: 0 4px 18px rgba(91,106,240,0.35);
-            border: 3px solid var(--accent);
-        }
-        .profile-username {
-            font-size: 1.05rem; font-weight: 900; color: var(--text);
-        }
-        .profile-email-display {
-            font-size: 0.72rem; color: var(--text2);
-        }
-        .profile-info-rows { margin-bottom: 16px; }
-        .profile-info-row {
-            display: flex; align-items: center; gap: 10px;
-            padding: 10px 0; border-bottom: 1px solid var(--border);
-            font-size: 0.8rem;
-        }
-        .profile-info-row:last-child { border-bottom: none; }
-        .profile-info-row i {
-            width: 28px; height: 28px; border-radius: 8px;
-            background: var(--panel); border: 1px solid var(--border);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.7rem; color: var(--accent); flex-shrink: 0;
-        }
-        .profile-info-row .pir-label { color: var(--text2); font-size: 0.68rem; }
-        .profile-info-row .pir-value { font-weight: 700; color: var(--text); margin-top: 1px; }
-        .profile-projects-count {
-            display: inline-flex; align-items: center; gap: 5px;
-            background: rgba(91,106,240,0.1); border: 1px solid rgba(91,106,240,0.2);
-            color: var(--accent); border-radius: 12px;
-            padding: 2px 9px; font-size: 0.68rem; font-weight: 800;
-            margin-top: 2px;
-        }
-    </style>
-</head>
-<body>
-
-<!-- ══════════════ SPLASH ══════════════ -->
-<div id="splash">
-    <canvas id="particleCanvas"></canvas>
-    <div id="splash-glow"></div>
-    <img id="robotGif"
-         src="https://i.postimg.cc/XvTXWs4T/ezgif-com-video-to-gif-converter.gif"
-         alt="RC Robot" />
-    <div id="splash-loader"><div id="splash-loader-bar"></div></div>
-    <div id="splashCredit">Developed by Regard Créatif &copy;</div>
-</div>
-
-<!-- ══════════════ HOME SCREEN ══════════════ -->
-<div id="home-screen" class="screen">
-
-    <!-- TICKER -->
-    <div id="ticker-bar">
-        <span class="ticker-text">
-            🎨 Laissez place à votre créativité — libérez votre potentiel &nbsp;&nbsp;&nbsp;
-            ✨ Créez votre logo professionnel en quelques secondes &nbsp;&nbsp;&nbsp;
-            🚀 12 modèles exclusifs disponibles &nbsp;&nbsp;&nbsp;
-            👑 RC Logo Maker — Regard Créatif &nbsp;&nbsp;&nbsp;
-            🎨 Laissez place à votre créativité — libérez votre potentiel &nbsp;&nbsp;&nbsp;
-        </span>
-    </div>
-
-    <!-- HEADER -->
-    <div id="home-header">
-        <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" class="app-logo" alt="RC" />
-        <div class="header-text">
-            <div class="app-name">RC <span>Logo Maker</span></div>
-            <div class="app-subtitle" id="header-subtitle">Créez votre identité en un clin d'œil</div>
+  if (splashVisible) {
+    return (
+      <div className="min-h-screen bg-[#08080f] flex flex-col items-center justify-center relative overflow-hidden transition-opacity duration-500">
+        <div className="absolute w-[300px] h-[300px] bg-indigo-600/30 rounded-full blur-[100px] animate-pulse"></div>
+        <div className="z-10 flex flex-col items-center space-y-6">
+          <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" alt="RC Logo Maker" className="w-24 h-24 rounded-2xl shadow-2xl" />
+          <div className="h-1 w-48 bg-gray-800 rounded-full overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-[#5b6af0] to-[#7c4af0] animate-pulse w-full"></div>
+          </div>
         </div>
-        <!-- Avatar utilisateur (visible quand connecté) -->
-        <div id="header-user-avatar" onclick="openProfilePopup()" title="Mon profil"></div>
-        <div id="header-pro-badge" onclick="openPremiumPopup()">
-            <i class="fa-solid fa-crown" style="font-size:0.6rem"></i> PRO
+        <div className="absolute bottom-8 text-gray-500 text-sm flex items-center gap-2">
+          Developed by Regard Créatif ©
         </div>
-    </div>
+      </div>
+    );
+  }
 
-    <!-- APK BUTTON -->
-    <a id="download-apk" href="../app-release.apk">
-        <i class="fa-solid fa-download"></i>
-        Télécharger l'application (APK)
-        <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;opacity:0.7"></i>
-    </a>
-
-    <!-- SEARCH -->
-    <div id="home-search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="text" placeholder="Rechercher un style de logo…" id="searchInput" autocomplete="off" />
-        <i class="fa-solid fa-xmark" id="clear-search" onclick="clearSearch()"></i>
-    </div>
-
-    <!-- CATEGORIES -->
-    <div id="category-row">
-        <div class="cat-chip active" data-cat="all"><i class="fa-solid fa-border-all"></i> Tous</div>
-        <div class="cat-chip" data-cat="luxe"><i class="fa-solid fa-gem"></i> Luxe</div>
-        <div class="cat-chip" data-cat="tech"><i class="fa-solid fa-microchip"></i> Tech</div>
-        <div class="cat-chip" data-cat="nature"><i class="fa-solid fa-leaf"></i> Nature</div>
-        <div class="cat-chip" data-cat="vintage"><i class="fa-solid fa-clock-rotate-left"></i> Vintage</div>
-        <div class="cat-chip" data-cat="sport"><i class="fa-solid fa-bolt"></i> Sport</div>
-        <div class="cat-chip" data-cat="minimal"><i class="fa-solid fa-minus"></i> Minimal</div>
-        <div class="cat-chip" data-cat="user"><i class="fa-solid fa-user"></i> Publiés</div>
-    </div>
-
-    <!-- CONTENT -->
-    <div id="home-content">
-        <div class="section-title">
-            <i class="fa-solid fa-fire"></i>
-            Templates tendance
-            <span class="badge-count" id="tpl-count">12</span>
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-gray-100 flex flex-col">
+      {/* Ticker bar */}
+      <div className="w-full bg-gradient-to-r from-[#b8822a] via-[#e8b84b] to-[#c9973a] text-black font-bold text-xs uppercase py-1.5 overflow-hidden whitespace-nowrap">
+        <div className="inline-block animate-marquee pl-[100%]">
+          🎨 Laissez place à votre créativité — libérez votre potentiel &nbsp; ✨ Créez votre logo professionnel en quelques secondes &nbsp; 🚀 20 modèles exclusifs disponibles &nbsp; 👑 RC Logo Maker — Regard Créatif
         </div>
-        <div class="template-grid" id="home-templates"></div>
-        <div id="no-results">
-            <i class="fa-solid fa-face-frown-open"></i>
-            <p>Aucun résultat pour cette recherche</p>
-        </div>
-    </div>
+      </div>
 
-    <!-- BOTTOM NAV -->
-    <div id="home-bottom">
-        <div class="bottom-btn" onclick="toast('📚 Tutoriel — bientôt disponible')">
-            <i class="fa-solid fa-book-open"></i>
-            <span class="btn-tooltip">Tutoriel</span>
-        </div>
-        <div class="bottom-btn" onclick="showMenu()">
-            <i class="fa-solid fa-bars"></i>
-            <span class="btn-tooltip">Menu</span>
-        </div>
-        <div class="bottom-btn main" id="main-btn" onclick="openPlusMenu()">
-            <i class="fa-solid fa-plus"></i>
-        </div>
-        <div class="bottom-btn" onclick="openCreationsPopup()">
-            <i class="fa-solid fa-floppy-disk"></i>
-            <span class="btn-tooltip">Mes créations</span>
-        </div>
-        <div class="bottom-btn gold" onclick="openPremiumPopup()">
-            <i class="fa-solid fa-crown"></i>
-            <span class="btn-tooltip">RC Pro</span>
-        </div>
-    </div>
-</div>
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes marquee {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+          animation: marquee 20s linear infinite;
+        }
+      `}} />
 
-<!-- ══════════════ MENU POPUP ══════════════ -->
-<div class="popup-overlay" id="menu-popup" onclick="closeMenuOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeMenu()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-bars" style="color:var(--accent)"></i> &nbsp;Menu</h3>
-        <div class="dim-list" id="menu-dim-list">
-            <!-- Rendu dynamiquement selon état connexion -->
+      {/* Header */}
+      <header className="px-6 py-6 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" alt="Logo" className="w-10 h-10 rounded-xl" />
+          <div>
+            <h1 className="text-xl font-bold tracking-tight">RC Logo <span className="text-[#5b6af0]">Maker</span></h1>
+            <p className="text-xs text-gray-400">Créez votre identité en un clin d'œil</p>
+          </div>
         </div>
-    </div>
-</div>
+        <div className="bg-gradient-to-r from-[#b8822a] to-[#e8b84b] text-black text-xs font-bold px-2 py-1 rounded">PRO</div>
+      </header>
 
-<!-- ══════════════ PLUS MENU POPUP ══════════════ -->
-<div class="popup-overlay" id="plus-popup" onclick="closePlusOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closePlusMenu()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> &nbsp;Créer un logo</h3>
-        <div class="plus-options">
-            <div class="plus-option" onclick="closePlusMenu();openEditor()">
-                <div class="opt-icon shapes"><i class="fa-solid fa-shapes"></i></div>
-                <div class="opt-text">
-                    <span class="opt-title">Créer avec des formes</span>
-                    <span class="opt-desc">Éditeur vectoriel complet — liberté totale</span>
-                </div>
-                <i class="fa-solid fa-chevron-right opt-arrow"></i>
-            </div>
-            <div class="plus-option" onclick="closePlusMenu();importImage()">
-                <div class="opt-icon image"><i class="fa-solid fa-image"></i></div>
-                <div class="opt-text">
-                    <span class="opt-title">Importer une image</span>
-                    <span class="opt-desc">Partez d'une image existante</span>
-                </div>
-                <i class="fa-solid fa-chevron-right opt-arrow"></i>
-            </div>
-            <div class="plus-option" onclick="closePlusMenu();openTemplatesPicker()">
-                <div class="opt-icon template"><i class="fa-solid fa-layer-group"></i></div>
-                <div class="opt-text">
-                    <span class="opt-title">Commencer avec un modèle</span>
-                    <span class="opt-desc">12 modèles professionnels prêts à l'emploi</span>
-                </div>
-                <i class="fa-solid fa-chevron-right opt-arrow"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════════ TEMPLATES PICKER POPUP ══════════════ -->
-<div class="popup-overlay" id="template-popup" onclick="closeTplPickerOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeTemplatesPicker()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-layer-group" style="color:var(--accent)"></i> &nbsp;Choisir un modèle</h3>
-        <div class="tpl-picker-grid" id="tpl-picker-grid"></div>
-    </div>
-</div>
-
-<!-- ══════════════ SETTINGS POPUP ══════════════ -->
-<div class="popup-overlay" id="settings-popup" onclick="closeSettingsOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeSettingsPopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-gear" style="color:var(--accent)"></i> &nbsp;Paramètres</h3>
-        <div class="settings-row">
-            <div class="settings-row-label">
-                <i class="fa-solid fa-moon"></i>
-                Thème sombre
-            </div>
-            <label class="toggle-switch">
-                <input type="checkbox" id="dark-toggle" onchange="toggleDarkMode(this.checked)" />
-                <span class="toggle-slider"></span>
-            </label>
-        </div>
-    </div>
-</div>
-
-<!-- ══════════════ MESSAGE POPUP ══════════════ -->
-<div class="popup-overlay" id="message-popup" onclick="closeMessageOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeMessagePopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-envelope" style="color:var(--accent)"></i> &nbsp;Message au créateur</h3>
-        <textarea class="msg-textarea" id="msg-textarea" placeholder="Écrivez votre message ici…"></textarea>
-        <button class="action-btn" onclick="sendMessage()">
-            <i class="fa-solid fa-paper-plane"></i> &nbsp;Envoyer
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════ CREATIONS POPUP ══════════════ -->
-<div class="popup-overlay" id="creations-popup" onclick="closeCreationsOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeCreationsPopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-floppy-disk" style="color:var(--accent)"></i> &nbsp;Mes créations</h3>
-        <div class="creations-list" id="creations-list"></div>
-        <button class="action-btn" onclick="closeCreationsPopup();openEditor()">
-            <i class="fa-solid fa-plus"></i> &nbsp;Nouveau projet
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════ INSCRIPTION POPUP ══════════════ -->
-<div class="popup-overlay" id="inscription-popup" onclick="closeInscriptionOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeInscriptionPopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-user-plus" style="color:var(--accent)"></i> &nbsp;Créer un compte</h3>
-        <input type="text" class="form-input" id="reg-username" placeholder="Prénom ou pseudo" autocomplete="off" />
-        <input type="email" class="form-input" id="reg-email" placeholder="Adresse e-mail" autocomplete="off" />
-        <input type="password" class="form-input" id="reg-password" placeholder="Mot de passe (min. 6 caractères)" autocomplete="off" />
-        <button class="action-btn" onclick="registerUser()">
-            <i class="fa-solid fa-user-check"></i> &nbsp;S'inscrire
-        </button>
-        <p class="form-link" onclick="closeInscriptionPopup();openLoginPopup()">
-            Déjà un compte ? <span>Se connecter</span>
-        </p>
-    </div>
-</div>
-
-<!-- ══════════════ LOGIN POPUP ══════════════ -->
-<div class="popup-overlay" id="login-popup" onclick="closeLoginOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeLoginPopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-right-to-bracket" style="color:var(--accent)"></i> &nbsp;Connexion</h3>
-        <input type="email" class="form-input" id="login-email" placeholder="Adresse e-mail" autocomplete="off" />
-        <input type="password" class="form-input" id="login-password" placeholder="Mot de passe" autocomplete="off" />
-        <button class="action-btn" onclick="loginUser()">
-            <i class="fa-solid fa-unlock"></i> &nbsp;Se connecter
-        </button>
-        <div class="form-divider">ou</div>
-        <button class="action-btn outline-btn" onclick="closeLoginPopup();openInscriptionPopup()">
-            <i class="fa-solid fa-user-plus"></i> &nbsp;Créer un compte
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════ PROFILE POPUP ══════════════ -->
-<div class="popup-overlay" id="profile-popup" onclick="closeProfileOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closeProfilePopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-user-circle" style="color:var(--accent)"></i> &nbsp;Mon profil</h3>
-
-        <!-- Avatar + identité -->
-        <div class="profile-avatar-block">
-            <div class="profile-big-avatar" id="profile-avatar-letter"></div>
-            <div class="profile-username" id="profile-username-display"></div>
-            <div class="profile-email-display" id="profile-email-display"></div>
-        </div>
-
-        <!-- Infos -->
-        <div class="profile-info-rows">
-            <div class="profile-info-row">
-                <i class="fa-solid fa-calendar-days"></i>
-                <div>
-                    <div class="pir-label">Membre depuis</div>
-                    <div class="pir-value" id="profile-date-display"></div>
-                </div>
-            </div>
-            <div class="profile-info-row">
-                <i class="fa-solid fa-folder"></i>
-                <div>
-                    <div class="pir-label">Projets sauvegardés</div>
-                    <div>
-                        <span class="profile-projects-count" id="profile-projects-count">
-                            <i class="fa-solid fa-layer-group"></i>
-                            <span id="profile-projects-num">0</span> projet(s)
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Actions -->
-        <button class="action-btn" style="margin-bottom:10px" onclick="closeProfilePopup();openCreationsPopup()">
-            <i class="fa-solid fa-floppy-disk"></i> &nbsp;Voir mes créations
-        </button>
-        <button class="action-btn red-btn" onclick="logoutUser()">
-            <i class="fa-solid fa-right-from-bracket"></i> &nbsp;Déconnexion
-        </button>
-    </div>
-</div>
-
-<!-- ══════════════ PREMIUM POPUP ══════════════ -->
-<div class="popup-overlay" id="premium-popup" onclick="closePremiumOutside(event)">
-    <div class="popup">
-        <div class="popup-handle"></div>
-        <button class="close-btn" onclick="closePremiumPopup()"><i class="fa-solid fa-xmark"></i></button>
-        <h3><i class="fa-solid fa-crown" style="color:var(--gold)"></i> &nbsp;Passer Premium</h3>
-        <div class="premium-feature">
-            <div class="pf-icon">🎨</div>
-            <span class="pf-text">Modèles exclusifs illimités</span>
-            <i class="fa-solid fa-check pf-check"></i>
-        </div>
-        <div class="premium-feature">
-            <div class="pf-icon">💾</div>
-            <span class="pf-text">Sauvegarde cloud de vos créations</span>
-            <i class="fa-solid fa-check pf-check"></i>
-        </div>
-        <div class="premium-feature">
-            <div class="pf-icon">🚫</div>
-            <span class="pf-text">Sans publicité</span>
-            <i class="fa-solid fa-check pf-check"></i>
-        </div>
-        <div class="premium-feature">
-            <div class="pf-icon">⚡</div>
-            <span class="pf-text">Export HD & vectoriel (SVG, PNG)</span>
-            <i class="fa-solid fa-check pf-check"></i>
-        </div>
-        <div class="premium-feature">
-            <div class="pf-icon">🤖</div>
-            <span class="pf-text">Génération IA de logos</span>
-            <i class="fa-solid fa-check pf-check"></i>
-        </div>
-        <div style="margin-top:16px">
-            <button class="action-btn gold-btn" onclick="closePremiumPopup();toast('👑 Bientôt disponible — restez connecté !')">
-                <i class="fa-solid fa-crown"></i> &nbsp;Devenir Premium
+      {/* Search */}
+      <div className="px-6 mb-6">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+          <Input 
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher un style de logo…" 
+            className="w-full bg-[#12121a] border-gray-800 rounded-full pl-10 pr-10 focus-visible:ring-[#5b6af0]"
+          />
+          {search && (
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
+              <X className="w-4 h-4" />
             </button>
+          )}
         </div>
-    </div>
-</div>
+      </div>
 
-<!-- HIDDEN FILE INPUT -->
-<input type="file" id="importInput" accept="image/*" />
-<div class="toast" id="toast"></div>
+      {/* Category Chips */}
+      <div className="px-6 mb-8 overflow-x-auto flex gap-2 pb-2 scrollbar-hide">
+        {categories.map(cat => (
+          <button
+            key={cat}
+            onClick={() => setCategory(cat)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${category === cat ? 'bg-[#5b6af0] text-white' : 'bg-[#12121a] text-gray-400 hover:bg-gray-800'}`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
-<script>
-// ══════════════════════════════════════════════
-//  TEMPLATES DATA
-// ══════════════════════════════════════════════
-const TEMPLATES = [
-    { name:"Luxe",      cat:"luxe",    badge:"hot", bg:"linear-gradient(135deg,#fffbf0,#fff8e8)", svg:`<svg viewBox="0 0 80 80" width="54"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c9973a"/><stop offset="100%" stop-color="#e8c06a"/></linearGradient></defs><rect x="5" y="5" width="70" height="70" rx="6" fill="none" stroke="url(#g1)" stroke-width="2"/><rect x="11" y="11" width="58" height="58" rx="3" fill="none" stroke="#c9973a" stroke-width="0.7" stroke-dasharray="3,3"/><text x="40" y="34" text-anchor="middle" font-size="10" font-family="Georgia,serif" font-weight="400" fill="#c9973a" letter-spacing="5">MAISON</text><line x1="14" y1="40" x2="66" y2="40" stroke="url(#g1)" stroke-width="1.2"/><text x="40" y="52" text-anchor="middle" font-size="15" font-family="Georgia,serif" font-weight="700" fill="#2a1a00" letter-spacing="1">LUXE</text><text x="40" y="64" text-anchor="middle" font-size="6" font-family="Arial" fill="#c9973a" letter-spacing="5">ATELIER</text></svg>` },
-    { name:"Tech",      cat:"tech",    badge:"new", bg:"linear-gradient(135deg,#f0f2ff,#e8ecff)", svg:`<svg viewBox="0 0 80 80" width="54"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5b6af0"/><stop offset="100%" stop-color="#7c4af0"/></linearGradient></defs><polygon points="40,5 72,22 72,58 40,75 8,58 8,22" fill="#0c0c22" stroke="url(#g2)" stroke-width="2"/><polygon points="40,16 62,28 62,52 40,64 18,52 18,28" fill="none" stroke="#5b6af0" stroke-width="0.8" opacity="0.5"/><text x="40" y="37" text-anchor="middle" font-size="9" font-family="'Courier New',monospace" font-weight="700" fill="#7c97f0" letter-spacing="1">SYS</text><text x="40" y="52" text-anchor="middle" font-size="14" font-family="'Courier New',monospace" font-weight="900" fill="url(#g2)">TECH</text></svg>` },
-    { name:"Vintage",   cat:"vintage", badge:"",    bg:"linear-gradient(135deg,#fdf6ee,#f9eddf)", svg:`<svg viewBox="0 0 80 80" width="54"><circle cx="40" cy="40" r="35" fill="none" stroke="#7a4a1e" stroke-width="2.2"/><circle cx="40" cy="40" r="28" fill="none" stroke="#a0642e" stroke-width="0.9"/><circle cx="40" cy="40" r="22" fill="none" stroke="#7a4a1e" stroke-width="0.5"/><text x="40" y="30" text-anchor="middle" font-size="7" font-family="Georgia,serif" fill="#7a4a1e" letter-spacing="3">DEPUIS</text><text x="40" y="43" text-anchor="middle" font-size="16" font-family="Georgia,serif" font-weight="900" fill="#4a2a00">1982</text><text x="40" y="54" text-anchor="middle" font-size="6.5" font-family="Georgia,serif" fill="#a0642e" letter-spacing="1">✦ ARTISAN ✦</text></svg>` },
-    { name:"Modern",    cat:"minimal", badge:"",    bg:"linear-gradient(135deg,#f8f8f8,#ffffff)",  svg:`<svg viewBox="0 0 80 80" width="54"><rect x="5" y="32" width="70" height="22" rx="3" fill="#181818"/><text x="40" y="47" text-anchor="middle" font-size="13" font-family="Arial Black,sans-serif" font-weight="900" fill="#ffffff" letter-spacing="3">MODERN</text><rect x="5" y="57" width="24" height="3.5" rx="1.5" fill="#5b6af0"/><rect x="32" y="57" width="12" height="3.5" rx="1.5" fill="#7c4af0" opacity="0.5"/><text x="40" y="28" text-anchor="middle" font-size="6" font-family="Arial" fill="#aaaaaa" letter-spacing="5">STUDIO</text></svg>` },
-    { name:"Bold",      cat:"minimal", badge:"hot", bg:"linear-gradient(135deg,#f0f2ff,#f7f8ff)", svg:`<svg viewBox="0 0 80 80" width="54"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#5b6af0"/><stop offset="100%" stop-color="#7c4af0"/></linearGradient></defs><text x="40" y="50" text-anchor="middle" font-size="34" font-family="Arial Black,sans-serif" font-weight="900" fill="url(#g3)" letter-spacing="-2">BD</text><rect x="8" y="56" width="64" height="4" rx="2" fill="url(#g3)"/><text x="40" y="70" text-anchor="middle" font-size="6" font-family="Arial" fill="#7c4af0" letter-spacing="5">BRAND</text></svg>` },
-    { name:"Minimal",   cat:"minimal", badge:"",    bg:"linear-gradient(135deg,#fafafa,#f5f5f5)", svg:`<svg viewBox="0 0 80 80" width="54"><line x1="18" y1="40" x2="62" y2="40" stroke="#d0d0d0" stroke-width="1"/><text x="40" y="36" text-anchor="middle" font-size="18" font-family="'Helvetica Neue',Arial" font-weight="200" fill="#1a1a1a" letter-spacing="8">MN</text><text x="40" y="57" text-anchor="middle" font-size="5.5" font-family="Arial" fill="#8a8a8a" letter-spacing="6">STUDIO</text><circle cx="18" cy="40" r="2" fill="#1a1a1a"/><circle cx="62" cy="40" r="2" fill="#1a1a1a"/></svg>` },
-    { name:"Nature",    cat:"nature",  badge:"new", bg:"linear-gradient(135deg,#f0fdf5,#e8f9ef)", svg:`<svg viewBox="0 0 80 80" width="54"><circle cx="40" cy="36" r="26" fill="#064e3b"/><path d="M28 40 Q40 16 52 40" fill="#10b981"/><path d="M32 46 Q40 26 48 46" fill="#34d399" opacity="0.8"/><path d="M35 52 Q40 36 45 52" fill="#6ee7b7" opacity="0.6"/><line x1="40" y1="62" x2="40" y2="46" stroke="#10b981" stroke-width="2"/><line x1="34" y1="56" x2="40" y2="52" stroke="#10b981" stroke-width="1.5"/><text x="40" y="73" text-anchor="middle" font-size="6.5" font-family="Arial" font-weight="800" fill="#064e3b" letter-spacing="2.5">NATURE CO.</text></svg>` },
-    { name:"Sport",     cat:"sport",   badge:"",    bg:"linear-gradient(135deg,#fff0f0,#ffe8e8)", svg:`<svg viewBox="0 0 80 80" width="54"><defs><linearGradient id="g4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ef4444"/><stop offset="100%" stop-color="#b91c1c"/></linearGradient></defs><path d="M40,6 L73,25 L73,55 L40,74 L7,55 L7,25 Z" fill="url(#g4)"/><path d="M40,14 L66,29 L66,51 L40,66 L14,51 L14,29 Z" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="1"/><text x="40" y="35" text-anchor="middle" font-size="8" font-family="Arial Black" font-weight="900" fill="rgba(255,255,255,0.6)" letter-spacing="3">TEAM</text><text x="40" y="52" text-anchor="middle" font-size="16" font-family="Arial Black" font-weight="900" fill="#ffffff" letter-spacing="1">SPORT</text></svg>` },
-    { name:"Artisan",   cat:"vintage", badge:"",    bg:"linear-gradient(135deg,#fdf6ee,#faf0e0)", svg:`<svg viewBox="0 0 80 80" width="54"><rect x="7" y="7" width="66" height="66" rx="5" fill="none" stroke="#92400e" stroke-width="2.2"/><rect x="13" y="13" width="54" height="54" rx="2.5" fill="none" stroke="#d97706" stroke-width="0.9"/><line x1="20" y1="37" x2="60" y2="37" stroke="#d97706" stroke-width="0.8"/><line x1="20" y1="43" x2="60" y2="43" stroke="#d97706" stroke-width="0.8"/><text x="40" y="34" text-anchor="middle" font-size="9" font-family="Georgia,serif" font-weight="700" fill="#92400e" letter-spacing="2">THE</text><text x="40" y="54" text-anchor="middle" font-size="9" font-family="Georgia,serif" font-weight="700" fill="#92400e" letter-spacing="2">CRAFT</text><text x="40" y="66" text-anchor="middle" font-size="5.5" font-family="Arial" fill="#d97706" letter-spacing="3">✦ SINCE 2010 ✦</text></svg>` },
-    { name:"Corporate", cat:"tech",    badge:"",    bg:"linear-gradient(135deg,#f0f4f9,#e8f0fa)", svg:`<svg viewBox="0 0 80 80" width="54"><rect x="5" y="18" width="70" height="44" rx="5" fill="#1e3a5f"/><rect x="5" y="18" width="70" height="44" rx="5" fill="none" stroke="#4a7fc1" stroke-width="1"/><text x="40" y="36" text-anchor="middle" font-size="7" font-family="Arial" font-weight="700" fill="#5b9bd5" letter-spacing="4">CORP</text><line x1="15" y1="42" x2="65" y2="42" stroke="#2a5f9e" stroke-width="1"/><text x="40" y="54" text-anchor="middle" font-size="12" font-family="Arial Black" font-weight="900" fill="#ffffff" letter-spacing="2">GROUP</text></svg>` },
-    { name:"Abstract",  cat:"tech",    badge:"pro", bg:"linear-gradient(135deg,#f5f0ff,#ede8ff)", svg:`<svg viewBox="0 0 80 80" width="54"><defs><filter id="blur1"><feGaussianBlur stdDeviation="1.5"/></filter></defs><circle cx="30" cy="36" r="20" fill="#5b6af0" opacity="0.8"/><circle cx="52" cy="44" r="20" fill="#7c4af0" opacity="0.7"/><circle cx="40" cy="28" r="16" fill="#a855f7" opacity="0.55"/><rect x="5" y="66" width="70" height="1" fill="none"/><text x="40" y="74" text-anchor="middle" font-size="6" font-family="Arial Black" fill="#1a1a1a" letter-spacing="2.5">ABSTRACT</text></svg>` },
-    { name:"Monogram",  cat:"luxe",    badge:"pro", bg:"linear-gradient(135deg,#1a1a2e,#16213e)",  svg:`<svg viewBox="0 0 80 80" width="54"><rect x="5" y="5" width="70" height="70" rx="10" fill="#0d0d1e"/><rect x="10" y="10" width="60" height="60" rx="7" fill="none" stroke="#5b6af0" stroke-width="1.2"/><rect x="16" y="16" width="48" height="48" rx="4" fill="none" stroke="#5b6af0" stroke-width="0.5" opacity="0.4"/><text x="40" y="52" text-anchor="middle" font-size="28" font-family="Georgia,serif" font-weight="700" fill="#fff" letter-spacing="-2">AB</text><line x1="18" y1="58" x2="62" y2="58" stroke="#5b6af0" stroke-width="0.8" opacity="0.6"/></svg>` }
-];
+      {/* Content Area */}
+      <main className="flex-1 px-6 pb-32 overflow-y-auto">
+        <div className="flex items-center gap-2 mb-4">
+          <h2 className="text-lg font-bold">Templates tendance 🔥</h2>
+          <span className="bg-gray-800 text-gray-300 text-xs px-2 py-0.5 rounded-full">{filteredTemplates.length}</span>
+        </div>
 
-// ══════════════════════════════════════════════
-//  SPLASH ANIMATION
-// ══════════════════════════════════════════════
-(function () {
-    const splash    = document.getElementById('splash');
-    const pCanvas   = document.getElementById('particleCanvas');
-    const loaderBar = document.getElementById('splash-loader-bar');
-    const robotGif  = document.getElementById('robotGif');
-    const W = window.innerWidth, H = window.innerHeight;
-
-    pCanvas.width = W; pCanvas.height = H;
-    const ctx = pCanvas.getContext('2d');
-
-    const stars = Array.from({ length: 120 }, () => ({
-        x: Math.random() * W, y: Math.random() * H,
-        r: Math.random() * 1.4 + 0.2,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        a: Math.random() * 0.8 + 0.2,
-        hue: Math.random() > 0.5 ? 235 : 275
-    }));
-    const shoots = [];
-
-    function maybeShoot() {
-        if (Math.random() < 0.008) {
-            shoots.push({ x: Math.random() * W, y: Math.random() * H * 0.5,
-                len: Math.random() * 60 + 40, speed: Math.random() * 6 + 4,
-                angle: Math.PI / 4 + (Math.random() - 0.5) * 0.3, life: 1 });
-        }
-    }
-
-    function drawParticles() {
-        ctx.clearRect(0, 0, W, H);
-        stars.forEach(p => {
-            p.x += p.vx; p.y += p.vy;
-            if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-            if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-            ctx.fillStyle = `hsla(${p.hue},85%,72%,${p.a})`; ctx.fill();
-        });
-        maybeShoot();
-        for (let i = shoots.length - 1; i >= 0; i--) {
-            const s = shoots[i];
-            const ex = s.x + Math.cos(s.angle) * s.len;
-            const ey = s.y + Math.sin(s.angle) * s.len;
-            const grad = ctx.createLinearGradient(s.x, s.y, ex, ey);
-            grad.addColorStop(0, `rgba(140,160,255,${s.life})`);
-            grad.addColorStop(1, 'rgba(140,160,255,0)');
-            ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(ex, ey);
-            ctx.strokeStyle = grad; ctx.lineWidth = 1.5; ctx.stroke();
-            s.x += Math.cos(s.angle) * s.speed;
-            s.y += Math.sin(s.angle) * s.speed;
-            s.life -= 0.04;
-            if (s.life <= 0) shoots.splice(i, 1);
-        }
-    }
-
-    setTimeout(() => robotGif.classList.add('visible'), 250);
-
-    const TOTAL = 4200;
-    let startTime = null, raf;
-
-    function animate(ts) {
-        if (!startTime) startTime = ts;
-        const progress = Math.min((ts - startTime) / TOTAL, 1);
-        drawParticles();
-        loaderBar.style.width = (progress * 100) + '%';
-        if (progress < 1) {
-            raf = requestAnimationFrame(animate);
-        } else {
-            cancelAnimationFrame(raf);
-            splash.classList.add('fade-out');
-            const homeScreen = document.getElementById('home-screen');
-            homeScreen.classList.add('active');
-            setTimeout(() => {
-                homeScreen.classList.add('visible');
-                splash.classList.add('hidden');
-                renderHomeTemplates();
-                // Restore preferences
-                if (localStorage.getItem('rc_dark') === '1') {
-                    document.body.classList.add('dark');
-                    document.getElementById('dark-toggle').checked = true;
-                }
-                updateHeaderForUser();
-            }, 560);
-        }
-    }
-    requestAnimationFrame(animate);
-})();
-
-// ══════════════════════════════════════════════
-//  RENDER TEMPLATES
-// ══════════════════════════════════════════════
-let currentCat = 'all';
-let currentQuery = '';
-
-function renderHomeTemplates() {
-    const grid = document.getElementById('home-templates');
-    const noRes = document.getElementById('no-results');
-    const countEl = document.getElementById('tpl-count');
-    grid.innerHTML = '';
-    let visible = 0;
-    TEMPLATES.forEach((tpl, i) => {
-        const catMatch = currentCat === 'all' || tpl.cat === currentCat;
-        const qMatch   = !currentQuery || tpl.name.toLowerCase().includes(currentQuery) || tpl.cat.toLowerCase().includes(currentQuery);
-        if (!catMatch || !qMatch) return;
-        const card = document.createElement('div');
-        card.className = 'tpl-card';
-        const badgeHtml = tpl.badge ? `<span class="tpl-badge ${tpl.badge}">${tpl.badge}</span>` : '';
-        card.innerHTML = `${badgeHtml}<div class="preview" style="background:${tpl.bg}">${tpl.svg}</div><div class="tpl-name">${tpl.name}</div>`;
-        card.addEventListener('click', () => loadTemplate(i));
-        grid.appendChild(card);
-        visible++;
-    });
-    // ── Projets publiés par l'utilisateur ──────────────────────
-    try {
-        const publishedProjects = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
-        publishedProjects.forEach(function(proj) {
-            var catMatch = currentCat === 'all' || currentCat === 'user';
-            var qMatch   = !currentQuery || (proj.name || '').toLowerCase().includes(currentQuery);
-            if (!catMatch || !qMatch) return;
-            var card = document.createElement('div');
-            card.className = 'tpl-card';
-            var previewContent = proj.preview
-                ? '<img src="' + proj.preview + '" style="width:100%;height:100%;object-fit:contain;border-radius:4px">'
-                : '<div style="font-size:2rem;color:var(--text2)">🖼</div>';
-            card.innerHTML =
-                '<span class="tpl-badge user">👤 Utilisateur</span>' +
-                '<div class="preview" style="background:linear-gradient(135deg,#f0f2ff,#e8ecff);padding:4px;overflow:hidden">' + previewContent + '</div>' +
-                '<div class="tpl-name">' + escHtml(proj.name) + '</div>';
-            card.addEventListener('click', (function(p){ return function() {
-                localStorage.setItem('rcProject', JSON.stringify(p.data));
-                toast('📂 Ouverture de "' + p.name + '"…');
-                setTimeout(function() { window.location.href = 'editor.html?project=1'; }, 900);
-            }; })(proj));
-            grid.appendChild(card);
-            visible++;
-        });
-    } catch(userProjErr) { console.warn('rc_published_projects error:', userProjErr); }
-    // ─────────────────────────────────────────────────────────────
-
-    noRes.style.display = visible === 0 ? 'flex' : 'none';
-    countEl.textContent = visible;
-}
-
-let _searchInitialized = false;
-function initSearch() {
-    if (_searchInitialized) return;
-    _searchInitialized = true;
-    const input = document.getElementById('searchInput');
-    input.addEventListener('input', function () {
-        currentQuery = this.value.toLowerCase().trim();
-        document.getElementById('clear-search').classList.toggle('visible', currentQuery.length > 0);
-        renderHomeTemplates();
-    });
-}
-function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    currentQuery = '';
-    document.getElementById('clear-search').classList.remove('visible');
-    renderHomeTemplates();
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    initSearch();
-    document.querySelectorAll('.cat-chip').forEach(chip => {
-        chip.addEventListener('click', function () {
-            document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
-            this.classList.add('active');
-            currentCat = this.dataset.cat;
-            renderHomeTemplates();
-        });
-    });
-});
-
-// ══════════════════════════════════════════════
-//  TEMPLATE PICKER
-// ══════════════════════════════════════════════
-function openTemplatesPicker() {
-    const grid = document.getElementById('tpl-picker-grid');
-    grid.innerHTML = '';
-    TEMPLATES.forEach((tpl, i) => {
-        const card = document.createElement('div');
-        card.className = 'tpl-picker-card';
-        card.innerHTML = `<div class="tpl-prev" style="background:${tpl.bg}">${tpl.svg}</div><div class="tpl-lbl">${tpl.name}</div>`;
-        card.addEventListener('click', () => { closeTemplatesPicker(); loadTemplate(i); });
-        grid.appendChild(card);
-    });
-    document.getElementById('template-popup').classList.add('active');
-}
-function closeTemplatesPicker() { document.getElementById('template-popup').classList.remove('active'); }
-function closeTplPickerOutside(e) { if (e.target.id === 'template-popup') closeTemplatesPicker(); }
-function loadTemplate(index) {
-    localStorage.setItem('rcTemplate', JSON.stringify(TEMPLATES[index]));
-    toast('📐 Modèle "' + TEMPLATES[index].name + '" chargé !');
-    setTimeout(() => { window.location.href = 'editor.html?template=' + index; }, 900);
-}
-
-// ══════════════════════════════════════════════
-//  NAVIGATION HELPERS
-// ══════════════════════════════════════════════
-function toast(m) {
-    const t = document.getElementById('toast');
-    t.textContent = m; t.classList.add('show');
-    clearTimeout(t._timer);
-    t._timer = setTimeout(() => t.classList.remove('show'), 2400);
-}
-function openEditor() { window.location.href = 'editor.html'; }
-function escHtml(s) {
-    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// Menu
-function showMenu() {
-    renderMenuItems();
-    document.getElementById('menu-popup').classList.add('active');
-}
-function closeMenu()         { document.getElementById('menu-popup').classList.remove('active'); }
-function closeMenuOutside(e) { if (e.target.id === 'menu-popup') closeMenu(); }
-
-function renderMenuItems() {
-    const list = document.getElementById('menu-dim-list');
-    const user = getCurrentUser();
-    if (user) {
-        list.innerHTML = `
-            <div class="dim-item" onclick="closeMenu();openProfilePopup()">👤 Mon profil</div>
-            <div class="dim-item" onclick="closeMenu();openSettingsPopup()">⚙️ Paramètres</div>
-            <div class="dim-item" onclick="closeMenu();openMessagePopup()">💬 Message au créateur</div>
-            <div class="dim-item" onclick="closeMenu();openPremiumPopup()" style="color:var(--gold);border-color:rgba(201,151,58,0.4)">👑 Passer Premium</div>
-        `;
-    } else {
-        list.innerHTML = `
-            <div class="dim-item" onclick="closeMenu();openLoginPopup()">🔐 Se connecter</div>
-            <div class="dim-item" onclick="closeMenu();openInscriptionPopup()">📝 S'inscrire</div>
-            <div class="dim-item" onclick="closeMenu();openSettingsPopup()">⚙️ Paramètres</div>
-            <div class="dim-item" onclick="closeMenu();openMessagePopup()">💬 Message au créateur</div>
-            <div class="dim-item" onclick="closeMenu();openPremiumPopup()" style="color:var(--gold);border-color:rgba(201,151,58,0.4);grid-column:1/-1">👑 Passer Premium</div>
-        `;
-    }
-}
-
-// Plus menu
-function openPlusMenu() {
-    document.getElementById('plus-popup').classList.add('active');
-    document.getElementById('main-btn').classList.add('open');
-}
-function closePlusMenu() {
-    document.getElementById('plus-popup').classList.remove('active');
-    document.getElementById('main-btn').classList.remove('open');
-}
-function closePlusOutside(e) { if (e.target.id === 'plus-popup') closePlusMenu(); }
-
-function importImage() {
-    const input = document.getElementById('importInput');
-    input.click();
-    input.onchange = function () {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = ev => {
-                localStorage.setItem('rcImportedImage', ev.target.result);
-                toast('🖼️ Image importée avec succès !');
-                setTimeout(() => { window.location.href = 'editor.html?import=1'; }, 900);
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    };
-}
-
-// ══════════════════════════════════════════════
-//  AUTH — HELPERS
-// ══════════════════════════════════════════════
-function getUsers() {
-    try { return JSON.parse(localStorage.getItem('rc_users') || '[]'); } catch(e) { return []; }
-}
-function saveUsers(u) { localStorage.setItem('rc_users', JSON.stringify(u)); }
-
-function getCurrentUser() {
-    const email = localStorage.getItem('rc_current_user');
-    if (!email) return null;
-    return getUsers().find(u => u.email === email) || null;
-}
-
-function updateHeaderForUser() {
-    const user = getCurrentUser();
-    const avatar  = document.getElementById('header-user-avatar');
-    const subtitle = document.getElementById('header-subtitle');
-
-    if (user) {
-        const letter = (user.username || user.email).charAt(0).toUpperCase();
-        avatar.textContent = letter;
-        avatar.classList.add('visible');
-        subtitle.textContent = 'Bonjour, ' + (user.username || user.email.split('@')[0]) + ' 👋';
-    } else {
-        avatar.textContent = '';
-        avatar.classList.remove('visible');
-        subtitle.textContent = 'Créez votre identité en un clin d\'œil';
-    }
-}
-
-// ══════════════════════════════════════════════
-//  AUTH — INSCRIPTION
-// ══════════════════════════════════════════════
-function openInscriptionPopup() {
-    document.getElementById('reg-username').value = '';
-    document.getElementById('reg-email').value    = '';
-    document.getElementById('reg-password').value = '';
-    document.getElementById('inscription-popup').classList.add('active');
-}
-function closeInscriptionPopup() { document.getElementById('inscription-popup').classList.remove('active'); }
-function closeInscriptionOutside(e) { if (e.target.id === 'inscription-popup') closeInscriptionPopup(); }
-
-function registerUser() {
-    const username = document.getElementById('reg-username').value.trim();
-    const email    = document.getElementById('reg-email').value.trim();
-    const password = document.getElementById('reg-password').value;
-
-    if (!username)                      { toast('✏️ Veuillez entrer un prénom ou pseudo.'); return; }
-    if (!email || !email.includes('@')) { toast('📧 Veuillez entrer un e-mail valide.'); return; }
-    if (password.length < 6)            { toast('🔒 Le mot de passe doit faire au moins 6 caractères.'); return; }
-
-    const users = getUsers();
-    if (users.some(u => u.email === email)) { toast('⚠️ Cet e-mail est déjà utilisé.'); return; }
-
-    users.push({ username, email, password, date: new Date().toLocaleDateString('fr-FR') });
-    saveUsers(users);
-    localStorage.setItem('rc_current_user', email);
-    closeInscriptionPopup();
-    updateHeaderForUser();
-    toast('🎉 Bienvenue, ' + username + ' ! Inscription réussie.');
-}
-
-// ══════════════════════════════════════════════
-//  AUTH — CONNEXION
-// ══════════════════════════════════════════════
-function openLoginPopup() {
-    document.getElementById('login-email').value    = '';
-    document.getElementById('login-password').value = '';
-    document.getElementById('login-popup').classList.add('active');
-}
-function closeLoginPopup() { document.getElementById('login-popup').classList.remove('active'); }
-function closeLoginOutside(e) { if (e.target.id === 'login-popup') closeLoginPopup(); }
-
-function loginUser() {
-    const email    = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-
-    if (!email || !email.includes('@')) { toast('📧 Veuillez entrer un e-mail valide.'); return; }
-    if (!password)                       { toast('🔒 Veuillez entrer votre mot de passe.'); return; }
-
-    const users = getUsers();
-    const user  = users.find(u => u.email === email && u.password === password);
-
-    if (!user) { toast('❌ E-mail ou mot de passe incorrect.'); return; }
-
-    localStorage.setItem('rc_current_user', email);
-    closeLoginPopup();
-    updateHeaderForUser();
-    toast('✅ Connecté en tant que ' + (user.username || email.split('@')[0]) + ' !');
-}
-
-// ══════════════════════════════════════════════
-//  AUTH — PROFIL
-// ══════════════════════════════════════════════
-function openProfilePopup() {
-    const user = getCurrentUser();
-    if (!user) { openLoginPopup(); return; }
-
-    const letter   = (user.username || user.email).charAt(0).toUpperCase();
-    const name     = user.username  || user.email.split('@')[0];
-    const projects = getCreations().length;
-
-    document.getElementById('profile-avatar-letter').textContent = letter;
-    document.getElementById('profile-username-display').textContent = name;
-    document.getElementById('profile-email-display').textContent = user.email;
-    document.getElementById('profile-date-display').textContent = user.date || 'N/A';
-    document.getElementById('profile-projects-num').textContent = projects;
-
-    document.getElementById('profile-popup').classList.add('active');
-}
-function closeProfilePopup()   { document.getElementById('profile-popup').classList.remove('active'); }
-function closeProfileOutside(e){ if (e.target.id === 'profile-popup') closeProfilePopup(); }
-
-function logoutUser() {
-    localStorage.removeItem('rc_current_user');
-    closeProfilePopup();
-    updateHeaderForUser();
-    toast('👋 Vous êtes déconnecté.');
-}
-
-// ══════════════════════════════════════════════
-//  SETTINGS
-// ══════════════════════════════════════════════
-function openSettingsPopup() {
-    document.getElementById('dark-toggle').checked = document.body.classList.contains('dark');
-    document.getElementById('settings-popup').classList.add('active');
-}
-function closeSettingsPopup()   { document.getElementById('settings-popup').classList.remove('active'); }
-function closeSettingsOutside(e){ if (e.target.id === 'settings-popup') closeSettingsPopup(); }
-function toggleDarkMode(enabled) {
-    document.body.classList.toggle('dark', enabled);
-    localStorage.setItem('rc_dark', enabled ? '1' : '0');
-    toast(enabled ? '🌙 Thème sombre activé' : '☀️ Thème clair activé');
-}
-
-// ══════════════════════════════════════════════
-//  MESSAGE
-// ══════════════════════════════════════════════
-function openMessagePopup() {
-    document.getElementById('msg-textarea').value = '';
-    document.getElementById('message-popup').classList.add('active');
-}
-function closeMessagePopup()   { document.getElementById('message-popup').classList.remove('active'); }
-function closeMessageOutside(e){ if (e.target.id === 'message-popup') closeMessagePopup(); }
-function sendMessage() {
-    const msg = document.getElementById('msg-textarea').value.trim();
-    if (!msg) { toast('✏️ Veuillez écrire un message avant d\'envoyer.'); return; }
-    const subject = encodeURIComponent('Message depuis RC Logo Maker');
-    const body    = encodeURIComponent(msg);
-    window.location.href = `mailto:regard-creatif@proton.me?subject=${subject}&body=${body}`;
-    closeMessagePopup();
-    setTimeout(() => toast('✅ Message envoyé !'), 600);
-}
-
-// ══════════════════════════════════════════════
-//  CRÉATIONS
-// ══════════════════════════════════════════════
-function getCreations() {
-    try { return JSON.parse(localStorage.getItem('rc_creations') || '[]'); } catch(e) { return []; }
-}
-function saveCreations(list) { localStorage.setItem('rc_creations', JSON.stringify(list)); }
-
-function openCreationsPopup() {
-    renderCreationsList();
-    document.getElementById('creations-popup').classList.add('active');
-}
-function closeCreationsPopup()   { document.getElementById('creations-popup').classList.remove('active'); }
-function closeCreationsOutside(e){ if (e.target.id === 'creations-popup') closeCreationsPopup(); }
-
-function renderCreationsList() {
-    const list      = document.getElementById('creations-list');
-    const creations = getCreations();
-    list.innerHTML  = '';
-
-    if (creations.length === 0) {
-        list.innerHTML = `<div class="creations-empty"><i class="fa-solid fa-folder-open"></i>Aucune création sauvegardée.<br>Commencez un nouveau projet !</div>`;
-        return;
-    }
-    creations.forEach((item, idx) => {
-        const el = document.createElement('div');
-        el.className = 'creation-item';
-        el.innerHTML = `
-            <div class="ci-icon"><i class="fa-solid fa-image"></i></div>
-            <div class="ci-info">
-                <div class="ci-name">${escHtml(item.name)}</div>
-                <div class="ci-date">${item.date || ''}</div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {filteredTemplates.map((t: any, i: number) => (
+            <div 
+              key={i} 
+              onClick={() => handleTemplateClick(t, category === 'Publiés')}
+              className="group relative flex flex-col gap-2 cursor-pointer"
+            >
+              <div 
+                className="aspect-square rounded-2xl flex items-center justify-center overflow-hidden transition-transform group-hover:scale-[1.02] border border-gray-800 shadow-lg"
+                style={{ background: t.bg || '#1a1a24' }}
+              >
+                {t.svg ? (
+                  <div dangerouslySetInnerHTML={{ __html: t.svg }} className="w-2/3 h-2/3 flex items-center justify-center" />
+                ) : t.preview ? (
+                  <img src={t.preview} alt={t.name} className="w-full h-full object-contain" />
+                ) : (
+                  <LayoutTemplate className="w-12 h-12 text-gray-600" />
+                )}
+              </div>
+              <div className="flex items-center justify-between px-1">
+                <span className="text-sm font-medium text-gray-300">{t.name}</span>
+              </div>
+              {(t.badge || category === 'Publiés') && (
+                <div className="absolute top-2 right-2 bg-purple-500/80 text-white text-[10px] font-bold px-1.5 py-0.5 rounded backdrop-blur-sm">
+                  {category === 'Publiés' ? '👤 Publié' : t.badge}
+                </div>
+              )}
             </div>
-            <i class="fa-solid fa-trash ci-del" onclick="deleteCreation(event,${idx})"></i>
-        `;
-        el.addEventListener('click', e => {
-            if (e.target.classList.contains('ci-del') || e.target.closest('.ci-del')) return;
-            openCreation(item);
-        });
-        list.appendChild(el);
-    });
-}
+          ))}
+        </div>
+        
+        {filteredTemplates.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            <LayoutTemplate className="w-12 h-12 mx-auto mb-4 opacity-20" />
+            <p>Aucun logo trouvé.</p>
+          </div>
+        )}
+      </main>
 
-function openCreation(item) {
-    closeCreationsPopup();
-    if (item.data) localStorage.setItem('rcProject', JSON.stringify(item.data));
-    toast('📂 Ouverture de "' + item.name + '"…');
-    setTimeout(() => { window.location.href = 'editor.html?project=1'; }, 900);
-}
+      {/* Bottom Nav */}
+      <div className="fixed bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[#08080f] to-transparent pointer-events-none flex items-end justify-center pb-6">
+        <div className="pointer-events-auto bg-[#12121a] border border-gray-800 rounded-full px-6 py-3 flex items-center gap-8 shadow-2xl">
+          <button onClick={() => toast({ title: "Bientôt disponible" })} className="text-gray-400 hover:text-white transition-colors">
+            <BookOpen className="w-6 h-6" />
+          </button>
+          
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="bg-gradient-to-tr from-[#5b6af0] to-[#7c4af0] text-white p-4 rounded-full shadow-[0_0_20px_rgba(91,106,240,0.4)] hover:scale-105 transition-transform -mt-8">
+                <Plus className="w-6 h-6" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="bg-[#12121a] border-gray-800 text-white rounded-t-3xl">
+              <SheetHeader>
+                <SheetTitle className="text-white text-center mb-4">Nouveau Projet</SheetTitle>
+              </SheetHeader>
+              <div className="grid grid-cols-2 gap-3 pb-8">
+                {[
+                  { name: 'Carré 500', w: 500, h: 500 },
+                  { name: 'Logo 600', w: 600, h: 600 },
+                  { name: 'Bannière', w: 800, h: 400 },
+                  { name: 'Portrait', w: 400, h: 800 },
+                  { name: 'Twitter', w: 1024, h: 512 },
+                  { name: 'Instagram', w: 800, h: 800 },
+                ].map(size => (
+                  <Button 
+                    key={size.name} 
+                    variant="outline" 
+                    className="h-auto py-4 flex flex-col gap-1 bg-[#1a1a24] border-gray-700 hover:bg-[#252535] hover:text-white"
+                    onClick={() => handleNewLogo(size.w, size.h)}
+                  >
+                    <span className="font-semibold">{size.name}</span>
+                    <span className="text-xs text-gray-400">{size.w} × {size.h}</span>
+                  </Button>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
 
-function deleteCreation(e, idx) {
-    e.stopPropagation();
-    const creations = getCreations();
-    creations.splice(idx, 1);
-    saveCreations(creations);
-    renderCreationsList();
-    toast('🗑️ Création supprimée.');
+          <button onClick={() => setCategory('Publiés')} className="text-gray-400 hover:text-white transition-colors">
+            <FolderHeart className="w-6 h-6" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
-
-// ══════════════════════════════════════════════
-//  PREMIUM
-// ══════════════════════════════════════════════
-function openPremiumPopup()   { document.getElementById('premium-popup').classList.add('active'); }
-function closePremiumPopup()  { document.getElementById('premium-popup').classList.remove('active'); }
-function closePremiumOutside(e){ if (e.target.id === 'premium-popup') closePremiumPopup(); }
-
-// ══════════════════════════════════════════════
-//  SERVICE WORKER
-// ══════════════════════════════════════════════
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-        console.warn('SW registration failed:', err);
-    });
-}
-</script>
-</body>
-</html>
