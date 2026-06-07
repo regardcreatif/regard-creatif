@@ -2065,7 +2065,7 @@ initDrawCanvas();
         }
     }
     // CAS 2 : Chargement d'un template (index.html → clic sur template)
-    if (_urlTemplate !== null) {
+if (_urlTemplate !== null) {
     const raw = sessionStorage.getItem('rcTemplate');
     if (raw) {
         try {
@@ -2097,6 +2097,7 @@ initDrawCanvas();
         } catch(e) { console.warn('Erreur template:', e); }
     }
 }
+
     // CAS 3 : Import d'une image depuis index.html
     if (_urlImport) {
         const imgData = localStorage.getItem('rcImportedImage');
