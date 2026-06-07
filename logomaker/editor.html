@@ -277,8 +277,15 @@ button{font-family:inherit;cursor:pointer}
     <button class="tbtn" id="btn-save" title="Enregistrer (Ctrl+S)" style="color:#22c55e;border-color:rgba(34,197,94,.3)">💾 <span id="save-status" class="save-status"></span></button>
     <button class="tbtn primary" id="btn-export">↓ Exporter</button>
 <button class="tbtn" id="btn-theme" title="Thème clair/sombre" style="color:#f59e0b;border-color:rgba(245,158,11,.3)">🌙</button>
+<button class="tbtn" id="btn-download-file" ...title="Télécharger" style="color:#10b981;border-color:rgba(16,185,129,.3);position:relative;">📥
+  <div id="download-menu" style="display:none;position:absolute;top:100%;right:0;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:6px;z-index:100;min-width:140px;margin-top:4px;">
+    <button data-fmt="png" style="display:block;width:100%;padding:6px 10px;background:none;border:none;color:var(--text);cursor:pointer;text-align:left;border-radius:5px;font-size:11px;">🖼 PNG</button>
+    <button data-fmt="jpg" style="display:block;width:100%;padding:6px 10px;background:none;border:none;color:var(--text);cursor:pointer;text-align:left;border-radius:5px;font-size:11px;">📷 JPG</button>
+    <button data-fmt="svg" style="display:block;width:100%;padding:6px 10px;background:none;border:none;color:var(--text);cursor:pointer;text-align:left;border-radius:5px;font-size:11px;">✏️ SVG</button>
+    <button data-fmt="project" style="display:block;width:100%;padding:6px 10px;background:none;border:none;color:var(--text);cursor:pointer;text-align:left;border-radius:5px;font-size:11px;">💾 Projet</button>
   </div>
-
+</button>
+ 
   <!-- MAIN -->
   <div id="main">
     <!-- SIDEBAR -->
@@ -1680,6 +1687,51 @@ document.getElementById('btn-theme').addEventListener('click', function() {
   localStorage.setItem('rc_dark', isDark ? '0' : '1');
   this.textContent = isDark ? '☀️' : '🌙';
   toast(isDark ? '☀️ Thème clair' : '🌙 Thème sombre');
+});
+
+document.getElementById('btn-download-file').addEventListener('click', function(e) {
+  e.stopPropagation();
+  var menu = document.getElementById('download-menu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
+
+document.querySelectorAll('#download-menu button').forEach(function(btn) {
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var fmt = this.dataset.fmt;
+    if (fmt === 'project') {
+      saveProject();
+      var data = localStorage.getItem('rc-logo-maker-project-v2');
+      var blob = new Blob([data], {type: 'application/json'});
+      var link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'mon-logo.rcproj';
+      link.click();
+      toast('💾 Projet téléchargé !');
+    } else if (fmt === 'svg') {
+      exportSVG();
+      document.getElementById('download-menu').style.display = 'none';
+    } else if (fmt === 'jpg') {
+      var link = document.createElement('a');
+      link.href = mainCanvas.toDataURL('image/jpeg', 0.92);
+      link.download = 'mon-logo.jpg';
+      link.click();
+      toast('📷 JPG téléchargé !');
+      document.getElementById('download-menu').style.display = 'none';
+    } else {
+      var link = document.createElement('a');
+      link.href = mainCanvas.toDataURL('image/png');
+      link.download = 'mon-logo.png';
+      link.click();
+      toast('🖼 PNG téléchargé !');
+      document.getElementById('download-menu').style.display = 'none';
+    }
+  });
+});
+
+document.addEventListener('click', function() {
+  var menu = document.getElementById('download-menu');
+  if (menu) menu.style.display = 'none';
 });
 
 document.getElementById('btn-export').addEventListener('click',()=>{
