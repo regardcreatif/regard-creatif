@@ -2043,10 +2043,11 @@ initDrawCanvas();
 (function loadTemplateIfNeeded() {
     // CAS 1 : Ouverture d'un projet publié ou d'une création
     if (_urlProject) {
-        const raw = sessionStorage.getItem('rcProject');
+        const raw = localStorage.getItem('rcProject');
         if (raw) {
             try {
                 const data = JSON.parse(raw);
+                localStorage.removeItem('rcProject');
                 S.canvasW = data.canvasW || 500;
                 S.canvasH = data.canvasH || 500;
                 S.canvasBg = data.canvasBg || '#ffffff';
@@ -2065,10 +2066,11 @@ initDrawCanvas();
     }
     // CAS 2 : Chargement d'un template (index.html → clic sur template)
     if (_urlTemplate !== null) {
-        const raw = sessionStorage.getItem('rcTemplate');
+        const raw = localStorage.getItem('rcTemplate');
         if (raw) {
             try {
                 const tpl = JSON.parse(raw);
+                localStorage.removeItem('rcTemplate');
                 newProject(); // repart d'une base vide propre
                 // Rectangle de fond avec la couleur du template
                 const bgRect = mkRect();
@@ -2097,8 +2099,9 @@ initDrawCanvas();
     }
     // CAS 3 : Import d'une image depuis index.html
     if (_urlImport) {
-        const imgData = sessionStorage.getItem('rcImportedImage');
+        const imgData = localStorage.getItem('rcImportedImage');
         if (imgData) {
+            localStorage.removeItem('rcImportedImage');
             const img = new Image();
             img.onload = function() {
                 const maxW = Math.min(400, S.canvasW * 0.8);
