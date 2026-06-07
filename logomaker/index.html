@@ -1169,7 +1169,7 @@ function renderHomeTemplates() {
     });
     // ── Projets publiés par l'utilisateur ──────────────────────
     try {
-        var publishedProjects = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
+        const publishedProjects = JSON.parse(localStorage.getItem('rc_published_projects') || '[]');
         publishedProjects.forEach(function(proj) {
             var catMatch = currentCat === 'all' || currentCat === 'user';
             var qMatch   = !currentQuery || (proj.name || '').toLowerCase().includes(currentQuery);
@@ -1184,7 +1184,7 @@ function renderHomeTemplates() {
                 '<div class="preview" style="background:linear-gradient(135deg,#f0f2ff,#e8ecff);padding:4px;overflow:hidden">' + previewContent + '</div>' +
                 '<div class="tpl-name">' + escHtml(proj.name) + '</div>';
             card.addEventListener('click', (function(p){ return function() {
-                sessionStorage.setItem('rcProject', JSON.stringify(p.data));
+                localStorage.setItem('rcProject', JSON.stringify(p.data));
                 toast('📂 Ouverture de "' + p.name + '"…');
                 setTimeout(function() { window.location.href = 'editor.html?project=1'; }, 900);
             }; })(proj));
@@ -1196,10 +1196,12 @@ function renderHomeTemplates() {
 
     noRes.style.display = visible === 0 ? 'flex' : 'none';
     countEl.textContent = visible;
-    initSearch();
 }
 
+let _searchInitialized = false;
 function initSearch() {
+    if (_searchInitialized) return;
+    _searchInitialized = true;
     const input = document.getElementById('searchInput');
     input.addEventListener('input', function () {
         currentQuery = this.value.toLowerCase().trim();
@@ -1215,6 +1217,7 @@ function clearSearch() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    initSearch();
     document.querySelectorAll('.cat-chip').forEach(chip => {
         chip.addEventListener('click', function () {
             document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
@@ -1243,7 +1246,7 @@ function openTemplatesPicker() {
 function closeTemplatesPicker() { document.getElementById('template-popup').classList.remove('active'); }
 function closeTplPickerOutside(e) { if (e.target.id === 'template-popup') closeTemplatesPicker(); }
 function loadTemplate(index) {
-    sessionStorage.setItem('rcTemplate', JSON.stringify(TEMPLATES[index]));
+    localStorage.setItem('rcTemplate', JSON.stringify(TEMPLATES[index]));
     toast('📐 Modèle "' + TEMPLATES[index].name + '" chargé !');
     setTimeout(() => { window.location.href = 'editor.html?template=' + index; }, 900);
 }
@@ -1309,7 +1312,7 @@ function importImage() {
         if (input.files && input.files[0]) {
             const reader = new FileReader();
             reader.onload = ev => {
-                sessionStorage.setItem('rcImportedImage', ev.target.result);
+                localStorage.setItem('rcImportedImage', ev.target.result);
                 toast('🖼️ Image importée avec succès !');
                 setTimeout(() => { window.location.href = 'editor.html?import=1'; }, 900);
             };
@@ -1518,7 +1521,7 @@ function renderCreationsList() {
 
 function openCreation(item) {
     closeCreationsPopup();
-    if (item.data) sessionStorage.setItem('rcProject', JSON.stringify(item.data));
+    if (item.data) localStorage.setItem('rcProject', JSON.stringify(item.data));
     toast('📂 Ouverture de "' + item.name + '"…');
     setTimeout(() => { window.location.href = 'editor.html?project=1'; }, 900);
 }
