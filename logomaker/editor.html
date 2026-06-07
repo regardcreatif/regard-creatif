@@ -16,6 +16,14 @@
   --accent:#5b6af0;--accent2:#7c4af0;--glow:rgba(91,106,240,.25);
   --danger:#ef4444;--radius:8px;--tr:.25s cubic-bezier(.4,0,.2,1);
 }
+body.light {
+  --bg:#faf8f5;--panel:#f2efe9;--panel2:#ffffff;--border:#e6e0d8;
+  --text:#181818;--text2:#8a8a9a;--text3:#aaaaaa;
+}
+body.light #canvas-area {
+  background:#f0f0f0;
+  background-image:radial-gradient(circle,#ddd 1px,transparent 1px);
+}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter','DM Sans',sans-serif;user-select:none}
 ::-webkit-scrollbar{width:4px;height:4px}
 ::-webkit-scrollbar-track{background:var(--panel)}
@@ -268,6 +276,7 @@ button{font-family:inherit;cursor:pointer}
     <button class="tbtn danger" id="btn-del" title="Supprimer (Suppr)">✕</button>
     <button class="tbtn" id="btn-save" title="Enregistrer (Ctrl+S)" style="color:#22c55e;border-color:rgba(34,197,94,.3)">💾 <span id="save-status" class="save-status"></span></button>
     <button class="tbtn primary" id="btn-export">↓ Exporter</button>
+<button class="tbtn" id="btn-theme" title="Thème clair/sombre" style="color:#f59e0b;border-color:rgba(245,158,11,.3)">🌙</button>
   </div>
 
   <!-- MAIN -->
@@ -406,6 +415,13 @@ button{font-family:inherit;cursor:pointer}
 
 <script>
 'use strict';
+
+if (localStorage.getItem('rc_dark') === '1') {
+  document.body.classList.remove('light');
+} else {
+  document.body.classList.add('light');
+}
+document.getElementById('btn-theme').textContent = document.body.classList.contains('light') ? '🌙' : '☀️';
 
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
 const FONTS = ['Montserrat','Playfair Display','Poppins','Bebas Neue','Righteous','Oswald','Roboto','League Spartan','Caveat','Inter','Pacifico','Abril Fatface','Alfa Slab One','Lobster','Fjalla One','DM Sans'];
@@ -1658,6 +1674,14 @@ document.getElementById('btn-redo').addEventListener('click', redo);
 document.getElementById('btn-dup').addEventListener('click',  duplicateSelected);
 document.getElementById('btn-del').addEventListener('click',  deleteSelected);
 document.getElementById('btn-save').addEventListener('click', saveProject);
+document.getElementById('btn-theme').addEventListener('click', function() {
+  var isDark = !document.body.classList.contains('light');
+  document.body.classList.toggle('light', isDark);
+  localStorage.setItem('rc_dark', isDark ? '0' : '1');
+  this.textContent = isDark ? '☀️' : '🌙';
+  toast(isDark ? '☀️ Thème clair' : '🌙 Thème sombre');
+});
+
 document.getElementById('btn-export').addEventListener('click',()=>{
   document.getElementById('export-dim-label').textContent=S.canvasW+' × '+S.canvasH+' px';
   document.getElementById('png2x-label').textContent=`PNG @2x — ${S.canvasW*2}×${S.canvasH*2}`;
