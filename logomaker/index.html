@@ -334,9 +334,14 @@
             box-shadow: var(--shadow-lg); z-index: 1;
         }
         .tpl-card .preview {
-            flex: 1; display: flex; align-items: center;
-            justify-content: center; padding: 10px;
-        }
+    flex: 1; display: flex; align-items: center;
+    justify-content: center; padding: 6px;
+    overflow: visible;
+}
+.tpl-card .preview svg {
+    transform: scale(1.7);
+    transform-origin: center center;
+}
         .tpl-card .tpl-name {
             padding: 5px 3px; font-size: 0.57rem; font-weight: 800;
             color: var(--text2); text-align: center;
@@ -1039,6 +1044,9 @@ if (sessionStorage.getItem('rc_skip_splash') === '1') {
     document.getElementById('splash').classList.add('hidden');
     document.getElementById('home-screen').classList.add('active', 'visible');
     sessionStorage.removeItem('rc_skip_splash');
+    setTimeout(function() {
+        renderHomeTemplates();
+    }, 50);
 }
 // ══════════════════════════════════════════════
 //  TEMPLATES DATA
