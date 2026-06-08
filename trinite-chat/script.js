@@ -1,9 +1,9 @@
 // ============================================================
-// TRINITÉ — script.js
+// TRINITE CHAT — script.js (version corrigée)
 // ============================================================
 
-// ÉTAPE 1 : Connexion Supabase (clé anon uniquement)
-const SUPABASE_URL  = "https://eqttgyxjjupeisgozrut.supabase.co";
+// ÉTAPE 1 : Connexion Supabase (clé anon)
+const SUPABASE_URL = "https://eqttgyxjjupeisgozrut.supabase.co";
 const SUPABASE_ANON = "sb_publishable_2tUX4eHP5MrKz_pekDY4aA_EiuZ99Wo";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
@@ -11,66 +11,60 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 // ============================================================
 // ÉTAT GLOBAL
 // ============================================================
-let currentUser     = null;   // utilisateur connecté
-let userProfiles    = [];     // ses 3 profils
-let activeProfile   = null;   // profil affiché en ce moment
-let currentContacts = [];     // contacts du profil actif
-let chatContact     = null;   // contact ouvert dans le chat
-let chatMyProfile   = null;   // profil actif lors du chat
-let realtimeChannel = null;   // abonnement realtime Supabase
-let swiper          = null;   // instance Swiper.js
+let currentUser = null;
+let userProfiles = [];
+let activeProfile = null;
+let currentContacts = [];
+let chatContact = null;
+let chatMyProfile = null;
+let realtimeChannel = null;
+let swiper = null;
 
 // ============================================================
 // UTILITAIRES
 // ============================================================
 
-// Affiche un toast en bas de l'écran
 function toast(msg, type = "info") {
   const el = document.getElementById("toast");
+  if (!el) return;
   el.textContent = msg;
   el.className = `toast ${type}`;
   setTimeout(() => { el.className = "toast hidden"; }, 3200);
 }
 
-// Formate une heure depuis un timestamp ISO
 function formatTime(iso) {
   const d = new Date(iso);
   return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }
 
-// Affiche un écran, masque les autres
 function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
 }
 
-// Première lettre en majuscule pour l'avatar
 function initial(name) {
   return (name || "?").charAt(0).toUpperCase();
 }
 
-// Icône Font Awesome selon le type de profil
 function profileIcon(type) {
-  if (type === "pro")     return "fa-solid fa-briefcase";
-  if (type === "prive")   return "fa-solid fa-heart";
+  if (type === "pro") return "fa-solid fa-briefcase";
+  if (type === "prive") return "fa-solid fa-heart";
   if (type === "anonyme") return "fa-solid fa-ghost";
   return "fa-solid fa-user";
 }
 
-// Label lisible selon le type de profil
 function profileLabel(type) {
-  if (type === "pro")     return "Pro";
-  if (type === "prive")   return "Privé";
+  if (type === "pro") return "Pro";
+  if (type === "prive") return "Privé";
   if (type === "anonyme") return "Anonyme";
   return type;
 }
 
 // ============================================================
-// ÉTAPE 2 : Gestion auth — connexion / inscription / session
+// AUTHENTIFICATION
 // ============================================================
 
-// Vérifie la session au chargement de la page
 async function initAuth() {
   const { data: { session } } = await db.auth.getSession();
   if (session) {
@@ -80,7 +74,6 @@ async function initAuth() {
     showScreen("screen-auth");
   }
 
-  // Écoute les changements d'état d'authentification
   db.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
       currentUser = session.user;
@@ -94,118 +87,179 @@ async function initAuth() {
   });
 }
 
-// Après connexion réussie : vérifier si les profils existent
 async function afterLogin() {
-  const { data, error } = await db
+  console.log("afterLogin - utilisateur:", currentUser?.id);
+  
+  // FORCER LA CRÉATION DES PROFILS SI NÉCESSAIRE
+  const { data: existingProfiles, error: fetchError } = await db
     .from("profiles")
     .select("*")
     .eq("user_id", currentUser.id);
 
-  if (error) { toast("Erreur de chargement des profils", "error"); return; }
+  if (fetchError) {
+    console.error("Erreur chargement profils:", fetchError);
+    toast("Erreur de chargement des profils: " + fetchError.message, "error");
+    return;
+  }
 
-  userProfiles = data || [];
+  console.log("Profils existants:", existingProfiles);
 
-  if (userProfiles.length < 3) {
-    // Aucun profil créé → écran de setup
-    showScreen("screen-setup");
+  if (!existingProfiles || existingProfiles.length === 0) {
+    // Création automatique des 3 profils
+    console.log("Création automatique des 3 profils...");
+    const defaultNames = {
+      pro: "Pro",
+      prive: "Privé",
+      anonyme: "Anonyme"
+    };
+    
+    const rows = [
+      { user_id: currentUser.id, profile_type: "pro", name: defaultNames.pro },
+      { user_id: currentUser.id, profile_type: "prive", name: defaultNames.prive },
+      { user_id: currentUser.id, profile_type: "anonyme", name: defaultNames.anonyme }
+    ];
+    
+    const { data: newProfiles, error: insertError } = await db
+      .from("profiles")
+      .insert(rows)
+      .select();
+    
+    if (insertError) {
+      console.error("Erreur création profils:", insertError);
+      toast("Erreur création profils: " + insertError.message, "error");
+      showScreen("screen-setup");
+      return;
+    }
+    
+    userProfiles = newProfiles || [];
+    console.log("Profils créés:", userProfiles);
+    toast("Vos 3 profils ont été créés automatiquement !", "success");
+    await loadMainScreen();
   } else {
-    // Profils existants → écran principal
+    userProfiles = existingProfiles;
     await loadMainScreen();
   }
 }
 
 // Formulaire CONNEXION
-document.getElementById("form-login").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email    = document.getElementById("login-email").value.trim();
-  const password = document.getElementById("login-password").value;
-  const btn = e.target.querySelector("button");
-  btn.disabled = true;
-  btn.textContent = "Connexion…";
+const formLogin = document.getElementById("form-login");
+if (formLogin) {
+  formLogin.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    const btn = e.target.querySelector("button");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Connexion…";
+    }
 
-  const { error } = await db.auth.signInWithPassword({ email, password });
-  btn.disabled = false;
-  btn.textContent = "Se connecter";
+    const { error } = await db.auth.signInWithPassword({ email, password });
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Se connecter";
+    }
 
-  if (error) {
-    toast(error.message === "Invalid login credentials"
-      ? "Email ou mot de passe incorrect"
-      : error.message, "error");
-  }
-});
+    if (error) {
+      toast(error.message === "Invalid login credentials"
+        ? "Email ou mot de passe incorrect"
+        : error.message, "error");
+    }
+  });
+}
 
 // Formulaire INSCRIPTION
-document.getElementById("form-register").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email    = document.getElementById("register-email").value.trim();
-  const password = document.getElementById("register-password").value;
-  const btn = e.target.querySelector("button");
-  btn.disabled = true;
-  btn.textContent = "Création…";
+const formRegister = document.getElementById("form-register");
+if (formRegister) {
+  formRegister.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("register-email").value.trim();
+    const password = document.getElementById("register-password").value;
+    const btn = e.target.querySelector("button");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Création…";
+    }
 
-  const { error } = await db.auth.signUp({ email, password });
-  btn.disabled = false;
-  btn.textContent = "Créer mon compte";
+    const { error } = await db.auth.signUp({ email, password });
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Créer mon compte";
+    }
 
-  if (error) {
-    toast(error.message, "error");
-  } else {
-    toast("Compte créé ! Vérifiez votre email si nécessaire.", "success");
-  }
-});
+    if (error) {
+      toast(error.message, "error");
+    } else {
+      toast("Compte créé ! Vous pouvez vous connecter.", "success");
+    }
+  });
+}
 
-// Basculer entre onglets Connexion / Inscription
+// Tabs connexion/inscription
 document.querySelectorAll(".tab").forEach(tab => {
   tab.addEventListener("click", () => {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
     tab.classList.add("active");
     const which = tab.dataset.tab;
-    document.getElementById("form-login").classList.toggle("hidden", which !== "login");
-    document.getElementById("form-register").classList.toggle("hidden", which !== "register");
+    const loginForm = document.getElementById("form-login");
+    const registerForm = document.getElementById("form-register");
+    if (loginForm) loginForm.classList.toggle("hidden", which !== "login");
+    if (registerForm) registerForm.classList.toggle("hidden", which !== "register");
   });
 });
 
-// Bouton déconnexion
-document.getElementById("btn-logout").addEventListener("click", async () => {
-  if (realtimeChannel) db.removeChannel(realtimeChannel);
-  await db.auth.signOut();
-});
+// Déconnexion
+const btnLogout = document.getElementById("btn-logout");
+if (btnLogout) {
+  btnLogout.addEventListener("click", async () => {
+    if (realtimeChannel) db.removeChannel(realtimeChannel);
+    await db.auth.signOut();
+  });
+}
 
 // ============================================================
-// ÉTAPE 3 : Profils — création initiale et swipe
+// PROFILS & SWIPE
 // ============================================================
 
-// Formulaire de création des 3 profils
-document.getElementById("form-setup").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const namePro     = document.getElementById("name-pro").value.trim();
-  const namePrive   = document.getElementById("name-prive").value.trim();
-  const nameAnonyme = document.getElementById("name-anonyme").value.trim();
-  const btn = e.target.querySelector("button[type=submit]");
-  btn.disabled = true;
-  btn.textContent = "Création…";
+const formSetup = document.getElementById("form-setup");
+if (formSetup) {
+  formSetup.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const namePro = document.getElementById("name-pro")?.value.trim() || "Pro";
+    const namePrive = document.getElementById("name-prive")?.value.trim() || "Privé";
+    const nameAnonyme = document.getElementById("name-anonyme")?.value.trim() || "Anonyme";
+    const btn = e.target.querySelector("button[type=submit]");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Création…";
+    }
 
-  const rows = [
-    { user_id: currentUser.id, profile_type: "pro",     name: namePro     },
-    { user_id: currentUser.id, profile_type: "prive",   name: namePrive   },
-    { user_id: currentUser.id, profile_type: "anonyme", name: nameAnonyme },
-  ];
+    const rows = [
+      { user_id: currentUser.id, profile_type: "pro", name: namePro },
+      { user_id: currentUser.id, profile_type: "prive", name: namePrive },
+      { user_id: currentUser.id, profile_type: "anonyme", name: nameAnonyme }
+    ];
 
-  const { data, error } = await db.from("profiles").insert(rows).select();
-  btn.disabled = false;
-  btn.textContent = "Créer mes profils";
+    const { data, error } = await db.from("profiles").insert(rows).select();
+    
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Créer mes profils";
+    }
 
-  if (error) {
-    toast("Erreur lors de la création des profils : " + error.message, "error");
-    return;
-  }
+    if (error) {
+      toast("Erreur création profils: " + error.message, "error");
+      return;
+    }
 
-  userProfiles = data;
-  toast("Vos 3 identités sont prêtes !", "success");
-  await loadMainScreen();
-}); 
+    userProfiles = data || [];
+    toast("Vos 3 identités sont prêtes !", "success");
+    await loadMainScreen();
+  });
+}
 
-// Charge l'écran principal avec le swiper
 async function loadMainScreen() {
   showScreen("screen-main");
   buildSwiper();
@@ -214,9 +268,9 @@ async function loadMainScreen() {
   await loadContacts();
 }
 
-// Construit les slides du swiper
 function buildSwiper() {
   const wrapper = document.getElementById("profile-slides");
+  if (!wrapper) return;
   wrapper.innerHTML = "";
 
   userProfiles.forEach((p) => {
@@ -228,15 +282,17 @@ function buildSwiper() {
           <i class="${profileIcon(p.profile_type)}"></i>
         </div>
         <div class="slide-info">
-          <span class="slide-name">${p.name}</span>
+          <span class="slide-name">${escapeHtml(p.name)}</span>
           <span class="slide-type">${profileLabel(p.profile_type)}</span>
         </div>
       </div>`;
     wrapper.appendChild(slide);
   });
 
-  // Destruction de l'ancien swiper si nécessaire
-  if (swiper) { swiper.destroy(true, true); swiper = null; }
+  if (swiper) {
+    swiper.destroy(true, true);
+    swiper = null;
+  }
 
   swiper = new Swiper(".profile-swiper", {
     slidesPerView: 1.15,
@@ -245,25 +301,25 @@ function buildSwiper() {
     pagination: { el: ".swiper-pagination", clickable: true },
     on: {
       slideChange: async () => {
-        activeProfile = userProfiles[swiper.activeIndex];
-        updateHeaderProfile();
-        await loadContacts();
+        if (swiper && userProfiles[swiper.activeIndex]) {
+          activeProfile = userProfiles[swiper.activeIndex];
+          updateHeaderProfile();
+          await loadContacts();
+        }
       }
     }
   });
 }
 
-// Met à jour le nom dans l'en-tête
 function updateHeaderProfile() {
   const el = document.getElementById("active-profile-name");
-  if (activeProfile) el.textContent = activeProfile.name;
+  if (el && activeProfile) el.textContent = activeProfile.name;
 }
 
 // ============================================================
-// ÉTAPE 4 : Contacts — affichage et ajout
+// CONTACTS
 // ============================================================
 
-// Charge les contacts du profil actif
 async function loadContacts() {
   if (!activeProfile) return;
 
@@ -273,15 +329,18 @@ async function loadContacts() {
     .eq("user_id", currentUser.id)
     .eq("assigned_profile_id", activeProfile.id);
 
-  if (error) { toast("Erreur contacts : " + error.message, "error"); return; }
+  if (error) {
+    toast("Erreur contacts: " + error.message, "error");
+    return;
+  }
 
   currentContacts = data || [];
   renderContacts();
 }
 
-// Affiche la liste des contacts dans le DOM
 function renderContacts() {
   const list = document.getElementById("contact-list");
+  if (!list) return;
   list.innerHTML = "";
 
   if (currentContacts.length === 0) {
@@ -293,92 +352,108 @@ function renderContacts() {
     const li = document.createElement("li");
     li.className = "contact-item";
     li.innerHTML = `
-      <div class="contact-avatar">${initial(c.contact_name)}</div>
+      <div class="contact-avatar">${escapeHtml(initial(c.contact_name))}</div>
       <div class="contact-info">
-        <span class="contact-name-text">${c.contact_name}</span>
-        <span class="contact-email-text">${c.contact_email}</span>
+        <span class="contact-name-text">${escapeHtml(c.contact_name)}</span>
+        <span class="contact-email-text">${escapeHtml(c.contact_email)}</span>
       </div>`;
     li.addEventListener("click", () => openChat(c));
     list.appendChild(li);
   });
 }
 
-// Ouvre la modal d'ajout de contact
-document.getElementById("btn-add-contact").addEventListener("click", () => {
-  // Remplit le select avec les profils disponibles
-  const select = document.getElementById("contact-profile-select");
-  select.innerHTML = "";
-  userProfiles.forEach((p) => {
-    const opt = document.createElement("option");
-    opt.value = p.id;
-    opt.textContent = `${profileLabel(p.profile_type)} — ${p.name}`;
-    if (p.id === activeProfile?.id) opt.selected = true;
-    select.appendChild(opt);
+const btnAddContact = document.getElementById("btn-add-contact");
+if (btnAddContact) {
+  btnAddContact.addEventListener("click", () => {
+    const select = document.getElementById("contact-profile-select");
+    if (select) {
+      select.innerHTML = "";
+      userProfiles.forEach((p) => {
+        const opt = document.createElement("option");
+        opt.value = p.id;
+        opt.textContent = `${profileLabel(p.profile_type)} — ${p.name}`;
+        if (p.id === activeProfile?.id) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
+    const modal = document.getElementById("modal-add-contact");
+    if (modal) modal.classList.remove("hidden");
   });
-  document.getElementById("modal-add-contact").classList.remove("hidden");
-});
+}
 
-// Ferme la modal
-document.getElementById("modal-close").addEventListener("click", () => {
-  document.getElementById("modal-add-contact").classList.add("hidden");
-});
-document.getElementById("modal-add-contact").addEventListener("click", (e) => {
-  if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
-});
-
-// Formulaire ajout de contact
-document.getElementById("form-add-contact").addEventListener("submit", async (e) => {
-  e.preventDefault();
-  const email      = document.getElementById("contact-email").value.trim();
-  const name       = document.getElementById("contact-name").value.trim();
-  const profileId  = document.getElementById("contact-profile-select").value;
-  const btn = e.target.querySelector("button");
-  btn.disabled = true;
-  btn.textContent = "Ajout…";
-
-  const { error } = await db.from("contacts").insert({
-    user_id: currentUser.id,
-    contact_email: email,
-    contact_name: name,
-    assigned_profile_id: profileId,
+const modalClose = document.getElementById("modal-close");
+if (modalClose) {
+  modalClose.addEventListener("click", () => {
+    const modal = document.getElementById("modal-add-contact");
+    if (modal) modal.classList.add("hidden");
   });
+}
 
-  btn.disabled = false;
-  btn.textContent = "Ajouter";
+const modalAddContact = document.getElementById("modal-add-contact");
+if (modalAddContact) {
+  modalAddContact.addEventListener("click", (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
+  });
+}
 
-  if (error) {
-    toast("Erreur : " + error.message, "error");
-    return;
-  }
+const formAddContact = document.getElementById("form-add-contact");
+if (formAddContact) {
+  formAddContact.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("contact-email")?.value.trim() || "";
+    const name = document.getElementById("contact-name")?.value.trim() || "";
+    const profileId = document.getElementById("contact-profile-select")?.value;
+    const btn = e.target.querySelector("button");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Ajout…";
+    }
 
-  toast("Contact ajouté !", "success");
-  document.getElementById("form-add-contact").reset();
-  document.getElementById("modal-add-contact").classList.add("hidden");
+    const { error } = await db.from("contacts").insert({
+      user_id: currentUser.id,
+      contact_email: email,
+      contact_name: name,
+      assigned_profile_id: profileId
+    });
 
-  // Recharge les contacts si le profil sélectionné est celui actif
-  if (profileId === activeProfile?.id) await loadContacts();
-});
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = "Ajouter";
+    }
+
+    if (error) {
+      toast("Erreur: " + error.message, "error");
+      return;
+    }
+
+    toast("Contact ajouté !", "success");
+    if (formAddContact) formAddContact.reset();
+    const modal = document.getElementById("modal-add-contact");
+    if (modal) modal.classList.add("hidden");
+
+    if (profileId === activeProfile?.id) await loadContacts();
+  });
+}
 
 // ============================================================
-// ÉTAPE 5 : Messages temps réel — chat
+// CHAT
 // ============================================================
 
-// Ouvre le chat avec un contact
 async function openChat(contact) {
-  chatContact   = contact;
+  chatContact = contact;
   chatMyProfile = activeProfile;
 
-  document.getElementById("chat-contact-name").textContent = contact.contact_name;
+  const nameEl = document.getElementById("chat-contact-name");
   const badge = document.getElementById("chat-profile-badge");
-  badge.textContent = profileLabel(chatMyProfile.profile_type);
-  badge.className = `profile-badge ${chatMyProfile.profile_type}`;
+  if (nameEl) nameEl.textContent = contact.contact_name;
+  if (badge) {
+    badge.textContent = profileLabel(chatMyProfile.profile_type);
+    badge.className = `profile-badge ${chatMyProfile.profile_type}`;
+  }
 
   showScreen("screen-chat");
-
-  // Charge les messages existants
   await loadMessages();
 
-  // Abonnement Realtime pour les nouveaux messages
   if (realtimeChannel) db.removeChannel(realtimeChannel);
 
   realtimeChannel = db.channel("messages-realtime")
@@ -387,22 +462,18 @@ async function openChat(contact) {
       { event: "INSERT", schema: "public", table: "messages" },
       (payload) => {
         const msg = payload.new;
-        // N'affiche que les messages de cette conversation
         const isRelevant =
-          (msg.from_profile_id === chatMyProfile.id && msg.to_profile_id === contact.contact_email) ||
-          (msg.from_profile_id === contact.contact_email && msg.to_profile_id === chatMyProfile.id) ||
-          (msg.from_profile_id === chatMyProfile.id) ||
-          (msg.to_profile_id === chatMyProfile.id);
-
+          (msg.from_profile_id === chatMyProfile.id && msg.to_profile_id === chatContact.id) ||
+          (msg.from_profile_id === chatContact.id && msg.to_profile_id === chatMyProfile.id);
         if (isRelevant) appendMessage(msg);
       }
     )
     .subscribe();
 }
 
-// Charge les messages de la conversation courante
 async function loadMessages() {
   const container = document.getElementById("messages-container");
+  if (!container) return;
   container.innerHTML = "";
 
   const { data, error } = await db
@@ -414,28 +485,29 @@ async function loadMessages() {
     )
     .order("created_at", { ascending: true });
 
-  if (error) { toast("Erreur messages : " + error.message, "error"); return; }
+  if (error) {
+    toast("Erreur messages: " + error.message, "error");
+    return;
+  }
 
   (data || []).forEach(appendMessage);
   scrollToBottom();
 }
 
-// Ajoute une bulle de message dans le DOM
 function appendMessage(msg) {
   const isMine = msg.from_profile_id === chatMyProfile.id;
   const container = document.getElementById("messages-container");
+  if (!container) return;
 
   const wrapper = document.createElement("div");
   wrapper.className = `bubble-wrapper ${isMine ? "mine" : "theirs"}`;
   wrapper.innerHTML = `
     <div class="bubble">${escapeHtml(msg.content)}</div>
     <span class="bubble-time">${formatTime(msg.created_at)}</span>`;
-
   container.appendChild(wrapper);
   scrollToBottom();
 }
 
-// Protège le contenu contre les injections XSS
 function escapeHtml(str) {
   return str
     .replace(/&/g, "&amp;")
@@ -444,20 +516,27 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
-// Fait défiler vers le bas du chat
 function scrollToBottom() {
   const c = document.getElementById("messages-container");
-  c.scrollTop = c.scrollHeight;
+  if (c) c.scrollTop = c.scrollHeight;
 }
 
-// Envoie un message
-document.getElementById("btn-send").addEventListener("click", sendMessage);
-document.getElementById("message-input").addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-});
+const btnSend = document.getElementById("btn-send");
+const messageInput = document.getElementById("message-input");
+
+if (btnSend && messageInput) {
+  btnSend.addEventListener("click", sendMessage);
+  messageInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  });
+}
 
 async function sendMessage() {
   const input = document.getElementById("message-input");
+  if (!input) return;
   const content = input.value.trim();
   if (!content) return;
 
@@ -466,20 +545,25 @@ async function sendMessage() {
   const { error } = await db.from("messages").insert({
     from_profile_id: chatMyProfile.id,
     to_profile_id: chatContact.id,
-    content,
+    content
   });
 
   if (error) {
-    toast("Erreur envoi : " + error.message, "error");
-    input.value = content; // Restaure le texte en cas d'erreur
+    toast("Erreur envoi: " + error.message, "error");
+    input.value = content;
   }
 }
 
-// Bouton retour depuis le chat
-document.getElementById("btn-back").addEventListener("click", () => {
-  if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
-  showScreen("screen-main");
-});
+const btnBack = document.getElementById("btn-back");
+if (btnBack) {
+  btnBack.addEventListener("click", () => {
+    if (realtimeChannel) {
+      db.removeChannel(realtimeChannel);
+      realtimeChannel = null;
+    }
+    showScreen("screen-main");
+  });
+}
 
 // ============================================================
 // DÉMARRAGE
