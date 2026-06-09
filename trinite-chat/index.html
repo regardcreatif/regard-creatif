@@ -4,39 +4,31 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Trinite Chat</title>
-  <meta name="description" content="Trinite Chat — Trois profils, un seul chat. Auth, feed TikTok, studio et chat en temps réel." />
-  <meta name="robots" content="index, follow" />
+  <meta name="description" content="Trinite Chat — Trois profils, un seul chat." />
   <meta property="og:title" content="Trinite Chat" />
   <meta property="og:description" content="Trois profils, un seul chat." />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
 
-  <!-- Premium Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome 6 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-
-  <!-- Premium Styles -->
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
 
-  <!-- ===== PARTICLE CANVAS (background) ===== -->
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
-  <!-- ===== THEME TOGGLE ===== -->
   <button id="theme-toggle" class="theme-toggle" title="Basculer le thème" aria-label="Thème">
     <i class="fa-solid fa-moon" id="theme-icon"></i>
   </button>
 
-  <!-- ===== ÉCRAN CONNEXION / INSCRIPTION ===== -->
+  <!-- ===== ÉCRAN CONNEXION ===== -->
   <div id="screen-auth" class="screen active">
     <div class="auth-container">
       <div class="auth-logo-wrap">
-        <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+        <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
              alt="Trinite Chat" class="auth-logo" />
         <div class="auth-logo-glow"></div>
       </div>
@@ -94,10 +86,10 @@
     </div>
   </div>
 
-  <!-- ===== ÉCRAN SETUP PROFILS ===== -->
+  <!-- ===== ÉCRAN SETUP ===== -->
   <div id="screen-setup" class="screen">
     <div class="setup-container">
-      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
            alt="logo" class="setup-logo" />
       <h2 class="setup-title gradient-text">Créez vos 3 identités</h2>
       <p class="setup-sub">Chaque profil a ses propres contacts et messages.</p>
@@ -131,10 +123,10 @@
     </div>
   </div>
 
-  <!-- ===== ÉCRAN MESSAGES (principal) ===== -->
+  <!-- ===== ÉCRAN MESSAGES ===== -->
   <div id="screen-main" class="screen">
     <header class="main-header glass-header">
-      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
            alt="logo" class="header-logo-img" />
       <h1 class="header-logo gradient-text">Trinite Chat</h1>
       <span id="active-profile-name" class="header-profile"></span>
@@ -143,27 +135,22 @@
       </button>
     </header>
 
-    <!-- Swiper profils -->
     <div class="profile-swiper-wrap" id="profile-swiper-wrap">
       <div class="profile-slides" id="profile-slides"></div>
       <div class="swiper-dots" id="swiper-dots"></div>
     </div>
 
-    <!-- ===== STORIES ===== -->
     <div class="stories-section" id="stories-section">
       <div class="stories-scroll" id="stories-scroll"></div>
     </div>
 
-    <!-- Barre de recherche contacts -->
     <div class="search-bar-wrap">
       <div class="search-bar glass-search">
         <i class="fa-solid fa-magnifying-glass search-icon"></i>
         <input type="text" id="contact-search" placeholder="Rechercher un contact…" autocomplete="off" />
-        <div class="search-ripple"></div>
       </div>
     </div>
 
-    <!-- Contacts -->
     <div class="contacts-section">
       <div class="contacts-header">
         <h3>Contacts</h3>
@@ -176,7 +163,6 @@
       </ul>
     </div>
 
-    <!-- Barre de navigation basse -->
     <nav class="bottom-nav glass-nav">
       <button class="nav-btn" data-screen="screen-feed">
         <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
@@ -202,6 +188,9 @@
     <div class="feed-header-overlay">
       <span class="feed-tab-inactive" id="feed-tab-abos">Abonnements</span>
       <span class="feed-tab-active">Pour toi</span>
+      <button id="btn-feed-sound" class="feed-sound-btn" title="Son">
+        <i class="fa-solid fa-volume-xmark"></i>
+      </button>
     </div>
 
     <div class="feed-container" id="feed-container"></div>
@@ -229,7 +218,7 @@
   <!-- ===== ÉCRAN STUDIO ===== -->
   <div id="screen-studio" class="screen">
     <header class="main-header glass-header">
-      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
            alt="logo" class="header-logo-img" />
       <h1 class="header-logo gradient-text">Studio</h1>
     </header>
@@ -312,12 +301,53 @@
   <!-- ===== ÉCRAN PROFIL ===== -->
   <div id="screen-profil" class="screen">
     <header class="main-header glass-header">
-      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
            alt="logo" class="header-logo-img" />
       <h1 class="header-logo gradient-text">Mon Profil</h1>
     </header>
 
     <div class="profil-section">
+      <!-- Avatar personnalisable -->
+      <div class="avatar-section glass-card stagger-in">
+        <div class="avatar-preview-wrap">
+          <div class="avatar-large" id="avatar-large-preview">
+            <span id="avatar-large-initials" class="avatar-initials-large">?</span>
+            <img id="avatar-large-img" class="avatar-img-large hidden" alt="Avatar" />
+          </div>
+          <div class="avatar-edit-btns">
+            <label class="avatar-btn" for="avatar-file-input" title="Choisir depuis galerie">
+              <i class="fa-solid fa-image"></i>
+              <span>Galerie</span>
+            </label>
+            <button class="avatar-btn" id="btn-avatar-camera" title="Prendre une photo">
+              <i class="fa-solid fa-camera"></i>
+              <span>Caméra</span>
+            </button>
+            <button class="avatar-btn avatar-btn-danger hidden" id="btn-avatar-remove" title="Supprimer">
+              <i class="fa-solid fa-trash"></i>
+              <span>Supprimer</span>
+            </button>
+          </div>
+          <input type="file" id="avatar-file-input" accept="image/*" class="hidden" />
+          <video id="avatar-camera-stream" class="hidden" autoplay muted playsinline style="width:100%;max-height:200px;border-radius:12px;object-fit:cover;margin-top:0.75rem"></video>
+          <canvas id="avatar-canvas" class="hidden"></canvas>
+          <div id="avatar-camera-controls" class="hidden" style="display:flex;gap:0.75rem;margin-top:0.5rem">
+            <button class="btn-primary shimmer-btn" id="btn-avatar-snap" style="flex:1">
+              <i class="fa-solid fa-camera"></i> Capturer
+            </button>
+            <button class="studio-btn glass-card" id="btn-avatar-cam-stop" style="flex:0.4">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <div id="avatar-upload-progress" class="studio-upload-progress hidden" style="margin-top:0.5rem">
+            <div class="studio-progress-bar" id="avatar-progress-bar"></div>
+          </div>
+        </div>
+        <p class="profil-id-hint" style="text-align:center;margin-top:0.5rem">
+          Photo de profil visible par vos contacts
+        </p>
+      </div>
+
       <div class="profil-id-section glass-card" id="profil-id-section" style="display:none">
         <p class="profil-title">Mon ID Trinite</p>
         <div class="profil-id-box">
@@ -369,11 +399,20 @@
       <button id="btn-back" class="icon-btn">
         <i class="fa-solid fa-arrow-left"></i>
       </button>
+      <div class="chat-contact-avatar-wrap">
+        <div class="chat-contact-avatar" id="chat-contact-avatar">?</div>
+      </div>
       <div class="chat-header-info">
         <span id="chat-contact-name" class="chat-title"></span>
         <span id="chat-profile-badge" class="profile-badge"></span>
       </div>
     </header>
+    <div id="typing-indicator" class="typing-indicator hidden">
+      <div class="typing-bubble">
+        <span></span><span></span><span></span>
+      </div>
+      <span class="typing-text">en train d'écrire…</span>
+    </div>
     <div id="messages-container" class="messages-container"></div>
     <div class="message-input-bar glass-input-bar">
       <button id="btn-voice" class="btn-voice" title="Message vocal">
@@ -424,18 +463,41 @@
             <select id="contact-profile-select"></select>
           </div>
         </div>
+        <button type="button" id="btn-qr-scan" class="btn-qr-scan">
+          <i class="fa-solid fa-qrcode"></i>
+          Scanner un QR Code
+        </button>
         <button type="submit" class="btn-primary shimmer-btn">
           <i class="fa-solid fa-user-plus"></i>
           Ajouter
         </button>
       </form>
+      <!-- QR Scanner simulé -->
+      <div id="qr-scanner-mock" class="qr-scanner-mock hidden">
+        <div class="qr-scanner-frame">
+          <div class="qr-scanner-line"></div>
+          <div class="qr-corner tl"></div>
+          <div class="qr-corner tr"></div>
+          <div class="qr-corner bl"></div>
+          <div class="qr-corner br"></div>
+        </div>
+        <p class="qr-hint">Pointez vers un QR Code Trinite Chat</p>
+        <button class="btn-primary shimmer-btn" id="btn-qr-simulate" style="margin-top:0.75rem">
+          <i class="fa-solid fa-bolt"></i> Simuler scan
+        </button>
+        <button class="icon-btn" id="btn-qr-close" style="margin-top:0.5rem;width:100%;justify-content:center">
+          <i class="fa-solid fa-xmark"></i> Fermer
+        </button>
+      </div>
     </div>
   </div>
 
   <!-- ===== MODAL STORY ===== -->
   <div id="modal-story" class="modal-overlay hidden story-modal-overlay">
     <div class="story-modal-content">
-      <div class="story-progress-bar"></div>
+      <div class="story-progress-track">
+        <div class="story-progress-bar"></div>
+      </div>
       <button id="story-modal-close" class="story-modal-close icon-btn">
         <i class="fa-solid fa-xmark"></i>
       </button>
@@ -445,6 +507,22 @@
       </div>
       <div class="story-modal-body" id="story-modal-body"></div>
     </div>
+  </div>
+
+  <!-- ===== FAB BOUTON FLOTTANT ===== -->
+  <div id="fab-container" class="fab-container hidden">
+    <button class="fab-option fab-option-pro" id="fab-pro" data-type="pro" title="Profil Pro">
+      <i class="fa-solid fa-briefcase"></i>
+    </button>
+    <button class="fab-option fab-option-prive" id="fab-prive" data-type="prive" title="Profil Privé">
+      <i class="fa-solid fa-heart"></i>
+    </button>
+    <button class="fab-option fab-option-anonyme" id="fab-anonyme" data-type="anonyme" title="Profil Anonyme">
+      <i class="fa-solid fa-ghost"></i>
+    </button>
+    <button id="fab-main" class="fab-main" aria-label="Changer de profil">
+      <i class="fa-solid fa-user-gear" id="fab-icon"></i>
+    </button>
   </div>
 
   <!-- ===== SKELETON LOADER ===== -->
@@ -470,9 +548,7 @@
   <!-- ===== TOAST ===== -->
   <div id="toast" class="toast hidden"></div>
 
-  <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Script principal (inclut effets premium) -->
   <script src="./script.js"></script>
 </body>
 </html>
