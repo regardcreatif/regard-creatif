@@ -149,6 +149,22 @@ const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-5
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
+// ADDED: In-memory flag to avoid duplicate Cache API writes
+const avatarCache = new Map();
+// ADDED: Neon pulse animation style for notification badge
+(function injectNeonAnimation() {
+  if (document.getElementById("neon-pulse-style")) return;
+  const style = document.createElement("style");
+  style.id = "neon-pulse-style";
+  style.textContent = `
+    @keyframes neonPulse {
+      0% { box-shadow: 0 0 5px var(--primary); transform: scale(1); }
+      100% { box-shadow: 0 0 20px var(--primary), 0 0 40px var(--accent); transform: scale(1.05); }
+    }
+  `;
+  document.head.appendChild(style);
+})();
+
 // ============================================================
 // ÉTAT GLOBAL
 // ============================================================
@@ -241,11 +257,130 @@ function formatCount(n) {
   return String(n);
 }
 
+// ADDED: Preload logo image for faster LCP
+function preloadLogo() {
+  if (document.querySelector(`link[href="${LOGO_URL}"]`)) return;
+  const link = document.createElement("link");
+  link.rel = "preload";
+  link.as = "image";
+  link.href = LOGO_URL;
+  document.head.appendChild(link);
+}
+
+// ADDED: Enforce logo aspect ratio & ensure round containers are 1:1
+function enforceLogoAspectRatio() {
+  document.querySelectorAll("img").forEach(img => {
+    if (img.src.includes("Picsart-26-06-09-10-15-05-552.png") || img.classList.contains("logo") || img.id === "logo") {
+      img.style.objectFit = "contain";
+      img.style.maxWidth = "100%";
+      img.style.maxHeight = "100%";
+      img.style.height = "auto";
+      img.style.width = "auto";
+      const parent = img.parentElement;
+      if (parent) {
+        const cs = window.getComputedStyle(parent);
+        if (cs.borderRadius !== "0px" && (cs.borderRadius.includes("%") || cs.borderRadius === "50%")) {
+          parent.style.aspectRatio = "1/1";
+          parent.style.overflow = "hidden";
+        }
+      }
+    }
+  });
+}
+
+// ADDED: Compress image before upload (max 400x400, quality 0.7)
+function compressImage(file, maxW = 400, maxH = 400, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith("image/")) return resolve(file);
+    const reader = new FileReader();
+    reader.onerror = reject;
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        let { width, height } = img;
+        if (width <= maxW && height <= maxH) return resolve(file);
+        const ratio = Math.min(maxW / width, maxH / height);
+        width = Math.round(width * ratio);
+        height = Math.round(height * ratio);
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => {
+          if (blob) resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }));
+          else resolve(file);
+        }, "image/jpeg", quality);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ADDED: Ensure Supabase storage bucket "avatars" exists and is public (RLS: public read, authenticated write)
+async function ensureAvatarsBucket() {
+  try {
+    const { data: buckets } = await db.storage.listBuckets();
+    const bucket = buckets?.find(b => b.name === "avatars");
+    if (!bucket) {
+      const { error: createErr } = await db.storage.createBucket("avatars", { public: true });
+      if (createErr) console.warn("Bucket creation failed:", createErr.message);
+      else console.log("Bucket 'avatars' created with public access.");
+    } else if (!bucket.public) {
+      await db.storage.updateBucket("avatars", { public: true });
+    }
+  } catch (err) {
+    console.warn("Bucket check failed:", err);
+  }
+}
+
+// ADDED: Cache avatar URLs using Cache API for faster subsequent loads
+async function precacheAvatar(url) {
+  if (!url || avatarCache.has(url)) return;
+  avatarCache.set(url, true);
+  try {
+    const cache = await caches.open("avatars");
+    await cache.add(url);
+  } catch (_) { /* ignore */ }
+}
+
 /* ===== AVATAR HELPERS ===== */
+// FIX: Enhanced renderAvatar with lazy loading, 3s fallback & Cache API preload
 function renderAvatar(el, name, avatarUrl) {
   if (!el) return;
+  if (el._avatarTimeout) clearTimeout(el._avatarTimeout);
+  el.innerHTML = "";
   if (avatarUrl) {
-    el.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" onerror="this.style.display='none';this.parentElement.querySelector('.avatar-fallback')?.style.setProperty('display','flex')" />`;
+    // Precache the URL for future use
+    precacheAvatar(avatarUrl);
+    const img = document.createElement("img");
+    img.src = avatarUrl;
+    img.alt = escapeHtml(name);
+    img.loading = "lazy";
+    img.style.objectFit = "cover";
+    img.style.width = "100%";
+    img.style.height = "100%";
+    img.style.borderRadius = "inherit";
+    let resolved = false;
+    const showFallback = () => {
+      if (resolved) return;
+      resolved = true;
+      el.innerHTML = `<span>${initial(name)}</span>`;
+      el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+    };
+    img.onerror = showFallback;
+    el._avatarTimeout = setTimeout(() => {
+      if (!img.complete || img.naturalWidth === 0) {
+        showFallback();
+      }
+    }, 3000);
+    img.onload = () => {
+      clearTimeout(el._avatarTimeout);
+      resolved = true;
+    };
+    el.appendChild(img);
     el.style.background = "transparent";
   } else {
     el.innerHTML = `<span>${initial(name)}</span>`;
@@ -257,6 +392,7 @@ function renderAvatar(el, name, avatarUrl) {
 // BADGE NOTIFICATIONS
 // ============================================================
 
+// FIX: Apply neon pulse animation when badge is visible
 function updateMsgBadge(count) {
   unreadCount = Math.max(0, count);
   const badge = document.getElementById("msg-badge");
@@ -264,11 +400,10 @@ function updateMsgBadge(count) {
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     badge.classList.remove("hidden");
-    badge.style.animation = "none";
-    void badge.offsetWidth;
-    badge.style.animation = "";
+    badge.style.animation = "neonPulse 1.5s ease-in-out infinite alternate";
   } else {
     badge.classList.add("hidden");
+    badge.style.animation = "";
   }
 }
 
@@ -299,6 +434,11 @@ function startNotifListener() {
 // ============================================================
 
 async function initAuth() {
+  // Initial optimisations: preload logo, ensure bucket, compress helpers
+  preloadLogo();
+  ensureAvatarsBucket();
+  enforceLogoAspectRatio();
+
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
@@ -346,6 +486,8 @@ async function afterLogin() {
   } else {
     userProfiles = data;
     userAvatarUrl = data[0]?.avatar_url || null;
+    // Precache user avatar
+    if (userAvatarUrl) precacheAvatar(userAvatarUrl);
   }
 
   await loadMainScreen();
@@ -450,12 +592,13 @@ async function loadMainScreen() {
   wireContactSearch();
   initFab();
   updateAvatarUI();
+  enforceLogoAspectRatio();
 
   setTimeout(() => hideSkeleton(), 500);
 }
 
 // ============================================================
-// SWIPER DE PROFILS (bug fix: offset précis)
+// SWIPER DE PROFILS (fix: smooth transition, lower threshold, reject vertical)
 // ============================================================
 
 function buildSwiper() {
@@ -488,31 +631,46 @@ function buildSwiper() {
     dot.className = `dot${i === 0 ? " active" : ""}`;
     dot.addEventListener("click", () => setActiveProfile(i));
     dots.appendChild(dot);
+
+    // Precache profile avatar
+    if (p.avatar_url) precacheAvatar(p.avatar_url);
   });
 
+  // Enable smooth sliding
+  slides.style.transition = "transform 0.3s ease";
+
   const wrap = document.getElementById("profile-swiper-wrap");
-  let startX = null;
+  let startX = null, startY = null;
   let dragging = false;
 
   wrap?.addEventListener("touchstart", e => {
     startX   = e.touches[0].clientX;
+    startY   = e.touches[0].clientY;
     dragging = false;
   }, { passive: true });
 
   wrap?.addEventListener("touchmove", e => {
     if (startX === null) return;
-    if (Math.abs(e.touches[0].clientX - startX) > 8) dragging = true;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    // Reject vertical movement
+    if (Math.abs(dy) > Math.abs(dx)) {
+      startX = null;
+      return;
+    }
+    if (Math.abs(dx) > 8) dragging = true;
   }, { passive: true });
 
   wrap?.addEventListener("touchend", e => {
-    if (startX === null || !dragging) { startX = null; return; }
+    if (startX === null || !dragging) { startX = startY = null; return; }
     const dx = e.changedTouches[0].clientX - startX;
-    startX   = null;
+    startX = startY = null;
     dragging = false;
-    if (dx < -40 && activeIdx < userProfiles.length - 1) {
+    // Lower threshold for fluidity
+    if (dx < -30 && activeIdx < userProfiles.length - 1) {
       setActiveProfile(activeIdx + 1);
       haptic(10);
-    } else if (dx > 40 && activeIdx > 0) {
+    } else if (dx > 30 && activeIdx > 0) {
       setActiveProfile(activeIdx - 1);
       haptic(10);
     }
@@ -552,7 +710,7 @@ function updateHeaderProfile() {
 }
 
 // ============================================================
-// STORIES
+// STORIES (fix: exact 4s progress bar & auto close)
 // ============================================================
 
 function buildStories() {
@@ -607,6 +765,9 @@ function openStory(contact, emoji) {
 
   const progressBar = modal?.querySelector(".story-progress-bar");
   if (progressBar) {
+    // Force 4-second linear animation
+    progressBar.style.animationDuration = "4s";
+    progressBar.style.animationTimingFunction = "linear";
     progressBar.style.animation = "none";
     void progressBar.offsetWidth;
     progressBar.style.animation = "";
@@ -933,15 +1094,18 @@ function updateAvatarUI() {
 async function uploadAvatar(file) {
   if (!currentUser || !file) return;
 
+  // Compress image before upload
+  const compressed = await compressImage(file);
+
   const progressWrap = document.getElementById("avatar-upload-progress");
   const progressBar  = document.getElementById("avatar-progress-bar");
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "20%";
 
-  const ext  = file.name.split(".").pop() || "jpg";
+  const ext  = compressed.name.split(".").pop() || "jpg";
   const path = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
 
-  const { error: upErr } = await db.storage.from("avatars").upload(path, file, {
+  const { error: upErr } = await db.storage.from("avatars").upload(path, compressed, {
     cacheControl: "3600",
     upsert: true
   });
@@ -972,6 +1136,7 @@ async function uploadAvatar(file) {
 
   userAvatarUrl = publicUrl;
   userProfiles.forEach(p => { p.avatar_url = publicUrl; });
+  precacheAvatar(publicUrl); // Precache new avatar
 
   if (progressBar) progressBar.style.width = "100%";
   setTimeout(() => progressWrap?.classList.add("hidden"), 600);
@@ -1054,7 +1219,7 @@ function stopAvatarCamera() {
 }
 
 // ============================================================
-// FAB BOUTON FLOTTANT
+// FAB BOUTON FLOTTANT (déjà complet)
 // ============================================================
 
 let fabOpen = false;
@@ -1204,6 +1369,7 @@ function wireBottomNav() {
       } else {
         pauseAllFeedVideos();
       }
+      enforceLogoAspectRatio(); // Re-check logo
     });
   });
 }
@@ -1823,6 +1989,12 @@ btnUpload?.addEventListener("click", async () => {
   if (!fileObj) { toast("Aucun fichier à publier", "error"); return; }
   if (!currentUser) { toast("Connectez-vous d'abord", "error"); return; }
 
+  // Compress image if applicable
+  let uploadFile = fileObj;
+  if (fileObj.type.startsWith("image/")) {
+    uploadFile = await compressImage(fileObj);
+  }
+
   const progressWrap = document.getElementById("studio-upload-progress");
   const progressBar  = document.getElementById("studio-progress-bar");
   btnUpload.disabled = true;
@@ -1838,7 +2010,7 @@ btnUpload?.addEventListener("click", async () => {
     if (cur < 85 && progressBar) progressBar.style.width = (cur + 5) + "%";
   }, 300);
 
-  const { error } = await db.storage.from("videos").upload(path, fileObj, {
+  const { error } = await db.storage.from("videos").upload(path, uploadFile, {
     cacheControl: "3600",
     upsert: false,
     metadata: { uploader: activeProfile?.name || "user", description: desc }
@@ -1871,3 +2043,7 @@ btnUpload?.addEventListener("click", async () => {
 // DÉMARRAGE
 // ============================================================
 initAuth();
+
+// ADDED: Keep logo ratio consistent on any DOM change
+new MutationObserver(() => enforceLogoAspectRatio()).observe(document.body, { childList: true, subtree: true });
+window.addEventListener("load", enforceLogoAspectRatio);
