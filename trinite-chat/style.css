@@ -70,6 +70,8 @@ body::before {
   background-size: 400% 400%;
   animation: gradientShift 8s ease infinite;
   z-index: -2;
+  /* ADDED: will-change for smoother background animation */
+  will-change: background-position;
 }
 
 @keyframes gradientShift {
@@ -183,11 +185,13 @@ body::before {
 
 .auth-logo-wrap { position: relative; margin-bottom: 0.5rem; }
 
+/* FIX: logo ratio preserved with contain and aspect-ratio */
 .auth-logo {
   width: 88px;
-  height: 88px;
+  height: auto;
+  aspect-ratio: 1/1;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
   position: relative;
   z-index: 1;
   border: 2px solid rgba(139, 92, 246, 0.5);
@@ -431,11 +435,13 @@ body::before {
   height: 100%;
 }
 
+/* FIX: setup logo ratio preserved */
 .setup-logo {
   width: 72px;
-  height: 72px;
+  height: auto;
+  aspect-ratio: 1/1;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
   box-shadow: 0 0 32px rgba(139, 92, 246, 0.5);
   border: 2px solid rgba(139, 92, 246, 0.4);
 }
@@ -462,6 +468,8 @@ body::before {
   font-size: 1.4rem;
   flex-shrink: 0;
   position: relative;
+  /* ADDED: ensure square aspect ratio */
+  aspect-ratio: 1/1;
 }
 .profile-icon.pro     { background: rgba(99,102,241,0.2); box-shadow: 0 0 20px rgba(99,102,241,0.3); }
 .profile-icon.prive   { background: rgba(236,72,153,0.2); box-shadow: 0 0 20px rgba(236,72,153,0.3); }
@@ -476,10 +484,13 @@ body::before {
   flex-shrink: 0;
 }
 
+/* FIX: header logo ratio preserved */
 .header-logo-img {
-  width: 38px; height: 38px;
+  width: 38px;
+  height: auto;
+  aspect-ratio: 1/1;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
   flex-shrink: 0;
   border: 1.5px solid rgba(139, 92, 246, 0.4);
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
@@ -512,7 +523,10 @@ body::before {
 .profile-slides {
   display: flex;
   gap: 12px;
-  transition: transform 0.45s var(--spring);
+  /* ADDED: will-change for GPU acceleration */
+  will-change: transform;
+  /* FIX: smoother transition easing */
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .profile-slide {
@@ -545,6 +559,8 @@ body::before {
   font-size: 1.4rem;
   flex-shrink: 0;
   overflow: hidden;
+  /* ADDED: enforce 1:1 ratio */
+  aspect-ratio: 1/1;
 }
 .slide-icon.pro     { background: rgba(99,102,241,0.2); box-shadow: 0 0 16px rgba(99,102,241,0.3); }
 .slide-icon.prive   { background: rgba(236,72,153,0.2); box-shadow: 0 0 16px rgba(236,72,153,0.3); }
@@ -617,6 +633,8 @@ body::before {
   font-size: 1.15rem;
   color: var(--text);
   overflow: hidden;
+  /* ADDED: aspect ratio for safety */
+  aspect-ratio: 1/1;
 }
 .story-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
@@ -790,6 +808,8 @@ body::before {
   position: relative;
   z-index: 1;
   touch-action: pan-y;
+  /* ADDED: will-change for smooth swipe */
+  will-change: transform;
 }
 .contact-item:hover {
   border-color: var(--primary);
@@ -820,6 +840,8 @@ body::before {
   color: #fff;
   box-shadow: 0 0 16px var(--primary-glow);
   overflow: hidden;
+  /* ADDED: aspect ratio */
+  aspect-ratio: 1/1;
 }
 .contact-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
@@ -880,6 +902,8 @@ body::before {
   transition: all 0.25s var(--spring);
   position: relative;
   letter-spacing: 0.03em;
+  /* ADDED: will-change for better animation */
+  will-change: transform;
 }
 .nav-btn i { font-size: 1.4rem; }
 .nav-btn:active { transform: scale(0.96); }
@@ -916,9 +940,12 @@ body::before {
   align-items: center;
   justify-content: center;
   padding: 0 3px;
+  /* Keep existing badgePop and neonPulse */
   animation: badgePop 0.35s var(--spring), neonPulse 1.5s ease-in-out infinite 0.5s;
   box-shadow: 0 0 12px rgba(239,68,68,0.8), 0 0 24px rgba(239,68,68,0.4);
   border: 1.5px solid var(--bg);
+  /* ADDED: will-change for smoother animation */
+  will-change: transform, box-shadow;
 }
 
 @keyframes badgePop {
@@ -1283,6 +1310,8 @@ body::before {
   color: #fff;
   overflow: hidden;
   box-shadow: 0 0 12px var(--primary-glow);
+  /* ADDED: enforce square ratio */
+  aspect-ratio: 1/1;
 }
 .chat-contact-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
@@ -1567,6 +1596,8 @@ body::before {
   animation: storyProgress 4s linear forwards;
   border-radius: 0 2px 2px 0;
   box-shadow: 0 0 8px var(--primary-glow);
+  /* ADDED: will-change for smoother width animation */
+  will-change: width;
 }
 
 @keyframes storyProgress {
@@ -1603,6 +1634,8 @@ body::before {
   font-weight: 700; font-size: 1.1rem; color: #fff;
   box-shadow: 0 0 16px var(--primary-glow);
   overflow: hidden;
+  /* ADDED: aspect ratio */
+  aspect-ratio: 1/1;
 }
 .story-modal-avatar img { width:100%; height:100%; object-fit:cover; border-radius:50%; }
 
@@ -1658,6 +1691,8 @@ body::before {
   flex-shrink: 0;
   border: 2px solid rgba(139,92,246,0.5);
   animation: logoPulse 3s ease-in-out infinite;
+  /* ADDED: aspect ratio */
+  aspect-ratio: 1/1;
 }
 
 .avatar-initials-large { font-size: 2.2rem; font-weight: 800; color: #fff; }
@@ -1715,6 +1750,8 @@ body::before {
   position: relative;
   z-index: 10;
   touch-action: none;
+  /* ADDED: will-change for smooth drag */
+  will-change: transform;
 }
 .fab-main:hover { transform: scale(1.08); box-shadow: 0 8px 32px rgba(139,92,246,0.8), 0 0 60px rgba(219,39,119,0.4); }
 .fab-main:active { transform: scale(0.96); }
@@ -1735,6 +1772,8 @@ body::before {
   transform: scale(0) translate(0, 0);
   pointer-events: none;
   z-index: 9;
+  /* ADDED: will-change */
+  will-change: transform, opacity;
 }
 
 .fab-option-pro     { background: linear-gradient(135deg, #6366f1, #8b5cf6); }
@@ -1743,16 +1782,17 @@ body::before {
 
 .fab-container.open .fab-option { opacity: 1; pointer-events: all; }
 
+/* FIX: arc de cercle plus régulier */
 .fab-container.open .fab-option:nth-child(1) {
-  transform: translate(-60px, -52px) scale(1);
+  transform: translate(-50px, -50px) scale(1);
   transition-delay: 0s;
 }
 .fab-container.open .fab-option:nth-child(2) {
-  transform: translate(-72px, 0px) scale(1);
+  transform: translate(-70px, 0px) scale(1);
   transition-delay: 0.05s;
 }
 .fab-container.open .fab-option:nth-child(3) {
-  transform: translate(-60px, 52px) scale(1);
+  transform: translate(-50px, 50px) scale(1);
   transition-delay: 0.1s;
 }
 
@@ -1837,7 +1877,7 @@ body::before {
 ::-webkit-scrollbar-thumb { background: rgba(139,92,246,0.3); border-radius: 2px; }
 
 @media (max-width: 390px) {
-  .auth-logo { width: 76px; height: 76px; }
+  .auth-logo { width: 76px; height: auto; }
   .logo-text { font-size: 2rem; }
   .nav-btn { font-size: 0.56rem; }
 }
