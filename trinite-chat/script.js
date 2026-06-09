@@ -149,22 +149,6 @@ const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-5
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
-// ADDED: In-memory flag to avoid duplicate Cache API writes
-const avatarCache = new Map();
-// ADDED: Neon pulse animation style for notification badge
-(function injectNeonAnimation() {
-  if (document.getElementById("neon-pulse-style")) return;
-  const style = document.createElement("style");
-  style.id = "neon-pulse-style";
-  style.textContent = `
-    @keyframes neonPulse {
-      0% { box-shadow: 0 0 5px var(--primary); transform: scale(1); }
-      100% { box-shadow: 0 0 20px var(--primary), 0 0 40px var(--accent); transform: scale(1.05); }
-    }
-  `;
-  document.head.appendChild(style);
-})();
-
 // ============================================================
 // ÉTAT GLOBAL
 // ============================================================
@@ -257,130 +241,11 @@ function formatCount(n) {
   return String(n);
 }
 
-// ADDED: Preload logo image for faster LCP
-function preloadLogo() {
-  if (document.querySelector(`link[href="${LOGO_URL}"]`)) return;
-  const link = document.createElement("link");
-  link.rel = "preload";
-  link.as = "image";
-  link.href = LOGO_URL;
-  document.head.appendChild(link);
-}
-
-// ADDED: Enforce logo aspect ratio & ensure round containers are 1:1
-function enforceLogoAspectRatio() {
-  document.querySelectorAll("img").forEach(img => {
-    if (img.src.includes("Picsart-26-06-09-10-15-05-552.png") || img.classList.contains("logo") || img.id === "logo") {
-      img.style.objectFit = "contain";
-      img.style.maxWidth = "100%";
-      img.style.maxHeight = "100%";
-      img.style.height = "auto";
-      img.style.width = "auto";
-      const parent = img.parentElement;
-      if (parent) {
-        const cs = window.getComputedStyle(parent);
-        if (cs.borderRadius !== "0px" && (cs.borderRadius.includes("%") || cs.borderRadius === "50%")) {
-          parent.style.aspectRatio = "1/1";
-          parent.style.overflow = "hidden";
-        }
-      }
-    }
-  });
-}
-
-// ADDED: Compress image before upload (max 400x400, quality 0.7)
-function compressImage(file, maxW = 400, maxH = 400, quality = 0.7) {
-  return new Promise((resolve, reject) => {
-    if (!file.type.startsWith("image/")) return resolve(file);
-    const reader = new FileReader();
-    reader.onerror = reject;
-    reader.onload = () => {
-      const img = new Image();
-      img.onerror = reject;
-      img.onload = () => {
-        let { width, height } = img;
-        if (width <= maxW && height <= maxH) return resolve(file);
-        const ratio = Math.min(maxW / width, maxH / height);
-        width = Math.round(width * ratio);
-        height = Math.round(height * ratio);
-        const canvas = document.createElement("canvas");
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(blob => {
-          if (blob) resolve(new File([blob], file.name, { type: "image/jpeg", lastModified: Date.now() }));
-          else resolve(file);
-        }, "image/jpeg", quality);
-      };
-      img.src = reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-// ADDED: Ensure Supabase storage bucket "avatars" exists and is public (RLS: public read, authenticated write)
-async function ensureAvatarsBucket() {
-  try {
-    const { data: buckets } = await db.storage.listBuckets();
-    const bucket = buckets?.find(b => b.name === "avatars");
-    if (!bucket) {
-      const { error: createErr } = await db.storage.createBucket("avatars", { public: true });
-      if (createErr) console.warn("Bucket creation failed:", createErr.message);
-      else console.log("Bucket 'avatars' created with public access.");
-    } else if (!bucket.public) {
-      await db.storage.updateBucket("avatars", { public: true });
-    }
-  } catch (err) {
-    console.warn("Bucket check failed:", err);
-  }
-}
-
-// ADDED: Cache avatar URLs using Cache API for faster subsequent loads
-async function precacheAvatar(url) {
-  if (!url || avatarCache.has(url)) return;
-  avatarCache.set(url, true);
-  try {
-    const cache = await caches.open("avatars");
-    await cache.add(url);
-  } catch (_) { /* ignore */ }
-}
-
 /* ===== AVATAR HELPERS ===== */
-// FIX: Enhanced renderAvatar with lazy loading, 3s fallback & Cache API preload
 function renderAvatar(el, name, avatarUrl) {
   if (!el) return;
-  if (el._avatarTimeout) clearTimeout(el._avatarTimeout);
-  el.innerHTML = "";
   if (avatarUrl) {
-    // Precache the URL for future use
-    precacheAvatar(avatarUrl);
-    const img = document.createElement("img");
-    img.src = avatarUrl;
-    img.alt = escapeHtml(name);
-    img.loading = "lazy";
-    img.style.objectFit = "cover";
-    img.style.width = "100%";
-    img.style.height = "100%";
-    img.style.borderRadius = "inherit";
-    let resolved = false;
-    const showFallback = () => {
-      if (resolved) return;
-      resolved = true;
-      el.innerHTML = `<span>${initial(name)}</span>`;
-      el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
-    };
-    img.onerror = showFallback;
-    el._avatarTimeout = setTimeout(() => {
-      if (!img.complete || img.naturalWidth === 0) {
-        showFallback();
-      }
-    }, 3000);
-    img.onload = () => {
-      clearTimeout(el._avatarTimeout);
-      resolved = true;
-    };
-    el.appendChild(img);
+    el.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" onerror="this.style.display='none';this.parentElement.querySelector('.avatar-fallback')?.style.setProperty('display','flex')" />`;
     el.style.background = "transparent";
   } else {
     el.innerHTML = `<span>${initial(name)}</span>`;
@@ -392,7 +257,6 @@ function renderAvatar(el, name, avatarUrl) {
 // BADGE NOTIFICATIONS
 // ============================================================
 
-// FIX: Apply neon pulse animation when badge is visible
 function updateMsgBadge(count) {
   unreadCount = Math.max(0, count);
   const badge = document.getElementById("msg-badge");
@@ -400,10 +264,12 @@ function updateMsgBadge(count) {
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     badge.classList.remove("hidden");
-    badge.style.animation = "neonPulse 1.5s ease-in-out infinite alternate";
+    // FIX: Forcer re-déclenchement des animations (badgePop + neonPulse)
+    badge.style.animation = "none";
+    void badge.offsetWidth; // force reflow
+    badge.style.animation = "badgePop 0.35s var(--spring), neonPulse 1.5s ease-in-out infinite 0.5s";
   } else {
     badge.classList.add("hidden");
-    badge.style.animation = "";
   }
 }
 
@@ -434,11 +300,6 @@ function startNotifListener() {
 // ============================================================
 
 async function initAuth() {
-  // Initial optimisations: preload logo, ensure bucket, compress helpers
-  preloadLogo();
-  ensureAvatarsBucket();
-  enforceLogoAspectRatio();
-
   const { data: { session } } = await db.auth.getSession();
   if (session) {
     currentUser = session.user;
@@ -465,6 +326,15 @@ async function initAuth() {
 async function afterLogin() {
   window.showSkeleton();
 
+  // FIX: Vérifier que le bucket "avatars" existe dans Supabase Storage
+  try {
+    const { data: buckets } = await db.storage.listBuckets();
+    const avatarBucketExists = buckets?.some(b => b.name === "avatars");
+    if (!avatarBucketExists) {
+      console.warn("Trinite Chat: Le bucket 'avatars' n'existe pas encore dans Supabase Storage.");
+    }
+  } catch (e) { /* non bloquant */ }
+
   const { data, error } = await db.from("profiles")
     .select("*")
     .eq("user_id", currentUser.id)
@@ -486,8 +356,6 @@ async function afterLogin() {
   } else {
     userProfiles = data;
     userAvatarUrl = data[0]?.avatar_url || null;
-    // Precache user avatar
-    if (userAvatarUrl) precacheAvatar(userAvatarUrl);
   }
 
   await loadMainScreen();
@@ -592,13 +460,12 @@ async function loadMainScreen() {
   wireContactSearch();
   initFab();
   updateAvatarUI();
-  enforceLogoAspectRatio();
 
   setTimeout(() => hideSkeleton(), 500);
 }
 
 // ============================================================
-// SWIPER DE PROFILS (fix: smooth transition, lower threshold, reject vertical)
+// SWIPER DE PROFILS (bug fix: offset précis)
 // ============================================================
 
 function buildSwiper() {
@@ -631,42 +498,41 @@ function buildSwiper() {
     dot.className = `dot${i === 0 ? " active" : ""}`;
     dot.addEventListener("click", () => setActiveProfile(i));
     dots.appendChild(dot);
-
-    // Precache profile avatar
-    if (p.avatar_url) precacheAvatar(p.avatar_url);
   });
 
-  // Enable smooth sliding
-  slides.style.transition = "transform 0.3s ease";
-
   const wrap = document.getElementById("profile-swiper-wrap");
-  let startX = null, startY = null;
+  // FIX: retirer les anciens listeners en remplaçant le nœud
+  const newWrap = wrap?.cloneNode(true);
+  if (wrap && newWrap) wrap.parentNode.replaceChild(newWrap, wrap);
+  const swiperWrap = document.getElementById("profile-swiper-wrap");
+
+  let startX = null;
+  let startY = null; // FIX: tracking Y pour empêcher swipe vertical
   let dragging = false;
 
-  wrap?.addEventListener("touchstart", e => {
+  swiperWrap?.addEventListener("touchstart", e => {
     startX   = e.touches[0].clientX;
-    startY   = e.touches[0].clientY;
+    startY   = e.touches[0].clientY; // FIX
     dragging = false;
   }, { passive: true });
 
-  wrap?.addEventListener("touchmove", e => {
+  swiperWrap?.addEventListener("touchmove", e => {
     if (startX === null) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
-    // Reject vertical movement
-    if (Math.abs(dy) > Math.abs(dx)) {
-      startX = null;
-      return;
-    }
-    if (Math.abs(dx) > 8) dragging = true;
+    // FIX: N'activer que si le mouvement est principalement horizontal
+    if (Math.abs(dx) > 8 && Math.abs(dx) > Math.abs(dy)) dragging = true;
   }, { passive: true });
 
-  wrap?.addEventListener("touchend", e => {
-    if (startX === null || !dragging) { startX = startY = null; return; }
+  swiperWrap?.addEventListener("touchend", e => {
+    if (startX === null || !dragging) { startX = null; startY = null; return; }
     const dx = e.changedTouches[0].clientX - startX;
-    startX = startY = null;
+    const dy = e.changedTouches[0].clientY - startY;
+    startX   = null;
+    startY   = null;
     dragging = false;
-    // Lower threshold for fluidity
+    // FIX: Seuil réduit à 30px + vérification que c'est bien horizontal
+    if (Math.abs(dx) < Math.abs(dy) * 1.5) return; // FIX: annuler si trop vertical
     if (dx < -30 && activeIdx < userProfiles.length - 1) {
       setActiveProfile(activeIdx + 1);
       haptic(10);
@@ -692,6 +558,8 @@ async function setActiveProfile(idx) {
     if (slideEls.length > 0) {
       const slideW = slideEls[0].getBoundingClientRect().width;
       const gap    = 12;
+      // FIX: Transition douce avec cubic-bezier
+      wrap.style.transition = "transform 0.38s cubic-bezier(0.25, 0.46, 0.45, 0.94)";
       wrap.style.transform = `translateX(-${idx * (slideW + gap)}px)`;
     }
   }
@@ -710,7 +578,7 @@ function updateHeaderProfile() {
 }
 
 // ============================================================
-// STORIES (fix: exact 4s progress bar & auto close)
+// STORIES
 // ============================================================
 
 function buildStories() {
@@ -765,17 +633,18 @@ function openStory(contact, emoji) {
 
   const progressBar = modal?.querySelector(".story-progress-bar");
   if (progressBar) {
-    // Force 4-second linear animation
-    progressBar.style.animationDuration = "4s";
-    progressBar.style.animationTimingFunction = "linear";
+    // FIX: Reset complet de l'animation pour garantir 4s exactes
+    progressBar.style.transition = "none";
     progressBar.style.animation = "none";
-    void progressBar.offsetWidth;
-    progressBar.style.animation = "";
+    progressBar.style.width = "0%";
+    void progressBar.offsetWidth; // force reflow
+    progressBar.style.animation = "storyProgress 4s linear forwards";
   }
 
   modal?.classList.remove("hidden");
   buildStories();
 
+  // FIX: Fermeture automatique exactement après 4 secondes
   clearTimeout(openStory._t);
   openStory._t = setTimeout(() => modal?.classList.add("hidden"), 4000);
 }
@@ -1072,6 +941,91 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
 // AVATAR — Photo de profil personnalisable
 // ============================================================
 
+// FIX: Cache simple des avatars dans localStorage pour éviter des rechargements inutiles
+const AVATAR_CACHE_KEY = "trinite_avatar_cache";
+function getAvatarCache() {
+  try { return JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || "{}"); } catch { return {}; }
+}
+function setAvatarCache(url, dataUrl) {
+  try {
+    const cache = getAvatarCache();
+    cache[url] = dataUrl;
+    localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(cache));
+  } catch (e) { /* quota ignoré silencieusement */ }
+}
+function getCachedAvatar(url) {
+  return getAvatarCache()[url] || null;
+}
+
+// FIX: Compression image avant upload (max 400x400, qualité 0.7)
+async function compressAvatar(file) {
+  return new Promise((resolve) => {
+    const MAX = 400;
+    const img = new Image();
+    const blobUrl = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(blobUrl);
+      let w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const cvs = document.createElement("canvas");
+      cvs.width = w; cvs.height = h;
+      cvs.getContext("2d").drawImage(img, 0, 0, w, h);
+      cvs.toBlob(blob => {
+        resolve(blob
+          ? new File([blob], file.name, { type: "image/jpeg" })
+          : file);
+      }, "image/jpeg", 0.7);
+    };
+    img.onerror = () => { URL.revokeObjectURL(blobUrl); resolve(file); };
+    img.src = blobUrl;
+  });
+}
+
+// FIX: Fallback initiales si l'image ne charge pas après 3 secondes
+function renderAvatarWithFallback(el, name, avatarUrl) {
+  if (!el) return;
+  if (!avatarUrl) {
+    el.innerHTML = `<span>${initial(name)}</span>`;
+    el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+    return;
+  }
+  // Vérifier le cache d'abord
+  const cached = getCachedAvatar(avatarUrl);
+  if (cached) {
+    el.innerHTML = `<img src="${cached}" alt="${escapeHtml(name)}" />`;
+    el.style.background = "transparent";
+    return;
+  }
+  // Charger avec timeout de fallback
+  const img = document.createElement("img");
+  img.alt = escapeHtml(name);
+  let loaded = false;
+  const fallbackTimer = setTimeout(() => {
+    if (!loaded) {
+      el.innerHTML = `<span>${initial(name)}</span>`;
+      el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+    }
+  }, 3000);
+  img.onload = () => {
+    loaded = true;
+    clearTimeout(fallbackTimer);
+    setAvatarCache(avatarUrl, avatarUrl);
+    el.style.background = "transparent";
+  };
+  img.onerror = () => {
+    loaded = true;
+    clearTimeout(fallbackTimer);
+    el.innerHTML = `<span>${initial(name)}</span>`;
+    el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+  };
+  img.src = avatarUrl;
+  el.innerHTML = "";
+  el.appendChild(img);
+}
+
 function updateAvatarUI() {
   const largePrev    = document.getElementById("avatar-large-preview");
   const initialsEl   = document.getElementById("avatar-large-initials");
@@ -1094,18 +1048,15 @@ function updateAvatarUI() {
 async function uploadAvatar(file) {
   if (!currentUser || !file) return;
 
-  // Compress image before upload
-  const compressed = await compressImage(file);
-
   const progressWrap = document.getElementById("avatar-upload-progress");
   const progressBar  = document.getElementById("avatar-progress-bar");
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "20%";
 
-  const ext  = compressed.name.split(".").pop() || "jpg";
+  const ext  = file.name.split(".").pop() || "jpg";
   const path = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
 
-  const { error: upErr } = await db.storage.from("avatars").upload(path, compressed, {
+  const { error: upErr } = await db.storage.from("avatars").upload(path, file, {
     cacheControl: "3600",
     upsert: true
   });
@@ -1136,7 +1087,6 @@ async function uploadAvatar(file) {
 
   userAvatarUrl = publicUrl;
   userProfiles.forEach(p => { p.avatar_url = publicUrl; });
-  precacheAvatar(publicUrl); // Precache new avatar
 
   if (progressBar) progressBar.style.width = "100%";
   setTimeout(() => progressWrap?.classList.add("hidden"), 600);
@@ -1151,7 +1101,9 @@ async function uploadAvatar(file) {
 document.getElementById("avatar-file-input")?.addEventListener("change", async e => {
   const file = e.target.files?.[0];
   if (!file) return;
-  await uploadAvatar(file);
+  // FIX: Compresser l'image avant upload
+  const compressed = await compressAvatar(file);
+  await uploadAvatar(compressed);
   e.target.value = "";
 });
 
@@ -1219,7 +1171,7 @@ function stopAvatarCamera() {
 }
 
 // ============================================================
-// FAB BOUTON FLOTTANT (déjà complet)
+// FAB BOUTON FLOTTANT
 // ============================================================
 
 let fabOpen = false;
@@ -1303,6 +1255,7 @@ function wireFabDrag(fab) {
     currentTarget = null;
   }, { passive: true });
 
+  // FIX: non-passive pour preventDefault pendant le glissement FAB
   fab.addEventListener("touchmove", e => {
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
@@ -1311,6 +1264,8 @@ function wireFabDrag(fab) {
       toggleFabMenu(true);
     }
     if (!dragging) return;
+    // FIX: Empêcher scroll page pendant drag FAB
+    e.preventDefault();
 
     const tx = e.touches[0].clientX;
     const ty = e.touches[0].clientY;
@@ -1323,17 +1278,28 @@ function wireFabDrag(fab) {
       const cx   = rect.left + rect.width / 2;
       const cy   = rect.top  + rect.height / 2;
       const dist = Math.sqrt((tx - cx) ** 2 + (ty - cy) ** 2);
+      // FIX: Feedback visuel renforcé sur l'option ciblée
+      if (dist < 55) {
+        btn.style.transform = "scale(1.25)";
+        btn.style.boxShadow = "0 0 0 3px #fff, 0 0 24px rgba(255,255,255,0.5)";
+      } else {
+        btn.style.transform = "";
+        btn.style.boxShadow = "";
+      }
       if (dist < minDist) { minDist = dist; nearest = btn; }
-      btn.style.transform = dist < 50 ? "scale(1.2)" : "";
     });
 
-    currentTarget = minDist < 60 ? nearest : null;
-  }, { passive: true });
+    currentTarget = minDist < 65 ? nearest : null;
+  }, { passive: false }); // FIX: non-passive
 
   fab.addEventListener("touchend", () => {
     if (!dragging) return;
     dragging = false;
-    document.querySelectorAll(".fab-option").forEach(b => b.style.transform = "");
+    // FIX: Réinitialiser tous les styles inline des options
+    document.querySelectorAll(".fab-option").forEach(b => {
+      b.style.transform = "";
+      b.style.boxShadow = "";
+    });
     if (currentTarget) {
       currentTarget.click();
     } else {
@@ -1369,7 +1335,6 @@ function wireBottomNav() {
       } else {
         pauseAllFeedVideos();
       }
-      enforceLogoAspectRatio(); // Re-check logo
     });
   });
 }
@@ -1989,12 +1954,6 @@ btnUpload?.addEventListener("click", async () => {
   if (!fileObj) { toast("Aucun fichier à publier", "error"); return; }
   if (!currentUser) { toast("Connectez-vous d'abord", "error"); return; }
 
-  // Compress image if applicable
-  let uploadFile = fileObj;
-  if (fileObj.type.startsWith("image/")) {
-    uploadFile = await compressImage(fileObj);
-  }
-
   const progressWrap = document.getElementById("studio-upload-progress");
   const progressBar  = document.getElementById("studio-progress-bar");
   btnUpload.disabled = true;
@@ -2010,7 +1969,7 @@ btnUpload?.addEventListener("click", async () => {
     if (cur < 85 && progressBar) progressBar.style.width = (cur + 5) + "%";
   }, 300);
 
-  const { error } = await db.storage.from("videos").upload(path, uploadFile, {
+  const { error } = await db.storage.from("videos").upload(path, fileObj, {
     cacheControl: "3600",
     upsert: false,
     metadata: { uploader: activeProfile?.name || "user", description: desc }
@@ -2043,7 +2002,3 @@ btnUpload?.addEventListener("click", async () => {
 // DÉMARRAGE
 // ============================================================
 initAuth();
-
-// ADDED: Keep logo ratio consistent on any DOM change
-new MutationObserver(() => enforceLogoAspectRatio()).observe(document.body, { childList: true, subtree: true });
-window.addEventListener("load", enforceLogoAspectRatio);
