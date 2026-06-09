@@ -1,7 +1,139 @@
 // ============================================================
-// TRINITE CHAT — script.js (AMÉLIORÉ)
+// TRINITE CHAT — Effets premium (particles, thème, ripple)
+// ============================================================
+(function () {
+  "use strict";
+
+  /* ===== PARTICLE CANVAS ===== */
+  const canvas  = document.getElementById("particles-canvas");
+  const ctx     = canvas ? canvas.getContext("2d") : null;
+  let particles = [];
+
+  function resizeCanvas() {
+    if (!canvas) return;
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function randomRange(min, max) { return min + Math.random() * (max - min); }
+
+  function createParticle() {
+    return {
+      x:      randomRange(0, canvas.width),
+      y:      randomRange(0, canvas.height),
+      r:      randomRange(0.5, 2.5),
+      dx:     randomRange(-0.25, 0.25),
+      dy:     randomRange(-0.4, -0.1),
+      alpha:  randomRange(0.2, 0.8),
+      dAlpha: randomRange(-0.003, 0.003),
+      color:  Math.random() > 0.5 ? "139,92,246" : "219,39,119",
+    };
+  }
+
+  function initParticles() {
+    if (!canvas) return;
+    resizeCanvas();
+    particles = [];
+    const count = Math.min(60, Math.floor(window.innerWidth * window.innerHeight / 14000));
+    for (let i = 0; i < count; i++) particles.push(createParticle());
+  }
+
+  function tickParticles() {
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach((p, i) => {
+      p.x += p.dx; p.y += p.dy; p.alpha += p.dAlpha;
+      if (p.alpha <= 0.05)          p.dAlpha =  Math.abs(p.dAlpha);
+      if (p.alpha >= 0.85)          p.dAlpha = -Math.abs(p.dAlpha);
+      if (p.y < -10)                { particles[i] = createParticle(); particles[i].y = canvas.height + 10; }
+      if (p.x < -10)                p.x = canvas.width + 10;
+      if (p.x > canvas.width + 10)  p.x = -10;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(tickParticles);
+  }
+
+  window.addEventListener("resize", () => { resizeCanvas(); initParticles(); }, { passive: true });
+  initParticles();
+  tickParticles();
+
+  /* ===== THEME TOGGLE ===== */
+  const themeBtn  = document.getElementById("theme-toggle");
+  const themeIcon = document.getElementById("theme-icon");
+  let isDark = true;
+
+  if (themeBtn) {
+    themeBtn.addEventListener("click", () => {
+      isDark = !isDark;
+      document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+      if (themeIcon) themeIcon.className = isDark ? "fa-solid fa-moon" : "fa-solid fa-sun";
+      localStorage.setItem("trinite-theme", isDark ? "dark" : "light");
+    });
+  }
+
+  const savedTheme = localStorage.getItem("trinite-theme");
+  if (savedTheme === "light") {
+    isDark = false;
+    document.documentElement.setAttribute("data-theme", "light");
+    if (themeIcon) themeIcon.className = "fa-solid fa-sun";
+  }
+
+  /* ===== RIPPLE ===== */
+  function addRipple(e) {
+    const btn  = e.currentTarget;
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2;
+    const r    = document.createElement("span");
+    r.style.cssText = `position:absolute;width:${size}px;height:${size}px;left:${e.clientX - rect.left - size/2}px;top:${e.clientY - rect.top - size/2}px;background:rgba(255,255,255,0.12);border-radius:50%;pointer-events:none;transform:scale(0);animation:rippleAnim 0.55s ease forwards;z-index:99;`;
+    btn.appendChild(r);
+    r.addEventListener("animationend", () => r.remove());
+  }
+
+  if (!document.getElementById("ripple-style")) {
+    const s = document.createElement("style");
+    s.id = "ripple-style";
+    s.textContent = "@keyframes rippleAnim{to{transform:scale(1);opacity:0;}}";
+    document.head.appendChild(s);
+  }
+
+  function wireRipples() {
+    document.querySelectorAll(".btn-primary,.shimmer-btn,.studio-btn,.nav-btn").forEach(btn => {
+      if (btn.dataset.ripple) return;
+      btn.dataset.ripple = "1";
+      btn.style.overflow = "hidden";
+      if (!btn.style.position) btn.style.position = "relative";
+      btn.addEventListener("click", addRipple);
+    });
+  }
+
+  /* ===== SKELETON ===== */
+  window.showSkeleton = () => document.getElementById("skeleton-overlay")?.classList.remove("hidden");
+  window.hideSkeleton = () => document.getElementById("skeleton-overlay")?.classList.add("hidden");
+
+  /* ===== HAPTIC ===== */
+  function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms || 10); }
+
+  /* ===== SCREEN OBSERVER → wire ripples on active screen ===== */
+  const screenObserver = new MutationObserver(mutations => {
+    mutations.forEach(m => {
+      if (m.attributeName === "class" && m.target.classList.contains("active"))
+        requestAnimationFrame(wireRipples);
+    });
+  });
+  document.querySelectorAll(".screen").forEach(s => screenObserver.observe(s, { attributes: true }));
+
+  document.querySelectorAll(".nav-btn").forEach(btn => btn.addEventListener("click", () => haptic(8)));
+  document.addEventListener("DOMContentLoaded", wireRipples);
+  setTimeout(wireRipples, 500);
+})();
+
+// ============================================================
+// TRINITE CHAT — script.js
 // Auth Supabase + 3 Profils + Contacts + Chat temps réel + Feed TikTok
-// + Stories + Studio/Upload + Messages vocaux + Fixes loadMessages
+// + Stories + Studio/Upload + Messages vocaux
 // ============================================================
 
 const SUPABASE_URL  = "https://eqttgyxjjupeisgozrut.supabase.co";
@@ -25,8 +157,8 @@ let unreadCount     = 0;
 
 // Studio
 let cameraStream    = null;
-let studioFile      = null;   // File object sélectionné
-let studioBlob      = null;   // Blob (photo capturée)
+let studioFile      = null;
+let studioBlob      = null;
 let studioFileName  = null;
 
 // Message vocal
@@ -225,9 +357,9 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   const btn      = e.target.querySelector("button[type=submit]");
   const email    = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value;
-  if (btn) { btn.disabled = true; btn.textContent = "Connexion…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion…'; }
   const { error } = await db.auth.signInWithPassword({ email, password });
-  if (btn) { btn.disabled = false; btn.textContent = "Se connecter"; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Se connecter'; }
   if (error) {
     toast(error.message.includes("Invalid") ? "Email ou mot de passe incorrect" : error.message, "error");
   }
@@ -239,9 +371,9 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
   const email    = document.getElementById("register-email").value.trim();
   const password = document.getElementById("register-password").value;
   if (password.length < 6) { toast("Mot de passe trop court (6 caractères min.)", "error"); return; }
-  if (btn) { btn.disabled = true; btn.textContent = "Création…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
   const { error } = await db.auth.signUp({ email, password });
-  if (btn) { btn.disabled = false; btn.textContent = "Créer mon compte"; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Créer mon compte'; }
   if (error) toast(error.message, "error");
   else toast("Compte créé ! Vérifiez votre email puis connectez-vous.", "success");
 });
@@ -263,14 +395,14 @@ document.querySelectorAll(".tab").forEach(tab => {
 document.getElementById("form-setup")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.textContent = "Création…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
   const rows = [
     { user_id: currentUser.id, profile_type: "pro",     name: document.getElementById("name-pro")?.value.trim()     || "Pro" },
     { user_id: currentUser.id, profile_type: "prive",   name: document.getElementById("name-prive")?.value.trim()   || "Privé" },
     { user_id: currentUser.id, profile_type: "anonyme", name: document.getElementById("name-anonyme")?.value.trim() || "Anonyme" }
   ];
   const { data, error } = await db.from("profiles").insert(rows).select();
-  if (btn) { btn.disabled = false; btn.textContent = "Créer mes profils"; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Créer mes profils'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
   userProfiles = data || [];
   toast("Vos 3 identités sont prêtes !", "success");
@@ -324,6 +456,7 @@ function buildSwiper() {
   userProfiles.forEach((p, i) => {
     const slide = document.createElement("div");
     slide.className = `profile-slide${i === 0 ? " active" : ""}`;
+    slide.style.setProperty('--stagger-delay', `${i * 0.08}s`);
     slide.innerHTML = `
       <div class="slide-icon ${p.profile_type}">${profileEmoji(p.profile_type)}</div>
       <div class="slide-info">
@@ -383,7 +516,6 @@ function buildStories() {
   if (!scroll) return;
   scroll.innerHTML = "";
 
-  // "Ma story" — bouton ajouter
   const addWrap = document.createElement("div");
   addWrap.className = "story-item";
   addWrap.innerHTML = `
@@ -397,7 +529,6 @@ function buildStories() {
   });
   scroll.appendChild(addWrap);
 
-  // Stories des contacts (simulées — une par contact)
   const STORY_EMOJIS = ["🔥", "💜", "✨", "👋", "🎵", "🌙", "💫", "🎉"];
   currentContacts.slice(0, 10).forEach((c, i) => {
     const seen = seenStories.has(c.id);
@@ -425,12 +556,17 @@ function openStory(contact, emoji) {
   if (nameEl)   nameEl.textContent   = contact.contact_name;
   if (bodyEl)   bodyEl.textContent   = emoji;
 
-  modal?.classList.remove("hidden");
+  // Reset progress bar animation
+  const progressBar = modal?.querySelector(".story-progress-bar");
+  if (progressBar) {
+    progressBar.style.animation = "none";
+    void progressBar.offsetWidth;
+    progressBar.style.animation = "";
+  }
 
-  // Marquer comme vu dans le DOM
+  modal?.classList.remove("hidden");
   buildStories();
 
-  // Auto-fermer après 4s
   clearTimeout(openStory._t);
   openStory._t = setTimeout(() => modal?.classList.add("hidden"), 4000);
 }
@@ -473,9 +609,10 @@ function renderContacts(list) {
     return;
   }
 
-  list.forEach(c => {
+  list.forEach((c, idx) => {
     const li = document.createElement("li");
     li.className = "contact-item";
+    li.style.animationDelay = `${idx * 0.05}s`;
     li.innerHTML = `
       <div class="contact-avatar">${escapeHtml(initial(c.contact_name))}</div>
       <div class="contact-info">
@@ -545,17 +682,17 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   const contactProfileId = document.getElementById("contact-profile-id").value.trim() || null;
 
   if (!email || !name) { toast("Remplissez tous les champs", "error"); return; }
-  if (btn) { btn.disabled = true; btn.textContent = "Ajout…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajout…'; }
 
   const { error } = await db.from("contacts").insert({
     user_id:             currentUser.id,
     contact_email:       email,
     contact_name:        name,
     assigned_profile_id: profileId,
-    contact_profile_id:  contactProfileId   // ID Trinite du contact (pour les messages)
+    contact_profile_id:  contactProfileId
   });
 
-  if (btn) { btn.disabled = false; btn.textContent = "Ajouter"; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Ajouter'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
 
   toast("Contact ajouté !", "success");
@@ -579,17 +716,18 @@ function buildProfilScreen() {
 
   userProfiles.forEach(p => {
     const card = document.createElement("div");
-    card.className = "profil-card-edit";
+    card.className = "profil-card-edit glass-card stagger-in";
     card.innerHTML = `
       <div class="profile-icon ${p.profile_type}">${profileEmoji(p.profile_type)}</div>
       <div class="field flex1">
         <label>${profileLabel(p.profile_type)}</label>
-        <input type="text" data-pid="${p.id}" value="${escapeHtml(p.name)}" placeholder="${profileLabel(p.profile_type)}" />
+        <div class="input-wrap">
+          <input type="text" data-pid="${p.id}" value="${escapeHtml(p.name)}" placeholder="${profileLabel(p.profile_type)}" />
+        </div>
       </div>`;
     container.appendChild(card);
   });
 
-  // Afficher l'ID du premier profil pour le partage
   const idSection = document.getElementById("profil-id-section");
   const idText    = document.getElementById("profil-id-text");
   if (idSection && idText && userProfiles.length > 0) {
@@ -609,7 +747,7 @@ document.getElementById("btn-copy-id")?.addEventListener("click", () => {
 document.getElementById("form-profil")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.textContent = "Enregistrement…"; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement…'; }
 
   const inputs = e.target.querySelectorAll("input[data-pid]");
   for (const input of inputs) {
@@ -622,7 +760,7 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
     if (p) p.name = name;
   }
 
-  if (btn) { btn.disabled = false; btn.textContent = "Enregistrer"; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer'; }
   toast("Profils mis à jour !", "success");
   buildSwiper();
   updateHeaderProfile();
@@ -640,7 +778,6 @@ function wireBottomNav() {
 
       if (target === "screen-main") updateMsgBadge(0);
 
-      // Arrêter la caméra si on quitte le studio
       const studioActive = document.getElementById("screen-studio")?.classList.contains("active");
       if (studioActive && target !== "screen-studio") stopCamera();
 
@@ -676,10 +813,6 @@ function openChat(contact, myProfile) {
   subscribeToMessages();
 }
 
-// ============================================================
-// FIX PRINCIPAL : loadMessages() — utilise to_profile_id, pas contact_email
-// ============================================================
-
 async function loadMessages() {
   if (!chatContact || !chatMyProfile) return;
   const container = document.getElementById("messages-container");
@@ -687,13 +820,12 @@ async function loadMessages() {
 
   container.innerHTML = "";
 
-  const myId      = chatMyProfile.id;
+  const myId       = chatMyProfile.id;
   const contactPid = chatContact.contact_profile_id || null;
 
   let query;
 
   if (contactPid) {
-    // Cas idéal : on connaît le profil_id du contact
     query = db.from("messages")
       .select("*")
       .or(
@@ -703,7 +835,6 @@ async function loadMessages() {
       .order("created_at", { ascending: true })
       .limit(50);
   } else {
-    // Fallback : charger les 50 derniers messages envoyés depuis ce profil
     query = db.from("messages")
       .select("*")
       .eq("from_profile_id", myId)
@@ -717,7 +848,6 @@ async function loadMessages() {
   (data || []).forEach(msg => appendBubble(msg, myId));
   container.scrollTop = container.scrollHeight;
 
-  // Afficher un message si le contact n'a pas d'ID Trinite
   if (!contactPid) {
     const hint = document.createElement("div");
     hint.style.cssText = "text-align:center;font-size:0.75rem;color:var(--text-muted);padding:0.5rem 1rem;";
@@ -757,8 +887,8 @@ function appendBubble(msg, myProfileId) {
 function subscribeToMessages() {
   if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
 
-  const myId       = chatMyProfile.id;
-  const contactPid = chatContact.contact_profile_id || null;
+  const myId        = chatMyProfile.id;
+  const contactPid  = chatContact.contact_profile_id || null;
   const channelName = `chat-${myId}-${chatContact.id}`;
 
   realtimeChannel = db.channel(channelName)
@@ -782,7 +912,6 @@ function subscribeToMessages() {
     .subscribe();
 }
 
-// Envoyer un message texte
 document.getElementById("btn-send")?.addEventListener("click", sendMessage);
 document.getElementById("message-input")?.addEventListener("keydown", e => {
   if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -825,12 +954,10 @@ async function toggleVoiceRecording() {
   if (!btn) return;
 
   if (isRecording) {
-    // Arrêter l'enregistrement
     mediaRecorder?.stop();
     return;
   }
 
-  // Démarrer l'enregistrement
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     voiceChunks  = [];
@@ -843,7 +970,6 @@ async function toggleVoiceRecording() {
       btn.classList.remove("recording");
       btn.title = "Message vocal";
 
-      // Arrêter le stream micro
       stream.getTracks().forEach(t => t.stop());
 
       if (voiceChunks.length === 0 || !chatContact || !chatMyProfile) return;
@@ -868,7 +994,6 @@ async function toggleVoiceRecording() {
     btn.title = "Arrêter l'enregistrement";
     toast("Enregistrement en cours… Tapez à nouveau pour arrêter.", "info");
 
-    // Arrêt automatique après 60s
     setTimeout(() => {
       if (isRecording) mediaRecorder?.stop();
     }, 60000);
@@ -879,7 +1004,7 @@ async function toggleVoiceRecording() {
 }
 
 // ============================================================
-// FEED TIKTOK — Construction avec vidéos uploadées
+// FEED TIKTOK — Construction
 // ============================================================
 
 async function buildFeed() {
@@ -887,7 +1012,6 @@ async function buildFeed() {
   if (!container) return;
   container.innerHTML = "";
 
-  // Charger les vidéos uploadées depuis Supabase Storage
   let uploadedVideos = [];
   try {
     const { data: files, error } = await db.storage.from("videos").list("", {
@@ -910,11 +1034,8 @@ async function buildFeed() {
           };
         });
     }
-  } catch (_) {
-    // Bucket peut ne pas exister encore — on continue avec les démos
-  }
+  } catch (_) {}
 
-  // Mélanger démos + uploads (uploads en premier)
   const allVideos = [...uploadedVideos, ...DEMO_VIDEOS];
 
   allVideos.forEach(v => {
@@ -942,18 +1063,24 @@ async function buildFeed() {
         <div class="feed-desc">${escapeHtml(v.desc)}</div>
       </div>
       <div class="feed-actions">
-        <button class="feed-action-btn btn-like${feedLiked[v.id] ? " liked" : ""}" data-vid="${v.id}" aria-label="J'aime">
-          <i class="fa-${feedLiked[v.id] ? "solid" : "regular"} fa-heart"></i>
-          <span class="feed-action-label">${formatCount(feedLikeCounts[v.id])}</span>
-        </button>
-        <button class="feed-action-btn btn-comment" aria-label="Commenter">
-          <i class="fa-regular fa-comment"></i>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <button class="feed-action-btn btn-like${feedLiked[v.id] ? " liked" : ""}" data-vid="${v.id}" aria-label="J'aime">
+            <i class="fa-${feedLiked[v.id] ? "solid" : "regular"} fa-heart"></i>
+          </button>
+          <span class="feed-action-label liked-count">${formatCount(feedLikeCounts[v.id])}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <button class="feed-action-btn btn-comment" aria-label="Commenter">
+            <i class="fa-regular fa-comment"></i>
+          </button>
           <span class="feed-action-label">${formatCount(v.comments)}</span>
-        </button>
-        <button class="feed-action-btn btn-share" aria-label="Partager">
-          <i class="fa-solid fa-share"></i>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <button class="feed-action-btn btn-share" aria-label="Partager">
+            <i class="fa-solid fa-share"></i>
+          </button>
           <span class="feed-action-label">Partager</span>
-        </button>
+        </div>
       </div>`;
 
     wireFeedItem(item, v, index);
@@ -1027,16 +1154,16 @@ function wireFeedItem(item, video, index) {
 function toggleLike(videoId, item) {
   const wasLiked = feedLiked[videoId];
   feedLiked[videoId] = !wasLiked;
-  if (!wasLiked) { feedLikeCounts[videoId]++; showHeartAnimation(item); }
+  if (!wasLiked) { feedLikeCounts[videoId]++; showHeartAnimation(item); showLikeParticles(item); }
   else           { feedLikeCounts[videoId]--; }
 
-  const btn  = item.querySelector(".btn-like");
-  const icon = btn?.querySelector("i");
-  const lbl  = btn?.querySelector(".feed-action-label");
+  const btn       = item.querySelector(".btn-like");
+  const icon      = btn?.querySelector("i");
+  const likedCount = item.querySelector(".liked-count");
   if (btn) {
     btn.classList.toggle("liked", feedLiked[videoId]);
     if (icon) icon.className = `fa-${feedLiked[videoId] ? "solid" : "regular"} fa-heart`;
-    if (lbl)  lbl.textContent = formatCount(feedLikeCounts[videoId]);
+    if (likedCount) likedCount.textContent = formatCount(feedLikeCounts[videoId]);
   }
 }
 
@@ -1046,6 +1173,37 @@ function showHeartAnimation(item) {
   heart.textContent = "❤️";
   item.appendChild(heart);
   setTimeout(() => heart.remove(), 750);
+}
+
+function showLikeParticles(item) {
+  const colors = ["#fe2c55", "#ff6b9d", "#ff4081", "#e91e8c", "#f06292"];
+  const count  = 12;
+  const rect   = item.getBoundingClientRect();
+  const cx     = rect.width / 2;
+  const cy     = rect.height / 2;
+
+  for (let i = 0; i < count; i++) {
+    const angle    = (i / count) * Math.PI * 2;
+    const dist     = 60 + Math.random() * 80;
+    const tx       = Math.cos(angle) * dist;
+    const ty       = Math.sin(angle) * dist;
+    const duration = 0.6 + Math.random() * 0.4;
+
+    const p = document.createElement("div");
+    p.className = "like-particle";
+    p.style.cssText = `
+      left: calc(50% - 4px);
+      top: calc(50% - 4px);
+      background: ${colors[i % colors.length]};
+      --tx: ${tx}px;
+      --ty: ${ty}px;
+      --particle-duration: ${duration}s;
+      width: ${4 + Math.random() * 6}px;
+      height: ${4 + Math.random() * 6}px;
+    `;
+    item.appendChild(p);
+    setTimeout(() => p.remove(), duration * 1000 + 100);
+  }
 }
 
 function openChatFromFeed(item) {
@@ -1140,7 +1298,6 @@ const uploadSection  = document.getElementById("studio-upload-section");
 const fileInfoEl     = document.getElementById("studio-file-info");
 const canvas         = document.getElementById("studio-canvas");
 
-// Démarrer la caméra
 btnCameraStart?.addEventListener("click", async () => {
   try {
     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
@@ -1159,7 +1316,6 @@ btnCameraStart?.addEventListener("click", async () => {
   }
 });
 
-// Arrêter la caméra
 btnCameraStop?.addEventListener("click", stopCamera);
 
 function stopCamera() {
@@ -1176,7 +1332,6 @@ function stopCamera() {
   btnTakePhoto  ?.classList.add("hidden");
 }
 
-// Prendre une photo
 btnTakePhoto?.addEventListener("click", () => {
   if (!cameraStream || !canvas) return;
   const vw = cameraPreview.videoWidth  || 640;
@@ -1201,7 +1356,6 @@ btnTakePhoto?.addEventListener("click", () => {
   }, "image/jpeg", 0.88);
 });
 
-// Sélectionner un fichier depuis la galerie
 fileInput?.addEventListener("change", e => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -1234,7 +1388,6 @@ function showUploadSection(info) {
   if (uploadSection) uploadSection.style.display = "";
 }
 
-// Upload vers Supabase Storage
 btnUpload?.addEventListener("click", async () => {
   const desc    = document.getElementById("studio-desc")?.value.trim() || "Vidéo Trinite Chat";
   const fileObj = studioBlob
@@ -1247,15 +1400,13 @@ btnUpload?.addEventListener("click", async () => {
   const progressWrap = document.getElementById("studio-upload-progress");
   const progressBar  = document.getElementById("studio-progress-bar");
   btnUpload.disabled = true;
-  btnUpload.textContent = "Publication…";
+  btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publication…';
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "10%";
 
   const ext       = studioFileName.split(".").pop() || "mp4";
   const path      = `${currentUser.id}/${Date.now()}.${ext}`;
 
-  // Supabase Storage ne supporte pas le suivi de progression via JS SDK —
-  // on simule une barre de progression
   const progInterval = setInterval(() => {
     const cur = parseFloat(progressBar?.style.width || "10");
     if (cur < 85 && progressBar) progressBar.style.width = (cur + 5) + "%";
@@ -1281,7 +1432,6 @@ btnUpload?.addEventListener("click", async () => {
   if (progressBar) progressBar.style.width = "100%";
   toast("Publié dans le Feed ✓", "success");
 
-  // Réinitialiser le studio
   studioFile = null; studioBlob = null; studioFileName = null;
   if (videoPreview) { videoPreview.src = ""; videoPreview.classList.add("hidden"); }
   if (photoPreview) { photoPreview.src = ""; photoPreview.classList.add("hidden"); }
@@ -1289,7 +1439,6 @@ btnUpload?.addEventListener("click", async () => {
   if (uploadSection) uploadSection.style.display = "none";
   if (document.getElementById("studio-desc")) document.getElementById("studio-desc").value = "";
 
-  // Recharger le feed pour inclure la nouvelle vidéo
   await buildFeed();
 });
 
