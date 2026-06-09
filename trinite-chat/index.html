@@ -53,6 +53,8 @@
   <!-- ===== ÉCRAN SETUP PROFILS ===== -->
   <div id="screen-setup" class="screen">
     <div class="setup-container">
+      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+           alt="logo" class="setup-logo" />
       <h2 class="setup-title">Créez vos 3 identités</h2>
       <p class="setup-sub">Chaque profil a ses propres contacts et messages.</p>
       <form id="form-setup" class="auth-form">
@@ -82,7 +84,7 @@
     </div>
   </div>
 
-  <!-- ===== ÉCRAN PRINCIPAL (MESSAGES) ===== -->
+  <!-- ===== ÉCRAN MESSAGES (principal) ===== -->
   <div id="screen-main" class="screen">
     <header class="main-header">
       <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
@@ -117,7 +119,7 @@
       </button>
       <button class="nav-btn active" data-screen="screen-main">
         <i class="fa-solid fa-message"></i>
-        <span>Messages</span>
+        <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
       </button>
       <button class="nav-btn" data-screen="screen-profil">
         <i class="fa-solid fa-user"></i>
@@ -128,14 +130,17 @@
 
   <!-- ===== ÉCRAN FEED (TIKTOK) ===== -->
   <div id="screen-feed" class="screen">
+    <!-- Overlay titre -->
     <div class="feed-header-overlay">
-      <span class="feed-title">Pour toi</span>
+      <span class="feed-tab-inactive" id="feed-tab-abos">Abonnements</span>
+      <span class="feed-tab-active">Pour toi</span>
     </div>
 
+    <!-- Conteneur vidéos (scroll snap) -->
     <div class="feed-container" id="feed-container"></div>
 
     <!-- Barre de navigation basse -->
-    <nav class="bottom-nav">
+    <nav class="bottom-nav feed-nav">
       <button class="nav-btn active" data-screen="screen-feed">
         <i class="fa-solid fa-play"></i>
         <span>Feed</span>
@@ -189,13 +194,17 @@
   <div id="screen-chat" class="screen">
     <header class="chat-header">
       <button id="btn-back" class="icon-btn">←</button>
-      <span id="chat-contact-name" class="chat-title"></span>
-      <span id="chat-profile-badge" class="profile-badge"></span>
+      <div class="chat-header-info">
+        <span id="chat-contact-name" class="chat-title"></span>
+        <span id="chat-profile-badge" class="profile-badge"></span>
+      </div>
     </header>
     <div id="messages-container" class="messages-container"></div>
     <div class="message-input-bar">
       <input type="text" id="message-input" placeholder="Message…" autocomplete="off" />
-      <button id="btn-send" class="btn-send">➤</button>
+      <button id="btn-send" class="btn-send">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
     </div>
   </div>
 
