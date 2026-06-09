@@ -2,29 +2,27 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Trinite Chat</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Swiper.js CDN -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
-  <!-- Font Awesome CDN -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
 
-  <!-- ===== ÉCRAN : CONNEXION / INSCRIPTION ===== -->
+  <!-- ===== ÉCRAN CONNEXION / INSCRIPTION ===== -->
   <div id="screen-auth" class="screen active">
     <div class="auth-container">
-      <h1 class="logo">Trinite Chat</h1>
+      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+           alt="Trinite Chat" class="auth-logo" />
+      <h1 class="logo-text">Trinite Chat</h1>
       <p class="logo-sub">Trois profils, un seul chat</p>
 
       <div class="auth-card">
         <div class="auth-tabs">
-          <button id="tab-login" class="tab active" data-tab="login">Se connecter</button>
-          <button id="tab-register" class="tab" data-tab="register">S'inscrire</button>
+          <button class="tab active" data-tab="login">Se connecter</button>
+          <button class="tab" data-tab="register">S'inscrire</button>
         </div>
 
-        <!-- Formulaire connexion -->
         <form id="form-login" class="auth-form">
           <div class="field">
             <label>Email</label>
@@ -37,7 +35,6 @@
           <button type="submit" class="btn-primary">Se connecter</button>
         </form>
 
-        <!-- Formulaire inscription -->
         <form id="form-register" class="auth-form hidden">
           <div class="field">
             <label>Email</label>
@@ -53,103 +50,163 @@
     </div>
   </div>
 
-  <!-- ===== ÉCRAN : CRÉATION DES 3 PROFILS ===== -->
+  <!-- ===== ÉCRAN SETUP PROFILS ===== -->
   <div id="screen-setup" class="screen">
     <div class="setup-container">
       <h2 class="setup-title">Créez vos 3 identités</h2>
       <p class="setup-sub">Chaque profil a ses propres contacts et messages.</p>
-
-      <form id="form-setup">
-        <div class="profile-setup-card" data-type="pro">
-          <div class="profile-icon pro"><i class="fa-solid fa-briefcase"></i></div>
-          <div class="field">
-            <label>Nom du profil Pro</label>
-            <input type="text" id="name-pro" placeholder="Ex : Jean Martin" required />
+      <form id="form-setup" class="auth-form">
+        <div class="profile-setup-card">
+          <div class="profile-icon pro">💼</div>
+          <div class="field flex1">
+            <label>Profil Pro</label>
+            <input type="text" id="name-pro" placeholder="Ex : Jean Martin" />
           </div>
         </div>
-
-        <div class="profile-setup-card" data-type="prive">
-          <div class="profile-icon prive"><i class="fa-solid fa-heart"></i></div>
-          <div class="field">
-            <label>Nom du profil Privé</label>
-            <input type="text" id="name-prive" placeholder="Ex : Jean" required />
+        <div class="profile-setup-card">
+          <div class="profile-icon prive">❤️</div>
+          <div class="field flex1">
+            <label>Profil Privé</label>
+            <input type="text" id="name-prive" placeholder="Ex : Jean" />
           </div>
         </div>
-
-        <div class="profile-setup-card" data-type="anonyme">
-          <div class="profile-icon anonyme"><i class="fa-solid fa-ghost"></i></div>
-          <div class="field">
-            <label>Nom du profil Anonyme</label>
-            <input type="text" id="name-anonyme" placeholder="Ex : Fantôme" required />
+        <div class="profile-setup-card">
+          <div class="profile-icon anonyme">👻</div>
+          <div class="field flex1">
+            <label>Profil Anonyme</label>
+            <input type="text" id="name-anonyme" placeholder="Ex : Fantôme" />
           </div>
         </div>
-
-        <button type="submit" class="btn-primary" style="margin-top:1.5rem">
-          Créer mes profils
-        </button>
+        <button type="submit" class="btn-primary" style="margin-top:.5rem">Créer mes profils</button>
       </form>
     </div>
   </div>
 
-  <!-- ===== ÉCRAN PRINCIPAL ===== -->
+  <!-- ===== ÉCRAN PRINCIPAL (MESSAGES) ===== -->
   <div id="screen-main" class="screen">
-    <!-- En-tête -->
     <header class="main-header">
+      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+           alt="logo" class="header-logo-img" />
       <h1 class="header-logo">Trinite Chat</h1>
       <span id="active-profile-name" class="header-profile"></span>
-      <button id="btn-logout" class="icon-btn" title="Déconnexion">
-        <i class="fa-solid fa-right-from-bracket"></i>
-      </button>
+      <button id="btn-logout" class="icon-btn" title="Déconnexion">⎋</button>
     </header>
 
-    <!-- Swiper des profils -->
-    <div class="swiper profile-swiper">
-      <div class="swiper-wrapper" id="profile-slides"></div>
-      <div class="swiper-pagination"></div>
+    <!-- Swiper profils -->
+    <div class="profile-swiper-wrap" id="profile-swiper-wrap">
+      <div class="profile-slides" id="profile-slides"></div>
+      <div class="swiper-dots" id="swiper-dots"></div>
     </div>
 
-    <!-- Section contacts -->
+    <!-- Contacts -->
     <div class="contacts-section">
       <div class="contacts-header">
         <h3>Contacts</h3>
-        <button id="btn-add-contact" class="icon-btn add-btn" title="Ajouter un contact">
-          <i class="fa-solid fa-plus"></i>
-        </button>
+        <button id="btn-add-contact" class="add-btn" title="Ajouter">+</button>
       </div>
       <ul id="contact-list" class="contact-list">
         <li class="empty-state">Aucun contact pour ce profil</li>
       </ul>
     </div>
+
+    <!-- Barre de navigation basse -->
+    <nav class="bottom-nav">
+      <button class="nav-btn" data-screen="screen-feed">
+        <i class="fa-solid fa-play"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-btn active" data-screen="screen-main">
+        <i class="fa-solid fa-message"></i>
+        <span>Messages</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-profil">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===== ÉCRAN FEED (TIKTOK) ===== -->
+  <div id="screen-feed" class="screen">
+    <div class="feed-header-overlay">
+      <span class="feed-title">Pour toi</span>
+    </div>
+
+    <div class="feed-container" id="feed-container"></div>
+
+    <!-- Barre de navigation basse -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" data-screen="screen-feed">
+        <i class="fa-solid fa-play"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-main">
+        <i class="fa-solid fa-message"></i>
+        <span>Messages</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-profil">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===== ÉCRAN PROFIL ===== -->
+  <div id="screen-profil" class="screen">
+    <header class="main-header">
+      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+           alt="logo" class="header-logo-img" />
+      <h1 class="header-logo">Mon Profil</h1>
+    </header>
+
+    <div class="profil-section">
+      <h3 class="profil-title">Mes identités</h3>
+      <form id="form-profil" class="auth-form">
+        <div id="profil-cards"></div>
+        <button type="submit" class="btn-primary">Enregistrer</button>
+      </form>
+      <button id="btn-logout-profil" class="btn-logout">⎋ Se déconnecter</button>
+    </div>
+
+    <!-- Barre de navigation basse -->
+    <nav class="bottom-nav">
+      <button class="nav-btn" data-screen="screen-feed">
+        <i class="fa-solid fa-play"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-main">
+        <i class="fa-solid fa-message"></i>
+        <span>Messages</span>
+      </button>
+      <button class="nav-btn active" data-screen="screen-profil">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
   </div>
 
   <!-- ===== ÉCRAN CHAT ===== -->
   <div id="screen-chat" class="screen">
     <header class="chat-header">
-      <button id="btn-back" class="icon-btn">
-        <i class="fa-solid fa-arrow-left"></i>
-      </button>
+      <button id="btn-back" class="icon-btn">←</button>
       <span id="chat-contact-name" class="chat-title"></span>
       <span id="chat-profile-badge" class="profile-badge"></span>
     </header>
-
     <div id="messages-container" class="messages-container"></div>
-
     <div class="message-input-bar">
-      <input type="text" id="message-input" placeholder="Message..." />
-      <button id="btn-send" class="btn-send">
-        <i class="fa-solid fa-paper-plane"></i>
-      </button>
+      <input type="text" id="message-input" placeholder="Message…" autocomplete="off" />
+      <button id="btn-send" class="btn-send">➤</button>
     </div>
   </div>
 
-  <!-- ===== MODAL : AJOUTER UN CONTACT ===== -->
+  <!-- ===== MODAL AJOUTER CONTACT ===== -->
   <div id="modal-add-contact" class="modal-overlay hidden">
     <div class="modal-card">
       <div class="modal-header">
         <h3>Ajouter un contact</h3>
-        <button id="modal-close" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+        <button id="modal-close" class="icon-btn">✕</button>
       </div>
-      <form id="form-add-contact">
+      <form id="form-add-contact" class="auth-form">
         <div class="field">
           <label>Email du contact</label>
           <input type="email" id="contact-email" placeholder="contact@email.com" required />
@@ -160,22 +217,18 @@
         </div>
         <div class="field">
           <label>Assigner au profil</label>
-          <select id="contact-profile-select">
-            <!-- Rempli dynamiquement -->
-          </select>
+          <select id="contact-profile-select"></select>
         </div>
         <button type="submit" class="btn-primary">Ajouter</button>
       </form>
     </div>
   </div>
 
-  <!-- ===== TOAST NOTIFICATION ===== -->
+  <!-- ===== TOAST ===== -->
   <div id="toast" class="toast hidden"></div>
 
   <!-- Supabase CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Swiper.js CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <!-- Script principal -->
   <script src="script.js"></script>
 </body>
