@@ -161,6 +161,8 @@ let chatContact     = null;
 let chatMyProfile   = null;
 let realtimeChannel = null;
 let notifChannel    = null;
+let typingChannel = null;
+let typingTimeout = null;
 let unreadCount     = 0;
 let userAvatarUrl   = null;
 let feedSoundEnabled = false;
@@ -1359,6 +1361,50 @@ function openChat(contact, myProfile) {
   }
 
   showScreen("screen-chat");
+// ===== ACCUSÉS DE LECTURE + INDICATEUR DE FRAPPE =====
+const markAsRead = async () => {
+  if (!chatContact.contact_profile_id) return;
+  const { error } = await db
+    .from('messages')
+    .update({ read_at: new Date().toISOString() })
+    .eq('to_profile_id', chatMyProfile.id)
+    .eq('from_profile_id', chatContact.contact_profile_id)
+    .is('read_at', null);
+  if (error) console.error("Erreur marquage lu:", error);
+};
+markAsRead();
+
+if (typingChannel) db.removeChannel(typingChannel);
+typingChannel = db.channel(`typing:${chatMyProfile.id}:${chatContact.contact_profile_id}`);
+typingChannel
+  .on('broadcast', { event: 'typing' }, (payload) => {
+    const isTyping = payload.payload.isTyping;
+    const indicator = document.getElementById('typing-indicator');
+    if (isTyping && indicator) indicator.classList.remove('hidden');
+    else if (indicator) indicator.classList.add('hidden');
+  })
+  .subscribe();
+
+const input = document.getElementById('message-input');
+const handleTyping = () => {
+  if (!chatMyProfile || !chatContact) return;
+  typingChannel?.send({
+    type: 'broadcast',
+    event: 'typing',
+    payload: { userId: chatMyProfile.id, isTyping: true }
+  });
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => {
+    typingChannel?.send({
+      type: 'broadcast',
+      event: 'typing',
+      payload: { userId: chatMyProfile.id, isTyping: false }
+    });
+  }, 2000);
+};
+input?.addEventListener('input', handleTyping);
+
+
   loadMessages();
   subscribeToMessages();
   wireTypingIndicator();
@@ -1426,10 +1472,12 @@ function appendBubble(msg, myProfileId) {
       <div class="bubble-voice-text">${escapeHtml(msg.content || "Message vocal")}</div>
       <div class="bubble-time">${formatTime(msg.created_at)}</div>`;
   } else {
-    div.innerHTML = `
-      ${escapeHtml(msg.content)}
-      <div class="bubble-time">${formatTime(msg.created_at)}</div>`;
-  }
+  const isRead = msg.read_at !== null;
+  const checkIcon = isRead ? '<i class="fa-solid fa-check-double"></i>' : '<i class="fa-regular fa-check"></i>';
+  div.innerHTML = `
+    ${escapeHtml(msg.content)}
+    <div class="bubble-time">${formatTime(msg.created_at)} ${checkIcon}</div>`;
+}
 
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
@@ -1502,7 +1550,12 @@ async function sendMessage() {
 
 document.getElementById("btn-back")?.addEventListener("click", () => {
   if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
-  showScreen("screen-main");
+  if (typingChannel) {
+  db.removeChannel(typingChannel);
+  typingChannel = null;
+}
+clearTimeout(typingTimeout);
+showScreen("screen-main");
   document.querySelectorAll(".nav-btn").forEach(b =>
     b.classList.toggle("active", b.dataset.screen === "screen-main")
   );
