@@ -1,5 +1,7 @@
 // ============================================================
-// TRINITE CHAT — Effets premium (particles, thème, ripple)
+// TRINITE CHAT — script.js v2
+// Particles · Theme · Ripple · Avatar · FAB · Swipe Delete
+// Typing Indicator · Sound Toggle · Skeleton · QR Scan
 // ============================================================
 (function () {
   "use strict";
@@ -19,14 +21,14 @@
 
   function createParticle() {
     return {
-      x:      randomRange(0, canvas.width),
-      y:      randomRange(0, canvas.height),
-      r:      randomRange(0.5, 2.5),
-      dx:     randomRange(-0.25, 0.25),
-      dy:     randomRange(-0.4, -0.1),
-      alpha:  randomRange(0.2, 0.8),
+      x: randomRange(0, canvas.width),
+      y: randomRange(0, canvas.height),
+      r: randomRange(0.5, 2.5),
+      dx: randomRange(-0.25, 0.25),
+      dy: randomRange(-0.4, -0.1),
+      alpha: randomRange(0.2, 0.8),
       dAlpha: randomRange(-0.003, 0.003),
-      color:  Math.random() > 0.5 ? "139,92,246" : "219,39,119",
+      color: Math.random() > 0.5 ? "139,92,246" : "219,39,119",
     };
   }
 
@@ -43,11 +45,11 @@
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     particles.forEach((p, i) => {
       p.x += p.dx; p.y += p.dy; p.alpha += p.dAlpha;
-      if (p.alpha <= 0.05)          p.dAlpha =  Math.abs(p.dAlpha);
-      if (p.alpha >= 0.85)          p.dAlpha = -Math.abs(p.dAlpha);
-      if (p.y < -10)                { particles[i] = createParticle(); particles[i].y = canvas.height + 10; }
-      if (p.x < -10)                p.x = canvas.width + 10;
-      if (p.x > canvas.width + 10)  p.x = -10;
+      if (p.alpha <= 0.05) p.dAlpha = Math.abs(p.dAlpha);
+      if (p.alpha >= 0.85) p.dAlpha = -Math.abs(p.dAlpha);
+      if (p.y < -10) { particles[i] = createParticle(); particles[i].y = canvas.height + 10; }
+      if (p.x < -10) p.x = canvas.width + 10;
+      if (p.x > canvas.width + 10) p.x = -10;
       ctx.beginPath();
       ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
@@ -109,14 +111,21 @@
     });
   }
 
-  /* ===== SKELETON ===== */
-  window.showSkeleton = () => document.getElementById("skeleton-overlay")?.classList.remove("hidden");
-  window.hideSkeleton = () => document.getElementById("skeleton-overlay")?.classList.add("hidden");
-
   /* ===== HAPTIC ===== */
   function haptic(ms) { if (navigator.vibrate) navigator.vibrate(ms || 10); }
+  window.haptic = haptic;
 
-  /* ===== SCREEN OBSERVER → wire ripples on active screen ===== */
+  /* ===== SKELETON ===== */
+  window.showSkeleton = () => {
+    const el = document.getElementById("skeleton-overlay");
+    if (el) el.classList.remove("hidden");
+  };
+  window.hideSkeleton = () => {
+    const el = document.getElementById("skeleton-overlay");
+    if (el) el.classList.add("hidden");
+  };
+
+  /* ===== SCREEN OBSERVER ===== */
   const screenObserver = new MutationObserver(mutations => {
     mutations.forEach(m => {
       if (m.attributeName === "class" && m.target.classList.contains("active"))
@@ -131,13 +140,12 @@
 })();
 
 // ============================================================
-// TRINITE CHAT — script.js
-// Auth Supabase + 3 Profils + Contacts + Chat temps réel + Feed TikTok
-// + Stories + Studio/Upload + Messages vocaux
+// TRINITE CHAT — Logique principale
 // ============================================================
 
 const SUPABASE_URL  = "https://eqttgyxjjupeisgozrut.supabase.co";
 const SUPABASE_ANON = "sb_publishable_2tUX4eHP5MrKz_pekDY4aA_EiuZ99Wo";
+const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png";
 
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -154,61 +162,34 @@ let chatMyProfile   = null;
 let realtimeChannel = null;
 let notifChannel    = null;
 let unreadCount     = 0;
+let userAvatarUrl   = null;
+let feedSoundEnabled = false;
 
 // Studio
-let cameraStream    = null;
-let studioFile      = null;
-let studioBlob      = null;
-let studioFileName  = null;
+let cameraStream   = null;
+let studioFile     = null;
+let studioBlob     = null;
+let studioFileName = null;
 
-// Message vocal
-let mediaRecorder   = null;
-let voiceChunks     = [];
-let isRecording     = false;
+// Voice
+let mediaRecorder  = null;
+let voiceChunks    = [];
+let isRecording    = false;
 
-// Stories déjà vues (session)
-const seenStories   = new Set();
+// Avatar camera
+let avatarCamStream = null;
+
+// Stories
+const seenStories = new Set();
 
 // ============================================================
-// VIDÉOS DE DÉMONSTRATION (Feed TikTok)
+// VIDÉOS DEMO
 // ============================================================
 const DEMO_VIDEOS = [
-  {
-    id: "v1",
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-    author: "@trinitechat",
-    desc: "Bienvenue sur Trinite Chat 🔥 Trois profils, une seule app !",
-    likes: 3102,
-    comments: 95,
-    isDemo: true
-  },
-  {
-    id: "v2",
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-    author: "@profil_pro",
-    desc: "Gérez vos conversations pros séparément 💼 #pro #business",
-    likes: 1284,
-    comments: 48,
-    isDemo: true
-  },
-  {
-    id: "v3",
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-    author: "@anonyme_x",
-    desc: "Mode anonyme activé 👻 Personne ne saura qui vous êtes #anonyme",
-    likes: 873,
-    comments: 22,
-    isDemo: true
-  },
-  {
-    id: "v4",
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-    author: "@prive_heart",
-    desc: "Vos messages privés restent privés ❤️ #love #privé",
-    likes: 642,
-    comments: 17,
-    isDemo: true
-  }
+  { id:"v1", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",      author:"@trinitechat",  desc:"Bienvenue sur Trinite Chat 🔥 Trois profils, une seule app !", likes:3102, comments:95, isDemo:true },
+  { id:"v2", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",          author:"@profil_pro",   desc:"Gérez vos conversations pros séparément 💼 #pro #business",   likes:1284, comments:48, isDemo:true },
+  { id:"v3", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",        author:"@anonyme_x",    desc:"Mode anonyme activé 👻 Personne ne saura qui vous êtes",       likes:873,  comments:22, isDemo:true },
+  { id:"v4", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", author:"@prive_heart", desc:"Vos messages privés restent privés ❤️ #love #privé",        likes:642,  comments:17, isDemo:true }
 ];
 
 let feedLiked      = {};
@@ -236,6 +217,7 @@ function showScreen(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
+  updateFabVisibility(id);
 }
 
 function initial(name) { return (name || "?").charAt(0).toUpperCase(); }
@@ -248,11 +230,10 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function profileLabel(type) {
-  return { pro: "Pro", prive: "Privé", anonyme: "Anonyme" }[type] || type;
-}
-function profileEmoji(type) {
-  return { pro: "💼", prive: "❤️", anonyme: "👻" }[type] || "👤";
+function profileLabel(type) { return { pro:"Pro", prive:"Privé", anonyme:"Anonyme" }[type] || type; }
+function profileEmoji(type) { return { pro:"💼", prive:"❤️", anonyme:"👻" }[type] || "👤"; }
+function profileColor(type) {
+  return { pro:"linear-gradient(135deg,#6366f1,#8b5cf6)", prive:"linear-gradient(135deg,#ec4899,#f97316)", anonyme:"linear-gradient(135deg,#6b7280,#374151)" }[type] || "linear-gradient(135deg,#8b5cf6,#db2777)";
 }
 
 function formatCount(n) {
@@ -260,8 +241,20 @@ function formatCount(n) {
   return String(n);
 }
 
+/* ===== AVATAR HELPERS ===== */
+function renderAvatar(el, name, avatarUrl) {
+  if (!el) return;
+  if (avatarUrl) {
+    el.innerHTML = `<img src="${escapeHtml(avatarUrl)}" alt="${escapeHtml(name)}" onerror="this.style.display='none';this.parentElement.querySelector('.avatar-fallback')?.style.setProperty('display','flex')" />`;
+    el.style.background = "transparent";
+  } else {
+    el.innerHTML = `<span>${initial(name)}</span>`;
+    el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+  }
+}
+
 // ============================================================
-// BADGE NOTIFICATIONS MESSAGES
+// BADGE NOTIFICATIONS
 // ============================================================
 
 function updateMsgBadge(count) {
@@ -271,6 +264,9 @@ function updateMsgBadge(count) {
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     badge.classList.remove("hidden");
+    badge.style.animation = "none";
+    void badge.offsetWidth;
+    badge.style.animation = "";
   } else {
     badge.classList.add("hidden");
   }
@@ -289,7 +285,10 @@ function startNotifListener() {
         const msg = payload.new;
         const isForMe = myProfileIds.includes(msg.to_profile_id);
         const messagesActive = document.getElementById("screen-main")?.classList.contains("active");
-        if (isForMe && !messagesActive) updateMsgBadge(unreadCount + 1);
+        if (isForMe && !messagesActive) {
+          updateMsgBadge(unreadCount + 1);
+          haptic(15);
+        }
       }
     )
     .subscribe();
@@ -324,14 +323,17 @@ async function initAuth() {
 }
 
 async function afterLogin() {
+  window.showSkeleton();
+
   const { data, error } = await db.from("profiles")
     .select("*")
     .eq("user_id", currentUser.id)
     .order("created_at", { ascending: true });
 
-  if (error) { toast("Erreur chargement profils : " + error.message, "error"); return; }
+  if (error) { window.hideSkeleton(); toast("Erreur chargement profils : " + error.message, "error"); return; }
 
   if (!data || data.length === 0) {
+    window.hideSkeleton();
     const rows = [
       { user_id: currentUser.id, profile_type: "pro",     name: "Pro" },
       { user_id: currentUser.id, profile_type: "prive",   name: "Privé" },
@@ -343,13 +345,16 @@ async function afterLogin() {
     toast("Vos 3 profils ont été créés !", "success");
   } else {
     userProfiles = data;
+    userAvatarUrl = data[0]?.avatar_url || null;
   }
 
   await loadMainScreen();
+
+  setTimeout(() => window.hideSkeleton(), 500);
 }
 
 // ============================================================
-// FORMULAIRES D'AUTHENTIFICATION
+// FORMULAIRES AUTH
 // ============================================================
 
 document.getElementById("form-login")?.addEventListener("submit", async e => {
@@ -389,7 +394,7 @@ document.querySelectorAll(".tab").forEach(tab => {
 });
 
 // ============================================================
-// SETUP PROFILS (formulaire manuel)
+// SETUP PROFILS
 // ============================================================
 
 document.getElementById("form-setup")?.addEventListener("submit", async e => {
@@ -417,32 +422,40 @@ function handleLogout() {
   if (realtimeChannel) { db.removeChannel(realtimeChannel); realtimeChannel = null; }
   if (notifChannel)    { db.removeChannel(notifChannel);    notifChannel    = null; }
   stopCamera();
+  stopAvatarCamera();
+  hideFab();
   db.auth.signOut();
 }
 document.getElementById("btn-logout")       ?.addEventListener("click", handleLogout);
 document.getElementById("btn-logout-profil")?.addEventListener("click", handleLogout);
 
 // ============================================================
-// ÉCRAN PRINCIPAL — CHARGEMENT
+// ÉCRAN PRINCIPAL
 // ============================================================
 
 async function loadMainScreen() {
   showScreen("screen-main");
   activeIdx     = 0;
   activeProfile = userProfiles[0];
+
   buildSwiper();
   updateHeaderProfile();
   buildStories();
+  showSkeleton();
   await loadContacts();
   await buildFeed();
   buildProfilScreen();
   wireBottomNav();
   startNotifListener();
   wireContactSearch();
+  initFab();
+  updateAvatarUI();
+
+  setTimeout(() => hideSkeleton(), 500);
 }
 
 // ============================================================
-// SWIPER DE PROFILS
+// SWIPER DE PROFILS (bug fix: offset précis)
 // ============================================================
 
 function buildSwiper() {
@@ -456,9 +469,14 @@ function buildSwiper() {
   userProfiles.forEach((p, i) => {
     const slide = document.createElement("div");
     slide.className = `profile-slide${i === 0 ? " active" : ""}`;
-    slide.style.setProperty('--stagger-delay', `${i * 0.08}s`);
+    slide.style.setProperty("--stagger-delay", `${i * 0.08}s`);
+
+    const avatarHtml = p.avatar_url
+      ? `<img src="${escapeHtml(p.avatar_url)}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" />`
+      : profileEmoji(p.profile_type);
+
     slide.innerHTML = `
-      <div class="slide-icon ${p.profile_type}">${profileEmoji(p.profile_type)}</div>
+      <div class="slide-icon ${p.profile_type}">${avatarHtml}</div>
       <div class="slide-info">
         <span class="slide-name">${escapeHtml(p.name)}</span>
         <span class="slide-type">${profileLabel(p.profile_type)}</span>
@@ -474,17 +492,36 @@ function buildSwiper() {
 
   const wrap = document.getElementById("profile-swiper-wrap");
   let startX = null;
-  wrap?.addEventListener("touchstart", e => { startX = e.touches[0].clientX; }, { passive: true });
-  wrap?.addEventListener("touchend",   e => {
+  let dragging = false;
+
+  wrap?.addEventListener("touchstart", e => {
+    startX   = e.touches[0].clientX;
+    dragging = false;
+  }, { passive: true });
+
+  wrap?.addEventListener("touchmove", e => {
     if (startX === null) return;
+    if (Math.abs(e.touches[0].clientX - startX) > 8) dragging = true;
+  }, { passive: true });
+
+  wrap?.addEventListener("touchend", e => {
+    if (startX === null || !dragging) { startX = null; return; }
     const dx = e.changedTouches[0].clientX - startX;
-    startX = null;
-    if (dx < -40 && activeIdx < userProfiles.length - 1) setActiveProfile(activeIdx + 1);
-    if (dx >  40 && activeIdx > 0)                       setActiveProfile(activeIdx - 1);
+    startX   = null;
+    dragging = false;
+    if (dx < -40 && activeIdx < userProfiles.length - 1) {
+      setActiveProfile(activeIdx + 1);
+      haptic(10);
+    } else if (dx > 40 && activeIdx > 0) {
+      setActiveProfile(activeIdx - 1);
+      haptic(10);
+    }
   });
 }
 
 async function setActiveProfile(idx) {
+  if (idx === activeIdx && activeProfile) return;
+
   activeIdx     = idx;
   activeProfile = userProfiles[idx];
 
@@ -492,14 +529,21 @@ async function setActiveProfile(idx) {
   document.querySelectorAll(".dot")          .forEach((d, i) => d.classList.toggle("active", i === idx));
 
   const wrap = document.getElementById("profile-slides");
-  if (wrap && wrap.children[0]) {
-    const itemW = wrap.children[0].offsetWidth + 12;
-    wrap.style.transform = `translateX(-${idx * itemW}px)`;
+  if (wrap) {
+    const slideEls = Array.from(wrap.children);
+    if (slideEls.length > 0) {
+      const slideW = slideEls[0].getBoundingClientRect().width;
+      const gap    = 12;
+      wrap.style.transform = `translateX(-${idx * (slideW + gap)}px)`;
+    }
   }
 
   updateHeaderProfile();
+  updateFabActiveState();
+  showSkeleton();
   await loadContacts();
   buildStories();
+  setTimeout(() => hideSkeleton(), 500);
 }
 
 function updateHeaderProfile() {
@@ -518,22 +562,26 @@ function buildStories() {
 
   const addWrap = document.createElement("div");
   addWrap.className = "story-item";
+
+  const avatarContent = userAvatarUrl
+    ? `<img src="${escapeHtml(userAvatarUrl)}" alt="moi" />`
+    : (activeProfile ? profileEmoji(activeProfile.profile_type) : "👤");
+
   addWrap.innerHTML = `
     <div class="story-add-ring" title="Ajouter une story">
-      <span style="font-size:1.4rem">${activeProfile ? profileEmoji(activeProfile.profile_type) : "👤"}</span>
-      <span class="story-add-plus">+</span>
+      <div class="story-avatar">${avatarContent}</div>
+      <span class="story-add-plus"><i class="fa-solid fa-plus" style="font-size:0.6rem"></i></span>
     </div>
     <span class="story-name">Ma story</span>`;
-  addWrap.addEventListener("click", () => {
-    toast("Stories : fonctionnalité bientôt disponible !", "info");
-  });
+  addWrap.addEventListener("click", () => toast("Stories : bientôt disponible !", "info"));
   scroll.appendChild(addWrap);
 
-  const STORY_EMOJIS = ["🔥", "💜", "✨", "👋", "🎵", "🌙", "💫", "🎉"];
+  const STORY_EMOJIS = ["🔥","💜","✨","👋","🎵","🌙","💫","🎉"];
   currentContacts.slice(0, 10).forEach((c, i) => {
     const seen = seenStories.has(c.id);
     const wrap = document.createElement("div");
     wrap.className = "story-item";
+    wrap.style.setProperty("--stagger-delay", `${i * 0.03}s`);
     wrap.innerHTML = `
       <div class="story-ring${seen ? " seen" : ""}">
         <div class="story-avatar">${escapeHtml(initial(c.contact_name))}</div>
@@ -546,6 +594,7 @@ function buildStories() {
 
 function openStory(contact, emoji) {
   seenStories.add(contact.id);
+  haptic(8);
 
   const modal    = document.getElementById("modal-story");
   const avatarEl = document.getElementById("story-modal-avatar");
@@ -556,7 +605,6 @@ function openStory(contact, emoji) {
   if (nameEl)   nameEl.textContent   = contact.contact_name;
   if (bodyEl)   bodyEl.textContent   = emoji;
 
-  // Reset progress bar animation
   const progressBar = modal?.querySelector(".story-progress-bar");
   if (progressBar) {
     progressBar.style.animation = "none";
@@ -605,23 +653,96 @@ function renderContacts(list) {
   el.innerHTML = "";
 
   if (!list || list.length === 0) {
-    el.innerHTML = '<li class="empty-state">Aucun contact pour ce profil</li>';
+    el.innerHTML = '<li class="empty-state"><i class="fa-regular fa-comment-dots" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3"></i>Aucun contact pour ce profil</li>';
     return;
   }
 
   list.forEach((c, idx) => {
     const li = document.createElement("li");
-    li.className = "contact-item";
-    li.style.animationDelay = `${idx * 0.05}s`;
-    li.innerHTML = `
+    li.className = "contact-swipe-wrap";
+    li.style.animationDelay = `${idx * 0.03}s`;
+
+    const deleteBg = document.createElement("div");
+    deleteBg.className = "contact-delete-bg";
+    deleteBg.innerHTML = '<i class="fa-solid fa-trash"></i>';
+
+    const item = document.createElement("div");
+    item.className = "contact-item";
+
+    item.innerHTML = `
       <div class="contact-avatar">${escapeHtml(initial(c.contact_name))}</div>
       <div class="contact-info">
         <span class="contact-name-text">${escapeHtml(c.contact_name)}</span>
         <span class="contact-email-text">${escapeHtml(c.contact_email || "")}</span>
       </div>
-      <span class="chevron">›</span>`;
-    li.addEventListener("click", () => openChat(c, activeProfile));
+      <i class="fa-solid fa-chevron-right chevron"></i>`;
+
+    item.addEventListener("click", () => openChat(c, activeProfile));
+
+    wireSwipeDelete(li, item, deleteBg, c);
+
+    li.appendChild(deleteBg);
+    li.appendChild(item);
     el.appendChild(li);
+  });
+}
+
+/* ===== SWIPE TO DELETE ===== */
+function wireSwipeDelete(wrapper, item, deleteBg, contact) {
+  let touchStartX = null;
+  let currentX    = 0;
+  let swiped      = false;
+
+  item.addEventListener("touchstart", e => {
+    touchStartX = e.touches[0].clientX;
+    currentX    = 0;
+    swiped      = false;
+    item.style.transition = "none";
+  }, { passive: true });
+
+  item.addEventListener("touchmove", e => {
+    if (touchStartX === null) return;
+    const dx = e.touches[0].clientX - touchStartX;
+    if (dx > 0) return;
+    currentX = Math.max(dx, -90);
+    item.style.transform = `translateX(${currentX}px)`;
+    deleteBg.style.opacity = Math.min(1, Math.abs(currentX) / 80);
+  }, { passive: true });
+
+  item.addEventListener("touchend", () => {
+    item.style.transition = "";
+    if (Math.abs(currentX) > 55) {
+      item.style.transform = "translateX(-80px)";
+      wrapper.classList.add("swiped");
+      swiped = true;
+      haptic(20);
+
+      deleteBg.addEventListener("click", async () => {
+        item.style.transform = "translateX(-100%)";
+        item.style.opacity   = "0";
+        item.style.height    = "0";
+        item.style.padding   = "0";
+        item.style.margin    = "0";
+        item.style.transition = "all 0.35s ease";
+        wrapper.style.transition = "all 0.35s ease";
+        wrapper.style.height  = "0";
+        wrapper.style.opacity = "0";
+
+        const { error } = await db.from("contacts").delete().eq("id", contact.id);
+        if (error) {
+          toast("Erreur suppression : " + error.message, "error");
+        } else {
+          toast("Contact supprimé", "info");
+          await loadContacts();
+          buildStories();
+        }
+      }, { once: true });
+    } else {
+      item.style.transform = "translateX(0)";
+      deleteBg.style.opacity = "0";
+      wrapper.classList.remove("swiped");
+    }
+    touchStartX = null;
   });
 }
 
@@ -634,10 +755,7 @@ function wireContactSearch() {
   if (!input) return;
   input.addEventListener("input", () => {
     const q = input.value.trim().toLowerCase();
-    if (!q) {
-      renderContacts(currentContacts);
-      return;
-    }
+    if (!q) { renderContacts(currentContacts); return; }
     const filtered = currentContacts.filter(c =>
       c.contact_name.toLowerCase().includes(q) ||
       (c.contact_email || "").toLowerCase().includes(q)
@@ -647,7 +765,7 @@ function wireContactSearch() {
 }
 
 // ============================================================
-// MODAL AJOUTER UN CONTACT
+// MODAL AJOUTER CONTACT
 // ============================================================
 
 document.getElementById("btn-add-contact")?.addEventListener("click", () => {
@@ -696,17 +814,40 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   if (error) { toast("Erreur : " + error.message, "error"); return; }
 
   toast("Contact ajouté !", "success");
+  haptic(15);
   document.getElementById("modal-add-contact")?.classList.add("hidden");
   e.target.reset();
 
   if (profileId === activeProfile?.id) {
+    showSkeleton();
     await loadContacts();
     buildStories();
+    setTimeout(() => hideSkeleton(), 500);
   }
 });
 
+/* ===== QR Code simulation ===== */
+document.getElementById("btn-qr-scan")?.addEventListener("click", () => {
+  const scanner = document.getElementById("qr-scanner-mock");
+  scanner?.classList.toggle("hidden");
+  haptic(10);
+});
+
+document.getElementById("btn-qr-close")?.addEventListener("click", () => {
+  document.getElementById("qr-scanner-mock")?.classList.add("hidden");
+});
+
+document.getElementById("btn-qr-simulate")?.addEventListener("click", () => {
+  haptic(20);
+  const fakeId = "trinite-" + Math.random().toString(36).substr(2, 8);
+  const input  = document.getElementById("contact-profile-id");
+  if (input) input.value = fakeId;
+  document.getElementById("qr-scanner-mock")?.classList.add("hidden");
+  toast("QR Code scanné ! ID : " + fakeId, "success");
+});
+
 // ============================================================
-// ÉCRAN PROFIL — édition des noms + affichage ID
+// ÉCRAN PROFIL
 // ============================================================
 
 function buildProfilScreen() {
@@ -755,7 +896,7 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
     const name = input.value.trim();
     if (!name) continue;
     const { error } = await db.from("profiles").update({ name }).eq("id", pid);
-    if (error) { toast("Erreur mise à jour : " + error.message, "error"); break; }
+    if (error) { toast("Erreur : " + error.message, "error"); break; }
     const p = userProfiles.find(x => x.id === pid);
     if (p) p.name = name;
   }
@@ -765,6 +906,277 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
   buildSwiper();
   updateHeaderProfile();
 });
+
+// ============================================================
+// AVATAR — Photo de profil personnalisable
+// ============================================================
+
+function updateAvatarUI() {
+  const largePrev    = document.getElementById("avatar-large-preview");
+  const initialsEl   = document.getElementById("avatar-large-initials");
+  const imgEl        = document.getElementById("avatar-large-img");
+  const removeBtn    = document.getElementById("btn-avatar-remove");
+
+  const name = userProfiles[0]?.name || currentUser?.email || "?";
+
+  if (userAvatarUrl) {
+    if (initialsEl) initialsEl.classList.add("hidden");
+    if (imgEl)      { imgEl.src = userAvatarUrl; imgEl.classList.remove("hidden"); }
+    if (removeBtn)  removeBtn.classList.remove("hidden");
+  } else {
+    if (initialsEl) { initialsEl.textContent = initial(name); initialsEl.classList.remove("hidden"); }
+    if (imgEl)      imgEl.classList.add("hidden");
+    if (removeBtn)  removeBtn.classList.add("hidden");
+  }
+}
+
+async function uploadAvatar(file) {
+  if (!currentUser || !file) return;
+
+  const progressWrap = document.getElementById("avatar-upload-progress");
+  const progressBar  = document.getElementById("avatar-progress-bar");
+  progressWrap?.classList.remove("hidden");
+  if (progressBar) progressBar.style.width = "20%";
+
+  const ext  = file.name.split(".").pop() || "jpg";
+  const path = `${currentUser.id}/avatar_${Date.now()}.${ext}`;
+
+  const { error: upErr } = await db.storage.from("avatars").upload(path, file, {
+    cacheControl: "3600",
+    upsert: true
+  });
+
+  if (upErr) {
+    progressWrap?.classList.add("hidden");
+    toast("Erreur upload avatar : " + upErr.message, "error");
+    return;
+  }
+
+  if (progressBar) progressBar.style.width = "70%";
+
+  const { data: urlData } = db.storage.from("avatars").getPublicUrl(path);
+  const publicUrl = urlData?.publicUrl;
+
+  if (!publicUrl) {
+    progressWrap?.classList.add("hidden");
+    toast("Impossible de récupérer l'URL de l'avatar", "error");
+    return;
+  }
+
+  if (progressBar) progressBar.style.width = "90%";
+
+  const myProfileIds = userProfiles.map(p => p.id);
+  for (const pid of myProfileIds) {
+    await db.from("profiles").update({ avatar_url: publicUrl }).eq("id", pid);
+  }
+
+  userAvatarUrl = publicUrl;
+  userProfiles.forEach(p => { p.avatar_url = publicUrl; });
+
+  if (progressBar) progressBar.style.width = "100%";
+  setTimeout(() => progressWrap?.classList.add("hidden"), 600);
+
+  updateAvatarUI();
+  buildSwiper();
+  buildStories();
+  toast("Photo de profil mise à jour !", "success");
+  haptic(15);
+}
+
+document.getElementById("avatar-file-input")?.addEventListener("change", async e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  await uploadAvatar(file);
+  e.target.value = "";
+});
+
+document.getElementById("btn-avatar-remove")?.addEventListener("click", async () => {
+  if (!currentUser) return;
+  const myProfileIds = userProfiles.map(p => p.id);
+  for (const pid of myProfileIds) {
+    await db.from("profiles").update({ avatar_url: null }).eq("id", pid);
+  }
+  userAvatarUrl = null;
+  userProfiles.forEach(p => { p.avatar_url = null; });
+  updateAvatarUI();
+  buildSwiper();
+  buildStories();
+  toast("Photo supprimée", "info");
+});
+
+/* Avatar caméra */
+document.getElementById("btn-avatar-camera")?.addEventListener("click", async () => {
+  try {
+    avatarCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
+    const video = document.getElementById("avatar-camera-stream");
+    const controls = document.getElementById("avatar-camera-controls");
+    if (video) { video.srcObject = avatarCamStream; video.classList.remove("hidden"); }
+    controls?.classList.remove("hidden");
+    haptic(10);
+  } catch (err) {
+    toast("Caméra inaccessible : " + err.message, "error");
+  }
+});
+
+document.getElementById("btn-avatar-snap")?.addEventListener("click", () => {
+  const video  = document.getElementById("avatar-camera-stream");
+  const cvs    = document.getElementById("avatar-canvas");
+  if (!avatarCamStream || !cvs || !video) return;
+
+  const vw = video.videoWidth  || 320;
+  const vh = video.videoHeight || 320;
+  const size = Math.min(vw, vh);
+  cvs.width  = size;
+  cvs.height = size;
+  const c = cvs.getContext("2d");
+  c.drawImage(video, (vw - size) / 2, (vh - size) / 2, size, size, 0, 0, size, size);
+
+  cvs.toBlob(async blob => {
+    if (!blob) return;
+    stopAvatarCamera();
+    const file = new File([blob], `avatar_${Date.now()}.jpg`, { type: "image/jpeg" });
+    await uploadAvatar(file);
+  }, "image/jpeg", 0.88);
+  haptic(15);
+});
+
+document.getElementById("btn-avatar-cam-stop")?.addEventListener("click", stopAvatarCamera);
+
+function stopAvatarCamera() {
+  if (avatarCamStream) {
+    avatarCamStream.getTracks().forEach(t => t.stop());
+    avatarCamStream = null;
+  }
+  const video    = document.getElementById("avatar-camera-stream");
+  const controls = document.getElementById("avatar-camera-controls");
+  video?.classList.add("hidden");
+  controls?.classList.add("hidden");
+}
+
+// ============================================================
+// FAB BOUTON FLOTTANT
+// ============================================================
+
+let fabOpen = false;
+
+function initFab() {
+  updateFabActiveState();
+  updateFabVisibility(document.querySelector(".screen.active")?.id);
+
+  const fab = document.getElementById("fab-main");
+  if (!fab) return;
+
+  fab.addEventListener("click", () => {
+    fabOpen = !fabOpen;
+    toggleFabMenu(fabOpen);
+    haptic(12);
+  });
+
+  document.querySelectorAll(".fab-option").forEach(btn => {
+    btn.addEventListener("click", e => {
+      e.stopPropagation();
+      const type = btn.dataset.type;
+      const idx  = userProfiles.findIndex(p => p.profile_type === type);
+      if (idx >= 0) {
+        setActiveProfile(idx);
+        toast(`Profil ${profileLabel(type)} activé`, "success");
+      }
+      toggleFabMenu(false);
+      haptic(15);
+    });
+  });
+
+  document.addEventListener("click", e => {
+    if (fabOpen && !e.target.closest("#fab-container")) {
+      toggleFabMenu(false);
+    }
+  });
+
+  wireFabDrag(fab);
+}
+
+function toggleFabMenu(open) {
+  fabOpen = open;
+  const container = document.getElementById("fab-container");
+  const icon      = document.getElementById("fab-icon");
+  if (!container) return;
+  container.classList.toggle("open", open);
+  document.getElementById("fab-main")?.classList.toggle("open", open);
+  if (icon) icon.className = open ? "fa-solid fa-xmark" : "fa-solid fa-user-gear";
+}
+
+function hideFab() {
+  const container = document.getElementById("fab-container");
+  container?.classList.add("hidden");
+  toggleFabMenu(false);
+}
+
+function updateFabVisibility(screenId) {
+  const container = document.getElementById("fab-container");
+  if (!container) return;
+  const hide = !screenId || screenId === "screen-auth" || screenId === "screen-setup";
+  container.classList.toggle("hidden", hide);
+}
+
+function updateFabActiveState() {
+  document.querySelectorAll(".fab-option").forEach(btn => {
+    const isActive = activeProfile && btn.dataset.type === activeProfile.profile_type;
+    btn.classList.toggle("active-profile", isActive);
+  });
+}
+
+/* FAB Drag to change profile */
+function wireFabDrag(fab) {
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let currentTarget = null;
+
+  fab.addEventListener("touchstart", e => {
+    startX   = e.touches[0].clientX;
+    startY   = e.touches[0].clientY;
+    dragging = false;
+    currentTarget = null;
+  }, { passive: true });
+
+  fab.addEventListener("touchmove", e => {
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    if (!dragging && Math.sqrt(dx*dx + dy*dy) > 12) {
+      dragging = true;
+      toggleFabMenu(true);
+    }
+    if (!dragging) return;
+
+    const tx = e.touches[0].clientX;
+    const ty = e.touches[0].clientY;
+
+    let nearest = null;
+    let minDist = 999;
+
+    document.querySelectorAll(".fab-option").forEach(btn => {
+      const rect = btn.getBoundingClientRect();
+      const cx   = rect.left + rect.width / 2;
+      const cy   = rect.top  + rect.height / 2;
+      const dist = Math.sqrt((tx - cx) ** 2 + (ty - cy) ** 2);
+      if (dist < minDist) { minDist = dist; nearest = btn; }
+      btn.style.transform = dist < 50 ? "scale(1.2)" : "";
+    });
+
+    currentTarget = minDist < 60 ? nearest : null;
+  }, { passive: true });
+
+  fab.addEventListener("touchend", () => {
+    if (!dragging) return;
+    dragging = false;
+    document.querySelectorAll(".fab-option").forEach(b => b.style.transform = "");
+    if (currentTarget) {
+      currentTarget.click();
+    } else {
+      toggleFabMenu(false);
+    }
+    currentTarget = null;
+  });
+}
 
 // ============================================================
 // NAVIGATION BASSE
@@ -782,6 +1194,7 @@ function wireBottomNav() {
       if (studioActive && target !== "screen-studio") stopCamera();
 
       showScreen(target);
+      haptic(8);
 
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
       document.querySelectorAll(`[data-screen="${target}"]`).forEach(b => b.classList.add("active"));
@@ -805,12 +1218,19 @@ function openChat(contact, myProfile) {
 
   const nameEl  = document.getElementById("chat-contact-name");
   const badgeEl = document.getElementById("chat-profile-badge");
+  const avatarEl = document.getElementById("chat-contact-avatar");
+
   if (nameEl)  nameEl.textContent  = contact.contact_name;
   if (badgeEl) badgeEl.textContent = `${profileEmoji(myProfile.profile_type)} ${myProfile.name}`;
+  if (avatarEl) {
+    avatarEl.textContent = initial(contact.contact_name);
+    avatarEl.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
+  }
 
   showScreen("screen-chat");
   loadMessages();
   subscribeToMessages();
+  wireTypingIndicator();
 }
 
 async function loadMessages() {
@@ -897,7 +1317,6 @@ function subscribeToMessages() {
       (payload) => {
         const msg = payload.new;
         let relevant = false;
-
         if (contactPid) {
           relevant =
             (msg.from_profile_id === myId       && msg.to_profile_id === contactPid) ||
@@ -905,11 +1324,25 @@ function subscribeToMessages() {
         } else {
           relevant = msg.from_profile_id === myId;
         }
-
         if (relevant) appendBubble(msg, myId);
       }
     )
     .subscribe();
+}
+
+/* ===== TYPING INDICATOR ===== */
+function wireTypingIndicator() {
+  const input = document.getElementById("message-input");
+  const indicator = document.getElementById("typing-indicator");
+  if (!input || !indicator) return;
+
+  let typingTimeout = null;
+  input.addEventListener("input", () => {
+    clearTimeout(typingTimeout);
+    typingTimeout = setTimeout(() => {
+      indicator.classList.add("hidden");
+    }, 3000);
+  });
 }
 
 document.getElementById("btn-send")?.addEventListener("click", sendMessage);
@@ -922,6 +1355,7 @@ async function sendMessage() {
   const content = input?.value.trim();
   if (!content || !chatContact || !chatMyProfile) return;
   input.value = "";
+  haptic(8);
 
   const contactPid = chatContact.contact_profile_id || null;
 
@@ -969,7 +1403,7 @@ async function toggleVoiceRecording() {
       isRecording = false;
       btn.classList.remove("recording");
       btn.title = "Message vocal";
-
+      btn.innerHTML = '<i class="fa-solid fa-microphone"></i>';
       stream.getTracks().forEach(t => t.stop());
 
       if (voiceChunks.length === 0 || !chatContact || !chatMyProfile) return;
@@ -984,27 +1418,23 @@ async function toggleVoiceRecording() {
         content:         transcript,
         content_type:    "voice"
       });
-
       if (error) toast("Erreur envoi vocal : " + error.message, "error");
     };
 
-    mediaRecorder.start(200);
+    mediaRecorder.start(100);
     isRecording = true;
     btn.classList.add("recording");
     btn.title = "Arrêter l'enregistrement";
-    toast("Enregistrement en cours… Tapez à nouveau pour arrêter.", "info");
-
-    setTimeout(() => {
-      if (isRecording) mediaRecorder?.stop();
-    }, 60000);
+    btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
+    haptic(15);
 
   } catch (err) {
-    toast("Impossible d'accéder au micro : " + err.message, "error");
+    toast("Micro inaccessible : " + err.message, "error");
   }
 }
 
 // ============================================================
-// FEED TIKTOK — Construction
+// FEED TIKTOK
 // ============================================================
 
 async function buildFeed() {
@@ -1012,52 +1442,43 @@ async function buildFeed() {
   if (!container) return;
   container.innerHTML = "";
 
-  let uploadedVideos = [];
+  let videos = [...DEMO_VIDEOS];
+
   try {
-    const { data: files, error } = await db.storage.from("videos").list("", {
+    const { data: uploads } = await db.storage.from("videos").list(currentUser?.id || "", {
       limit: 20,
+      offset: 0,
       sortBy: { column: "created_at", order: "desc" }
     });
-    if (!error && files) {
-      uploadedVideos = files
-        .filter(f => f.name && !f.name.startsWith("."))
-        .map(f => {
-          const { data: { publicUrl } } = db.storage.from("videos").getPublicUrl(f.name);
-          return {
-            id:       "upload-" + f.id,
-            url:      publicUrl,
-            author:   "@" + (f.metadata?.uploader || "utilisateur"),
-            desc:     f.metadata?.description || "Vidéo publiée sur Trinite Chat",
-            likes:    Math.floor(Math.random() * 500),
-            comments: Math.floor(Math.random() * 50),
-            isDemo:   false
-          };
-        });
+
+    if (uploads && uploads.length > 0) {
+      const userVids = uploads.map(f => {
+        const { data: urlData } = db.storage.from("videos").getPublicUrl(`${currentUser.id}/${f.name}`);
+        return {
+          id:       f.id || f.name,
+          url:      urlData?.publicUrl || "",
+          author:   "@" + (activeProfile?.name || "moi").toLowerCase().replace(/\s+/, "_"),
+          desc:     f.metadata?.description || f.name,
+          likes:    Math.floor(Math.random() * 500),
+          comments: Math.floor(Math.random() * 50),
+          isDemo:   false
+        };
+      }).filter(v => v.url);
+      videos = [...userVids, ...videos];
     }
   } catch (_) {}
 
-  const allVideos = [...uploadedVideos, ...DEMO_VIDEOS];
-
-  allVideos.forEach(v => {
-    if (feedLikeCounts[v.id] === undefined) feedLikeCounts[v.id] = v.likes;
-    if (feedLiked[v.id]      === undefined) feedLiked[v.id]      = false;
+  videos.forEach(v => {
+    feedLikeCounts[v.id] = feedLikeCounts[v.id] ?? v.likes;
   });
 
-  allVideos.forEach((v, index) => {
+  videos.forEach((v, index) => {
     const item = document.createElement("div");
     item.className = "feed-item";
-    item.dataset.vid = v.id;
-
     item.innerHTML = `
-      <video
-        class="feed-video"
-        src="${escapeHtml(v.url)}"
-        loop
-        playsinline
-        preload="metadata"
-      ></video>
-      ${!v.isDemo ? '<div class="feed-uploaded-badge">✦ Votre vidéo</div>' : ""}
+      <video class="feed-video" src="${escapeHtml(v.url)}" loop playsinline preload="none" ${feedSoundEnabled ? "" : "muted"}></video>
       <div class="feed-item-gradient"></div>
+      ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÉOS</div>'}
       <div class="feed-item-info">
         <div class="feed-author">${escapeHtml(v.author)}</div>
         <div class="feed-desc">${escapeHtml(v.desc)}</div>
@@ -1090,8 +1511,21 @@ async function buildFeed() {
   initFeedObserver();
 }
 
+/* ===== Sound Toggle ===== */
+document.getElementById("btn-feed-sound")?.addEventListener("click", () => {
+  feedSoundEnabled = !feedSoundEnabled;
+  const icon = document.querySelector("#btn-feed-sound i");
+  if (icon) icon.className = feedSoundEnabled ? "fa-solid fa-volume-high" : "fa-solid fa-volume-xmark";
+
+  document.querySelectorAll(".feed-video").forEach(v => {
+    v.muted = !feedSoundEnabled;
+  });
+  haptic(10);
+  toast(feedSoundEnabled ? "Son activé 🔊" : "Son coupé 🔇", "info");
+});
+
 // ============================================================
-// FEED TIKTOK — Interactions
+// FEED — Interactions
 // ============================================================
 
 function wireFeedItem(item, video, index) {
@@ -1119,6 +1553,7 @@ function wireFeedItem(item, video, index) {
   item.querySelector(".btn-like")?.addEventListener("click", e => {
     e.stopPropagation();
     toggleLike(video.id, item);
+    haptic(15);
   });
 
   item.querySelector(".btn-comment")?.addEventListener("click", e => {
@@ -1154,15 +1589,21 @@ function wireFeedItem(item, video, index) {
 function toggleLike(videoId, item) {
   const wasLiked = feedLiked[videoId];
   feedLiked[videoId] = !wasLiked;
-  if (!wasLiked) { feedLikeCounts[videoId]++; showHeartAnimation(item); showLikeParticles(item); }
-  else           { feedLikeCounts[videoId]--; }
+  if (!wasLiked) {
+    feedLikeCounts[videoId]++;
+    showHeartAnimation(item);
+    showLikeParticles(item);
+    haptic(15);
+  } else {
+    feedLikeCounts[videoId]--;
+  }
 
-  const btn       = item.querySelector(".btn-like");
-  const icon      = btn?.querySelector("i");
+  const btn        = item.querySelector(".btn-like");
+  const icon       = btn?.querySelector("i");
   const likedCount = item.querySelector(".liked-count");
   if (btn) {
     btn.classList.toggle("liked", feedLiked[videoId]);
-    if (icon) icon.className = `fa-${feedLiked[videoId] ? "solid" : "regular"} fa-heart`;
+    if (icon)       icon.className = `fa-${feedLiked[videoId] ? "solid" : "regular"} fa-heart`;
     if (likedCount) likedCount.textContent = formatCount(feedLikeCounts[videoId]);
   }
 }
@@ -1176,12 +1617,8 @@ function showHeartAnimation(item) {
 }
 
 function showLikeParticles(item) {
-  const colors = ["#fe2c55", "#ff6b9d", "#ff4081", "#e91e8c", "#f06292"];
+  const colors = ["#fe2c55","#ff6b9d","#ff4081","#e91e8c","#f06292","#ff8a65","#ffd740"];
   const count  = 12;
-  const rect   = item.getBoundingClientRect();
-  const cx     = rect.width / 2;
-  const cy     = rect.height / 2;
-
   for (let i = 0; i < count; i++) {
     const angle    = (i / count) * Math.PI * 2;
     const dist     = 60 + Math.random() * 80;
@@ -1229,7 +1666,7 @@ function openChatFromFeed(item) {
 }
 
 // ============================================================
-// FEED TIKTOK — Autoplay via IntersectionObserver
+// FEED — AutoPlay IntersectionObserver
 // ============================================================
 
 let feedObserver = null;
@@ -1237,23 +1674,19 @@ let feedObserver = null;
 function initFeedObserver() {
   if (feedObserver) feedObserver.disconnect();
 
-  const options = {
-    root:      document.getElementById("feed-container"),
-    threshold: 0.6
-  };
-
   feedObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       const videoEl = entry.target.querySelector(".feed-video");
       if (!videoEl) return;
       if (entry.isIntersecting) {
         document.querySelectorAll(".feed-video").forEach(v => { if (v !== videoEl && !v.paused) v.pause(); });
+        videoEl.muted = !feedSoundEnabled;
         videoEl.play().catch(() => {});
       } else {
         videoEl.pause();
       }
     });
-  }, options);
+  }, { root: document.getElementById("feed-container"), threshold: 0.6 });
 
   document.querySelectorAll(".feed-item").forEach(item => feedObserver.observe(item));
 }
@@ -1273,7 +1706,7 @@ function playCurrentFeedVideo() {
   });
   if (bestItem) {
     const v = bestItem.querySelector(".feed-video");
-    if (v && v.paused) v.play().catch(() => {});
+    if (v && v.paused) { v.muted = !feedSoundEnabled; v.play().catch(() => {}); }
   }
 }
 
@@ -1282,7 +1715,7 @@ function pauseAllFeedVideos() {
 }
 
 // ============================================================
-// STUDIO — Caméra + Photo + Upload Supabase Storage
+// STUDIO
 // ============================================================
 
 const btnCameraStart = document.getElementById("btn-camera-start");
@@ -1296,7 +1729,7 @@ const photoPreview   = document.getElementById("studio-photo-preview");
 const placeholder    = document.getElementById("studio-placeholder");
 const uploadSection  = document.getElementById("studio-upload-section");
 const fileInfoEl     = document.getElementById("studio-file-info");
-const canvas         = document.getElementById("studio-canvas");
+const stCanvas       = document.getElementById("studio-canvas");
 
 btnCameraStart?.addEventListener("click", async () => {
   try {
@@ -1311,6 +1744,7 @@ btnCameraStart?.addEventListener("click", async () => {
     btnTakePhoto.classList.remove("hidden");
     if (uploadSection) uploadSection.style.display = "none";
     studioFile = null; studioBlob = null;
+    haptic(10);
   } catch (err) {
     toast("Caméra inaccessible : " + err.message, "error");
   }
@@ -1323,25 +1757,22 @@ function stopCamera() {
     cameraStream.getTracks().forEach(t => t.stop());
     cameraStream = null;
   }
-  if (cameraPreview) {
-    cameraPreview.srcObject = null;
-    cameraPreview.classList.add("hidden");
-  }
+  if (cameraPreview) { cameraPreview.srcObject = null; cameraPreview.classList.add("hidden"); }
   btnCameraStart?.classList.remove("hidden");
   btnCameraStop ?.classList.add("hidden");
   btnTakePhoto  ?.classList.add("hidden");
 }
 
 btnTakePhoto?.addEventListener("click", () => {
-  if (!cameraStream || !canvas) return;
+  if (!cameraStream || !stCanvas) return;
   const vw = cameraPreview.videoWidth  || 640;
   const vh = cameraPreview.videoHeight || 480;
-  canvas.width  = vw;
-  canvas.height = vh;
-  const ctx = canvas.getContext("2d");
-  ctx.drawImage(cameraPreview, 0, 0, vw, vh);
+  stCanvas.width  = vw;
+  stCanvas.height = vh;
+  const c = stCanvas.getContext("2d");
+  c.drawImage(cameraPreview, 0, 0, vw, vh);
 
-  canvas.toBlob(blob => {
+  stCanvas.toBlob(blob => {
     if (!blob) return;
     studioBlob     = blob;
     studioFileName = `photo_${Date.now()}.jpg`;
@@ -1350,21 +1781,18 @@ btnTakePhoto?.addEventListener("click", () => {
     photoPreview.classList.remove("hidden");
     videoPreview.classList.add("hidden");
     placeholder?.classList.add("hidden");
-
     stopCamera();
     showUploadSection(`📷 Photo — ${(blob.size / 1024).toFixed(0)} Ko`);
+    haptic(15);
   }, "image/jpeg", 0.88);
 });
 
 fileInput?.addEventListener("change", e => {
   const file = e.target.files?.[0];
   if (!file) return;
-  studioFile     = file;
-  studioBlob     = null;
-  studioFileName = file.name;
+  studioFile = file; studioBlob = null; studioFileName = file.name;
 
   const url = URL.createObjectURL(file);
-
   if (file.type.startsWith("video/")) {
     videoPreview.src = url;
     videoPreview.classList.remove("hidden");
@@ -1377,9 +1805,7 @@ fileInput?.addEventListener("change", e => {
   cameraPreview.classList.add("hidden");
   placeholder?.classList.add("hidden");
   stopCamera();
-
-  const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
-  showUploadSection(`📁 ${file.name} — ${sizeMb} Mo`);
+  showUploadSection(`📁 ${file.name} — ${(file.size / (1024*1024)).toFixed(2)} Mo`);
   e.target.value = "";
 });
 
@@ -1404,8 +1830,8 @@ btnUpload?.addEventListener("click", async () => {
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "10%";
 
-  const ext       = studioFileName.split(".").pop() || "mp4";
-  const path      = `${currentUser.id}/${Date.now()}.${ext}`;
+  const ext  = studioFileName.split(".").pop() || "mp4";
+  const path = `${currentUser.id}/${Date.now()}.${ext}`;
 
   const progInterval = setInterval(() => {
     const cur = parseFloat(progressBar?.style.width || "10");
@@ -1414,8 +1840,8 @@ btnUpload?.addEventListener("click", async () => {
 
   const { error } = await db.storage.from("videos").upload(path, fileObj, {
     cacheControl: "3600",
-    upsert:       false,
-    metadata:     { uploader: activeProfile?.name || "user", description: desc }
+    upsert: false,
+    metadata: { uploader: activeProfile?.name || "user", description: desc }
   });
 
   clearInterval(progInterval);
@@ -1424,20 +1850,19 @@ btnUpload?.addEventListener("click", async () => {
   progressWrap?.classList.add("hidden");
   if (progressBar) progressBar.style.width = "0%";
 
-  if (error) {
-    toast("Erreur upload : " + error.message, "error");
-    return;
-  }
+  if (error) { toast("Erreur upload : " + error.message, "error"); return; }
 
   if (progressBar) progressBar.style.width = "100%";
   toast("Publié dans le Feed ✓", "success");
+  haptic(20);
 
   studioFile = null; studioBlob = null; studioFileName = null;
   if (videoPreview) { videoPreview.src = ""; videoPreview.classList.add("hidden"); }
   if (photoPreview) { photoPreview.src = ""; photoPreview.classList.add("hidden"); }
   placeholder?.classList.remove("hidden");
   if (uploadSection) uploadSection.style.display = "none";
-  if (document.getElementById("studio-desc")) document.getElementById("studio-desc").value = "";
+  const descInput = document.getElementById("studio-desc");
+  if (descInput) descInput.value = "";
 
   await buildFeed();
 });
