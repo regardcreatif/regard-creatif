@@ -100,6 +100,21 @@
       <div class="swiper-dots" id="swiper-dots"></div>
     </div>
 
+    <!-- ===== STORIES ===== -->
+    <div class="stories-section" id="stories-section">
+      <div class="stories-scroll" id="stories-scroll">
+        <!-- Stories injectées par JS -->
+      </div>
+    </div>
+
+    <!-- Barre de recherche contacts -->
+    <div class="search-bar-wrap">
+      <div class="search-bar">
+        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+        <input type="text" id="contact-search" placeholder="Rechercher un contact…" autocomplete="off" />
+      </div>
+    </div>
+
     <!-- Contacts -->
     <div class="contacts-section">
       <div class="contacts-header">
@@ -121,6 +136,10 @@
         <i class="fa-solid fa-message"></i>
         <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
       </button>
+      <button class="nav-btn" data-screen="screen-studio">
+        <i class="fa-solid fa-camera"></i>
+        <span>Studio</span>
+      </button>
       <button class="nav-btn" data-screen="screen-profil">
         <i class="fa-solid fa-user"></i>
         <span>Profil</span>
@@ -130,16 +149,13 @@
 
   <!-- ===== ÉCRAN FEED (TIKTOK) ===== -->
   <div id="screen-feed" class="screen">
-    <!-- Overlay titre -->
     <div class="feed-header-overlay">
       <span class="feed-tab-inactive" id="feed-tab-abos">Abonnements</span>
       <span class="feed-tab-active">Pour toi</span>
     </div>
 
-    <!-- Conteneur vidéos (scroll snap) -->
     <div class="feed-container" id="feed-container"></div>
 
-    <!-- Barre de navigation basse -->
     <nav class="bottom-nav feed-nav">
       <button class="nav-btn active" data-screen="screen-feed">
         <i class="fa-solid fa-play"></i>
@@ -148,6 +164,96 @@
       <button class="nav-btn" data-screen="screen-main">
         <i class="fa-solid fa-message"></i>
         <span>Messages</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-studio">
+        <i class="fa-solid fa-camera"></i>
+        <span>Studio</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-profil">
+        <i class="fa-solid fa-user"></i>
+        <span>Profil</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- ===== ÉCRAN STUDIO ===== -->
+  <div id="screen-studio" class="screen">
+    <header class="main-header">
+      <img src="https://i.postimg.cc/SKTSywtk/Picsart-26-06-08-19-41-07-180.png"
+           alt="logo" class="header-logo-img" />
+      <h1 class="header-logo">Studio</h1>
+    </header>
+
+    <div class="studio-content">
+      <!-- Zone caméra / prévisualisation -->
+      <div class="studio-preview-wrap" id="studio-preview-wrap">
+        <video id="studio-camera-preview" class="studio-camera-video" autoplay muted playsinline></video>
+        <video id="studio-video-preview" class="studio-camera-video hidden" controls></video>
+        <img  id="studio-photo-preview" class="studio-camera-video hidden" alt="Aperçu photo" />
+        <div class="studio-placeholder" id="studio-placeholder">
+          <i class="fa-solid fa-camera" style="font-size:2.5rem;color:var(--text-muted)"></i>
+          <p>Activez la caméra ou sélectionnez un fichier</p>
+        </div>
+      </div>
+
+      <!-- Boutons d'action studio -->
+      <div class="studio-actions">
+        <!-- Caméra -->
+        <button id="btn-camera-start" class="studio-btn">
+          <i class="fa-solid fa-video"></i>
+          <span>Caméra</span>
+        </button>
+        <!-- Prendre photo -->
+        <button id="btn-take-photo" class="studio-btn hidden">
+          <i class="fa-solid fa-camera"></i>
+          <span>Photo</span>
+        </button>
+        <!-- Arrêter caméra -->
+        <button id="btn-camera-stop" class="studio-btn studio-btn-danger hidden">
+          <i class="fa-solid fa-xmark"></i>
+          <span>Arrêter</span>
+        </button>
+        <!-- Galerie vidéo -->
+        <label class="studio-btn" for="studio-file-input">
+          <i class="fa-solid fa-photo-film"></i>
+          <span>Galerie</span>
+        </label>
+        <input type="file" id="studio-file-input" accept="video/*,image/*" class="hidden" />
+      </div>
+
+      <!-- Upload -->
+      <div class="studio-upload-section" id="studio-upload-section" style="display:none">
+        <div class="studio-file-info" id="studio-file-info"></div>
+        <div class="studio-upload-meta">
+          <div class="field">
+            <label>Description</label>
+            <input type="text" id="studio-desc" placeholder="Une description pour votre vidéo…" maxlength="150" />
+          </div>
+        </div>
+        <div class="studio-upload-progress hidden" id="studio-upload-progress">
+          <div class="studio-progress-bar" id="studio-progress-bar"></div>
+        </div>
+        <button id="btn-studio-upload" class="btn-primary">
+          <i class="fa-solid fa-cloud-arrow-up"></i> Publier dans le Feed
+        </button>
+      </div>
+
+      <!-- Canvas caché pour capture photo -->
+      <canvas id="studio-canvas" class="hidden"></canvas>
+    </div>
+
+    <nav class="bottom-nav">
+      <button class="nav-btn" data-screen="screen-feed">
+        <i class="fa-solid fa-play"></i>
+        <span>Feed</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-main">
+        <i class="fa-solid fa-message"></i>
+        <span>Messages</span>
+      </button>
+      <button class="nav-btn active" data-screen="screen-studio">
+        <i class="fa-solid fa-camera"></i>
+        <span>Studio</span>
       </button>
       <button class="nav-btn" data-screen="screen-profil">
         <i class="fa-solid fa-user"></i>
@@ -165,6 +271,16 @@
     </header>
 
     <div class="profil-section">
+      <!-- Mon ID (pour partager avec des contacts) -->
+      <div class="profil-id-section" id="profil-id-section" style="display:none">
+        <p class="profil-title">Mon ID Trinite</p>
+        <div class="profil-id-box">
+          <span id="profil-id-text" class="profil-id-value">—</span>
+          <button id="btn-copy-id" class="icon-btn" title="Copier"><i class="fa-solid fa-copy"></i></button>
+        </div>
+        <p class="profil-id-hint">Partagez cet ID pour que vos contacts puissent vous trouver.</p>
+      </div>
+
       <h3 class="profil-title">Mes identités</h3>
       <form id="form-profil" class="auth-form">
         <div id="profil-cards"></div>
@@ -173,7 +289,6 @@
       <button id="btn-logout-profil" class="btn-logout">⎋ Se déconnecter</button>
     </div>
 
-    <!-- Barre de navigation basse -->
     <nav class="bottom-nav">
       <button class="nav-btn" data-screen="screen-feed">
         <i class="fa-solid fa-play"></i>
@@ -182,6 +297,10 @@
       <button class="nav-btn" data-screen="screen-main">
         <i class="fa-solid fa-message"></i>
         <span>Messages</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-studio">
+        <i class="fa-solid fa-camera"></i>
+        <span>Studio</span>
       </button>
       <button class="nav-btn active" data-screen="screen-profil">
         <i class="fa-solid fa-user"></i>
@@ -201,6 +320,10 @@
     </header>
     <div id="messages-container" class="messages-container"></div>
     <div class="message-input-bar">
+      <!-- Bouton message vocal -->
+      <button id="btn-voice" class="btn-voice" title="Message vocal">
+        <i class="fa-solid fa-microphone"></i>
+      </button>
       <input type="text" id="message-input" placeholder="Message…" autocomplete="off" />
       <button id="btn-send" class="btn-send">
         <i class="fa-solid fa-paper-plane"></i>
@@ -225,11 +348,27 @@
           <input type="text" id="contact-name" placeholder="Nom du contact" required />
         </div>
         <div class="field">
+          <label>ID Trinite du contact <span style="color:var(--text-muted);font-size:0.75rem">(optionnel — pour les messages)</span></label>
+          <input type="text" id="contact-profile-id" placeholder="Ex : a1b2c3d4-…" />
+        </div>
+        <div class="field">
           <label>Assigner au profil</label>
           <select id="contact-profile-select"></select>
         </div>
         <button type="submit" class="btn-primary">Ajouter</button>
       </form>
+    </div>
+  </div>
+
+  <!-- ===== MODAL STORY ===== -->
+  <div id="modal-story" class="modal-overlay hidden story-modal-overlay">
+    <div class="story-modal-content">
+      <button id="story-modal-close" class="story-modal-close icon-btn">✕</button>
+      <div class="story-modal-header">
+        <div class="story-modal-avatar" id="story-modal-avatar"></div>
+        <span id="story-modal-name" class="story-modal-name"></span>
+      </div>
+      <div class="story-modal-body" id="story-modal-body"></div>
     </div>
   </div>
 
