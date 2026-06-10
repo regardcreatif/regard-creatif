@@ -416,17 +416,28 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
   const user = signUpData?.user;
 
   if (user) {
+    // FIX: Sauvegarder le numéro de téléphone dans les métadonnées user
+    const phone = document.getElementById("register-phone")?.value.trim() || null;
+    if (phone) {
+      await db.auth.updateUser({ phone, data: { phone } });
+    }
+
     // FIX: Créer les 3 profils directement après signUp, sans trigger SQL.
-    // On NE met PAS id = user.id : la table profiles a sa propre PK uuid générée par Supabase.
     const rows = [
-      { user_id: user.id, profile_type: "pro",     name: "Pro" },
-      { user_id: user.id, profile_type: "prive",   name: "Privé" },
-      { user_id: user.id, profile_type: "anonyme", name: "Anonyme" }
+      { user_id: user.id, profile_type: "pro",     name: "Pro",     phone: phone },
+      { user_id: user.id, profile_type: "prive",   name: "Privé",   phone: phone },
+      { user_id: user.id, profile_type: "anonyme", name: "Anonyme", phone: phone }
     ];
     const { error: profileErr } = await db.from("profiles").insert(rows);
     if (profileErr) {
-      // FIX: Non bloquant — afterLogin() recréera les profils à la 1re connexion
-      console.warn("Trinite: profils non créés à l'inscription :", profileErr.message);
+      // FIX: Retenter sans colonne phone si elle n'existe pas encore
+      const rows2 = [
+        { user_id: user.id, profile_type: "pro",     name: "Pro" },
+        { user_id: user.id, profile_type: "prive",   name: "Privé" },
+        { user_id: user.id, profile_type: "anonyme", name: "Anonyme" }
+      ];
+      const { error: profileErr2 } = await db.from("profiles").insert(rows2);
+      if (profileErr2) console.warn("Trinite: profils non créés :", profileErr2.message);
     }
   }
 
@@ -835,9 +846,11 @@ function wireContactSearch() {
   input.addEventListener("input", () => {
     const q = input.value.trim().toLowerCase();
     if (!q) { renderContacts(currentContacts); return; }
+    // FIX: Recherche par nom, email OU téléphone
     const filtered = currentContacts.filter(c =>
       c.contact_name.toLowerCase().includes(q) ||
-      (c.contact_email || "").toLowerCase().includes(q)
+      (c.contact_email || "").toLowerCase().includes(q) ||
+      (c.contact_phone || "").replace(/\s+/g,"").includes(q.replace(/\s+/g,""))
     );
     renderContacts(filtered);
   });
@@ -870,21 +883,87 @@ document.getElementById("modal-add-contact")?.addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
 });
 
+// FIX: Recherche de contact par numéro de téléphone (style WhatsApp)
+document.getElementById("btn-search-phone")?.addEventListener("click", async () => {
+  const phone = document.getElementById("contact-phone")?.value.trim();
+  const resultEl = document.getElementById("phone-search-result");
+  if (!phone) { toast("Entrez un numéro de téléphone", "error"); return; }
+
+  if (resultEl) {
+    resultEl.classList.remove("hidden");
+    resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Recherche…';
+    resultEl.className = "phone-search-result searching";
+  }
+
+  // FIX: Chercher dans les profils par numéro de téléphone
+  const phoneClean = phone.replace(/\s+/g, "");
+  const { data, error } = await db.from("profiles")
+    .select("id, name, user_id, profile_type, phone")
+    .or(`phone.eq.${phoneClean},phone.eq.${phone}`)
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    // FIX: Pas trouvé — on peut quand même ajouter manuellement
+    if (resultEl) {
+      resultEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Aucun utilisateur Trinite trouvé — vous pouvez quand même ajouter ce contact.';
+      resultEl.className = "phone-search-result not-found";
+    }
+    // Pré-remplir l'email hidden avec le numéro
+    const emailInput = document.getElementById("contact-email");
+    if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
+    return;
+  }
+
+  const found = data[0];
+  // FIX: Pré-remplir automatiquement nom et ID Trinite
+  const nameInput = document.getElementById("contact-name");
+  const profileIdInput = document.getElementById("contact-profile-id");
+  const emailInput = document.getElementById("contact-email");
+
+  if (nameInput && !nameInput.value) nameInput.value = found.name;
+  if (profileIdInput) profileIdInput.value = found.id;
+  if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
+
+  if (resultEl) {
+    resultEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Trouvé : <strong>${escapeHtml(found.name)}</strong> (${escapeHtml(found.profile_type)})`;
+    resultEl.className = "phone-search-result found";
+  }
+  haptic(15);
+});
+
+// FIX: Recherche aussi en tapant (après 1 seconde sans frappe)
+document.getElementById("contact-phone")?.addEventListener("input", () => {
+  const resultEl = document.getElementById("phone-search-result");
+  if (resultEl) resultEl.classList.add("hidden");
+  clearTimeout(window._phoneSearchTimeout);
+  window._phoneSearchTimeout = setTimeout(() => {
+    const phone = document.getElementById("contact-phone")?.value.trim();
+    if (phone && phone.length >= 8) {
+      document.getElementById("btn-search-phone")?.click();
+    }
+  }, 1000);
+});
+
 document.getElementById("form-add-contact")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn              = e.target.querySelector("button[type=submit]");
-  const email            = document.getElementById("contact-email").value.trim();
+  const phone            = document.getElementById("contact-phone")?.value.trim() || "";
   const name             = document.getElementById("contact-name").value.trim();
   const profileId        = document.getElementById("contact-profile-select").value;
   const contactProfileId = document.getElementById("contact-profile-id").value.trim() || null;
+  // FIX: email généré à partir du téléphone si pas trouvé dans profiles
+  const emailHidden      = document.getElementById("contact-email").value.trim()
+                           || (phone.replace(/\s+/g,"") + "@phone.trinite");
 
-  if (!email || !name) { toast("Remplissez tous les champs", "error"); return; }
+  if (!phone || !name) { toast("Entrez un numéro et un nom", "error"); return; }
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajout…'; }
 
+  // FIX: Insérer avec contact_phone + contact_email (les deux colonnes existent)
   const { error } = await db.from("contacts").insert({
     user_id:             currentUser.id,
-    contact_email:       email,
+    contact_email:       emailHidden,
     contact_name:        name,
+    contact_phone:       phone.replace(/\s+/g, ""),
     assigned_profile_id: profileId,
     contact_profile_id:  contactProfileId
   });
@@ -896,6 +975,8 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   haptic(15);
   document.getElementById("modal-add-contact")?.classList.add("hidden");
   e.target.reset();
+  const resultEl = document.getElementById("phone-search-result");
+  if (resultEl) resultEl.classList.add("hidden");
 
   if (profileId === activeProfile?.id) {
     showSkeleton();
