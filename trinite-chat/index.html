@@ -21,9 +21,7 @@
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-<div style="position:fixed; top:0; left:0; background:#ff0000; color:white; font-size:10px; z-index:99999; padding:2px 6px;">
-  🔥 VERSION CORRIGÉE PAR IA 02 (inscription manuelle)
-</div>
+
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
   <button id="theme-toggle" class="theme-toggle" title="Basculer le thème" aria-label="Thème">
@@ -74,6 +72,14 @@
             <div class="input-wrap">
               <i class="fa-solid fa-envelope input-icon"></i>
               <input type="email" id="register-email" placeholder="votre@email.com" required />
+            </div>
+          </div>
+          <!-- FIX: Numéro de téléphone à l'inscription (style WhatsApp) -->
+          <div class="field">
+            <label>Numéro de téléphone <span style="color:var(--text-muted);font-size:0.75rem">(optionnel)</span></label>
+            <div class="input-wrap">
+              <i class="fa-solid fa-phone input-icon"></i>
+              <input type="tel" id="register-phone" placeholder="+509 xxxx xxxx" autocomplete="tel" />
             </div>
           </div>
           <div class="field">
@@ -431,7 +437,7 @@
     </div>
   </div>
 
-  <!-- ===== MODAL AJOUTER CONTACT ===== -->
+  <!-- ===== MODAL AJOUTER CONTACT — FIX: style WhatsApp par téléphone ===== -->
   <div id="modal-add-contact" class="modal-overlay hidden">
     <div class="modal-card glass-card">
       <div class="modal-header">
@@ -441,13 +447,20 @@
         </button>
       </div>
       <form id="form-add-contact" class="auth-form">
+
+        <!-- FIX: Numéro de téléphone comme identifiant principal -->
         <div class="field">
-          <label>Email du contact</label>
-          <div class="input-wrap">
-            <i class="fa-solid fa-envelope input-icon"></i>
-            <input type="email" id="contact-email" placeholder="contact@email.com" required />
+          <label>Numéro de téléphone</label>
+          <div class="input-wrap phone-search-wrap">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="tel" id="contact-phone" placeholder="+509 xxxx xxxx" autocomplete="tel" />
+            <button type="button" id="btn-search-phone" class="phone-search-btn" title="Rechercher">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </button>
           </div>
+          <div id="phone-search-result" class="phone-search-result hidden"></div>
         </div>
+
         <div class="field">
           <label>Nom affiché</label>
           <div class="input-wrap">
@@ -455,13 +468,11 @@
             <input type="text" id="contact-name" placeholder="Nom du contact" required />
           </div>
         </div>
-        <div class="field">
-          <label>ID Trinite du contact <span style="color:var(--text-muted);font-size:0.75rem">(optionnel)</span></label>
-          <div class="input-wrap">
-            <i class="fa-solid fa-id-card input-icon"></i>
-            <input type="text" id="contact-profile-id" placeholder="Ex : a1b2c3d4-…" />
-          </div>
-        </div>
+
+        <!-- FIX: Champs cachés pour compatibilité DB -->
+        <input type="hidden" id="contact-email" value="" />
+        <input type="hidden" id="contact-profile-id" value="" />
+
         <div class="field">
           <label>Assigner au profil</label>
           <div class="input-wrap">
@@ -469,32 +480,12 @@
             <select id="contact-profile-select"></select>
           </div>
         </div>
-        <button type="button" id="btn-qr-scan" class="btn-qr-scan">
-          <i class="fa-solid fa-qrcode"></i>
-          Scanner un QR Code
-        </button>
+
         <button type="submit" class="btn-primary shimmer-btn">
           <i class="fa-solid fa-user-plus"></i>
           Ajouter
         </button>
       </form>
-      <!-- QR Scanner simulé -->
-      <div id="qr-scanner-mock" class="qr-scanner-mock hidden">
-        <div class="qr-scanner-frame">
-          <div class="qr-scanner-line"></div>
-          <div class="qr-corner tl"></div>
-          <div class="qr-corner tr"></div>
-          <div class="qr-corner bl"></div>
-          <div class="qr-corner br"></div>
-        </div>
-        <p class="qr-hint">Pointez vers un QR Code Trinite Chat</p>
-        <button class="btn-primary shimmer-btn" id="btn-qr-simulate" style="margin-top:0.75rem">
-          <i class="fa-solid fa-bolt"></i> Simuler scan
-        </button>
-        <button class="icon-btn" id="btn-qr-close" style="margin-top:0.5rem;width:100%;justify-content:center">
-          <i class="fa-solid fa-xmark"></i> Fermer
-        </button>
-      </div>
     </div>
   </div>
 
