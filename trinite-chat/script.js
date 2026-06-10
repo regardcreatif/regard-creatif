@@ -958,14 +958,14 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   if (!phone || !name) { toast("Entrez un numéro et un nom", "error"); return; }
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajout…'; }
 
-  // FIX: Insérer avec contact_phone + contact_email (les deux colonnes existent)
+  // FIX: contact_user_id est le vrai nom de la colonne dans la table (pas contact_profile_id)
   const { error } = await db.from("contacts").insert({
     user_id:             currentUser.id,
     contact_email:       emailHidden,
     contact_name:        name,
     contact_phone:       phone.replace(/\s+/g, ""),
-    assigned_profile_id: profileId,
-    contact_profile_id:  contactProfileId
+    assigned_profile_id: profileId  || null,
+    contact_user_id:     contactProfileId || null
   });
 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Ajouter'; }
@@ -1029,12 +1029,86 @@ function buildProfilScreen() {
     container.appendChild(card);
   });
 
+  // FIX: Afficher un QR code et statut pour CHAQUE profil séparément
   const idSection = document.getElementById("profil-id-section");
-  const idText    = document.getElementById("profil-id-text");
-  if (idSection && idText && userProfiles.length > 0) {
+  if (idSection && userProfiles.length > 0) {
     idSection.style.display = "";
-    idText.textContent = userProfiles[0].id;
+    idSection.innerHTML = userProfiles.map(p => `
+      <div class="profil-qr-block glass-card" id="qr-block-${p.id}">
+        <div class="profil-qr-header">
+          <span class="profil-qr-emoji">${profileEmoji(p.profile_type)}</span>
+          <span class="profil-qr-label">${escapeHtml(p.name)} <span style="color:var(--text-muted);font-size:0.75rem">(${profileLabel(p.profile_type)})</span></span>
+          <!-- FIX: Statut en ligne par profil -->
+          <label class="status-toggle" title="Statut en ligne">
+            <input type="checkbox" class="status-checkbox" data-pid="${p.id}" checked />
+            <span class="status-slider"></span>
+          </label>
+        </div>
+        <div class="profil-id-box">
+          <span class="profil-id-value" id="profil-id-${p.id}">${escapeHtml(p.id)}</span>
+          <button class="icon-btn btn-copy-profile-id" data-pid="${p.id}" title="Copier ID">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
+        <!-- FIX: QR Code généré par qrcode.js pour ce profil -->
+        <div class="profil-qr-canvas-wrap">
+          <div id="qr-canvas-${p.id}" class="profil-qr-canvas"></div>
+          <p class="profil-id-hint">Faites scanner ce QR pour que vos contacts vous trouvent</p>
+        </div>
+      </div>
+    `).join("");
+
+    // FIX: Générer les QR codes avec la lib qrcode (chargée dynamiquement)
+    loadQRLib().then(() => {
+      userProfiles.forEach(p => {
+        const el = document.getElementById("qr-canvas-" + p.id);
+        if (el && window.QRCode) {
+          el.innerHTML = "";
+          new window.QRCode(el, {
+            text: p.id,
+            width: 160,
+            height: 160,
+            colorDark: "#a855f7",
+            colorLight: "transparent",
+            correctLevel: window.QRCode.CorrectLevel.M
+          });
+        }
+      });
+    });
+
+    // FIX: Copier l'ID de chaque profil
+    idSection.querySelectorAll(".btn-copy-profile-id").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = document.getElementById("profil-id-" + btn.dataset.pid)?.textContent;
+        if (!id) return;
+        navigator.clipboard?.writeText(id)
+          .then(() => toast("ID copié !", "success"))
+          .catch(() => toast("Impossible de copier", "error"));
+      });
+    });
+
+    // FIX: Statut en ligne — mise à jour dans Supabase profiles
+    idSection.querySelectorAll(".status-checkbox").forEach(cb => {
+      cb.addEventListener("change", async () => {
+        const pid = cb.dataset.pid;
+        const online = cb.checked;
+        await db.from("profiles").update({ is_online: online }).eq("id", pid);
+        toast(online ? "Statut : En ligne" : "Statut : Hors ligne", "info");
+      });
+    });
   }
+}
+
+// FIX: Charger la lib QR Code dynamiquement (CDN)
+function loadQRLib() {
+  if (window.QRCode) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js";
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
 }
 
 document.getElementById("btn-copy-id")?.addEventListener("click", () => {
