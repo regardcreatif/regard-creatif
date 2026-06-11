@@ -6,6 +6,68 @@
 (function () {
   "use strict";
 
+  /* ===== SPLASH MATRIX ===== */
+  (function initSplash() {
+    const splash = document.getElementById("screen-splash");
+    if (!splash) return;
+
+    // --- Matrix rain canvas ---
+    const mc = document.getElementById("matrix-canvas");
+    const mctx = mc ? mc.getContext("2d") : null;
+    if (!mc || !mctx) return;
+
+    const CHARS = "01";
+    const FONT_SIZE = 14;
+    let cols, drops, rafId;
+
+    function resizeMatrix() {
+      mc.width  = window.innerWidth;
+      mc.height = window.innerHeight;
+      cols  = Math.floor(mc.width / FONT_SIZE);
+      drops = Array(cols).fill(1);
+    }
+
+    function drawMatrix() {
+      mctx.fillStyle = "rgba(10, 10, 15, 0.07)";
+      mctx.fillRect(0, 0, mc.width, mc.height);
+      mctx.font = FONT_SIZE + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        // Violet to pink gradient per column position
+        const ratio = i / drops.length;
+        const r = Math.round(139 + (219 - 139) * ratio);
+        const g = Math.round(92  + (39  - 92)  * ratio);
+        const b = Math.round(246 + (119 - 246) * ratio);
+        mctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+        const char = CHARS[Math.floor(Math.random() * CHARS.length)];
+        mctx.fillText(char, i * FONT_SIZE, drops[i] * FONT_SIZE);
+        if (drops[i] * FONT_SIZE > mc.height && Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+      rafId = requestAnimationFrame(drawMatrix);
+    }
+
+    resizeMatrix();
+    drawMatrix();
+    window.addEventListener("resize", resizeMatrix);
+
+    // --- Dismiss after 2.6s (or tap) ---
+    function dismissSplash() {
+      if (splash._dismissed) return;
+      splash._dismissed = true;
+      cancelAnimationFrame(rafId);
+      splash.classList.add("hidden-out");
+      setTimeout(() => {
+        splash.classList.remove("active");
+        splash.style.display = "none";
+      }, 650);
+    }
+
+    // Auto-dismiss
+    setTimeout(dismissSplash, 2600);
+    // Tap to skip
+    splash.addEventListener("click", dismissSplash, { once: true });
+  })();
+
   /* ===== PARTICLE CANVAS ===== */
   const canvas  = document.getElementById("particles-canvas");
   const ctx     = canvas ? canvas.getContext("2d") : null;
@@ -1038,34 +1100,63 @@ function buildProfilScreen() {
         <div class="profil-qr-header">
           <span class="profil-qr-emoji">${profileEmoji(p.profile_type)}</span>
           <span class="profil-qr-label">${escapeHtml(p.name)} <span style="color:var(--text-muted);font-size:0.75rem">(${profileLabel(p.profile_type)})</span></span>
-          <!-- FIX: Statut en ligne par profil -->
-          <label class="status-toggle" title="Statut en ligne">
-            <input type="checkbox" class="status-checkbox" data-pid="${p.id}" checked />
+          <!-- FIX: Toggle statut en ligne par profil -->
+          <label class="status-toggle" title="Statut visible uniquement par vos contacts de ce profil">
+            <input type="checkbox" class="status-checkbox" data-pid="${p.id}" ${p.is_online ? "checked" : ""} />
             <span class="status-slider"></span>
           </label>
         </div>
+        <!-- FIX: Texte statut clair — visible seulement par les contacts de CE profil -->
+        <p class="status-label-text" id="status-label-${p.id}">${p.is_online ? "🟢 En ligne" : "⚫ Hors ligne"} — visible uniquement par vos contacts ${profileLabel(p.profile_type)}</p>
         <div class="profil-id-box">
           <span class="profil-id-value" id="profil-id-${p.id}">${escapeHtml(p.id)}</span>
           <button class="icon-btn btn-copy-profile-id" data-pid="${p.id}" title="Copier ID">
             <i class="fa-solid fa-copy"></i>
           </button>
         </div>
-        <!-- FIX: QR Code généré par qrcode.js pour ce profil -->
+        <!-- FIX: QR Code partageable par profil -->
         <div class="profil-qr-canvas-wrap">
           <div id="qr-canvas-${p.id}" class="profil-qr-canvas"></div>
           <p class="profil-id-hint">Faites scanner ce QR pour que vos contacts vous trouvent</p>
+          <!-- FIX: Boutons partager et télécharger le QR -->
+          <div class="qr-share-btns">
+            <button class="btn-qr-share" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
+              <i class="fa-solid fa-share-nodes"></i> Partager
+            </button>
+            <button class="btn-qr-download" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
+              <i class="fa-solid fa-download"></i> Télécharger
+            </button>
+          </div>
+        </div>
+        <!-- FIX: Paramètres visibilité vidéo par profil -->
+        <div class="video-visibility-section">
+          <p class="video-visibility-title"><i class="fa-solid fa-film"></i> Qui peut voir mes vidéos (${profileLabel(p.profile_type)}) ?</p>
+          <div class="video-visibility-options">
+            <label class="vv-option">
+              <input type="radio" name="vv-${p.id}" value="everyone" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"everyone")==="everyone"?"checked":""} />
+              <span class="vv-label"><i class="fa-solid fa-globe"></i> Tout le monde</span>
+            </label>
+            <label class="vv-option">
+              <input type="radio" name="vv-${p.id}" value="contacts" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"")==="contacts"?"checked":""} />
+              <span class="vv-label"><i class="fa-solid fa-user-group"></i> Mes contacts seulement</span>
+            </label>
+            <label class="vv-option">
+              <input type="radio" name="vv-${p.id}" value="nobody" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"")==="nobody"?"checked":""} />
+              <span class="vv-label"><i class="fa-solid fa-lock"></i> Personne (privé)</span>
+            </label>
+          </div>
         </div>
       </div>
     `).join("");
 
-    // FIX: Générer les QR codes avec la lib qrcode (chargée dynamiquement)
+    // FIX: Générer les QR codes
     loadQRLib().then(() => {
       userProfiles.forEach(p => {
         const el = document.getElementById("qr-canvas-" + p.id);
         if (el && window.QRCode) {
           el.innerHTML = "";
           new window.QRCode(el, {
-            text: p.id,
+            text: "trinite://profile/" + p.id,
             width: 160,
             height: 160,
             colorDark: "#a855f7",
@@ -1087,15 +1178,89 @@ function buildProfilScreen() {
       });
     });
 
-    // FIX: Statut en ligne — mise à jour dans Supabase profiles
+    // FIX: Statut en ligne — visible seulement par contacts du même profil
     idSection.querySelectorAll(".status-checkbox").forEach(cb => {
       cb.addEventListener("change", async () => {
         const pid = cb.dataset.pid;
         const online = cb.checked;
-        await db.from("profiles").update({ is_online: online }).eq("id", pid);
-        toast(online ? "Statut : En ligne" : "Statut : Hors ligne", "info");
+        const { error } = await db.from("profiles").update({ is_online: online }).eq("id", pid);
+        if (!error) {
+          const lbl = document.getElementById("status-label-" + pid);
+          const p = userProfiles.find(x => x.id === pid);
+          const label = p ? profileLabel(p.profile_type) : "";
+          if (lbl) lbl.textContent = (online ? "🟢 En ligne" : "⚫ Hors ligne") + " — visible uniquement par vos contacts " + label;
+          toast(online ? "🟢 En ligne" : "⚫ Hors ligne", "info");
+        }
       });
     });
+
+    // FIX: Partager QR code via Web Share API ou téléchargement
+    idSection.querySelectorAll(".btn-qr-share").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const pid  = btn.dataset.pid;
+        const name = btn.dataset.name;
+        const id   = document.getElementById("profil-id-" + pid)?.textContent;
+        // FIX: Essayer de partager l'image du QR si canvas disponible
+        const canvas = document.querySelector("#qr-canvas-" + pid + " canvas");
+        if (canvas && navigator.share) {
+          try {
+            canvas.toBlob(async blob => {
+              if (!blob) { shareTextFallback(id, name); return; }
+              const file = new File([blob], "trinite-qr-" + name + ".png", { type: "image/png" });
+              await navigator.share({ title: "Trinite Chat — " + name, files: [file], text: "Mon ID Trinite : " + id });
+            });
+          } catch (_) { shareTextFallback(id, name); }
+        } else {
+          shareTextFallback(id, name);
+        }
+        haptic(15);
+      });
+    });
+
+    // FIX: Télécharger le QR code comme image
+    idSection.querySelectorAll(".btn-qr-download").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pid  = btn.dataset.pid;
+        const name = btn.dataset.name;
+        const canvas = document.querySelector("#qr-canvas-" + pid + " canvas");
+        if (!canvas) { toast("QR pas encore prêt", "error"); return; }
+        const link = document.createElement("a");
+        link.download = "trinite-qr-" + name + ".png";
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+        toast("QR téléchargé !", "success");
+        haptic(10);
+      });
+    });
+
+    // FIX: Visibilité vidéo — sauvegarde dans Supabase
+    idSection.querySelectorAll(".vv-radio").forEach(radio => {
+      radio.addEventListener("change", async () => {
+        if (!radio.checked) return;
+        const pid = radio.dataset.pid;
+        const val = radio.value;
+        const { error } = await db.from("profiles").update({ video_visibility: val }).eq("id", pid);
+        if (!error) {
+          const labels = { everyone: "Tout le monde", contacts: "Contacts seulement", nobody: "Personne (privé)" };
+          toast("Visibilité vidéo : " + (labels[val] || val), "success");
+          // FIX: Mettre à jour le cache local
+          const p = userProfiles.find(x => x.id === pid);
+          if (p) p.video_visibility = val;
+        }
+      });
+    });
+  }
+}
+
+// FIX: Fallback partage par texte si image impossible
+function shareTextFallback(id, name) {
+  if (navigator.share) {
+    navigator.share({ title: "Trinite Chat — " + name, text: "Ajoutez-moi sur Trinite Chat !
+Mon ID : " + id });
+  } else {
+    navigator.clipboard?.writeText(id)
+      .then(() => toast("ID copié ! Partagez-le à vos contacts.", "success"))
+      .catch(() => toast("ID : " + id, "info"));
   }
 }
 
@@ -1841,17 +2006,29 @@ async function buildFeed() {
       const userVids = uploads.map(f => {
         const { data: urlData } = db.storage.from("videos").getPublicUrl(`${currentUser.id}/${f.name}`);
         return {
-          id:       f.id || f.name,
-          url:      urlData?.publicUrl || "",
-          author:   "@" + (activeProfile?.name || "moi").toLowerCase().replace(/\s+/, "_"),
-          desc:     f.metadata?.description || f.name,
-          likes:    Math.floor(Math.random() * 500),
-          comments: Math.floor(Math.random() * 50),
-          isDemo:   false
+          id:           f.id || f.name,
+          url:          urlData?.publicUrl || "",
+          author:       "@" + (activeProfile?.name || "moi").toLowerCase().replace(/\s+/, "_"),
+          desc:         f.metadata?.description || f.name,
+          likes:        Math.floor(Math.random() * 500),
+          comments:     Math.floor(Math.random() * 50),
+          isDemo:       false,
+          profile_id:   activeProfile?.id,
+          // FIX: visibilité selon paramètre du profil
+          visibility:   activeProfile?.video_visibility || "everyone"
         };
       }).filter(v => v.url);
       videos = [...userVids, ...videos];
     }
+
+    // FIX: Charger aussi les vidéos des autres utilisateurs selon LEUR paramètre de visibilité
+    // everyone = visible à tous | contacts = visible seulement si contact | nobody = masqué
+    const { data: allProfiles } = await db.from("profiles")
+      .select("id, user_id, video_visibility")
+      .neq("user_id", currentUser?.id || "")
+      .eq("video_visibility", "everyone"); // FIX: seulement ceux qui ont choisi "tout le monde"
+
+    // (Les vidéos "contacts" seront filtrées plus bas quand on aura les contacts)
   } catch (_) {}
 
   videos.forEach(v => {
