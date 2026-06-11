@@ -6,66 +6,47 @@
 (function () {
   "use strict";
 
-  /* ===== SPLASH MATRIX ===== */
+  /* ===== SPLASH SCREEN + MATRIX EFFECT ===== */
   (function initSplash() {
-    const splash = document.getElementById("screen-splash");
-    if (!splash) return;
+    const splash   = document.getElementById("screen-splash");
+    const authScr  = document.getElementById("screen-auth");
+    const mc       = document.getElementById("matrix-canvas");
+    if (!splash || !mc) return;
 
-    // --- Matrix rain canvas ---
-    const mc = document.getElementById("matrix-canvas");
-    const mctx = mc ? mc.getContext("2d") : null;
-    if (!mc || !mctx) return;
-
-    const CHARS = "01";
-    const FONT_SIZE = 14;
-    let cols, drops, rafId;
-
-    function resizeMatrix() {
-      mc.width  = window.innerWidth;
-      mc.height = window.innerHeight;
-      cols  = Math.floor(mc.width / FONT_SIZE);
-      drops = Array(cols).fill(1);
-    }
+    // Matrix rain setup
+    const mctx    = mc.getContext("2d");
+    mc.width      = window.innerWidth;
+    mc.height     = window.innerHeight;
+    const cols    = Math.floor(mc.width / 18);
+    const drops   = Array(cols).fill(1);
+    const chars   = "01アイウエオカキクケコ10TRINITE";
 
     function drawMatrix() {
-      mctx.fillStyle = "rgba(10, 10, 15, 0.07)";
+      mctx.fillStyle = "rgba(13,13,26,0.15)";
       mctx.fillRect(0, 0, mc.width, mc.height);
-      mctx.font = FONT_SIZE + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        // Violet to pink gradient per column position
-        const ratio = i / drops.length;
-        const r = Math.round(139 + (219 - 139) * ratio);
-        const g = Math.round(92  + (39  - 92)  * ratio);
-        const b = Math.round(246 + (119 - 246) * ratio);
-        mctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-        const char = CHARS[Math.floor(Math.random() * CHARS.length)];
-        mctx.fillText(char, i * FONT_SIZE, drops[i] * FONT_SIZE);
-        if (drops[i] * FONT_SIZE > mc.height && Math.random() > 0.975) drops[i] = 0;
+      mctx.fillStyle = "#8b5cf6";
+      mctx.font = "14px monospace";
+      drops.forEach((y, i) => {
+        const ch = chars[Math.floor(Math.random() * chars.length)];
+        mctx.fillStyle = i % 5 === 0 ? "#db2777" : "#8b5cf6";
+        mctx.fillText(ch, i * 18, y * 18);
+        if (y * 18 > mc.height && Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
-      }
-      rafId = requestAnimationFrame(drawMatrix);
+      });
     }
 
-    resizeMatrix();
-    drawMatrix();
-    window.addEventListener("resize", resizeMatrix);
+    const matrixInterval = setInterval(drawMatrix, 50);
 
-    // --- Dismiss after 2.6s (or tap) ---
-    function dismissSplash() {
-      if (splash._dismissed) return;
-      splash._dismissed = true;
-      cancelAnimationFrame(rafId);
-      splash.classList.add("hidden-out");
+    // Auto-dismiss after 2.8s
+    setTimeout(() => {
+      clearInterval(matrixInterval);
+      splash.classList.add("splash-exit");
       setTimeout(() => {
         splash.classList.remove("active");
         splash.style.display = "none";
-      }, 650);
-    }
-
-    // Auto-dismiss
-    setTimeout(dismissSplash, 2600);
-    // Tap to skip
-    splash.addEventListener("click", dismissSplash, { once: true });
+        if (authScr) authScr.classList.add("active");
+      }, 600);
+    }, 2800);
   })();
 
   /* ===== PARTICLE CANVAS ===== */
@@ -123,6 +104,12 @@
   window.addEventListener("resize", () => { resizeCanvas(); initParticles(); }, { passive: true });
   initParticles();
   tickParticles();
+
+  // FIX: Enregistrer le Service Worker PWA
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(e => console.warn("SW registration failed:", e));
+  }
 
   /* ===== THEME TOGGLE ===== */
   const themeBtn  = document.getElementById("theme-toggle");
@@ -444,11 +431,48 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   }
 });
 
+// FIX: Toggle Email / Téléphone style TikTok sur le formulaire d'inscription
+document.querySelectorAll(".auth-type-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".auth-type-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    const type = btn.dataset.type;
+    const emailField = document.getElementById("field-register-email");
+    const phoneField = document.getElementById("field-register-phone");
+    const emailInput = document.getElementById("register-email");
+    const phoneInput = document.getElementById("register-phone");
+    if (type === "email") {
+      emailField?.classList.remove("hidden");
+      phoneField?.classList.add("hidden");
+      emailInput.required = true;
+      phoneInput.required = false;
+    } else {
+      emailField?.classList.add("hidden");
+      phoneField?.classList.remove("hidden");
+      emailInput.required = false;
+      phoneInput.required = true;
+    }
+    haptic(8);
+  });
+});
+
 document.getElementById("form-register")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn      = e.target.querySelector("button[type=submit]");
-  const email    = document.getElementById("register-email").value.trim();
   const password = document.getElementById("register-password").value;
+  const authType = document.querySelector(".auth-type-btn.active")?.dataset.type || "email";
+
+  // FIX: Déterminer email selon le type choisi (email ou téléphone)
+  let email = "";
+  if (authType === "email") {
+    email = document.getElementById("register-email").value.trim();
+    if (!email) { toast("Entrez votre email", "error"); return; }
+  } else {
+    const phone = document.getElementById("register-phone").value.trim().replace(/\s+/g,"");
+    if (!phone) { toast("Entrez votre numéro", "error"); return; }
+    // FIX: Générer un email fictif à partir du numéro pour Supabase
+    email = phone + "@phone.trinite";
+  }
 
   if (password.length < 6) { toast("Mot de passe trop court (6 caractères min.)", "error"); return; }
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
