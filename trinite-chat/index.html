@@ -24,12 +24,30 @@
 
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
+  <!-- ===== ÉCRAN SPLASH MATRIX ===== -->
+  <div id="screen-splash" class="screen active">
+    <canvas id="matrix-canvas"></canvas>
+    <div class="splash-content">
+      <div class="splash-logo-wrap">
+        <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
+             alt="Trinite Chat" class="splash-logo" id="splash-logo" />
+        <div class="splash-logo-glow"></div>
+      </div>
+      <h1 class="splash-title gradient-text" id="splash-title">Trinite Chat</h1>
+      <p class="splash-sub" id="splash-sub">Trois profils, un seul chat</p>
+      <div class="splash-loader" id="splash-loader">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <p class="splash-credit">by Regard Créatif ©</p>
+  </div>
+
   <button id="theme-toggle" class="theme-toggle" title="Basculer le thème" aria-label="Thème">
     <i class="fa-solid fa-moon" id="theme-icon"></i>
   </button>
 
   <!-- ===== ÉCRAN CONNEXION ===== -->
-  <div id="screen-auth" class="screen active">
+  <div id="screen-auth" class="screen">
     <div class="auth-container">
       <div class="auth-logo-wrap">
         <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
