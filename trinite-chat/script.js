@@ -1606,9 +1606,11 @@ function hideFab() {
 
 function updateFabVisibility(screenId) {
   const container = document.getElementById("fab-container");
+  const offlineBtn = document.getElementById("btn-offline-hub");
   if (!container) return;
   const hide = !screenId || screenId === "screen-auth" || screenId === "screen-setup";
   container.classList.toggle("hidden", hide);
+  if (offlineBtn) offlineBtn.style.display = hide ? "none" : "flex";
 }
 
 function updateFabActiveState() {
