@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Trinite Chat — Hub Hors-ligne</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="./offline-hub.css" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="hub-header">
+    <button class="hub-back" onclick="window.close()" title="Retour">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+    <div class="hub-header-title">
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" alt="logo" class="hub-logo" />
+      <div>
+        <h1>Hub Hors-ligne</h1>
+        <p id="hub-status-text">Vérification du réseau…</p>
+      </div>
+    </div>
+    <div class="hub-status-dot" id="hub-status-dot"></div>
+  </header>
+
+  <!-- NAV TABS -->
+  <nav class="hub-nav">
+    <button class="hub-tab active" data-tab="chat">
+      <i class="fa-solid fa-comments"></i><span>Chat P2P</span>
+    </button>
+    <button class="hub-tab" data-tab="snake">
+      <i class="fa-solid fa-gamepad"></i><span>Snake</span>
+    </button>
+    <button class="hub-tab" data-tab="casino">
+      <i class="fa-solid fa-dice"></i><span>Casino</span>
+    </button>
+    <button class="hub-tab" data-tab="paris">
+      <i class="fa-solid fa-trophy"></i><span>Paris</span>
+    </button>
+  </nav>
+
+  <!-- ===== CHAT P2P ===== -->
+  <section class="hub-section active" id="tab-chat">
+    <div class="p2p-devices">
+      <h3><i class="fa-solid fa-wifi"></i> Appareils détectés</h3>
+      <div id="devices-list" class="devices-list">
+        <div class="device-item" data-peer="Alice">
+          <div class="device-avatar">A</div>
+          <div class="device-info"><span>Alice</span><small>Simulé • À portée</small></div>
+          <span class="device-signal"><i class="fa-solid fa-signal"></i></span>
+        </div>
+        <div class="device-item" data-peer="Bob">
+          <div class="device-avatar">B</div>
+          <div class="device-info"><span>Bob</span><small>Simulé • À portée</small></div>
+          <span class="device-signal low"><i class="fa-solid fa-signal"></i></span>
+        </div>
+        <div class="device-item no-peer">
+          <i class="fa-solid fa-circle-info"></i>
+          <small>Wi-Fi Direct réel disponible avec l'APK Capacitor</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="p2p-chat">
+      <div id="p2p-messages" class="p2p-messages"></div>
+      <div class="p2p-input-row">
+        <input type="text" id="p2p-input" placeholder="Message hors-ligne…" autocomplete="off" />
+        <button id="p2p-send"><i class="fa-solid fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SNAKE ===== -->
+  <section class="hub-section" id="tab-snake">
+    <div class="game-header">
+      <span>Score : <strong id="snake-score">0</strong></span>
+      <button id="snake-start" class="btn-game">Jouer</button>
+      <span>Meilleur : <strong id="snake-best">0</strong></span>
+    </div>
+    <canvas id="snake-canvas" width="300" height="300"></canvas>
+    <p class="game-hint">Swipe ou flèches du clavier</p>
+    <div class="snake-controls">
+      <div class="ctrl-row"><button data-dir="UP"><i class="fa-solid fa-chevron-up"></i></button></div>
+      <div class="ctrl-row">
+        <button data-dir="LEFT"><i class="fa-solid fa-chevron-left"></i></button>
+        <button data-dir="DOWN"><i class="fa-solid fa-chevron-down"></i></button>
+        <button data-dir="RIGHT"><i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== CASINO ===== -->
+  <section class="hub-section" id="tab-casino">
+    <div class="casino-header">
+      <div class="casino-tokens">
+        <i class="fa-solid fa-coins"></i>
+        <span id="casino-tokens">500</span> jetons
+      </div>
+      <button class="btn-game btn-small" id="casino-reset">Recharger</button>
+    </div>
+    <div class="slot-machine">
+      <div class="slot-reels">
+        <div class="reel" id="reel-0"><span>🎰</span></div>
+        <div class="reel" id="reel-1"><span>🎰</span></div>
+        <div class="reel" id="reel-2"><span>🎰</span></div>
+      </div>
+      <div class="slot-line"></div>
+    </div>
+    <div class="casino-bet-row">
+      <label>Mise :</label>
+      <select id="casino-bet">
+        <option value="10">10</option>
+        <option value="25">25</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+      </select>
+      <button class="btn-game" id="casino-spin">
+        <i class="fa-solid fa-rotate"></i> Tourner
+      </button>
+    </div>
+    <div id="casino-result" class="casino-result"></div>
+    <div class="casino-paytable">
+      <h4>Table des gains</h4>
+      <div class="pay-row"><span>💎💎💎</span><span>×50</span></div>
+      <div class="pay-row"><span>7️⃣7️⃣7️⃣</span><span>×20</span></div>
+      <div class="pay-row"><span>🍒🍒🍒</span><span>×10</span></div>
+      <div class="pay-row"><span>⭐⭐⭐</span><span>×5</span></div>
+      <div class="pay-row"><span>Deux identiques</span><span>×2</span></div>
+    </div>
+  </section>
+
+  <!-- ===== PARIS ===== -->
+  <section class="hub-section" id="tab-paris">
+    <div class="casino-header">
+      <div class="casino-tokens">
+        <i class="fa-solid fa-coins"></i>
+        <span id="paris-tokens">500</span> jetons
+      </div>
+    </div>
+    <div class="paris-match-list" id="paris-matches">
+      <!-- Rempli par JS -->
+    </div>
+    <div class="paris-history">
+      <h4><i class="fa-solid fa-clock-rotate-left"></i> Historique</h4>
+      <div id="paris-history-list" class="history-list"></div>
+    </div>
+  </section>
+
+  <script src="./offline-hub.js"></script>
+</body>
+</html>
