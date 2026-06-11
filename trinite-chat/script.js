@@ -17,7 +17,7 @@
       splash.classList.add("splash-exit");
       setTimeout(() => { splash.style.display = "none"; }, 500);
     }
-    setTimeout(hide, 2000);
+    setTimeout(hide, 3500);
     splash.addEventListener("click", hide, { once: true });
   })();
 
