@@ -2468,17 +2468,34 @@ let isOnline = navigator.onLine;
   const dot = document.getElementById("offline-dot");
   const btn = document.getElementById("btn-offline-hub");
 
-  function updateStatus() {
+  function updateStatus(notify) {
     isOnline = navigator.onLine;
     dot?.classList.toggle("offline", !isOnline);
     btn?.classList.toggle("offline-mode", !isOnline);
-    if (!isOnline) toast("Mode hors-ligne activé", "info");
-    else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
+    if (notify === true) {
+      if (!isOnline) toast("Mode hors-ligne activé", "info");
+      else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
+    }
   }
 
-  window.addEventListener("online",  updateStatus);
-  window.addEventListener("offline", updateStatus);
-  updateStatus();
+  window.addEventListener("online",  () => updateStatus(true));
+  window.addEventListener("offline", () => updateStatus(true));
+  updateStatus(false);
+
+  // Afficher le bouton dès que screen-main est actif
+  function showOfflineBtn() {
+    const active = document.querySelector(".screen.active");
+    if (!btn) return;
+    const hide = !active || active.id === "screen-auth" || active.id === "screen-setup" || active.id === "screen-splash";
+    btn.style.display = hide ? "none" : "flex";
+  }
+
+  // Observer les changements de classe sur les screens
+  const observer = new MutationObserver(showOfflineBtn);
+  document.querySelectorAll(".screen").forEach(s => {
+    observer.observe(s, { attributes: true, attributeFilter: ["class"] });
+  });
+  showOfflineBtn();
 
   btn?.addEventListener("click", () => {
     window.open("./offline-hub.html", "_blank");
