@@ -11,19 +11,29 @@
     const splash = document.getElementById("screen-splash");
     if (!splash) return;
 
-    let _splashDone = false;
+    const SPLASH_MIN_MS  = 2000; // durée minimum affichée (style WhatsApp)
+    const SPLASH_MAX_MS  = 5000; // fermeture forcée si auth bloquée (réseau lent)
+    const splashStart    = Date.now();
+    let _splashDone      = false;
+
     window._dismissSplash = function () {
       if (_splashDone) return;
-      _splashDone = true;
-      splash.classList.add("splash-exit");
-      setTimeout(() => {
-        splash.style.display = "none";
-        splash.classList.remove("active");
-      }, 600);
+      // Respecter la durée minimum pour ne pas flasher
+      const elapsed  = Date.now() - splashStart;
+      const remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
+      setTimeout(function () {
+        if (_splashDone) return;
+        _splashDone = true;
+        splash.classList.add("splash-exit");
+        setTimeout(() => {
+          splash.style.display = "none";
+          splash.classList.remove("active");
+        }, 600);
+      }, remaining);
     };
 
-    // Fallback : dismiss automatique après 2.8s si auth tarde
-    setTimeout(() => window._dismissSplash(), 2800);
+    // Fermeture forcée si auth trop lente (réseau 3G/lent)
+    setTimeout(() => window._dismissSplash(), SPLASH_MAX_MS);
   })();
 
   /* ===== PARTICLE CANVAS ===== */
