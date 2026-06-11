@@ -19,6 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="./style.css" />
+  <!-- PWA: manifest + theme -->
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#0d0d1a" />
   <meta name="mobile-web-app-capable" content="yes" />
@@ -43,6 +44,7 @@
       <h1 class="splash-title gradient-text">Trinite Chat</h1>
       <p class="splash-sub">Trois profils, un seul chat</p>
     </div>
+    <div class="splash-spinner"></div>
     <p class="splash-credit">by Regard Créatif ©</p>
   </div>
 
@@ -388,6 +390,7 @@
         </p>
       </div>
 
+      <!-- FIX: QR codes par profil générés dynamiquement par JS -->
       <div id="profil-id-section" style="display:none"></div>
 
       <h3 class="profil-title">Mes identités</h3>
@@ -456,7 +459,7 @@
     </div>
   </div>
 
-  <!-- ===== MODAL AJOUTER CONTACT ===== -->
+  <!-- ===== MODAL AJOUTER CONTACT — FIX: style WhatsApp par téléphone ===== -->
   <div id="modal-add-contact" class="modal-overlay hidden">
     <div class="modal-card glass-card">
       <div class="modal-header">
@@ -467,6 +470,7 @@
       </div>
       <form id="form-add-contact" class="auth-form">
 
+        <!-- FIX: Numéro de téléphone comme identifiant principal -->
         <div class="field">
           <label>Numéro de téléphone</label>
           <div class="input-wrap phone-search-wrap">
@@ -487,6 +491,7 @@
           </div>
         </div>
 
+        <!-- FIX: Champs cachés pour compatibilité DB -->
         <input type="hidden" id="contact-email" value="" />
         <input type="hidden" id="contact-profile-id" value="" />
 
