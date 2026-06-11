@@ -17,7 +17,7 @@
       splash.classList.add("splash-exit");
       setTimeout(() => { splash.style.display = "none"; }, 500);
     }
-    setTimeout(hide, 3500);
+    setTimeout(hide, 2000);
     splash.addEventListener("click", hide, { once: true });
   })();
 
@@ -1911,15 +1911,34 @@ async function sendMessage() {
   haptic(8);
 
   const contactPid = chatContact.contact_profile_id || null;
-
-  const { error } = await db.from("messages").insert({
+  const payload = {
     from_profile_id: chatMyProfile.id,
     to_profile_id:   contactPid,
     content,
     content_type:    "text"
-  });
+  };
 
+  if (!isOnline) {
+    await saveToOfflineQueue(payload);
+    toast("Message en attente (hors-ligne) 🕐", "info");
+    // Afficher le message localement avec badge "en attente"
+    appendPendingMessage(content);
+    return;
+  }
+
+  const { error } = await db.from("messages").insert(payload);
   if (error) toast("Erreur envoi : " + error.message, "error");
+}
+
+function appendPendingMessage(content) {
+  const list = document.getElementById("messages-list");
+  if (!list) return;
+  const div = document.createElement("div");
+  div.className = "msg-bubble msg-out msg-pending";
+  div.innerHTML = \`<span class="msg-text">\${escapeHtml(content)}</span>
+    <span class="msg-pending-badge"><i class="fa-solid fa-clock"></i> En attente</span>\`;
+  list.appendChild(div);
+  list.scrollTop = list.scrollHeight;
 }
 
 document.getElementById("btn-back")?.addEventListener("click", () => {
@@ -2436,6 +2455,80 @@ btnUpload?.addEventListener("click", async () => {
 
   await buildFeed();
 });
+
+
+// ============================================================
+// ONLINE / OFFLINE DETECTION + INDEXEDDB QUEUE
+// ============================================================
+let isOnline = navigator.onLine;
+
+(function initOfflineSystem() {
+  const dot = document.getElementById("offline-dot");
+  const btn = document.getElementById("btn-offline-hub");
+
+  function updateStatus() {
+    isOnline = navigator.onLine;
+    dot?.classList.toggle("offline", !isOnline);
+    btn?.classList.toggle("offline-mode", !isOnline);
+    if (!isOnline) toast("Mode hors-ligne activé", "info");
+    else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
+  }
+
+  window.addEventListener("online",  updateStatus);
+  window.addEventListener("offline", updateStatus);
+  updateStatus();
+
+  btn?.addEventListener("click", () => {
+    window.open("./offline-hub.html", "_blank");
+  });
+})();
+
+// IndexedDB — file d'attente messages offline
+const IDB_NAME    = "trinite-offline";
+const IDB_STORE   = "msg-queue";
+let   idb         = null;
+
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    if (idb) return resolve(idb);
+    const req = indexedDB.open(IDB_NAME, 1);
+    req.onupgradeneeded = e => {
+      e.target.result.createObjectStore(IDB_STORE, { keyPath: "id", autoIncrement: true });
+    };
+    req.onsuccess = e => { idb = e.target.result; resolve(idb); };
+    req.onerror   = () => reject(req.error);
+  });
+}
+
+async function saveToOfflineQueue(payload) {
+  const db2 = await openIDB();
+  return new Promise((resolve, reject) => {
+    const tx  = db2.transaction(IDB_STORE, "readwrite");
+    tx.objectStore(IDB_STORE).add({ ...payload, queuedAt: Date.now() });
+    tx.oncomplete = resolve;
+    tx.onerror    = () => reject(tx.error);
+  });
+}
+
+async function syncOfflineQueue() {
+  if (!isOnline) return;
+  const db2 = await openIDB();
+  const tx   = db2.transaction(IDB_STORE, "readwrite");
+  const store = tx.objectStore(IDB_STORE);
+  const all   = await new Promise(r => { const req = store.getAll(); req.onsuccess = () => r(req.result); });
+  if (!all.length) return;
+  let sent = 0;
+  for (const item of all) {
+    const { error } = await db.from("messages").insert({
+      from_profile_id: item.from_profile_id,
+      to_profile_id:   item.to_profile_id,
+      content:         item.content,
+      content_type:    "text"
+    });
+    if (!error) { store.delete(item.id); sent++; }
+  }
+  if (sent) toast(`${sent} message(s) synchronisé(s) ✓`, "success");
+}
 
 // ============================================================
 // DÉMARRAGE
