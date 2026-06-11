@@ -37,16 +37,23 @@
 
     const matrixInterval = setInterval(drawMatrix, 50);
 
-    // Auto-dismiss after 2.8s
-    setTimeout(() => {
+    // FIX: exposer dismissSplash globalement pour que initAuth() puisse le déclencher
+    // dès que l'état auth est connu, sans attendre le timer de 2.8s
+    let _splashDone = false;
+    window._dismissSplash = function () {
+      if (_splashDone) return;
+      _splashDone = true;
       clearInterval(matrixInterval);
       splash.classList.add("splash-exit");
       setTimeout(() => {
-        splash.classList.remove("active");
         splash.style.display = "none";
-        if (authScr) authScr.classList.add("active");
+        splash.classList.remove("active");
+        // NE PAS ajouter active à screen-auth ici — showScreen() s'en charge
       }, 600);
-    }, 2800);
+    };
+
+    // Fallback : auto-dismiss après 2.8s si auth tarde
+    setTimeout(() => window._dismissSplash(), 2800);
   })();
 
   /* ===== PARTICLE CANVAS ===== */
@@ -352,6 +359,9 @@ function startNotifListener() {
 
 async function initAuth() {
   const { data: { session } } = await db.auth.getSession();
+  // FIX: on connaît l'état auth → fermer le splash immédiatement,
+  // sans attendre le timer de 2.8s et sans risquer de conflit d'écrans
+  if (typeof window._dismissSplash === "function") window._dismissSplash();
   if (session) {
     currentUser = session.user;
     await afterLogin();
