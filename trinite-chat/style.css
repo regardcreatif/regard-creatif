@@ -2169,17 +2169,9 @@ body::before {
 .splash-logo {
   width: 110px;
   height: 110px;
-  border-radius: 50%;
+  border-radius: 26px;
   object-fit: cover;
-  box-shadow:
-    0 0 40px rgba(139,92,246,0.7),
-    0 0 80px rgba(139,92,246,0.3);
-  animation: splashPulse 2s ease-in-out infinite;
-}
-
-@keyframes splashPulse {
-  0%, 100% { box-shadow: 0 0 40px rgba(139,92,246,0.7), 0 0 80px rgba(139,92,246,0.3); }
-  50%       { box-shadow: 0 0 60px rgba(219,39,119,0.8), 0 0 120px rgba(219,39,119,0.4); }
+  box-shadow: 0 0 36px rgba(139,92,246,0.5);
 }
 
 .splash-title {
@@ -2206,6 +2198,22 @@ body::before {
   color: rgba(255,255,255,0.25);
   letter-spacing: 0.08em;
   z-index: 2;
+}
+
+.splash-spinner {
+  position: absolute;
+  bottom: 3.5rem;
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(139,92,246,0.2);
+  border-top-color: #8b5cf6;
+  border-radius: 50%;
+  animation: splashSpin 0.8s linear infinite;
+  z-index: 2;
+}
+
+@keyframes splashSpin {
+  to { transform: rotate(360deg); }
 }
 
 /* ===================================================
