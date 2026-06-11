@@ -2226,7 +2226,7 @@ body::before {
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  display: flex;
+  display: none;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
