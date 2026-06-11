@@ -6,53 +6,23 @@
 (function () {
   "use strict";
 
-  /* ===== SPLASH SCREEN + MATRIX EFFECT ===== */
+  /* ===== SPLASH SCREEN ===== */
   (function initSplash() {
-    const splash   = document.getElementById("screen-splash");
-    const authScr  = document.getElementById("screen-auth");
-    const mc       = document.getElementById("matrix-canvas");
-    if (!splash || !mc) return;
+    const splash = document.getElementById("screen-splash");
+    if (!splash) return;
 
-    // Matrix rain setup
-    const mctx    = mc.getContext("2d");
-    mc.width      = window.innerWidth;
-    mc.height     = window.innerHeight;
-    const cols    = Math.floor(mc.width / 18);
-    const drops   = Array(cols).fill(1);
-    const chars   = "01アイウエオカキクケコ10TRINITE";
-
-    function drawMatrix() {
-      mctx.fillStyle = "rgba(13,13,26,0.15)";
-      mctx.fillRect(0, 0, mc.width, mc.height);
-      mctx.fillStyle = "#8b5cf6";
-      mctx.font = "14px monospace";
-      drops.forEach((y, i) => {
-        const ch = chars[Math.floor(Math.random() * chars.length)];
-        mctx.fillStyle = i % 5 === 0 ? "#db2777" : "#8b5cf6";
-        mctx.fillText(ch, i * 18, y * 18);
-        if (y * 18 > mc.height && Math.random() > 0.975) drops[i] = 0;
-        drops[i]++;
-      });
-    }
-
-    const matrixInterval = setInterval(drawMatrix, 50);
-
-    // FIX: exposer dismissSplash globalement pour que initAuth() puisse le déclencher
-    // dès que l'état auth est connu, sans attendre le timer de 2.8s
     let _splashDone = false;
     window._dismissSplash = function () {
       if (_splashDone) return;
       _splashDone = true;
-      clearInterval(matrixInterval);
       splash.classList.add("splash-exit");
       setTimeout(() => {
         splash.style.display = "none";
         splash.classList.remove("active");
-        // NE PAS ajouter active à screen-auth ici — showScreen() s'en charge
       }, 600);
     };
 
-    // Fallback : auto-dismiss après 2.8s si auth tarde
+    // Fallback : dismiss automatique après 2.8s si auth tarde
     setTimeout(() => window._dismissSplash(), 2800);
   })();
 
