@@ -19,32 +19,34 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="./style.css" />
+  <!-- PWA: manifest + theme -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Trinite Chat" />
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" />
 </head>
 <body>
 
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
-  <!-- ===== ÉCRAN SPLASH MATRIX ===== -->
-  <div id="screen-splash" class="screen active">
-    <canvas id="matrix-canvas"></canvas>
-    <div class="splash-content">
-      <div class="splash-logo-wrap">
-        <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
-             alt="Trinite Chat" class="splash-logo" id="splash-logo" />
-        <div class="splash-logo-glow"></div>
-      </div>
-      <h1 class="splash-title gradient-text" id="splash-title">Trinite Chat</h1>
-      <p class="splash-sub" id="splash-sub">Trois profils, un seul chat</p>
-      <div class="splash-loader" id="splash-loader">
-        <span></span><span></span><span></span>
-      </div>
-    </div>
-    <p class="splash-credit">by Regard Créatif ©</p>
-  </div>
-
   <button id="theme-toggle" class="theme-toggle" title="Basculer le thème" aria-label="Thème">
     <i class="fa-solid fa-moon" id="theme-icon"></i>
   </button>
+
+  <!-- ===== SPLASH SCREEN MATRIX ===== -->
+  <div id="screen-splash" class="screen-splash active">
+    <canvas id="matrix-canvas" class="matrix-canvas"></canvas>
+    <div class="splash-content">
+      <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
+           alt="Trinite Chat" class="splash-logo" />
+      <h1 class="splash-title gradient-text">Trinite Chat</h1>
+      <p class="splash-sub">Trois profils, un seul chat</p>
+    </div>
+    <p class="splash-credit">by Regard Créatif ©</p>
+  </div>
 
   <!-- ===== ÉCRAN CONNEXION ===== -->
   <div id="screen-auth" class="screen">
@@ -85,26 +87,36 @@
         </form>
 
         <form id="form-register" class="auth-form hidden">
-          <div class="field">
-            <label>Email</label>
+          <!-- FIX: Toggle Email / Téléphone style TikTok -->
+          <div class="auth-type-toggle">
+            <button type="button" class="auth-type-btn active" data-type="email">
+              <i class="fa-solid fa-envelope"></i> Email
+            </button>
+            <button type="button" class="auth-type-btn" data-type="phone">
+              <i class="fa-solid fa-phone"></i> Téléphone
+            </button>
+          </div>
+
+          <!-- Champ email -->
+          <div class="field" id="field-register-email">
             <div class="input-wrap">
               <i class="fa-solid fa-envelope input-icon"></i>
-              <input type="email" id="register-email" placeholder="votre@email.com" required />
+              <input type="email" id="register-email" placeholder="votre@email.com" autocomplete="email" />
             </div>
           </div>
-          <!-- FIX: Numéro de téléphone à l'inscription (style WhatsApp) -->
-          <div class="field">
-            <label>Numéro de téléphone <span style="color:var(--text-muted);font-size:0.75rem">(optionnel)</span></label>
+
+          <!-- Champ téléphone (caché par défaut) -->
+          <div class="field hidden" id="field-register-phone">
             <div class="input-wrap">
               <i class="fa-solid fa-phone input-icon"></i>
               <input type="tel" id="register-phone" placeholder="+509 xxxx xxxx" autocomplete="tel" />
             </div>
           </div>
+
           <div class="field">
-            <label>Mot de passe</label>
             <div class="input-wrap">
               <i class="fa-solid fa-lock input-icon"></i>
-              <input type="password" id="register-password" placeholder="8 caractères minimum" required />
+              <input type="password" id="register-password" placeholder="Mot de passe (6 caractères min)" required />
             </div>
           </div>
           <button type="submit" class="btn-primary shimmer-btn">
