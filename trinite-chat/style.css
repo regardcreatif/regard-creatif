@@ -1,8 +1,8 @@
 /* ============================================================
-   TRINITE CHAT — Ultra-Premium CSS v2
-   Glassmorphism · Animated Gradients · Particles · Neon Glow
-   Avatar · FAB · Swipe Delete · Typing Indicator
-   FIX v3: Aucune modification CSS — fichier inchangé
+   TRINITE CHAT â€” Ultra-Premium CSS v2
+   Glassmorphism Â· Animated Gradients Â· Particles Â· Neon Glow
+   Avatar Â· FAB Â· Swipe Delete Â· Typing Indicator
+   FIX v3: Aucune modification CSS â€” fichier inchangÃ©
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -1995,7 +1995,7 @@ body::before {
   transform: translateX(20px);
 }
 
-/* ===== FIX: STATUT LABEL + PARTAGE QR + PARAMÈTRES VIDÉO ===== */
+/* ===== FIX: STATUT LABEL + PARTAGE QR + PARAMÃˆTRES VIDÃ‰O ===== */
 
 .status-label-text {
   font-size: 0.78rem;
@@ -2167,7 +2167,7 @@ body::before {
 }
 
 /* ===================================================
-   AUTH TYPE TOGGLE (Email / Téléphone — style TikTok)
+   AUTH TYPE TOGGLE (Email / TÃ©lÃ©phone â€” style TikTok)
    =================================================== */
 .auth-type-toggle {
   display: flex;
@@ -2226,7 +2226,7 @@ body::before {
   border-radius: 50%;
   border: none;
   cursor: pointer;
-  display: none;
+  display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.1rem;
@@ -2261,4 +2261,13 @@ body::before {
   color: #f59e0b;
   margin-top: 2px;
   text-align: right;
+}
+
+/* Cacher le bouton offline sur les Ã©crans auth/setup/splash */
+#screen-auth.active ~ #btn-offline-hub,
+#screen-setup.active ~ #btn-offline-hub {
+  display: none !important;
+}
+.screen-splash.active ~ #btn-offline-hub {
+  display: none !important;
 }
