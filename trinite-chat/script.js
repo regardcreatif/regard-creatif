@@ -10,41 +10,15 @@
   (function initSplash() {
     const splash = document.getElementById("screen-splash");
     if (!splash) return;
-
-    let _splashDone = false;
-
-    // Fonction interne pour masquer le splash avec animation
-    function hideSplash() {
-      if (_splashDone) return;
-      _splashDone = true;
+    let done = false;
+    function hide() {
+      if (done) return;
+      done = true;
       splash.classList.add("splash-exit");
-      setTimeout(() => {
-        splash.style.display = "none";
-        splash.classList.remove("active");
-      }, 600);
+      setTimeout(() => { splash.style.display = "none"; }, 500);
     }
-
-    // ── Timer fixe : ferme le splash après 2 s et affiche screen-auth
-    //    si initAuth() n'a pas encore redirigé vers un autre écran.
-    setTimeout(function () {
-      hideSplash();
-      // Afficher l'écran de connexion uniquement si aucun écran actif
-      // n'a déjà été défini par initAuth()
-      const hasActiveScreen = !!document.querySelector(
-        ".screen.active, #screen-setup.active, #screen-main.active"
-      );
-      if (!hasActiveScreen) {
-        const authScreen = document.getElementById("screen-auth");
-        if (authScreen) authScreen.classList.add("active");
-      }
-    }, 2000);
-
-    // ── Permet à initAuth() de fermer le splash une fois auth connue,
-    //    mais seulement si les 2 s se sont déjà écoulées.
-    window._dismissSplash = function () {
-      // Ne rien faire ici : le timer ci-dessus gère tout.
-      // initAuth() appellera showScreen() après, ce qui est suffisant.
-    };
+    setTimeout(hide, 2000);
+    splash.addEventListener("click", hide, { once: true });
   })();
 
   /* ===== PARTICLE CANVAS ===== */
