@@ -19,17 +19,35 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="./style.css" />
+  <!-- PWA: manifest + theme -->
+  <link rel="manifest" href="./manifest.json" />
+  <meta name="theme-color" content="#0d0d1a" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Trinite Chat" />
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" />
 </head>
 <body>
-
+<div style="position: fixed; bottom: 8px; right: 8px; background: rgba(139,92,246,0.8); color: white; font-size: 9px; padding: 3px 8px; border-radius: 20px; z-index: 99999; font-family: monospace; backdrop-filter: blur(4px);">
+  🧩 v3.0 – offline hub + splash fix
+</div>
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
   <button id="theme-toggle" class="theme-toggle" title="Basculer le thème" aria-label="Thème">
     <i class="fa-solid fa-moon" id="theme-icon"></i>
   </button>
 
+  <!-- ===== SPLASH SCREEN ===== -->
+  <div id="screen-splash" class="screen-splash active">
+    <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
+         alt="Trinite Chat" class="splash-logo" />
+    <p class="splash-credit">Made by Regard Créatif ©</p>
+  </div>
+
+  
   <!-- ===== ÉCRAN CONNEXION ===== -->
-  <div id="screen-auth" class="screen active">
+  <div id="screen-auth" class="screen">
     <div class="auth-container">
       <div class="auth-logo-wrap">
         <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png"
@@ -67,26 +85,36 @@
         </form>
 
         <form id="form-register" class="auth-form hidden">
-          <div class="field">
-            <label>Email</label>
+          <!-- FIX: Toggle Email / Téléphone style TikTok -->
+          <div class="auth-type-toggle">
+            <button type="button" class="auth-type-btn active" data-type="email">
+              <i class="fa-solid fa-envelope"></i> Email
+            </button>
+            <button type="button" class="auth-type-btn" data-type="phone">
+              <i class="fa-solid fa-phone"></i> Téléphone
+            </button>
+          </div>
+
+          <!-- Champ email -->
+          <div class="field" id="field-register-email">
             <div class="input-wrap">
               <i class="fa-solid fa-envelope input-icon"></i>
-              <input type="email" id="register-email" placeholder="votre@email.com" required />
+              <input type="email" id="register-email" placeholder="votre@email.com" autocomplete="email" />
             </div>
           </div>
-          <!-- FIX: Numéro de téléphone à l'inscription (style WhatsApp) -->
-          <div class="field">
-            <label>Numéro de téléphone <span style="color:var(--text-muted);font-size:0.75rem">(optionnel)</span></label>
+
+          <!-- Champ téléphone (caché par défaut) -->
+          <div class="field hidden" id="field-register-phone">
             <div class="input-wrap">
               <i class="fa-solid fa-phone input-icon"></i>
               <input type="tel" id="register-phone" placeholder="+509 xxxx xxxx" autocomplete="tel" />
             </div>
           </div>
+
           <div class="field">
-            <label>Mot de passe</label>
             <div class="input-wrap">
               <i class="fa-solid fa-lock input-icon"></i>
-              <input type="password" id="register-password" placeholder="8 caractères minimum" required />
+              <input type="password" id="register-password" placeholder="Mot de passe (6 caractères min)" required />
             </div>
           </div>
           <button type="submit" class="btn-primary shimmer-btn">
@@ -176,23 +204,27 @@
     </div>
 
     <nav class="bottom-nav glass-nav">
-      <button class="nav-btn" data-screen="screen-feed">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-        <span>Feed</span>
-      </button>
-      <button class="nav-btn active" data-screen="screen-main">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-        <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
-      </button>
-      <button class="nav-btn" data-screen="screen-studio">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <span>Studio</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-profil">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-        <span>Profil</span>
-      </button>
-    </nav>
+  <button class="nav-btn" data-screen="screen-feed">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
+    <span>Feed</span>
+  </button>
+  <button class="nav-btn active" data-screen="screen-main">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
+    <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
+  </button>
+  <button class="nav-btn" data-screen="screen-studio">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
+    <span>Studio</span>
+  </button>
+  <button class="nav-btn" data-screen="screen-profil">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
+    <span>Profil</span>
+  </button>
+  <button class="nav-btn" data-screen="screen-hub">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+    <span>Hub</span>
+  </button>
+</nav>
   </div>
 
   <!-- ===== ÉCRAN FEED (TIKTOK) ===== -->
@@ -223,6 +255,10 @@
       <button class="nav-btn" data-screen="screen-profil">
         <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
         <span>Profil</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-hub">
+        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <span>Hub</span>
       </button>
     </nav>
   </div>
@@ -306,6 +342,10 @@
       <button class="nav-btn" data-screen="screen-profil">
         <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
         <span>Profil</span>
+      </button>
+      <button class="nav-btn" data-screen="screen-hub">
+        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <span>Hub</span>
       </button>
     </nav>
   </div>
@@ -394,8 +434,87 @@
         <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
         <span>Profil</span>
       </button>
+      <button class="nav-btn" data-screen="screen-hub">
+        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <span>Hub</span>
+      </button>
     </nav>
   </div>
+
+<!-- ===== ÉCRAN HUB (Hors-ligne) ===== -->
+<div id="screen-hub" class="screen">
+  <header class="main-header glass-header">
+    <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" alt="logo" class="header-logo-img" />
+    <h1 class="header-logo gradient-text">Hub Hors-ligne</h1>
+  </header>
+
+  <div class="profil-section" style="overflow-y: auto; padding: 1rem; gap: 1rem; display: flex; flex-direction: column;">
+
+    <!-- SECTION SNAKE -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-gamepad"></i> <strong>Snake</strong></span>
+        <span>Score: <span id="hub-snake-score">0</span> | Best: <span id="hub-snake-best">0</span></span>
+        <button id="hub-snake-start" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Jouer</button>
+      </div>
+      <canvas id="hub-snake-canvas" width="300" height="300" style="width:100%; max-width:300px; margin:0 auto; display:block; border-radius:12px; background:#0a0a18;"></canvas>
+      <div class="snake-controls" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.5rem;">
+        <div><button data-dir="UP" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-up"></i></button></div>
+        <div>
+          <button data-dir="LEFT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-left"></i></button>
+          <button data-dir="DOWN" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-down"></i></button>
+          <button data-dir="RIGHT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION CASINO -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-dice"></i> <strong>Machine à sous</strong></span>
+        <span>💰 <span id="hub-casino-tokens">500</span> jetons</span>
+        <button id="hub-casino-reset" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Recharger</button>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-0">🎰</div>
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-1">🎰</div>
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-2">🎰</div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.5rem;">
+        <select id="hub-casino-bet" style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:0.3rem; color:var(--text);">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+        <button id="hub-casino-spin" class="btn-primary" style="padding: 0.3rem 1rem;">Tourner</button>
+      </div>
+      <div id="hub-casino-result" style="text-align:center; font-size:0.8rem; color:var(--text-muted);"></div>
+    </div>
+
+    <!-- SECTION PARIS SPORTIFS -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-trophy"></i> <strong>Paris sportifs</strong></span>
+        <span>💰 <span id="hub-paris-tokens">500</span> jetons</span>
+      </div>
+      <div id="hub-paris-matches" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      <div style="margin-top: 0.75rem;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;">📜 Historique</div>
+        <div id="hub-paris-history" style="max-height:100px; overflow-y:auto; font-size:0.7rem;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav glass-nav">
+    <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+    <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+    <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+    <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+    <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div><span>Hub</span></button>
+  </nav>
+</div>
 
   <!-- ===== ÉCRAN CHAT ===== -->
   <div id="screen-chat" class="screen">
@@ -497,6 +616,12 @@
       <div class="story-modal-body" id="story-modal-body"></div>
     </div>
   </div>
+
+  <!-- ===== BOUTON OFFLINE HUB ===== -->
+  <button id="btn-offline-hub" class="btn-offline-hub" title="Mode hors-ligne" aria-label="Hub hors-ligne">
+    <i class="fa-solid fa-wifi-slash"></i>
+    <span class="offline-hub-dot" id="offline-dot"></span>
+  </button>
 
   <!-- ===== FAB BOUTON FLOTTANT ===== -->
   <div id="fab-container" class="fab-container hidden">
