@@ -29,7 +29,6 @@
   <link rel="apple-touch-icon" href="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" />
 </head>
 <body>
-<div style="position:fixed;top:0;left:0;background:red;color:white;font-size:12px;z-index:99999;padding:2px 6px">v.HUB3</div>
 
   <canvas id="particles-canvas" aria-hidden="true"></canvas>
 
@@ -203,23 +202,27 @@
     </div>
 
     <nav class="bottom-nav glass-nav">
-      <button class="nav-btn" data-screen="screen-feed">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-        <span>Feed</span>
-      </button>
-      <button class="nav-btn active" data-screen="screen-main">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-        <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
-      </button>
-      <button class="nav-btn" data-screen="screen-studio">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <span>Studio</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-profil">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-        <span>Profil</span>
-      </button>
-    </nav>
+  <button class="nav-btn" data-screen="screen-feed">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
+    <span>Feed</span>
+  </button>
+  <button class="nav-btn active" data-screen="screen-main">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
+    <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
+  </button>
+  <button class="nav-btn" data-screen="screen-studio">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
+    <span>Studio</span>
+  </button>
+  <button class="nav-btn" data-screen="screen-profil">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
+    <span>Profil</span>
+  </button>
+  <button class="nav-btn" data-screen="screen-hub">
+    <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+    <span>Hub</span>
+  </button>
+</nav>
   </div>
 
   <!-- ===== ÉCRAN FEED (TIKTOK) ===== -->
@@ -423,6 +426,81 @@
       </button>
     </nav>
   </div>
+
+<!-- ===== ÉCRAN HUB (Hors-ligne) ===== -->
+<div id="screen-hub" class="screen">
+  <header class="main-header glass-header">
+    <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" alt="logo" class="header-logo-img" />
+    <h1 class="header-logo gradient-text">Hub Hors-ligne</h1>
+  </header>
+
+  <div class="profil-section" style="overflow-y: auto; padding: 1rem; gap: 1rem; display: flex; flex-direction: column;">
+
+    <!-- SECTION SNAKE -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-gamepad"></i> <strong>Snake</strong></span>
+        <span>Score: <span id="hub-snake-score">0</span> | Best: <span id="hub-snake-best">0</span></span>
+        <button id="hub-snake-start" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Jouer</button>
+      </div>
+      <canvas id="hub-snake-canvas" width="300" height="300" style="width:100%; max-width:300px; margin:0 auto; display:block; border-radius:12px; background:#0a0a18;"></canvas>
+      <div class="snake-controls" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.5rem;">
+        <div><button data-dir="UP" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-up"></i></button></div>
+        <div>
+          <button data-dir="LEFT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-left"></i></button>
+          <button data-dir="DOWN" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-down"></i></button>
+          <button data-dir="RIGHT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION CASINO -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-dice"></i> <strong>Machine à sous</strong></span>
+        <span>💰 <span id="hub-casino-tokens">500</span> jetons</span>
+        <button id="hub-casino-reset" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Recharger</button>
+      </div>
+      <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-0">🎰</div>
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-1">🎰</div>
+        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-2">🎰</div>
+      </div>
+      <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.5rem;">
+        <select id="hub-casino-bet" style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:0.3rem; color:var(--text);">
+          <option value="10">10</option>
+          <option value="25">25</option>
+          <option value="50" selected>50</option>
+          <option value="100">100</option>
+        </select>
+        <button id="hub-casino-spin" class="btn-primary" style="padding: 0.3rem 1rem;">Tourner</button>
+      </div>
+      <div id="hub-casino-result" style="text-align:center; font-size:0.8rem; color:var(--text-muted);"></div>
+    </div>
+
+    <!-- SECTION PARIS SPORTIFS -->
+    <div class="glass-card stagger-in" style="padding: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+        <span><i class="fa-solid fa-trophy"></i> <strong>Paris sportifs</strong></span>
+        <span>💰 <span id="hub-paris-tokens">500</span> jetons</span>
+      </div>
+      <div id="hub-paris-matches" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+      <div style="margin-top: 0.75rem;">
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;">📜 Historique</div>
+        <div id="hub-paris-history" style="max-height:100px; overflow-y:auto; font-size:0.7rem;"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <nav class="bottom-nav glass-nav">
+    <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+    <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+    <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+    <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+    <button class="nav-btn active" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div><span>Hub</span></button>
+  </nav>
+</div>
 
   <!-- ===== ÉCRAN CHAT ===== -->
   <div id="screen-chat" class="screen">
