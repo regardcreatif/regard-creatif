@@ -1710,6 +1710,11 @@ function wireBottomNav() {
 
       if (target === "screen-feed") {
         playCurrentFeedVideo();
+      } else if (target === "screen-hub") {
+        // Forcer la réinitialisation du Hub
+        setTimeout(() => {
+          if (typeof window.refreshHub === 'function') window.refreshHub();
+        }, 50);
       } else {
         pauseAllFeedVideos();
       }
@@ -2829,3 +2834,19 @@ initAuth();
   renderParisMatches();
   renderParisHistory();
 })();
+
+
+// Rafraîchir le Hub à chaque affichage
+window.refreshHub = function() {
+  const casinoSpan = document.getElementById("hub-casino-tokens");
+  if (casinoSpan) casinoSpan.textContent = localStorage.getItem("hub-casino-tokens") || "500";
+  
+  const parisSpan = document.getElementById("hub-paris-tokens");
+  if (parisSpan) parisSpan.textContent = localStorage.getItem("hub-paris-tokens") || "500";
+  
+  // Forcer l'affichage des paris
+  if (typeof renderParisMatches === 'function') {
+    renderParisMatches();
+    renderParisHistory();
+  }
+};
