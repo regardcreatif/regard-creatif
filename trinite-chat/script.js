@@ -1709,6 +1709,12 @@ function wireBottomNav() {
       const studioActive = document.getElementById("screen-studio")?.classList.contains("active");
       if (studioActive && target !== "screen-studio") stopCamera();
 
+      // Stopper le snake si on quitte le hub
+      const wasHub = document.getElementById("screen-hub")?.classList.contains("active");
+      if (wasHub && target !== "screen-hub") {
+        if (typeof window.stopHubSnake === 'function') window.stopHubSnake();
+      }
+
       showScreen(target);
       haptic(8);
 
@@ -1718,7 +1724,6 @@ function wireBottomNav() {
       if (target === "screen-feed") {
         playCurrentFeedVideo();
       } else if (target === "screen-hub") {
-        // Forcer la réinitialisation du Hub
         setTimeout(() => {
           if (typeof window.refreshHub === 'function') window.refreshHub();
         }, 50);
@@ -2843,6 +2848,15 @@ window.initHub = function() {
 };
 
 // Lance le Hub au chargement
+// Exposer stopHubSnake pour arrêter proprement le snake quand on quitte
+window.stopHubSnake = function() {
+  if (typeof snakeLoop !== 'undefined' && snakeLoop) {
+    clearInterval(snakeLoop);
+    snakeLoop = null;
+    snakeRunning = false;
+  }
+};
+
 window.initHub();
 
 // Rafraîchir le Hub à chaque affichage
