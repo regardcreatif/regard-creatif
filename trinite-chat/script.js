@@ -1,7 +1,7 @@
 // ============================================================
-// TRINITE CHAT â€” script.js v2
-// Particles Â· Theme Â· Ripple Â· Avatar Â· FAB Â· Swipe Delete
-// Typing Indicator Â· Sound Toggle Â· Skeleton Â· QR Scan
+// TRINITE CHAT — script.js v2
+// Particles · Theme · Ripple · Avatar · FAB · Swipe Delete
+// Typing Indicator · Sound Toggle · Skeleton · QR Scan
 // ============================================================
 (function () {
   "use strict";
@@ -161,10 +161,10 @@
 })();
 
 // ============================================================
-// TRINITE CHAT â€” Logique principale
+// TRINITE CHAT — Logique principale
 // ============================================================
 
-// Timestamp de dÃ©marrage â€” utilisÃ© pour synchroniser le splash avec initAuth()
+// Timestamp de démarrage — utilisé pour synchroniser le splash avec initAuth()
 const _appStartTime = Date.now();
 
 const SUPABASE_URL  = "https://eqttgyxjjupeisgozrut.supabase.co";
@@ -174,7 +174,7 @@ const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-5
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ============================================================
-// Ã‰TAT GLOBAL
+// ÉTAT GLOBAL
 // ============================================================
 let currentUser     = null;
 let userProfiles    = [];
@@ -209,13 +209,13 @@ let avatarCamStream = null;
 const seenStories = new Set();
 
 // ============================================================
-// VIDÃ‰OS DEMO
+// VIDÉOS DEMO
 // ============================================================
 const DEMO_VIDEOS = [
-  { id:"v1", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",      author:"@trinitechat",  desc:"Bienvenue sur Trinite Chat ðŸ”¥ Trois profils, une seule app !", likes:3102, comments:95, isDemo:true },
-  { id:"v2", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",          author:"@profil_pro",   desc:"GÃ©rez vos conversations pros sÃ©parÃ©ment ðŸ’¼ #pro #business",   likes:1284, comments:48, isDemo:true },
-  { id:"v3", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",        author:"@anonyme_x",    desc:"Mode anonyme activÃ© ðŸ‘» Personne ne saura qui vous Ãªtes",       likes:873,  comments:22, isDemo:true },
-  { id:"v4", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", author:"@prive_heart", desc:"Vos messages privÃ©s restent privÃ©s â¤ï¸ #love #privÃ©",        likes:642,  comments:17, isDemo:true }
+  { id:"v1", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",      author:"@trinitechat",  desc:"Bienvenue sur Trinite Chat 🔥 Trois profils, une seule app !", likes:3102, comments:95, isDemo:true },
+  { id:"v2", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",          author:"@profil_pro",   desc:"Gérez vos conversations pros séparément 💼 #pro #business",   likes:1284, comments:48, isDemo:true },
+  { id:"v3", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",        author:"@anonyme_x",    desc:"Mode anonyme activé 👻 Personne ne saura qui vous êtes",       likes:873,  comments:22, isDemo:true },
+  { id:"v4", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", author:"@prive_heart", desc:"Vos messages privés restent privés ❤️ #love #privé",        likes:642,  comments:17, isDemo:true }
 ];
 
 let feedLiked      = {};
@@ -245,7 +245,7 @@ function showScreen(id) {
   if (el) el.classList.add("active");
   updateFabVisibility(id);
   
-  // Forcer le rafraÃ®chissement du Hub Ã  chaque affichage
+  // Forcer le rafraîchissement du Hub à chaque affichage
   if (id === "screen-hub") {
     setTimeout(() => {
       if (typeof window.refreshHub === 'function') window.refreshHub();
@@ -263,8 +263,8 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function profileLabel(type) { return { pro:"Pro", prive:"PrivÃ©", anonyme:"Anonyme" }[type] || type; }
-function profileEmoji(type) { return { pro:"ðŸ’¼", prive:"â¤ï¸", anonyme:"ðŸ‘»" }[type] || "ðŸ‘¤"; }
+function profileLabel(type) { return { pro:"Pro", prive:"Privé", anonyme:"Anonyme" }[type] || type; }
+function profileEmoji(type) { return { pro:"💼", prive:"❤️", anonyme:"👻" }[type] || "👤"; }
 function profileColor(type) {
   return { pro:"linear-gradient(135deg,#6366f1,#8b5cf6)", prive:"linear-gradient(135deg,#ec4899,#f97316)", anonyme:"linear-gradient(135deg,#6b7280,#374151)" }[type] || "linear-gradient(135deg,#8b5cf6,#db2777)";
 }
@@ -297,7 +297,7 @@ function updateMsgBadge(count) {
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     badge.classList.remove("hidden");
-    // FIX: Forcer re-dÃ©clenchement des animations (badgePop + neonPulse)
+    // FIX: Forcer re-déclenchement des animations (badgePop + neonPulse)
     badge.style.animation = "none";
     void badge.offsetWidth; // force reflow
     badge.style.animation = "badgePop 0.35s var(--spring), neonPulse 1.5s ease-in-out infinite 0.5s";
@@ -335,7 +335,7 @@ function startNotifListener() {
 async function initAuth() {
   const { data: { session } } = await db.auth.getSession();
   // Attendre que le splash ait fini (2 s + 600 ms d'animation = 2600 ms)
-  // avant d'afficher un Ã©cran, pour Ã©viter tout conflit visuel.
+  // avant d'afficher un écran, pour éviter tout conflit visuel.
   const SPLASH_TOTAL_MS = 2600;
   const elapsed = Date.now() - _appStartTime;
   const waitMs  = Math.max(0, SPLASH_TOTAL_MS - elapsed);
@@ -367,7 +367,7 @@ async function initAuth() {
 async function afterLogin() {
   window.showSkeleton();
 
-  // FIX: VÃ©rifier que le bucket "avatars" existe dans Supabase Storage
+  // FIX: Vérifier que le bucket "avatars" existe dans Supabase Storage
   try {
     const { data: buckets } = await db.storage.listBuckets();
     const avatarBucketExists = buckets?.some(b => b.name === "avatars");
@@ -387,13 +387,13 @@ async function afterLogin() {
     window.hideSkeleton();
     const rows = [
       { user_id: currentUser.id, profile_type: "pro",     name: "Pro" },
-      { user_id: currentUser.id, profile_type: "prive",   name: "PrivÃ©" },
+      { user_id: currentUser.id, profile_type: "prive",   name: "Privé" },
       { user_id: currentUser.id, profile_type: "anonyme", name: "Anonyme" }
     ];
     const { data: nd, error: ne } = await db.from("profiles").insert(rows).select();
-    if (ne) { toast("Erreur crÃ©ation profils : " + ne.message, "error"); showScreen("screen-setup"); return; }
+    if (ne) { toast("Erreur création profils : " + ne.message, "error"); showScreen("screen-setup"); return; }
     userProfiles = nd || [];
-    toast("Vos 3 profils ont Ã©tÃ© crÃ©Ã©s !", "success");
+    toast("Vos 3 profils ont été créés !", "success");
   } else {
     userProfiles = data;
     userAvatarUrl = data[0]?.avatar_url || null;
@@ -413,7 +413,7 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   const btn      = e.target.querySelector("button[type=submit]");
   const email    = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value;
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexionâ€¦'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion…'; }
   const { error } = await db.auth.signInWithPassword({ email, password });
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Se connecter'; }
   if (error) {
@@ -421,7 +421,7 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   }
 });
 
-// FIX: Toggle Email / TÃ©lÃ©phone style TikTok sur le formulaire d'inscription
+// FIX: Toggle Email / Téléphone style TikTok sur le formulaire d'inscription
 document.querySelectorAll(".auth-type-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".auth-type-btn").forEach(b => b.classList.remove("active"));
@@ -452,56 +452,56 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
   const password = document.getElementById("register-password").value;
   const authType = document.querySelector(".auth-type-btn.active")?.dataset.type || "email";
 
-  // FIX: DÃ©terminer email selon le type choisi (email ou tÃ©lÃ©phone)
+  // FIX: Déterminer email selon le type choisi (email ou téléphone)
   let email = "";
   if (authType === "email") {
     email = document.getElementById("register-email").value.trim();
     if (!email) { toast("Entrez votre email", "error"); return; }
   } else {
     const phone = document.getElementById("register-phone").value.trim().replace(/\s+/g,"");
-    if (!phone) { toast("Entrez votre numÃ©ro", "error"); return; }
-    // FIX: GÃ©nÃ©rer un email fictif Ã  partir du numÃ©ro pour Supabase
+    if (!phone) { toast("Entrez votre numéro", "error"); return; }
+    // FIX: Générer un email fictif à partir du numéro pour Supabase
     email = phone + "@phone.trinite";
   }
 
-  if (password.length < 6) { toast("Mot de passe trop court (6 caractÃ¨res min.)", "error"); return; }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CrÃ©ationâ€¦'; }
+  if (password.length < 6) { toast("Mot de passe trop court (6 caractères min.)", "error"); return; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
 
   // FIX: signUp retourne { data: { user, session }, error }
-  // "Database error saving new user" = un trigger SQL sur auth.users est cassÃ©.
-  // Solution : NE PAS utiliser de trigger. CrÃ©er les profils ici, manuellement.
+  // "Database error saving new user" = un trigger SQL sur auth.users est cassé.
+  // Solution : NE PAS utiliser de trigger. Créer les profils ici, manuellement.
   const { data: signUpData, error } = await db.auth.signUp({ email, password });
 
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> CrÃ©er mon compte'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Créer mon compte'; }
 
   if (error) {
-    // FIX: Message d'erreur francisÃ© + log console pour debug
+    // FIX: Message d'erreur francisé + log console pour debug
     console.error("Trinite signUp error:", error);
     const msg = error.message.includes("Database error")
       ? "Erreur serveur : supprimez le trigger SQL sur auth.users (voir console)."
       : error.message.includes("already registered") || error.message.includes("already been registered")
-      ? "Cet email est dÃ©jÃ  utilisÃ©."
+      ? "Cet email est déjà utilisé."
       : error.message;
     toast(msg, "error");
     return;
   }
 
-  // FIX: RÃ©cupÃ©rer l'utilisateur depuis signUpData.user (disponible mÃªme sans confirmation email)
+  // FIX: Récupérer l'utilisateur depuis signUpData.user (disponible même sans confirmation email)
   // Ne pas utiliser db.auth.getUser() ici : la session n'est pas encore active si
-  // "Confirm email" est activÃ© dans Supabase Auth settings.
+  // "Confirm email" est activé dans Supabase Auth settings.
   const user = signUpData?.user;
 
   if (user) {
-    // FIX: Sauvegarder le numÃ©ro de tÃ©lÃ©phone dans les mÃ©tadonnÃ©es user
+    // FIX: Sauvegarder le numéro de téléphone dans les métadonnées user
     const phone = document.getElementById("register-phone")?.value.trim() || null;
     if (phone) {
       await db.auth.updateUser({ phone, data: { phone } });
     }
 
-    // FIX: CrÃ©er les 3 profils directement aprÃ¨s signUp, sans trigger SQL.
+    // FIX: Créer les 3 profils directement après signUp, sans trigger SQL.
     const rows = [
       { user_id: user.id, profile_type: "pro",     name: "Pro",     phone: phone },
-      { user_id: user.id, profile_type: "prive",   name: "PrivÃ©",   phone: phone },
+      { user_id: user.id, profile_type: "prive",   name: "Privé",   phone: phone },
       { user_id: user.id, profile_type: "anonyme", name: "Anonyme", phone: phone }
     ];
     const { error: profileErr } = await db.from("profiles").insert(rows);
@@ -509,23 +509,23 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
       // FIX: Retenter sans colonne phone si elle n'existe pas encore
       const rows2 = [
         { user_id: user.id, profile_type: "pro",     name: "Pro" },
-        { user_id: user.id, profile_type: "prive",   name: "PrivÃ©" },
+        { user_id: user.id, profile_type: "prive",   name: "Privé" },
         { user_id: user.id, profile_type: "anonyme", name: "Anonyme" }
       ];
       const { error: profileErr2 } = await db.from("profiles").insert(rows2);
-      if (profileErr2) console.warn("Trinite: profils non crÃ©Ã©s :", profileErr2.message);
+      if (profileErr2) console.warn("Trinite: profils non créés :", profileErr2.message);
     }
   }
 
-  // FIX: Si confirmation email dÃ©sactivÃ©e dans Supabase, la session est active
-  // et onAuthStateChange va dÃ©clencher afterLogin() automatiquement.
-  // Si confirmation email activÃ©e, on affiche juste un message d'attente.
+  // FIX: Si confirmation email désactivée dans Supabase, la session est active
+  // et onAuthStateChange va déclencher afterLogin() automatiquement.
+  // Si confirmation email activée, on affiche juste un message d'attente.
   const needsConfirm = !signUpData?.session;
   if (needsConfirm) {
-    toast("Compte crÃ©Ã© ! VÃ©rifiez votre boÃ®te mail pour confirmer.", "success");
+    toast("Compte créé ! Vérifiez votre boîte mail pour confirmer.", "success");
   } else {
-    toast("Compte crÃ©Ã© et connectÃ© !", "success");
-    // FIX: onAuthStateChange s'en charge â€” pas besoin d'appeler afterLogin() manuellement
+    toast("Compte créé et connecté !", "success");
+    // FIX: onAuthStateChange s'en charge — pas besoin d'appeler afterLogin() manuellement
   }
 });
 
@@ -546,22 +546,22 @@ document.querySelectorAll(".tab").forEach(tab => {
 document.getElementById("form-setup")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CrÃ©ationâ€¦'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
   const rows = [
     { user_id: currentUser.id, profile_type: "pro",     name: document.getElementById("name-pro")?.value.trim()     || "Pro" },
-    { user_id: currentUser.id, profile_type: "prive",   name: document.getElementById("name-prive")?.value.trim()   || "PrivÃ©" },
+    { user_id: currentUser.id, profile_type: "prive",   name: document.getElementById("name-prive")?.value.trim()   || "Privé" },
     { user_id: currentUser.id, profile_type: "anonyme", name: document.getElementById("name-anonyme")?.value.trim() || "Anonyme" }
   ];
   const { data, error } = await db.from("profiles").insert(rows).select();
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> CrÃ©er mes profils'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Créer mes profils'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
   userProfiles = data || [];
-  toast("Vos 3 identitÃ©s sont prÃªtes !", "success");
+  toast("Vos 3 identités sont prêtes !", "success");
   await loadMainScreen();
 });
 
 // ============================================================
-// DÃ‰CONNEXION
+// DÉCONNEXION
 // ============================================================
 
 function handleLogout() {
@@ -576,7 +576,7 @@ document.getElementById("btn-logout")       ?.addEventListener("click", handleLo
 document.getElementById("btn-logout-profil")?.addEventListener("click", handleLogout);
 
 // ============================================================
-// Ã‰CRAN PRINCIPAL
+// ÉCRAN PRINCIPAL
 // ============================================================
 
 async function loadMainScreen() {
@@ -601,7 +601,7 @@ async function loadMainScreen() {
 }
 
 // ============================================================
-// SWIPER DE PROFILS (bug fix: offset prÃ©cis)
+// SWIPER DE PROFILS (bug fix: offset précis)
 // ============================================================
 
 function buildSwiper() {
@@ -637,13 +637,13 @@ function buildSwiper() {
   });
 
   const wrap = document.getElementById("profile-swiper-wrap");
-  // FIX: retirer les anciens listeners en remplaÃ§ant le nÅ“ud
+  // FIX: retirer les anciens listeners en remplaçant le nœud
   const newWrap = wrap?.cloneNode(true);
   if (wrap && newWrap) wrap.parentNode.replaceChild(newWrap, wrap);
   const swiperWrap = document.getElementById("profile-swiper-wrap");
 
   let startX = null;
-  let startY = null; // FIX: tracking Y pour empÃªcher swipe vertical
+  let startY = null; // FIX: tracking Y pour empêcher swipe vertical
   let dragging = false;
 
   swiperWrap?.addEventListener("touchstart", e => {
@@ -667,7 +667,7 @@ function buildSwiper() {
     startX   = null;
     startY   = null;
     dragging = false;
-    // FIX: Seuil rÃ©duit Ã  30px + vÃ©rification que c'est bien horizontal
+    // FIX: Seuil réduit à 30px + vérification que c'est bien horizontal
     if (Math.abs(dx) < Math.abs(dy) * 1.5) return; // FIX: annuler si trop vertical
     if (dx < -30 && activeIdx < userProfiles.length - 1) {
       setActiveProfile(activeIdx + 1);
@@ -727,7 +727,7 @@ function buildStories() {
 
   const avatarContent = userAvatarUrl
     ? `<img src="${escapeHtml(userAvatarUrl)}" alt="moi" />`
-    : (activeProfile ? profileEmoji(activeProfile.profile_type) : "ðŸ‘¤");
+    : (activeProfile ? profileEmoji(activeProfile.profile_type) : "👤");
 
   addWrap.innerHTML = `
     <div class="story-add-ring" title="Ajouter une story">
@@ -735,10 +735,10 @@ function buildStories() {
       <span class="story-add-plus"><i class="fa-solid fa-plus" style="font-size:0.6rem"></i></span>
     </div>
     <span class="story-name">Ma story</span>`;
-  addWrap.addEventListener("click", () => toast("Stories : bientÃ´t disponible !", "info"));
+  addWrap.addEventListener("click", () => toast("Stories : bientôt disponible !", "info"));
   scroll.appendChild(addWrap);
 
-  const STORY_EMOJIS = ["ðŸ”¥","ðŸ’œ","âœ¨","ðŸ‘‹","ðŸŽµ","ðŸŒ™","ðŸ’«","ðŸŽ‰"];
+  const STORY_EMOJIS = ["🔥","💜","✨","👋","🎵","🌙","💫","🎉"];
   currentContacts.slice(0, 10).forEach((c, i) => {
     const seen = seenStories.has(c.id);
     const wrap = document.createElement("div");
@@ -780,7 +780,7 @@ function openStory(contact, emoji) {
   modal?.classList.remove("hidden");
   buildStories();
 
-  // FIX: Fermeture automatique exactement aprÃ¨s 4 secondes
+  // FIX: Fermeture automatique exactement après 4 secondes
   clearTimeout(openStory._t);
   openStory._t = setTimeout(() => modal?.classList.add("hidden"), 4000);
 }
@@ -898,7 +898,7 @@ function wireSwipeDelete(wrapper, item, deleteBg, contact) {
         if (error) {
           toast("Erreur suppression : " + error.message, "error");
         } else {
-          toast("Contact supprimÃ©", "info");
+          toast("Contact supprimé", "info");
           await loadContacts();
           buildStories();
         }
@@ -922,7 +922,7 @@ function wireContactSearch() {
   input.addEventListener("input", () => {
     const q = input.value.trim().toLowerCase();
     if (!q) { renderContacts(currentContacts); return; }
-    // FIX: Recherche par nom, email OU tÃ©lÃ©phone
+    // FIX: Recherche par nom, email OU téléphone
     const filtered = currentContacts.filter(c =>
       c.contact_name.toLowerCase().includes(q) ||
       (c.contact_email || "").toLowerCase().includes(q) ||
@@ -943,7 +943,7 @@ document.getElementById("btn-add-contact")?.addEventListener("click", () => {
     userProfiles.forEach(p => {
       const opt = document.createElement("option");
       opt.value = p.id;
-      opt.textContent = `${profileEmoji(p.profile_type)} ${profileLabel(p.profile_type)} â€” ${p.name}`;
+      opt.textContent = `${profileEmoji(p.profile_type)} ${profileLabel(p.profile_type)} — ${p.name}`;
       if (p.id === activeProfile?.id) opt.selected = true;
       sel.appendChild(opt);
     });
@@ -959,19 +959,19 @@ document.getElementById("modal-add-contact")?.addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
 });
 
-// FIX: Recherche de contact par numÃ©ro de tÃ©lÃ©phone (style WhatsApp)
+// FIX: Recherche de contact par numéro de téléphone (style WhatsApp)
 document.getElementById("btn-search-phone")?.addEventListener("click", async () => {
   const phone = document.getElementById("contact-phone")?.value.trim();
   const resultEl = document.getElementById("phone-search-result");
-  if (!phone) { toast("Entrez un numÃ©ro de tÃ©lÃ©phone", "error"); return; }
+  if (!phone) { toast("Entrez un numéro de téléphone", "error"); return; }
 
   if (resultEl) {
     resultEl.classList.remove("hidden");
-    resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Rechercheâ€¦';
+    resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Recherche…';
     resultEl.className = "phone-search-result searching";
   }
 
-  // FIX: Chercher dans les profils par numÃ©ro de tÃ©lÃ©phone
+  // FIX: Chercher dans les profils par numéro de téléphone
   const phoneClean = phone.replace(/\s+/g, "");
   const { data, error } = await db.from("profiles")
     .select("id, name, user_id, profile_type, phone")
@@ -979,19 +979,19 @@ document.getElementById("btn-search-phone")?.addEventListener("click", async () 
     .limit(1);
 
   if (error || !data || data.length === 0) {
-    // FIX: Pas trouvÃ© â€” on peut quand mÃªme ajouter manuellement
+    // FIX: Pas trouvé — on peut quand même ajouter manuellement
     if (resultEl) {
-      resultEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Aucun utilisateur Trinite trouvÃ© â€” vous pouvez quand mÃªme ajouter ce contact.';
+      resultEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Aucun utilisateur Trinite trouvé — vous pouvez quand même ajouter ce contact.';
       resultEl.className = "phone-search-result not-found";
     }
-    // PrÃ©-remplir l'email hidden avec le numÃ©ro
+    // Pré-remplir l'email hidden avec le numéro
     const emailInput = document.getElementById("contact-email");
     if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
     return;
   }
 
   const found = data[0];
-  // FIX: PrÃ©-remplir automatiquement nom et ID Trinite
+  // FIX: Pré-remplir automatiquement nom et ID Trinite
   const nameInput = document.getElementById("contact-name");
   const profileIdInput = document.getElementById("contact-profile-id");
   const emailInput = document.getElementById("contact-email");
@@ -1001,13 +1001,13 @@ document.getElementById("btn-search-phone")?.addEventListener("click", async () 
   if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
 
   if (resultEl) {
-    resultEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> TrouvÃ© : <strong>${escapeHtml(found.name)}</strong> (${escapeHtml(found.profile_type)})`;
+    resultEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Trouvé : <strong>${escapeHtml(found.name)}</strong> (${escapeHtml(found.profile_type)})`;
     resultEl.className = "phone-search-result found";
   }
   haptic(15);
 });
 
-// FIX: Recherche aussi en tapant (aprÃ¨s 1 seconde sans frappe)
+// FIX: Recherche aussi en tapant (après 1 seconde sans frappe)
 document.getElementById("contact-phone")?.addEventListener("input", () => {
   const resultEl = document.getElementById("phone-search-result");
   if (resultEl) resultEl.classList.add("hidden");
@@ -1027,12 +1027,12 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   const name             = document.getElementById("contact-name").value.trim();
   const profileId        = document.getElementById("contact-profile-select").value;
   const contactProfileId = document.getElementById("contact-profile-id").value.trim() || null;
-  // FIX: email gÃ©nÃ©rÃ© Ã  partir du tÃ©lÃ©phone si pas trouvÃ© dans profiles
+  // FIX: email généré à partir du téléphone si pas trouvé dans profiles
   const emailHidden      = document.getElementById("contact-email").value.trim()
                            || (phone.replace(/\s+/g,"") + "@phone.trinite");
 
-  if (!phone || !name) { toast("Entrez un numÃ©ro et un nom", "error"); return; }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajoutâ€¦'; }
+  if (!phone || !name) { toast("Entrez un numéro et un nom", "error"); return; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajout…'; }
 
   // FIX: contact_user_id est le vrai nom de la colonne dans la table (pas contact_profile_id)
   const { error } = await db.from("contacts").insert({
@@ -1047,7 +1047,7 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Ajouter'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
 
-  toast("Contact ajoutÃ© !", "success");
+  toast("Contact ajouté !", "success");
   haptic(15);
   document.getElementById("modal-add-contact")?.classList.add("hidden");
   e.target.reset();
@@ -1079,11 +1079,11 @@ document.getElementById("btn-qr-simulate")?.addEventListener("click", () => {
   const input  = document.getElementById("contact-profile-id");
   if (input) input.value = fakeId;
   document.getElementById("qr-scanner-mock")?.classList.add("hidden");
-  toast("QR Code scannÃ© ! ID : " + fakeId, "success");
+  toast("QR Code scanné ! ID : " + fakeId, "success");
 });
 
 // ============================================================
-// Ã‰CRAN PROFIL
+// ÉCRAN PROFIL
 // ============================================================
 
 function buildProfilScreen() {
@@ -1105,7 +1105,7 @@ function buildProfilScreen() {
     container.appendChild(card);
   });
 
-  // FIX: Afficher un QR code et statut pour CHAQUE profil sÃ©parÃ©ment
+  // FIX: Afficher un QR code et statut pour CHAQUE profil séparément
   const idSection = document.getElementById("profil-id-section");
   if (idSection && userProfiles.length > 0) {
     idSection.style.display = "";
@@ -1120,8 +1120,8 @@ function buildProfilScreen() {
             <span class="status-slider"></span>
           </label>
         </div>
-        <!-- FIX: Texte statut clair â€” visible seulement par les contacts de CE profil -->
-        <p class="status-label-text" id="status-label-${p.id}">${p.is_online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne"} â€” visible uniquement par vos contacts ${profileLabel(p.profile_type)}</p>
+        <!-- FIX: Texte statut clair — visible seulement par les contacts de CE profil -->
+        <p class="status-label-text" id="status-label-${p.id}">${p.is_online ? "🟢 En ligne" : "⚫ Hors ligne"} — visible uniquement par vos contacts ${profileLabel(p.profile_type)}</p>
         <div class="profil-id-box">
           <span class="profil-id-value" id="profil-id-${p.id}">${escapeHtml(p.id)}</span>
           <button class="icon-btn btn-copy-profile-id" data-pid="${p.id}" title="Copier ID">
@@ -1132,19 +1132,19 @@ function buildProfilScreen() {
         <div class="profil-qr-canvas-wrap">
           <div id="qr-canvas-${p.id}" class="profil-qr-canvas"></div>
           <p class="profil-id-hint">Faites scanner ce QR pour que vos contacts vous trouvent</p>
-          <!-- FIX: Boutons partager et tÃ©lÃ©charger le QR -->
+          <!-- FIX: Boutons partager et télécharger le QR -->
           <div class="qr-share-btns">
             <button class="btn-qr-share" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
               <i class="fa-solid fa-share-nodes"></i> Partager
             </button>
             <button class="btn-qr-download" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
-              <i class="fa-solid fa-download"></i> TÃ©lÃ©charger
+              <i class="fa-solid fa-download"></i> Télécharger
             </button>
           </div>
         </div>
-        <!-- FIX: ParamÃ¨tres visibilitÃ© vidÃ©o par profil -->
+        <!-- FIX: Paramètres visibilité vidéo par profil -->
         <div class="video-visibility-section">
-          <p class="video-visibility-title"><i class="fa-solid fa-film"></i> Qui peut voir mes vidÃ©os (${profileLabel(p.profile_type)}) ?</p>
+          <p class="video-visibility-title"><i class="fa-solid fa-film"></i> Qui peut voir mes vidéos (${profileLabel(p.profile_type)}) ?</p>
           <div class="video-visibility-options">
             <label class="vv-option">
               <input type="radio" name="vv-${p.id}" value="everyone" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"everyone")==="everyone"?"checked":""} />
@@ -1156,14 +1156,14 @@ function buildProfilScreen() {
             </label>
             <label class="vv-option">
               <input type="radio" name="vv-${p.id}" value="nobody" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"")==="nobody"?"checked":""} />
-              <span class="vv-label"><i class="fa-solid fa-lock"></i> Personne (privÃ©)</span>
+              <span class="vv-label"><i class="fa-solid fa-lock"></i> Personne (privé)</span>
             </label>
           </div>
         </div>
       </div>
     `).join("");
 
-    // FIX: GÃ©nÃ©rer les QR codes
+    // FIX: Générer les QR codes
     loadQRLib().then(() => {
       userProfiles.forEach(p => {
         const el = document.getElementById("qr-canvas-" + p.id);
@@ -1187,12 +1187,12 @@ function buildProfilScreen() {
         const id = document.getElementById("profil-id-" + btn.dataset.pid)?.textContent;
         if (!id) return;
         navigator.clipboard?.writeText(id)
-          .then(() => toast("ID copiÃ© !", "success"))
+          .then(() => toast("ID copié !", "success"))
           .catch(() => toast("Impossible de copier", "error"));
       });
     });
 
-    // FIX: Statut en ligne â€” visible seulement par contacts du mÃªme profil
+    // FIX: Statut en ligne — visible seulement par contacts du même profil
     idSection.querySelectorAll(".status-checkbox").forEach(cb => {
       cb.addEventListener("change", async () => {
         const pid = cb.dataset.pid;
@@ -1202,13 +1202,13 @@ function buildProfilScreen() {
           const lbl = document.getElementById("status-label-" + pid);
           const p = userProfiles.find(x => x.id === pid);
           const label = p ? profileLabel(p.profile_type) : "";
-          if (lbl) lbl.textContent = (online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne") + " â€” visible uniquement par vos contacts " + label;
-          toast(online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne", "info");
+          if (lbl) lbl.textContent = (online ? "🟢 En ligne" : "⚫ Hors ligne") + " — visible uniquement par vos contacts " + label;
+          toast(online ? "🟢 En ligne" : "⚫ Hors ligne", "info");
         }
       });
     });
 
-    // FIX: Partager QR code via Web Share API ou tÃ©lÃ©chargement
+    // FIX: Partager QR code via Web Share API ou téléchargement
     idSection.querySelectorAll(".btn-qr-share").forEach(btn => {
       btn.addEventListener("click", async () => {
         const pid  = btn.dataset.pid;
@@ -1221,7 +1221,7 @@ function buildProfilScreen() {
             canvas.toBlob(async blob => {
               if (!blob) { shareTextFallback(id, name); return; }
               const file = new File([blob], "trinite-qr-" + name + ".png", { type: "image/png" });
-              await navigator.share({ title: "Trinite Chat â€” " + name, files: [file], text: "Mon ID Trinite : " + id });
+              await navigator.share({ title: "Trinite Chat — " + name, files: [file], text: "Mon ID Trinite : " + id });
             });
           } catch (_) { shareTextFallback(id, name); }
         } else {
@@ -1231,23 +1231,23 @@ function buildProfilScreen() {
       });
     });
 
-    // FIX: TÃ©lÃ©charger le QR code comme image
+    // FIX: Télécharger le QR code comme image
     idSection.querySelectorAll(".btn-qr-download").forEach(btn => {
       btn.addEventListener("click", () => {
         const pid  = btn.dataset.pid;
         const name = btn.dataset.name;
         const canvas = document.querySelector("#qr-canvas-" + pid + " canvas");
-        if (!canvas) { toast("QR pas encore prÃªt", "error"); return; }
+        if (!canvas) { toast("QR pas encore prêt", "error"); return; }
         const link = document.createElement("a");
         link.download = "trinite-qr-" + name + ".png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-        toast("QR tÃ©lÃ©chargÃ© !", "success");
+        toast("QR téléchargé !", "success");
         haptic(10);
       });
     });
 
-    // FIX: VisibilitÃ© vidÃ©o â€” sauvegarde dans Supabase
+    // FIX: Visibilité vidéo — sauvegarde dans Supabase
     idSection.querySelectorAll(".vv-radio").forEach(radio => {
       radio.addEventListener("change", async () => {
         if (!radio.checked) return;
@@ -1255,9 +1255,9 @@ function buildProfilScreen() {
         const val = radio.value;
         const { error } = await db.from("profiles").update({ video_visibility: val }).eq("id", pid);
         if (!error) {
-          const labels = { everyone: "Tout le monde", contacts: "Contacts seulement", nobody: "Personne (privÃ©)" };
-          toast("VisibilitÃ© vidÃ©o : " + (labels[val] || val), "success");
-          // FIX: Mettre Ã  jour le cache local
+          const labels = { everyone: "Tout le monde", contacts: "Contacts seulement", nobody: "Personne (privé)" };
+          toast("Visibilité vidéo : " + (labels[val] || val), "success");
+          // FIX: Mettre à jour le cache local
           const p = userProfiles.find(x => x.id === pid);
           if (p) p.video_visibility = val;
         }
@@ -1269,11 +1269,11 @@ function buildProfilScreen() {
 // FIX: Fallback partage par texte si image impossible
 function shareTextFallback(id, name) {
   if (navigator.share) {
-    navigator.share({ title: "Trinite Chat â€” " + name, text: "Ajoutez-moi sur Trinite Chat !
+    navigator.share({ title: "Trinite Chat — " + name, text: "Ajoutez-moi sur Trinite Chat !
 Mon ID : " + id });
   } else {
     navigator.clipboard?.writeText(id)
-      .then(() => toast("ID copiÃ© ! Partagez-le Ã  vos contacts.", "success"))
+      .then(() => toast("ID copié ! Partagez-le à vos contacts.", "success"))
       .catch(() => toast("ID : " + id, "info"));
   }
 }
@@ -1292,16 +1292,16 @@ function loadQRLib() {
 
 document.getElementById("btn-copy-id")?.addEventListener("click", () => {
   const idText = document.getElementById("profil-id-text")?.textContent;
-  if (!idText || idText === "â€”") return;
+  if (!idText || idText === "—") return;
   navigator.clipboard?.writeText(idText)
-    .then(() => toast("ID copiÃ© !", "success"))
+    .then(() => toast("ID copié !", "success"))
     .catch(() => toast("Impossible de copier", "error"));
 });
 
 document.getElementById("form-profil")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrementâ€¦'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement…'; }
 
   const inputs = e.target.querySelectorAll("input[data-pid]");
   for (const input of inputs) {
@@ -1315,16 +1315,16 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
   }
 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer'; }
-  toast("Profils mis Ã  jour !", "success");
+  toast("Profils mis à jour !", "success");
   buildSwiper();
   updateHeaderProfile();
 });
 
 // ============================================================
-// AVATAR â€” Photo de profil personnalisable
+// AVATAR — Photo de profil personnalisable
 // ============================================================
 
-// FIX: Cache simple des avatars dans localStorage pour Ã©viter des rechargements inutiles
+// FIX: Cache simple des avatars dans localStorage pour éviter des rechargements inutiles
 const AVATAR_CACHE_KEY = "trinite_avatar_cache";
 function getAvatarCache() {
   try { return JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || "{}"); } catch { return {}; }
@@ -1334,13 +1334,13 @@ function setAvatarCache(url, dataUrl) {
     const cache = getAvatarCache();
     cache[url] = dataUrl;
     localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(cache));
-  } catch (e) { /* quota ignorÃ© silencieusement */ }
+  } catch (e) { /* quota ignoré silencieusement */ }
 }
 function getCachedAvatar(url) {
   return getAvatarCache()[url] || null;
 }
 
-// FIX: Compression image avant upload (max 400x400, qualitÃ© 0.7)
+// FIX: Compression image avant upload (max 400x400, qualité 0.7)
 async function compressAvatar(file) {
   return new Promise((resolve) => {
     const MAX = 400;
@@ -1367,7 +1367,7 @@ async function compressAvatar(file) {
   });
 }
 
-// FIX: Fallback initiales si l'image ne charge pas aprÃ¨s 3 secondes
+// FIX: Fallback initiales si l'image ne charge pas après 3 secondes
 function renderAvatarWithFallback(el, name, avatarUrl) {
   if (!el) return;
   if (!avatarUrl) {
@@ -1375,7 +1375,7 @@ function renderAvatarWithFallback(el, name, avatarUrl) {
     el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
     return;
   }
-  // VÃ©rifier le cache d'abord
+  // Vérifier le cache d'abord
   const cached = getCachedAvatar(avatarUrl);
   if (cached) {
     el.innerHTML = `<img src="${cached}" alt="${escapeHtml(name)}" />`;
@@ -1457,7 +1457,7 @@ async function uploadAvatar(file) {
 
   if (!publicUrl) {
     progressWrap?.classList.add("hidden");
-    toast("Impossible de rÃ©cupÃ©rer l'URL de l'avatar", "error");
+    toast("Impossible de récupérer l'URL de l'avatar", "error");
     return;
   }
 
@@ -1477,7 +1477,7 @@ async function uploadAvatar(file) {
   updateAvatarUI();
   buildSwiper();
   buildStories();
-  toast("Photo de profil mise Ã  jour !", "success");
+  toast("Photo de profil mise à jour !", "success");
   haptic(15);
 }
 
@@ -1501,10 +1501,10 @@ document.getElementById("btn-avatar-remove")?.addEventListener("click", async ()
   updateAvatarUI();
   buildSwiper();
   buildStories();
-  toast("Photo supprimÃ©e", "info");
+  toast("Photo supprimée", "info");
 });
 
-/* Avatar camÃ©ra */
+/* Avatar caméra */
 document.getElementById("btn-avatar-camera")?.addEventListener("click", async () => {
   try {
     avatarCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
@@ -1514,7 +1514,7 @@ document.getElementById("btn-avatar-camera")?.addEventListener("click", async ()
     controls?.classList.remove("hidden");
     haptic(10);
   } catch (err) {
-    toast("CamÃ©ra inaccessible : " + err.message, "error");
+    toast("Caméra inaccessible : " + err.message, "error");
   }
 });
 
@@ -1579,7 +1579,7 @@ function initFab() {
       const idx  = userProfiles.findIndex(p => p.profile_type === type);
       if (idx >= 0) {
         setActiveProfile(idx);
-        toast(`Profil ${profileLabel(type)} activÃ©`, "success");
+        toast(`Profil ${profileLabel(type)} activé`, "success");
       }
       toggleFabMenu(false);
       haptic(15);
@@ -1649,7 +1649,7 @@ function wireFabDrag(fab) {
       toggleFabMenu(true);
     }
     if (!dragging) return;
-    // FIX: EmpÃªcher scroll page pendant drag FAB
+    // FIX: Empêcher scroll page pendant drag FAB
     e.preventDefault();
 
     const tx = e.touches[0].clientX;
@@ -1663,7 +1663,7 @@ function wireFabDrag(fab) {
       const cx   = rect.left + rect.width / 2;
       const cy   = rect.top  + rect.height / 2;
       const dist = Math.sqrt((tx - cx) ** 2 + (ty - cy) ** 2);
-      // FIX: Feedback visuel renforcÃ© sur l'option ciblÃ©e
+      // FIX: Feedback visuel renforcé sur l'option ciblée
       if (dist < 55) {
         btn.style.transform = "scale(1.25)";
         btn.style.boxShadow = "0 0 0 3px #fff, 0 0 24px rgba(255,255,255,0.5)";
@@ -1680,7 +1680,7 @@ function wireFabDrag(fab) {
   fab.addEventListener("touchend", () => {
     if (!dragging) return;
     dragging = false;
-    // FIX: RÃ©initialiser tous les styles inline des options
+    // FIX: Réinitialiser tous les styles inline des options
     document.querySelectorAll(".fab-option").forEach(b => {
       b.style.transform = "";
       b.style.boxShadow = "";
@@ -1718,7 +1718,7 @@ function wireBottomNav() {
       if (target === "screen-feed") {
         playCurrentFeedVideo();
       } else if (target === "screen-hub") {
-        // Forcer la rÃ©initialisation du Hub
+        // Forcer la réinitialisation du Hub
         setTimeout(() => {
           if (typeof window.refreshHub === 'function') window.refreshHub();
         }, 50);
@@ -1730,7 +1730,7 @@ function wireBottomNav() {
 }
 
 // ============================================================
-// CHAT TEMPS RÃ‰EL
+// CHAT TEMPS RÉEL
 // ============================================================
 
 function openChat(contact, myProfile) {
@@ -1749,7 +1749,7 @@ function openChat(contact, myProfile) {
   }
 
   showScreen("screen-chat");
-// ===== ACCUSÃ‰S DE LECTURE + INDICATEUR DE FRAPPE =====
+// ===== ACCUSÉS DE LECTURE + INDICATEUR DE FRAPPE =====
 const markAsRead = async () => {
   if (!chatContact.contact_profile_id) return;
   const { error } = await db
@@ -1836,7 +1836,7 @@ async function loadMessages() {
   if (!contactPid) {
     const hint = document.createElement("div");
     hint.style.cssText = "text-align:center;font-size:0.75rem;color:var(--text-muted);padding:0.5rem 1rem;";
-    hint.textContent = "â„¹ï¸ Ajoutez l'ID Trinite du contact pour voir les messages reÃ§us.";
+    hint.textContent = "ℹ️ Ajoutez l'ID Trinite du contact pour voir les messages reçus.";
     container.insertBefore(hint, container.firstChild);
   }
 }
@@ -1934,7 +1934,7 @@ async function sendMessage() {
 
   if (!isOnline) {
     await saveToOfflineQueue(payload);
-    toast("Message en attente (hors-ligne) ðŸ•", "info");
+    toast("Message en attente (hors-ligne) 🕐", "info");
     // Afficher le message localement avec badge "en attente"
     appendPendingMessage(content);
     return;
@@ -2000,7 +2000,7 @@ async function toggleVoiceRecording() {
       if (voiceChunks.length === 0 || !chatContact || !chatMyProfile) return;
 
       const durationSec = Math.max(1, Math.round(voiceChunks.length / 3));
-      const transcript  = `ðŸŽ¤ Message vocal (${durationSec}s)`;
+      const transcript  = `🎤 Message vocal (${durationSec}s)`;
 
       const contactPid = chatContact.contact_profile_id || null;
       const { error } = await db.from("messages").insert({
@@ -2015,7 +2015,7 @@ async function toggleVoiceRecording() {
     mediaRecorder.start(100);
     isRecording = true;
     btn.classList.add("recording");
-    btn.title = "ArrÃªter l'enregistrement";
+    btn.title = "Arrêter l'enregistrement";
     btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
     haptic(15);
 
@@ -2054,21 +2054,21 @@ async function buildFeed() {
           comments:     Math.floor(Math.random() * 50),
           isDemo:       false,
           profile_id:   activeProfile?.id,
-          // FIX: visibilitÃ© selon paramÃ¨tre du profil
+          // FIX: visibilité selon paramètre du profil
           visibility:   activeProfile?.video_visibility || "everyone"
         };
       }).filter(v => v.url);
       videos = [...userVids, ...videos];
     }
 
-    // FIX: Charger aussi les vidÃ©os des autres utilisateurs selon LEUR paramÃ¨tre de visibilitÃ©
-    // everyone = visible Ã  tous | contacts = visible seulement si contact | nobody = masquÃ©
+    // FIX: Charger aussi les vidéos des autres utilisateurs selon LEUR paramètre de visibilité
+    // everyone = visible à tous | contacts = visible seulement si contact | nobody = masqué
     const { data: allProfiles } = await db.from("profiles")
       .select("id, user_id, video_visibility")
       .neq("user_id", currentUser?.id || "")
       .eq("video_visibility", "everyone"); // FIX: seulement ceux qui ont choisi "tout le monde"
 
-    // (Les vidÃ©os "contacts" seront filtrÃ©es plus bas quand on aura les contacts)
+    // (Les vidéos "contacts" seront filtrées plus bas quand on aura les contacts)
   } catch (_) {}
 
   videos.forEach(v => {
@@ -2081,7 +2081,7 @@ async function buildFeed() {
     item.innerHTML = `
       <video class="feed-video" src="${escapeHtml(v.url)}" loop playsinline preload="none" ${feedSoundEnabled ? "" : "muted"}></video>
       <div class="feed-item-gradient"></div>
-      ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÃ‰OS</div>'}
+      ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÉOS</div>'}
       <div class="feed-item-info">
         <div class="feed-author">${escapeHtml(v.author)}</div>
         <div class="feed-desc">${escapeHtml(v.desc)}</div>
@@ -2124,11 +2124,11 @@ document.getElementById("btn-feed-sound")?.addEventListener("click", () => {
     v.muted = !feedSoundEnabled;
   });
   haptic(10);
-  toast(feedSoundEnabled ? "Son activÃ© ðŸ”Š" : "Son coupÃ© ðŸ”‡", "info");
+  toast(feedSoundEnabled ? "Son activé 🔊" : "Son coupé 🔇", "info");
 });
 
 // ============================================================
-// FEED â€” Interactions
+// FEED — Interactions
 // ============================================================
 
 function wireFeedItem(item, video, index) {
@@ -2169,7 +2169,7 @@ function wireFeedItem(item, video, index) {
     if (navigator.share) {
       navigator.share({ title: "Trinite Chat", text: video.desc, url: location.href });
     } else {
-      toast("Lien copiÃ© !", "success");
+      toast("Lien copié !", "success");
     }
   });
 
@@ -2214,7 +2214,7 @@ function toggleLike(videoId, item) {
 function showHeartAnimation(item) {
   const heart = document.createElement("div");
   heart.className = "heart-anim";
-  heart.textContent = "â¤ï¸";
+  heart.textContent = "❤️";
   item.appendChild(heart);
   setTimeout(() => heart.remove(), 750);
 }
@@ -2252,7 +2252,7 @@ function openChatFromFeed(item) {
   if (item) {
     const hint = document.createElement("div");
     hint.className = "swipe-hint";
-    hint.textContent = "ðŸ’¬ Ouverture du chatâ€¦";
+    hint.textContent = "💬 Ouverture du chat…";
     item.appendChild(hint);
     setTimeout(() => hint.remove(), 900);
   }
@@ -2269,7 +2269,7 @@ function openChatFromFeed(item) {
 }
 
 // ============================================================
-// FEED â€” AutoPlay IntersectionObserver
+// FEED — AutoPlay IntersectionObserver
 // ============================================================
 
 let feedObserver = null;
@@ -2349,7 +2349,7 @@ btnCameraStart?.addEventListener("click", async () => {
     studioFile = null; studioBlob = null;
     haptic(10);
   } catch (err) {
-    toast("CamÃ©ra inaccessible : " + err.message, "error");
+    toast("Caméra inaccessible : " + err.message, "error");
   }
 });
 
@@ -2385,7 +2385,7 @@ btnTakePhoto?.addEventListener("click", () => {
     videoPreview.classList.add("hidden");
     placeholder?.classList.add("hidden");
     stopCamera();
-    showUploadSection(`ðŸ“· Photo â€” ${(blob.size / 1024).toFixed(0)} Ko`);
+    showUploadSection(`📷 Photo — ${(blob.size / 1024).toFixed(0)} Ko`);
     haptic(15);
   }, "image/jpeg", 0.88);
 });
@@ -2408,7 +2408,7 @@ fileInput?.addEventListener("change", e => {
   cameraPreview.classList.add("hidden");
   placeholder?.classList.add("hidden");
   stopCamera();
-  showUploadSection(`ðŸ“ ${file.name} â€” ${(file.size / (1024*1024)).toFixed(2)} Mo`);
+  showUploadSection(`📁 ${file.name} — ${(file.size / (1024*1024)).toFixed(2)} Mo`);
   e.target.value = "";
 });
 
@@ -2418,18 +2418,18 @@ function showUploadSection(info) {
 }
 
 btnUpload?.addEventListener("click", async () => {
-  const desc    = document.getElementById("studio-desc")?.value.trim() || "VidÃ©o Trinite Chat";
+  const desc    = document.getElementById("studio-desc")?.value.trim() || "Vidéo Trinite Chat";
   const fileObj = studioBlob
     ? new File([studioBlob], studioFileName, { type: "image/jpeg" })
     : studioFile;
 
-  if (!fileObj) { toast("Aucun fichier Ã  publier", "error"); return; }
+  if (!fileObj) { toast("Aucun fichier à publier", "error"); return; }
   if (!currentUser) { toast("Connectez-vous d'abord", "error"); return; }
 
   const progressWrap = document.getElementById("studio-upload-progress");
   const progressBar  = document.getElementById("studio-progress-bar");
   btnUpload.disabled = true;
-  btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicationâ€¦';
+  btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publication…';
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "10%";
 
@@ -2456,7 +2456,7 @@ btnUpload?.addEventListener("click", async () => {
   if (error) { toast("Erreur upload : " + error.message, "error"); return; }
 
   if (progressBar) progressBar.style.width = "100%";
-  toast("PubliÃ© dans le Feed âœ“", "success");
+  toast("Publié dans le Feed ✓", "success");
   haptic(20);
 
   studioFile = null; studioBlob = null; studioFileName = null;
@@ -2485,8 +2485,8 @@ let isOnline = navigator.onLine;
     dot?.classList.toggle("offline", !isOnline);
     btn?.classList.toggle("offline-mode", !isOnline);
     if (notify === true) {
-      if (!isOnline) toast("Mode hors-ligne activÃ©", "info");
-      else { toast("Connexion rÃ©tablie âœ“", "success"); syncOfflineQueue(); }
+      if (!isOnline) toast("Mode hors-ligne activé", "info");
+      else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
     }
   }
 
@@ -2494,7 +2494,7 @@ let isOnline = navigator.onLine;
   window.addEventListener("offline", () => updateStatus(true));
   updateStatus(false);
 
-  // Bouton toujours visible sauf sur auth/setup â€” polling simple
+  // Bouton toujours visible sauf sur auth/setup — polling simple
   function showOfflineBtn() {
     if (!btn) return;
     const active = document.querySelector(".screen.active");
@@ -2503,16 +2503,19 @@ let isOnline = navigator.onLine;
     btn.style.display = hide ? "none" : "flex";
   }
 
-  // VÃ©rifier toutes les 500ms â€” simple et fiable
+  // Vérifier toutes les 500ms — simple et fiable
   setInterval(showOfflineBtn, 500);
   showOfflineBtn();
 
   btn?.addEventListener("click", () => {
-    window.open("./offline-hub.html", "_blank");
+    showScreen("screen-hub");
+    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll('[data-screen="screen-hub"]').forEach(b => b.classList.add("active"));
+    if (typeof window.refreshHub === 'function') window.refreshHub();
   });
 })();
 
-// IndexedDB â€” file d'attente messages offline
+// IndexedDB — file d'attente messages offline
 const IDB_NAME    = "trinite-offline";
 const IDB_STORE   = "msg-queue";
 let   idb         = null;
@@ -2556,11 +2559,11 @@ async function syncOfflineQueue() {
     });
     if (!error) { store.delete(item.id); sent++; }
   }
-  if (sent) toast(`${sent} message(s) synchronisÃ©(s) âœ“`, "success");
+  if (sent) toast(`${sent} message(s) synchronisé(s) ✓`, "success");
 }
 
 // ============================================================
-// DÃ‰MARRAGE
+// DÉMARRAGE
 // ============================================================
 initAuth();
 
@@ -2570,6 +2573,7 @@ initAuth();
 // ============================================================
 
 window.initHub = function() {
+  // Attendre que l'écran Hub soit chargé
   const hubScreen = document.getElementById("screen-hub");
   if (!hubScreen) return;
 
@@ -2579,10 +2583,7 @@ window.initHub = function() {
   const CELL = 20;
   const COLS = 15;
   const ROWS = 15;
-  let snake, snakeDir, snakeNextDir, snakeFood, snakeScore, snakeBest;
-  // ExposÃ© sur window pour stopHubSnake
-  window._hubSnakeLoop = null;
-  window._hubSnakeRunning = false;
+  let snake, snakeDir, snakeNextDir, snakeFood, snakeScore, snakeBest, snakeLoop, snakeRunning;
 
   function initHubSnake() {
     snake = [{ x: 7, y: 7 }, { x: 6, y: 7 }, { x: 5, y: 7 }];
@@ -2612,7 +2613,7 @@ window.initHub = function() {
     snakeCtx.font = "16px serif";
     snakeCtx.textAlign = "center";
     snakeCtx.textBaseline = "middle";
-    snakeCtx.fillText("ðŸŽ", snakeFood.x * CELL + CELL/2, snakeFood.y * CELL + CELL/2);
+    snakeCtx.fillText("🍎", snakeFood.x * CELL + CELL/2, snakeFood.y * CELL + CELL/2);
     // Snake
     snake.forEach((seg, i) => {
       const ratio = 1 - i / snake.length;
@@ -2643,9 +2644,8 @@ window.initHub = function() {
   }
 
   function hubGameOver() {
-    clearInterval(window._hubSnakeLoop);
-    window._hubSnakeLoop = null;
-    window._hubSnakeRunning = false;
+    clearInterval(snakeLoop);
+    snakeRunning = false;
     drawHubSnake();
     if (snakeCtx) {
       snakeCtx.fillStyle = "rgba(0,0,0,0.6)";
@@ -2659,11 +2659,11 @@ window.initHub = function() {
   }
 
   function startHubSnake() {
-    if (window._hubSnakeRunning) return;
+    if (snakeRunning) return;
     initHubSnake();
-    window._hubSnakeRunning = true;
-    clearInterval(window._hubSnakeLoop);
-    window._hubSnakeLoop = setInterval(stepHubSnake, 150);
+    snakeRunning = true;
+    clearInterval(snakeLoop);
+    snakeLoop = setInterval(stepHubSnake, 150);
     document.getElementById("hub-snake-start").textContent = "En cours...";
   }
 
@@ -2681,8 +2681,8 @@ window.initHub = function() {
   initHubSnake();
 
   // ========== CASINO ==========
-  const SYMBOLS = ["ðŸ’", "â­", "ðŸ‹", "ðŸŠ", "7ï¸âƒ£", "ðŸ’Ž", "ðŸŽ°"];
-  const PAYTABLE = { "ðŸ’ŽðŸ’ŽðŸ’Ž": 50, "7ï¸âƒ£7ï¸âƒ£7ï¸âƒ£": 20, "ðŸ’ðŸ’ðŸ’": 10, "â­â­â­": 5 };
+  const SYMBOLS = ["🍒", "⭐", "🍋", "🍊", "7️⃣", "💎", "🎰"];
+  const PAYTABLE = { "💎💎💎": 50, "7️⃣7️⃣7️⃣": 20, "🍒🍒🍒": 10, "⭐⭐⭐": 5 };
   let casinoTokens = parseInt(localStorage.getItem("hub-casino-tokens") || "500");
   let casinoSpinning = false;
 
@@ -2692,7 +2692,7 @@ window.initHub = function() {
     casinoTokens = 500;
     localStorage.setItem("hub-casino-tokens", casinoTokens);
     document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-    document.getElementById("hub-casino-result").textContent = "Jetons rechargÃ©s !";
+    document.getElementById("hub-casino-result").textContent = "Jetons rechargés !";
   });
 
   document.getElementById("hub-casino-spin")?.addEventListener("click", async () => {
@@ -2722,12 +2722,12 @@ window.initHub = function() {
     let resultTxt = "";
     if (PAYTABLE[key]) {
       win = bet * PAYTABLE[key];
-      resultTxt = `ðŸŽ‰ Jackpot ! +${win} jetons`;
+      resultTxt = `🎉 Jackpot ! +${win} jetons`;
     } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
       win = bet * 2;
-      resultTxt = `âœ“ Deux identiques ! +${win} jetons`;
+      resultTxt = `✓ Deux identiques ! +${win} jetons`;
     } else {
-      resultTxt = `Perduâ€¦ -${bet} jetons`;
+      resultTxt = `Perdu… -${bet} jetons`;
     }
     casinoTokens += win;
     localStorage.setItem("hub-casino-tokens", casinoTokens);
@@ -2764,14 +2764,14 @@ window.initHub = function() {
         <div style="display:flex; gap:0.5rem;">
           <button class="paris-bet-btn" data-match="${m.id}" data-pick="1" data-odds="${m.odds1}" ${existingBet ? 'disabled' : ''}
             style="flex:1; background:${existingBet?.pick === 1 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team1}<br><strong>${m.odds1}Ã—</strong>
+            ${m.team1}<br><strong>${m.odds1}×</strong>
           </button>
           <button class="paris-bet-btn" data-match="${m.id}" data-pick="2" data-odds="${m.odds2}" ${existingBet ? 'disabled' : ''}
             style="flex:1; background:${existingBet?.pick === 2 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team2}<br><strong>${m.odds2}Ã—</strong>
+            ${m.team2}<br><strong>${m.odds2}×</strong>
           </button>
         </div>
-        ${existingBet ? `<div style="margin-top:0.5rem; font-size:0.7rem; color:#f59e0b;">Pari: ${existingBet.amount} jetons <button class="resolve-bet" data-match="${m.id}" style="margin-left:0.5rem; background:var(--primary); border:none; border-radius:8px; padding:0.2rem 0.5rem; color:#fff;">RÃ©soudre</button></div>` :
+        ${existingBet ? `<div style="margin-top:0.5rem; font-size:0.7rem; color:#f59e0b;">Pari: ${existingBet.amount} jetons <button class="resolve-bet" data-match="${m.id}" style="margin-left:0.5rem; background:var(--primary); border:none; border-radius:8px; padding:0.2rem 0.5rem; color:#fff;">Résoudre</button></div>` :
           `<div style="margin-top:0.5rem;"><input type="number" id="mise-${m.id}" placeholder="Mise" value="50" min="10" max="${parisTokens}" style="width:70px; background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:0.2rem 0.4rem; color:var(--text);"></div>`}
       `;
       container.appendChild(card);
@@ -2848,7 +2848,7 @@ window.initHub = function() {
 // Lance le Hub au chargement
 window.initHub();
 
-// RafraÃ®chir le Hub Ã  chaque affichage
+// Rafraîchir le Hub à chaque affichage
 window.refreshHub = function() {
   const casinoSpan = document.getElementById("hub-casino-tokens");
   if (casinoSpan) casinoSpan.textContent = localStorage.getItem("hub-casino-tokens") || "500";
