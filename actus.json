@@ -1,6 +1,33 @@
 {
-  "tech": [],
-  "mode": [],
-  "sport": [],
-  "derniereMiseAJour": "2026-06-12T19:34:19.268Z"
+  "tech": [
+    {
+      "titre": "Actus tech bient?t disponibles",
+      "description": "Le chargement des actualit?s sera op?rationnel sous peu.",
+      "lien": "#",
+      "image": "",
+      "date": "2026-06-12T19:41:26.867Z",
+      "source": "Trinite"
+    }
+  ],
+  "mode": [
+    {
+      "titre": "Actus mode bient?t disponibles",
+      "description": "Le chargement des actualit?s mode sera op?rationnel sous peu.",
+      "lien": "#",
+      "image": "",
+      "date": "2026-06-12T19:41:26.867Z",
+      "source": "Trinite"
+    }
+  ],
+  "sport": [
+    {
+      "titre": "Actus sport bient?t disponibles",
+      "description": "Le chargement des actualit?s sport sera op?rationnel sous peu.",
+      "lien": "#",
+      "image": "",
+      "date": "2026-06-12T19:41:26.867Z",
+      "source": "Trinite"
+    }
+  ],
+  "derniereMiseAJour": "2026-06-12T19:41:26.759Z"
 }
