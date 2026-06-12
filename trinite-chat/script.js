@@ -2838,3 +2838,480 @@ window.refreshHub = function() {
     window._hubRenderParisHistory();
   }
 };
+
+/* ===================================================
+   HUB REORG — NEW LOGIC (2026)
+   =================================================== */
+
+(function initHubReorg() {
+  'use strict';
+
+  /* ---- Tab Navigation ---- */
+  function switchHubTab(tabId) {
+    document.querySelectorAll('.hub-tab-btn').forEach(function(b) {
+      b.classList.toggle('active', b.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.hub-tab-pane').forEach(function(p) {
+      p.classList.toggle('active', p.id === tabId);
+    });
+    if (typeof haptic === 'function') haptic(6);
+  }
+
+  document.querySelectorAll('.hub-tab-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { switchHubTab(btn.dataset.tab); });
+  });
+
+  /* ---- P2P Scan Simulation ---- */
+  var FAKE_DEVICES = [
+    { name: 'Amine T.',   emoji: '🧑', dist: '12m',  signal: '▂▄▆▊' },
+    { name: 'Sofia K.',   emoji: '👩', dist: '28m',  signal: '▂▄▆'  },
+    { name: 'Yacine M.',  emoji: '👨‍💻', dist: '45m',  signal: '▂▄'   },
+  ];
+  var FAKE_REPLIES = [
+    'Salut !', "T'es là ?", 'Ça va ?', 'On se voit ce soir ?',
+    '👋', '🔥', 'Nickel !', 'OK chef !', 'Ptdr 😂', 'RDV dans 10 min',
+    'Je suis en bas ⬇️', 'Attends-moi !', 'Top !', '❤️'
+  ];
+
+  var p2pConnectedDevice = null;
+  var p2pMsgInterval    = null;
+
+  var scanBtn      = document.getElementById('btn-p2p-scan');
+  var devicesList  = document.getElementById('p2p-devices-list');
+  var emptyEl      = document.getElementById('p2p-empty');
+  var chatZone     = document.getElementById('p2p-chat-zone');
+  var messagesEl   = document.getElementById('p2p-messages');
+  var connectedName= document.getElementById('p2p-connected-name');
+  var statusBadge  = document.getElementById('p2p-status-badge');
+  var msgInput     = document.getElementById('p2p-msg-input');
+  var sendBtn      = document.getElementById('btn-p2p-send');
+
+  if (scanBtn) {
+    scanBtn.addEventListener('click', function() {
+      scanBtn.disabled = true;
+      scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scan en cours…';
+      setTimeout(function() {
+        scanBtn.disabled = false;
+        scanBtn.innerHTML = '<i class="fa-solid fa-satellite-dish" id="p2p-scan-icon"></i> Scanner les environs';
+        devicesList && devicesList.querySelectorAll('.p2p-device-item').forEach(function(e) { e.remove(); });
+        if (emptyEl) emptyEl.style.display = 'none';
+        FAKE_DEVICES.forEach(function(dev, i) {
+          setTimeout(function() {
+            var item = document.createElement('div');
+            item.className = 'p2p-device-item';
+            item.innerHTML =
+              '<div class="p2p-device-avatar">' + dev.emoji + '</div>' +
+              '<div class="p2p-device-info">' +
+                '<div class="p2p-device-name">' + dev.name + '</div>' +
+                '<div class="p2p-device-dist">' + dev.dist + ' de distance</div>' +
+              '</div>' +
+              '<div class="p2p-device-signal">' + dev.signal + '</div>';
+            item.addEventListener('click', function() { connectP2P(dev, item); });
+            devicesList && devicesList.appendChild(item);
+          }, i * 400);
+        });
+        if (statusBadge) {
+          statusBadge.textContent = FAKE_DEVICES.length + ' appareils';
+          statusBadge.classList.add('visible');
+        }
+      }, 2000);
+    });
+  }
+
+  function connectP2P(dev, itemEl) {
+    devicesList && devicesList.querySelectorAll('.p2p-device-item').forEach(function(e) {
+      e.style.opacity = (e === itemEl) ? '1' : '0.4';
+    });
+    p2pConnectedDevice = dev;
+    if (connectedName) connectedName.textContent = dev.name;
+    if (chatZone) chatZone.classList.remove('hidden');
+    if (messagesEl) messagesEl.innerHTML = '';
+    addP2PBubble('received', 'Salut ! Je suis à portée 👋');
+    clearInterval(p2pMsgInterval);
+    p2pMsgInterval = setInterval(function() {
+      if (Math.random() < 0.45) {
+        addP2PBubble('received', FAKE_REPLIES[Math.floor(Math.random() * FAKE_REPLIES.length)]);
+      }
+    }, 7000);
+  }
+
+  function addP2PBubble(type, text) {
+    if (!messagesEl) return;
+    var b = document.createElement('div');
+    b.className = 'p2p-bubble ' + type;
+    b.textContent = text;
+    messagesEl.appendChild(b);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  function sendP2PMessage() {
+    if (!msgInput || !msgInput.value.trim()) return;
+    addP2PBubble('sent', msgInput.value.trim());
+    var sent = msgInput.value.trim();
+    msgInput.value = '';
+    setTimeout(function() {
+      addP2PBubble('received', FAKE_REPLIES[Math.floor(Math.random() * FAKE_REPLIES.length)]);
+    }, 800 + Math.random() * 1400);
+  }
+
+  if (sendBtn) sendBtn.addEventListener('click', sendP2PMessage);
+  if (msgInput) {
+    msgInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendP2PMessage(); });
+  }
+
+  /* ---- Casino (machine à sous) ---- */
+  var CASINO_SYMBOLS = ['🍒','🍋','🍊','🍇','💎','⭐','7️⃣','🎰'];
+  var CASINO_MULT    = { '💎':10, '7️⃣':7, '⭐':5, '🍇':3, '🍊':2, '🍋':1.5, '🍒':1.3, '🎰':1 };
+
+  var casinoTokens   = parseInt(localStorage.getItem('hub_casino_tokens') || '500', 10);
+  var spinBtn2       = document.getElementById('hub-casino-spin');
+  var resetBtn2      = document.getElementById('hub-casino-reset');
+  var resultEl2      = document.getElementById('hub-casino-result');
+  var reels2         = [
+    document.getElementById('hub-reel-0'),
+    document.getElementById('hub-reel-1'),
+    document.getElementById('hub-reel-2'),
+  ];
+
+  function updateCasinoTokens(val) {
+    casinoTokens = Math.max(0, val);
+    localStorage.setItem('hub_casino_tokens', casinoTokens);
+    var el = document.getElementById('hub-casino-tokens');
+    if (el) el.textContent = casinoTokens;
+  }
+  updateCasinoTokens(casinoTokens);
+
+  if (resetBtn2) {
+    resetBtn2.addEventListener('click', function() {
+      updateCasinoTokens(500);
+      if (resultEl2) resultEl2.textContent = '🎁 Rechargé !';
+    });
+  }
+
+  if (spinBtn2) {
+    spinBtn2.addEventListener('click', function() {
+      var betSel = document.getElementById('hub-casino-bet');
+      var bet    = parseInt(betSel ? betSel.value : '50', 10);
+      if (casinoTokens < bet) {
+        if (resultEl2) resultEl2.textContent = '❌ Jetons insuffisants !';
+        return;
+      }
+      updateCasinoTokens(casinoTokens - bet);
+      spinBtn2.disabled = true;
+      if (resultEl2) resultEl2.textContent = '';
+      reels2.forEach(function(r) { if (r) r.classList.add('spinning'); });
+
+      var elapsed = 0;
+      var iv = setInterval(function() {
+        reels2.forEach(function(r) {
+          if (r) r.textContent = CASINO_SYMBOLS[Math.floor(Math.random() * CASINO_SYMBOLS.length)];
+        });
+        elapsed += 100;
+        if (elapsed >= 1500) {
+          clearInterval(iv);
+          reels2.forEach(function(r) { if (r) r.classList.remove('spinning'); });
+          spinBtn2.disabled = false;
+          var result = reels2.map(function(r) { return r ? r.textContent : '🎰'; });
+          if (result[0] === result[1] && result[1] === result[2]) {
+            var mult = CASINO_MULT[result[0]] || 2;
+            var win  = Math.round(bet * mult * 3);
+            updateCasinoTokens(casinoTokens + win);
+            if (resultEl2) resultEl2.textContent = '🎉 JACKPOT ! +' + win + ' jetons !';
+          } else if (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) {
+            var win2 = Math.round(bet * 1.5);
+            updateCasinoTokens(casinoTokens + win2);
+            if (resultEl2) resultEl2.textContent = '✨ Paire ! +' + win2 + ' jetons';
+          } else {
+            if (resultEl2) resultEl2.textContent = '😔 Perdu ! -' + bet + ' jetons';
+          }
+        }
+      }, 100);
+    });
+  }
+
+  /* ---- Snake (hub) ---- */
+  var snakeCanvas2   = document.getElementById('hub-snake-canvas');
+  var snakeStartBtn2 = document.getElementById('hub-snake-start');
+  var snakeScoreEl2  = document.getElementById('hub-snake-score');
+  var snakeBestEl2   = document.getElementById('hub-snake-best');
+  var dirBtns2       = document.querySelectorAll('.snake-dir-btn');
+  var snakeGame2     = null;
+  var snakeBest2     = parseInt(localStorage.getItem('hub_snake_best2') || '0', 10);
+  if (snakeBestEl2) snakeBestEl2.textContent = snakeBest2;
+
+  function startHubSnake2() {
+    if (!snakeCanvas2) return;
+    var ctx   = snakeCanvas2.getContext('2d');
+    var GRID  = 20;
+    var COLS  = Math.floor(snakeCanvas2.width / GRID);
+    var ROWS  = Math.floor(snakeCanvas2.height / GRID);
+    var snake = [{ x: Math.floor(COLS/2), y: Math.floor(ROWS/2) }];
+    var dir   = { x: 1, y: 0 };
+    var nextD = { x: 1, y: 0 };
+    var score = 0;
+    var running2 = true;
+    var loop2;
+
+    function rnd(max) { return Math.floor(Math.random() * max); }
+    function placeFood() {
+      var pos;
+      do { pos = { x: rnd(COLS), y: rnd(ROWS) }; }
+      while (snake.some(function(s) { return s.x === pos.x && s.y === pos.y; }));
+      return pos;
+    }
+    var food = placeFood();
+
+    function draw2() {
+      ctx.fillStyle = '#0a0a18';
+      ctx.fillRect(0, 0, snakeCanvas2.width, snakeCanvas2.height);
+      ctx.font = (GRID - 2) + 'px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🍎', food.x * GRID + GRID/2, food.y * GRID + GRID/2);
+      snake.forEach(function(seg, i) {
+        ctx.fillStyle = (i === 0) ? '#8b5cf6' : 'rgba(139,92,246,0.65)';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(seg.x*GRID+1, seg.y*GRID+1, GRID-2, GRID-2, 4);
+        } else {
+          ctx.rect(seg.x*GRID+1, seg.y*GRID+1, GRID-2, GRID-2);
+        }
+        ctx.fill();
+      });
+      ctx.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx.font = '11px Inter, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText('Score: ' + score, 8, 8);
+    }
+
+    function step2() {
+      if (!running2) return;
+      dir = { x: nextD.x, y: nextD.y };
+      var head = { x: (snake[0].x + dir.x + COLS) % COLS, y: (snake[0].y + dir.y + ROWS) % ROWS };
+      if (snake.some(function(s) { return s.x === head.x && s.y === head.y; })) {
+        running2 = false;
+        clearInterval(loop2);
+        ctx.fillStyle = 'rgba(0,0,0,0.62)';
+        ctx.fillRect(0, 0, snakeCanvas2.width, snakeCanvas2.height);
+        ctx.fillStyle = 'white';
+        ctx.font = 'bold 18px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Game Over', snakeCanvas2.width/2, snakeCanvas2.height/2 - 12);
+        ctx.font = '13px Inter, sans-serif';
+        ctx.fillText('Score : ' + score, snakeCanvas2.width/2, snakeCanvas2.height/2 + 12);
+        if (score > snakeBest2) {
+          snakeBest2 = score;
+          localStorage.setItem('hub_snake_best2', snakeBest2);
+          if (snakeBestEl2) snakeBestEl2.textContent = snakeBest2;
+        }
+        if (snakeStartBtn2) snakeStartBtn2.textContent = 'Rejouer';
+        snakeGame2 = null;
+        return;
+      }
+      snake.unshift(head);
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        if (snakeScoreEl2) snakeScoreEl2.textContent = score;
+        food = placeFood();
+      } else {
+        snake.pop();
+      }
+      draw2();
+    }
+
+    draw2();
+    loop2 = setInterval(step2, 130);
+    if (snakeStartBtn2) snakeStartBtn2.textContent = 'Arrêter';
+
+    snakeGame2 = {
+      stop: function() { running2 = false; clearInterval(loop2); snakeGame2 = null; },
+      setDir: function(dx, dy) {
+        if (snake.length > 1 && dx === -dir.x && dy === -dir.y) return;
+        nextD = { x: dx, y: dy };
+      }
+    };
+  }
+
+  if (snakeStartBtn2) {
+    snakeStartBtn2.addEventListener('click', function() {
+      if (snakeGame2) { snakeGame2.stop(); snakeStartBtn2.textContent = 'Jouer'; return; }
+      startHubSnake2();
+    });
+  }
+
+  dirBtns2.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      if (!snakeGame2) return;
+      var map = { UP:[0,-1], DOWN:[0,1], LEFT:[-1,0], RIGHT:[1,0] };
+      var d = map[btn.dataset.dir];
+      if (d) snakeGame2.setDir(d[0], d[1]);
+    });
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (!snakeGame2) return;
+    var map = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0] };
+    var d = map[e.key];
+    if (d) { e.preventDefault(); snakeGame2.setDir(d[0], d[1]); }
+  });
+
+  /* ---- Paris Sportifs (hub) ---- */
+  var PARIS_DATA = [
+    { id:'pm1', home:'France',    away:'Espagne',   ho:2.1, do:3.2, ao:3.5 },
+    { id:'pm2', home:'Brésil',    away:'Argentine', ho:2.4, do:3.0, ao:2.8 },
+    { id:'pm3', home:'Allemagne', away:'Portugal',  ho:1.9, do:3.4, ao:4.0 },
+  ];
+  var parisTokens2  = parseInt(localStorage.getItem('hub_paris_tokens2') || '500', 10);
+  var parisHistory2 = JSON.parse(localStorage.getItem('hub_paris_history2') || '[]');
+
+  function updateParisTokens2(val) {
+    parisTokens2 = Math.max(0, val);
+    localStorage.setItem('hub_paris_tokens2', parisTokens2);
+    var el = document.getElementById('hub-paris-tokens');
+    if (el) el.textContent = parisTokens2;
+  }
+  updateParisTokens2(parisTokens2);
+
+  function renderParisHistory2() {
+    var el = document.getElementById('hub-paris-history');
+    if (!el) return;
+    if (!parisHistory2.length) { el.innerHTML = '<span style="color:var(--text-muted)">Aucun pari</span>'; return; }
+    el.innerHTML = parisHistory2.slice(-5).reverse().map(function(h) {
+      return '<div style="padding:0.2rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">' +
+        '<span>' + h.match + ' — ' + (h.bet==='H'?'Dom.':h.bet==='D'?'Nul':'Ext.') + '</span>' +
+        '<span style="color:' + (h.win>=0?'#22c55e':'#ef4444') + '">' + (h.win>=0?'+':'') + h.win + 'j</span>' +
+      '</div>';
+    }).join('');
+  }
+
+  function renderParisMatches2() {
+    var container = document.getElementById('hub-paris-matches');
+    if (!container) return;
+    container.innerHTML = PARIS_DATA.map(function(m) {
+      return '<div class="glass-card" style="padding:0.6rem;border-radius:12px">' +
+        '<div style="display:flex;justify-content:space-between;font-size:0.78rem;font-weight:700;margin-bottom:0.4rem">' +
+          '<span>' + m.home + '</span><span style="color:var(--text-muted);font-weight:400">VS</span><span>' + m.away + '</span>' +
+        '</div>' +
+        '<div style="display:flex;gap:0.3rem">' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'H\',' + m.ho + ')" class="paris-bet-btn">Dom. ×' + m.ho + '</button>' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'D\',' + m.do + ')" class="paris-bet-btn" style="background:rgba(99,102,241,0.15)">Nul ×' + m.do + '</button>' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'A\',' + m.ao + ')" class="paris-bet-btn" style="background:rgba(236,72,153,0.15)">Ext. ×' + m.ao + '</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  window.parisPlaceBet = function(matchId, bet, odds) {
+    var stake = 50;
+    if (parisTokens2 < stake) { alert('Jetons insuffisants !'); return; }
+    var match = PARIS_DATA.find(function(m) { return m.id === matchId; });
+    if (!match) return;
+    updateParisTokens2(parisTokens2 - stake);
+    var won = Math.random() < (1 / odds) * 0.95;
+    var winAmt = won ? Math.round(stake * odds) - stake : -stake;
+    updateParisTokens2(parisTokens2 + (won ? Math.round(stake * odds) : 0));
+    parisHistory2.push({ match: match.home + ' VS ' + match.away, bet: bet, win: winAmt });
+    if (parisHistory2.length > 20) parisHistory2.shift();
+    localStorage.setItem('hub_paris_history2', JSON.stringify(parisHistory2));
+    renderParisHistory2();
+    var msg = won ? '✅ Gagné ! +' + (Math.round(stake*odds)-stake) + ' jetons' : '❌ Perdu ! -' + stake + ' jetons';
+    if (typeof showToast === 'function') showToast(msg);
+    else alert(msg);
+  };
+
+  renderParisMatches2();
+  renderParisHistory2();
+
+})();
+
+/* ============================================================
+   HUB SIDEBAR RETRACTABLE + FAB HIDE ON HUB (v3)
+   ============================================================ */
+
+(function initHubExtras() {
+  'use strict';
+
+  /* ---- 1. Retractable sidebar toggle ---- */
+  var hubScreen   = document.getElementById('screen-hub');
+  var hubBody     = hubScreen && hubScreen.querySelector('.hub-body');
+  var sideNav     = hubScreen && hubScreen.querySelector('.hub-inner-nav');
+  var hubContent  = hubScreen && hubScreen.querySelector('.hub-content');
+
+  if (hubBody && sideNav) {
+    // Create the toggle handle
+    var handle = document.createElement('button');
+    handle.id = 'hub-sidebar-toggle';
+    handle.setAttribute('aria-label', 'Rétracter/afficher barre');
+    handle.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
+    hubBody.appendChild(handle);
+
+    var isRetracted = false;
+
+    function setSidebarState(retract) {
+      isRetracted = retract;
+      sideNav.classList.toggle('retracted', retract);
+      var icon = handle.querySelector('i');
+      if (icon) {
+        icon.className = retract
+          ? 'fa-solid fa-chevron-left'
+          : 'fa-solid fa-chevron-right';
+      }
+      handle.title = retract ? 'Afficher la barre' : 'Rétracter la barre';
+      if (typeof haptic === 'function') haptic(6);
+    }
+
+    handle.addEventListener('click', function () {
+      setSidebarState(!isRetracted);
+    });
+
+    // Auto-deploy sidebar when hub screen becomes active
+    var hubObserver = new MutationObserver(function () {
+      if (hubScreen.classList.contains('active') && isRetracted) {
+        // keep user preference — do NOT auto-redeploy
+      }
+      if (hubScreen.classList.contains('active')) {
+        updateFabForHub(true);
+      } else {
+        updateFabForHub(false);
+      }
+    });
+    hubObserver.observe(hubScreen, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  /* ---- 2. FAB: hide on Hub, show on other screens ---- */
+  var fabEl = document.getElementById('fab-container');
+
+  function updateFabForHub(hubIsActive) {
+    if (!fabEl) return;
+    if (hubIsActive) {
+      fabEl.classList.add('fab-force-hide');
+    } else {
+      fabEl.classList.remove('fab-force-hide');
+    }
+  }
+
+  // Initial state
+  if (hubScreen && hubScreen.classList.contains('active')) {
+    updateFabForHub(true);
+  }
+
+  // Also patch every nav-btn click to check the target screen
+  document.querySelectorAll('.nav-btn[data-screen]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var target = btn.dataset.screen;
+      updateFabForHub(target === 'screen-hub');
+    }, true); // capture phase so it fires before showScreen
+  });
+
+  // MutationObserver on all screens in case showScreen is called programmatically
+  document.querySelectorAll('.screen').forEach(function (sc) {
+    new MutationObserver(function () {
+      if (sc.classList.contains('active')) {
+        updateFabForHub(sc.id === 'screen-hub');
+      }
+    }).observe(sc, { attributes: true, attributeFilter: ['class'] });
+  });
+
+})();
