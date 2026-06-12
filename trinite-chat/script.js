@@ -2569,7 +2569,7 @@ initAuth();
 // HUB HORS-LIGNE : Snake, Casino, Paris sportifs
 // ============================================================
 
-(function initHub() {
+window.initHub = function() {
   // Attendre que l'écran Hub soit chargé
   const hubScreen = document.getElementById("screen-hub");
   if (!hubScreen) return;
@@ -2823,7 +2823,7 @@ initAuth();
     });
   }
 
-  function renderParisHistory() {
+    function renderParisHistory() {
     const container = document.getElementById("hub-paris-history");
     if (!container) return;
     if (!parisHistory.length) {
@@ -2840,18 +2840,17 @@ initAuth();
 
   renderParisMatches();
   renderParisHistory();
-})();
+};
 
+// Lance le Hub au chargement
+window.initHub();
 
 // Rafraîchir le Hub à chaque affichage
 window.refreshHub = function() {
   const casinoSpan = document.getElementById("hub-casino-tokens");
   if (casinoSpan) casinoSpan.textContent = localStorage.getItem("hub-casino-tokens") || "500";
-  
   const parisSpan = document.getElementById("hub-paris-tokens");
   if (parisSpan) parisSpan.textContent = localStorage.getItem("hub-paris-tokens") || "500";
-  
-  // Forcer l'affichage des paris
   if (typeof renderParisMatches === 'function') {
     renderParisMatches();
     renderParisHistory();
