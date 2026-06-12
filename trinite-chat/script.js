@@ -6,21 +6,6 @@
 (function () {
   "use strict";
 
-  /* ===== SPLASH SCREEN ===== */
-  (function initSplash() {
-    const splash = document.getElementById("screen-splash");
-    if (!splash) return;
-    let done = false;
-    function hide() {
-      if (done) return;
-      done = true;
-      splash.classList.add("splash-exit");
-      setTimeout(() => { splash.style.display = "none"; }, 500);
-    }
-    setTimeout(hide, 2000);
-    splash.addEventListener("click", hide, { once: true });
-  })();
-
   /* ===== PARTICLE CANVAS ===== */
   const canvas  = document.getElementById("particles-canvas");
   const ctx     = canvas ? canvas.getContext("2d") : null;
@@ -76,12 +61,6 @@
   window.addEventListener("resize", () => { resizeCanvas(); initParticles(); }, { passive: true });
   initParticles();
   tickParticles();
-
-  // FIX: Enregistrer le Service Worker PWA
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("./sw.js")
-      .catch(e => console.warn("SW registration failed:", e));
-  }
 
   /* ===== THEME TOGGLE ===== */
   const themeBtn  = document.getElementById("theme-toggle");
@@ -164,9 +143,6 @@
 // TRINITE CHAT — Logique principale
 // ============================================================
 
-// Timestamp de démarrage — utilisé pour synchroniser le splash avec initAuth()
-const _appStartTime = Date.now();
-
 const SUPABASE_URL  = "https://eqttgyxjjupeisgozrut.supabase.co";
 const SUPABASE_ANON = "sb_publishable_2tUX4eHP5MrKz_pekDY4aA_EiuZ99Wo";
 const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png";
@@ -244,13 +220,6 @@ function showScreen(id) {
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
   updateFabVisibility(id);
-  
-  // Forcer le rafraîchissement du Hub à chaque affichage
-  if (id === "screen-hub") {
-    setTimeout(() => {
-      if (typeof window.refreshHub === 'function') window.refreshHub();
-    }, 50);
-  }
 }
 
 function initial(name) { return (name || "?").charAt(0).toUpperCase(); }
@@ -334,20 +303,12 @@ function startNotifListener() {
 
 async function initAuth() {
   const { data: { session } } = await db.auth.getSession();
-  // Attendre que le splash ait fini (2 s + 600 ms d'animation = 2600 ms)
-  // avant d'afficher un écran, pour éviter tout conflit visuel.
-  const SPLASH_TOTAL_MS = 2600;
-  const elapsed = Date.now() - _appStartTime;
-  const waitMs  = Math.max(0, SPLASH_TOTAL_MS - elapsed);
-
-  setTimeout(async () => {
-    if (session) {
-      currentUser = session.user;
-      await afterLogin();
-    } else {
-      showScreen("screen-auth");
-    }
-  }, waitMs);
+  if (session) {
+    currentUser = session.user;
+    await afterLogin();
+  } else {
+    showScreen("screen-auth");
+  }
 
   db.auth.onAuthStateChange(async (_event, session) => {
     if (session) {
@@ -421,48 +382,11 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   }
 });
 
-// FIX: Toggle Email / Téléphone style TikTok sur le formulaire d'inscription
-document.querySelectorAll(".auth-type-btn").forEach(btn => {
-  btn.addEventListener("click", () => {
-    document.querySelectorAll(".auth-type-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    const type = btn.dataset.type;
-    const emailField = document.getElementById("field-register-email");
-    const phoneField = document.getElementById("field-register-phone");
-    const emailInput = document.getElementById("register-email");
-    const phoneInput = document.getElementById("register-phone");
-    if (type === "email") {
-      emailField?.classList.remove("hidden");
-      phoneField?.classList.add("hidden");
-      emailInput.required = true;
-      phoneInput.required = false;
-    } else {
-      emailField?.classList.add("hidden");
-      phoneField?.classList.remove("hidden");
-      emailInput.required = false;
-      phoneInput.required = true;
-    }
-    haptic(8);
-  });
-});
-
 document.getElementById("form-register")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn      = e.target.querySelector("button[type=submit]");
+  const email    = document.getElementById("register-email").value.trim();
   const password = document.getElementById("register-password").value;
-  const authType = document.querySelector(".auth-type-btn.active")?.dataset.type || "email";
-
-  // FIX: Déterminer email selon le type choisi (email ou téléphone)
-  let email = "";
-  if (authType === "email") {
-    email = document.getElementById("register-email").value.trim();
-    if (!email) { toast("Entrez votre email", "error"); return; }
-  } else {
-    const phone = document.getElementById("register-phone").value.trim().replace(/\s+/g,"");
-    if (!phone) { toast("Entrez votre numéro", "error"); return; }
-    // FIX: Générer un email fictif à partir du numéro pour Supabase
-    email = phone + "@phone.trinite";
-  }
 
   if (password.length < 6) { toast("Mot de passe trop court (6 caractères min.)", "error"); return; }
   if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
@@ -1613,11 +1537,9 @@ function hideFab() {
 
 function updateFabVisibility(screenId) {
   const container = document.getElementById("fab-container");
-  const offlineBtn = document.getElementById("btn-offline-hub");
   if (!container) return;
   const hide = !screenId || screenId === "screen-auth" || screenId === "screen-setup";
   container.classList.toggle("hidden", hide);
-  if (offlineBtn) offlineBtn.style.display = hide ? "none" : "flex";
 }
 
 function updateFabActiveState() {
@@ -1717,11 +1639,6 @@ function wireBottomNav() {
 
       if (target === "screen-feed") {
         playCurrentFeedVideo();
-      } else if (target === "screen-hub") {
-        // Forcer la réinitialisation du Hub
-        setTimeout(() => {
-          if (typeof window.refreshHub === 'function') window.refreshHub();
-        }, 50);
       } else {
         pauseAllFeedVideos();
       }
@@ -1925,34 +1842,15 @@ async function sendMessage() {
   haptic(8);
 
   const contactPid = chatContact.contact_profile_id || null;
-  const payload = {
+
+  const { error } = await db.from("messages").insert({
     from_profile_id: chatMyProfile.id,
     to_profile_id:   contactPid,
     content,
     content_type:    "text"
-  };
+  });
 
-  if (!isOnline) {
-    await saveToOfflineQueue(payload);
-    toast("Message en attente (hors-ligne) 🕐", "info");
-    // Afficher le message localement avec badge "en attente"
-    appendPendingMessage(content);
-    return;
-  }
-
-  const { error } = await db.from("messages").insert(payload);
   if (error) toast("Erreur envoi : " + error.message, "error");
-}
-
-function appendPendingMessage(content) {
-  const list = document.getElementById("messages-list");
-  if (!list) return;
-  const div = document.createElement("div");
-  div.className = "msg-bubble msg-out msg-pending";
-  div.innerHTML = \`<span class="msg-text">\${escapeHtml(content)}</span>
-    <span class="msg-pending-badge"><i class="fa-solid fa-clock"></i> En attente</span>\`;
-  list.appendChild(div);
-  list.scrollTop = list.scrollHeight;
 }
 
 document.getElementById("btn-back")?.addEventListener("click", () => {
@@ -2470,392 +2368,7 @@ btnUpload?.addEventListener("click", async () => {
   await buildFeed();
 });
 
-
-// ============================================================
-// ONLINE / OFFLINE DETECTION + INDEXEDDB QUEUE
-// ============================================================
-let isOnline = navigator.onLine;
-
-(function initOfflineSystem() {
-  const dot = document.getElementById("offline-dot");
-  const btn = document.getElementById("btn-offline-hub");
-
-  function updateStatus(notify) {
-    isOnline = navigator.onLine;
-    dot?.classList.toggle("offline", !isOnline);
-    btn?.classList.toggle("offline-mode", !isOnline);
-    if (notify === true) {
-      if (!isOnline) toast("Mode hors-ligne activé", "info");
-      else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
-    }
-  }
-
-  window.addEventListener("online",  () => updateStatus(true));
-  window.addEventListener("offline", () => updateStatus(true));
-  updateStatus(false);
-
-  // Bouton toujours visible sauf sur auth/setup — polling simple
-  function showOfflineBtn() {
-    if (!btn) return;
-    const active = document.querySelector(".screen.active");
-    const id = active ? active.id : "";
-    const hide = !id || id === "screen-auth" || id === "screen-setup";
-    btn.style.display = hide ? "none" : "flex";
-  }
-
-  // Vérifier toutes les 500ms — simple et fiable
-  setInterval(showOfflineBtn, 500);
-  showOfflineBtn();
-
-  btn?.addEventListener("click", () => {
-    showScreen("screen-hub");
-    document.querySelectorAll(".nav-btn").forEach(b => b.classList.remove("active"));
-    document.querySelectorAll('[data-screen="screen-hub"]').forEach(b => b.classList.add("active"));
-    if (typeof window.refreshHub === 'function') window.refreshHub();
-  });
-})();
-
-// IndexedDB — file d'attente messages offline
-const IDB_NAME    = "trinite-offline";
-const IDB_STORE   = "msg-queue";
-let   idb         = null;
-
-function openIDB() {
-  return new Promise((resolve, reject) => {
-    if (idb) return resolve(idb);
-    const req = indexedDB.open(IDB_NAME, 1);
-    req.onupgradeneeded = e => {
-      e.target.result.createObjectStore(IDB_STORE, { keyPath: "id", autoIncrement: true });
-    };
-    req.onsuccess = e => { idb = e.target.result; resolve(idb); };
-    req.onerror   = () => reject(req.error);
-  });
-}
-
-async function saveToOfflineQueue(payload) {
-  const db2 = await openIDB();
-  return new Promise((resolve, reject) => {
-    const tx  = db2.transaction(IDB_STORE, "readwrite");
-    tx.objectStore(IDB_STORE).add({ ...payload, queuedAt: Date.now() });
-    tx.oncomplete = resolve;
-    tx.onerror    = () => reject(tx.error);
-  });
-}
-
-async function syncOfflineQueue() {
-  if (!isOnline) return;
-  const db2 = await openIDB();
-  const tx   = db2.transaction(IDB_STORE, "readwrite");
-  const store = tx.objectStore(IDB_STORE);
-  const all   = await new Promise(r => { const req = store.getAll(); req.onsuccess = () => r(req.result); });
-  if (!all.length) return;
-  let sent = 0;
-  for (const item of all) {
-    const { error } = await db.from("messages").insert({
-      from_profile_id: item.from_profile_id,
-      to_profile_id:   item.to_profile_id,
-      content:         item.content,
-      content_type:    "text"
-    });
-    if (!error) { store.delete(item.id); sent++; }
-  }
-  if (sent) toast(`${sent} message(s) synchronisé(s) ✓`, "success");
-}
-
 // ============================================================
 // DÉMARRAGE
 // ============================================================
 initAuth();
-
-
-// ============================================================
-// HUB HORS-LIGNE : Snake, Casino, Paris sportifs
-// ============================================================
-
-window.initHub = function() {
-  // Attendre que l'écran Hub soit chargé
-  const hubScreen = document.getElementById("screen-hub");
-  if (!hubScreen) return;
-
-  // ========== SNAKE ==========
-  const snakeCanvas = document.getElementById("hub-snake-canvas");
-  let snakeCtx = snakeCanvas?.getContext("2d");
-  const CELL = 20;
-  const COLS = 15;
-  const ROWS = 15;
-  let snake, snakeDir, snakeNextDir, snakeFood, snakeScore, snakeBest, snakeLoop, snakeRunning;
-
-  function initHubSnake() {
-    snake = [{ x: 7, y: 7 }, { x: 6, y: 7 }, { x: 5, y: 7 }];
-    snakeDir = { x: 1, y: 0 };
-    snakeNextDir = { x: 1, y: 0 };
-    snakeScore = 0;
-    snakeBest = parseInt(localStorage.getItem("hub-snake-best") || "0");
-    document.getElementById("hub-snake-score").textContent = 0;
-    document.getElementById("hub-snake-best").textContent = snakeBest;
-    placeHubFood();
-    drawHubSnake();
-  }
-
-  function placeHubFood() {
-    let pos;
-    do {
-      pos = { x: Math.floor(Math.random() * COLS), y: Math.floor(Math.random() * ROWS) };
-    } while (snake.some(s => s.x === pos.x && s.y === pos.y));
-    snakeFood = pos;
-  }
-
-  function drawHubSnake() {
-    if (!snakeCtx || !snakeCanvas) return;
-    snakeCtx.fillStyle = "#0a0a18";
-    snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-    // Food
-    snakeCtx.font = "16px serif";
-    snakeCtx.textAlign = "center";
-    snakeCtx.textBaseline = "middle";
-    snakeCtx.fillText("🍎", snakeFood.x * CELL + CELL/2, snakeFood.y * CELL + CELL/2);
-    // Snake
-    snake.forEach((seg, i) => {
-      const ratio = 1 - i / snake.length;
-      snakeCtx.fillStyle = `rgba(${Math.round(139 + (219-139)*(1-ratio))}, ${Math.round(92 + (39-92)*(1-ratio))}, 246, ${0.5 + ratio * 0.5})`;
-      snakeCtx.fillRect(seg.x * CELL + 1, seg.y * CELL + 1, CELL - 2, CELL - 2);
-    });
-  }
-
-  function stepHubSnake() {
-    snakeDir = { ...snakeNextDir };
-    const head = { x: snake[0].x + snakeDir.x, y: snake[0].y + snakeDir.y };
-    if (head.x < 0 || head.x >= COLS || head.y < 0 || head.y >= ROWS) return hubGameOver();
-    if (snake.some(s => s.x === head.x && s.y === head.y)) return hubGameOver();
-    snake.unshift(head);
-    if (head.x === snakeFood.x && head.y === snakeFood.y) {
-      snakeScore++;
-      document.getElementById("hub-snake-score").textContent = snakeScore;
-      if (snakeScore > snakeBest) {
-        snakeBest = snakeScore;
-        localStorage.setItem("hub-snake-best", snakeBest);
-        document.getElementById("hub-snake-best").textContent = snakeBest;
-      }
-      placeHubFood();
-    } else {
-      snake.pop();
-    }
-    drawHubSnake();
-  }
-
-  function hubGameOver() {
-    clearInterval(snakeLoop);
-    snakeRunning = false;
-    drawHubSnake();
-    if (snakeCtx) {
-      snakeCtx.fillStyle = "rgba(0,0,0,0.6)";
-      snakeCtx.fillRect(0, 0, snakeCanvas.width, snakeCanvas.height);
-      snakeCtx.fillStyle = "#fff";
-      snakeCtx.font = "bold 16px Inter";
-      snakeCtx.textAlign = "center";
-      snakeCtx.fillText("Game Over", snakeCanvas.width/2, snakeCanvas.height/2);
-    }
-    document.getElementById("hub-snake-start").textContent = "Rejouer";
-  }
-
-  function startHubSnake() {
-    if (snakeRunning) return;
-    initHubSnake();
-    snakeRunning = true;
-    clearInterval(snakeLoop);
-    snakeLoop = setInterval(stepHubSnake, 150);
-    document.getElementById("hub-snake-start").textContent = "En cours...";
-  }
-
-  document.getElementById("hub-snake-start")?.addEventListener("click", startHubSnake);
-  document.querySelectorAll("#screen-hub [data-dir]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (!snakeRunning) return;
-      const d = btn.dataset.dir;
-      if (d === "UP" && snakeDir.y !== 1) snakeNextDir = { x: 0, y: -1 };
-      if (d === "DOWN" && snakeDir.y !== -1) snakeNextDir = { x: 0, y: 1 };
-      if (d === "LEFT" && snakeDir.x !== 1) snakeNextDir = { x: -1, y: 0 };
-      if (d === "RIGHT" && snakeDir.x !== -1) snakeNextDir = { x: 1, y: 0 };
-    });
-  });
-  initHubSnake();
-
-  // ========== CASINO ==========
-  const SYMBOLS = ["🍒", "⭐", "🍋", "🍊", "7️⃣", "💎", "🎰"];
-  const PAYTABLE = { "💎💎💎": 50, "7️⃣7️⃣7️⃣": 20, "🍒🍒🍒": 10, "⭐⭐⭐": 5 };
-  let casinoTokens = parseInt(localStorage.getItem("hub-casino-tokens") || "500");
-  let casinoSpinning = false;
-
-  document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-
-  document.getElementById("hub-casino-reset")?.addEventListener("click", () => {
-    casinoTokens = 500;
-    localStorage.setItem("hub-casino-tokens", casinoTokens);
-    document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-    document.getElementById("hub-casino-result").textContent = "Jetons rechargés !";
-  });
-
-  document.getElementById("hub-casino-spin")?.addEventListener("click", async () => {
-    if (casinoSpinning) return;
-    const bet = parseInt(document.getElementById("hub-casino-bet").value);
-    if (casinoTokens < bet) {
-      document.getElementById("hub-casino-result").textContent = "Jetons insuffisants !";
-      return;
-    }
-    casinoTokens -= bet;
-    localStorage.setItem("hub-casino-tokens", casinoTokens);
-    document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-    casinoSpinning = true;
-    document.getElementById("hub-casino-spin").disabled = true;
-
-    const reels = ["hub-reel-0", "hub-reel-1", "hub-reel-2"];
-    const results = [];
-    for (let i = 0; i < 3; i++) {
-      await new Promise(r => setTimeout(r, 300));
-      const sym = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
-      results.push(sym);
-      document.getElementById(reels[i]).textContent = sym;
-    }
-
-    const key = results.join("");
-    let win = 0;
-    let resultTxt = "";
-    if (PAYTABLE[key]) {
-      win = bet * PAYTABLE[key];
-      resultTxt = `🎉 Jackpot ! +${win} jetons`;
-    } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-      win = bet * 2;
-      resultTxt = `✓ Deux identiques ! +${win} jetons`;
-    } else {
-      resultTxt = `Perdu… -${bet} jetons`;
-    }
-    casinoTokens += win;
-    localStorage.setItem("hub-casino-tokens", casinoTokens);
-    document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-    document.getElementById("hub-casino-result").textContent = resultTxt;
-    casinoSpinning = false;
-    document.getElementById("hub-casino-spin").disabled = false;
-  });
-
-  // ========== PARIS SPORTIFS ==========
-  const MATCHES = [
-    { id: 1, team1: "Lyon", team2: "Paris", odds1: 2.1, odds2: 1.8 },
-    { id: 2, team1: "Marseille", team2: "Monaco", odds1: 2.5, odds2: 1.6 },
-    { id: 3, team1: "Nantes", team2: "Bordeaux", odds1: 1.9, odds2: 2.0 },
-  ];
-  let parisTokens = parseInt(localStorage.getItem("hub-paris-tokens") || "500");
-  let parisBets = JSON.parse(localStorage.getItem("hub-paris-bets") || "[]");
-  let parisHistory = JSON.parse(localStorage.getItem("hub-paris-history") || "[]");
-
-  document.getElementById("hub-paris-tokens").textContent = parisTokens;
-
-  function renderParisMatches() {
-    const container = document.getElementById("hub-paris-matches");
-    if (!container) return;
-    container.innerHTML = "";
-    MATCHES.forEach(m => {
-      const existingBet = parisBets.find(b => b.matchId === m.id);
-      const card = document.createElement("div");
-      card.style.cssText = "background:var(--bg3); border-radius:12px; padding:0.75rem;";
-      card.innerHTML = `
-        <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
-          <strong>${m.team1}</strong> <span style="color:var(--text-muted)">VS</span> <strong>${m.team2}</strong>
-        </div>
-        <div style="display:flex; gap:0.5rem;">
-          <button class="paris-bet-btn" data-match="${m.id}" data-pick="1" data-odds="${m.odds1}" ${existingBet ? 'disabled' : ''}
-            style="flex:1; background:${existingBet?.pick === 1 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team1}<br><strong>${m.odds1}×</strong>
-          </button>
-          <button class="paris-bet-btn" data-match="${m.id}" data-pick="2" data-odds="${m.odds2}" ${existingBet ? 'disabled' : ''}
-            style="flex:1; background:${existingBet?.pick === 2 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team2}<br><strong>${m.odds2}×</strong>
-          </button>
-        </div>
-        ${existingBet ? `<div style="margin-top:0.5rem; font-size:0.7rem; color:#f59e0b;">Pari: ${existingBet.amount} jetons <button class="resolve-bet" data-match="${m.id}" style="margin-left:0.5rem; background:var(--primary); border:none; border-radius:8px; padding:0.2rem 0.5rem; color:#fff;">Résoudre</button></div>` :
-          `<div style="margin-top:0.5rem;"><input type="number" id="mise-${m.id}" placeholder="Mise" value="50" min="10" max="${parisTokens}" style="width:70px; background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:0.2rem 0.4rem; color:var(--text);"></div>`}
-      `;
-      container.appendChild(card);
-    });
-
-    document.querySelectorAll(".paris-bet-btn:not([disabled])").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const matchId = parseInt(btn.dataset.match);
-        const pick = parseInt(btn.dataset.pick);
-        const odds = parseFloat(btn.dataset.odds);
-        const miseEl = document.getElementById(`mise-${matchId}`);
-        const amount = parseInt(miseEl?.value || 50);
-        if (amount <= 0 || amount > parisTokens) { alert("Mise invalide"); return; }
-        parisTokens -= amount;
-        localStorage.setItem("hub-paris-tokens", parisTokens);
-        document.getElementById("hub-paris-tokens").textContent = parisTokens;
-        parisBets.push({ matchId, pick, odds, amount });
-        localStorage.setItem("hub-paris-bets", JSON.stringify(parisBets));
-        renderParisMatches();
-        renderParisHistory();
-      });
-    });
-
-    document.querySelectorAll(".resolve-bet").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const matchId = parseInt(btn.dataset.match);
-        const bet = parisBets.find(b => b.matchId === matchId);
-        const match = MATCHES.find(m => m.id === matchId);
-        if (!bet || !match) return;
-        const winner = Math.random() < 0.5 ? 1 : 2;
-        const won = bet.pick === winner;
-        const gain = won ? Math.floor(bet.amount * bet.odds) : 0;
-        parisTokens += gain;
-        localStorage.setItem("hub-paris-tokens", parisTokens);
-        document.getElementById("hub-paris-tokens").textContent = parisTokens;
-        parisHistory.unshift({
-          match: `${match.team1} vs ${match.team2}`,
-          pick: bet.pick === 1 ? match.team1 : match.team2,
-          winner: winner === 1 ? match.team1 : match.team2,
-          amount: bet.amount,
-          gain,
-          won,
-          ts: Date.now()
-        });
-        if (parisHistory.length > 20) parisHistory.pop();
-        localStorage.setItem("hub-paris-history", JSON.stringify(parisHistory));
-        parisBets = parisBets.filter(b => b.matchId !== matchId);
-        localStorage.setItem("hub-paris-bets", JSON.stringify(parisBets));
-        renderParisMatches();
-        renderParisHistory();
-      });
-    });
-  }
-
-    function renderParisHistory() {
-    const container = document.getElementById("hub-paris-history");
-    if (!container) return;
-    if (!parisHistory.length) {
-      container.innerHTML = '<div style="text-align:center; color:var(--text-muted);">Aucun pari</div>';
-      return;
-    }
-    container.innerHTML = parisHistory.slice(0, 8).map(h => `
-      <div style="display:flex; justify-content:space-between; padding:0.3rem 0; border-bottom:1px solid var(--border);">
-        <span style="font-size:0.65rem;">${h.match}<br><small>${h.pick}</small></span>
-        <span class="${h.won ? 'win' : 'lose'}" style="color:${h.won ? '#22c55e' : '#ef4444'}">${h.won ? '+' + h.gain : '-' + h.amount}</span>
-      </div>
-    `).join("");
-  }
-
-  renderParisMatches();
-  renderParisHistory();
-};
-
-// Lance le Hub au chargement
-window.initHub();
-
-// Rafraîchir le Hub à chaque affichage
-window.refreshHub = function() {
-  const casinoSpan = document.getElementById("hub-casino-tokens");
-  if (casinoSpan) casinoSpan.textContent = localStorage.getItem("hub-casino-tokens") || "500";
-  const parisSpan = document.getElementById("hub-paris-tokens");
-  if (parisSpan) parisSpan.textContent = localStorage.getItem("hub-paris-tokens") || "500";
-  if (typeof renderParisMatches === 'function') {
-    renderParisMatches();
-    renderParisHistory();
-  }
-};
