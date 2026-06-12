@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="/style.css" />
   <!-- PWA: manifest + theme -->
   <link rel="manifest" href="./manifest.json" />
   <meta name="theme-color" content="#0d0d1a" />
@@ -217,7 +217,7 @@
     <span>Profil</span>
   </button>
   <button class="nav-btn" data-screen="screen-hub">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+    <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
     <span>Hub</span>
   </button>
 </nav>
@@ -253,7 +253,7 @@
         <span>Profil</span>
       </button>
       <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
         <span>Hub</span>
       </button>
     </nav>
@@ -340,7 +340,7 @@
         <span>Profil</span>
       </button>
       <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
         <span>Hub</span>
       </button>
     </nav>
@@ -431,88 +431,247 @@
         <span>Profil</span>
       </button>
       <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div>
+        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
         <span>Hub</span>
       </button>
     </nav>
   </div>
 
-<!-- ===== ÉCRAN HUB (Hors-ligne) ===== -->
+<!-- ===== ÉCRAN HUB ===== -->
 <div id="screen-hub" class="screen">
   <header class="main-header glass-header">
     <img src="https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-552.png" alt="logo" class="header-logo-img" />
-    <h1 class="header-logo gradient-text">Hub Hors-ligne</h1>
+    <h1 class="header-logo gradient-text">🎮 Hub</h1>
   </header>
 
-  <div class="profil-section" style="flex: 1; min-height: 0; overflow-y: auto; padding: 1rem; gap: 1rem; display: flex; flex-direction: column;">
+    <div class="hub-body">
+  <div class="hub-content" id="hub-content">
 
-    <!-- SECTION SNAKE -->
-    <div class="glass-card stagger-in" style="padding: 1rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span><i class="fa-solid fa-gamepad"></i> <strong>Snake</strong></span>
-        <span>Score: <span id="hub-snake-score">0</span> | Best: <span id="hub-snake-best">0</span></span>
-        <button id="hub-snake-start" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Jouer</button>
-      </div>
-      <canvas id="hub-snake-canvas" width="300" height="300" style="width:100%; max-width:300px; margin:0 auto; display:block; border-radius:12px; background:#0a0a18;"></canvas>
-      <div class="snake-controls" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.5rem;">
-        <div><button data-dir="UP" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-up"></i></button></div>
-        <div>
-          <button data-dir="LEFT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-left"></i></button>
-          <button data-dir="DOWN" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-down"></i></button>
-          <button data-dir="RIGHT" style="background:var(--bg-card); border:1px solid var(--border); border-radius:8px; padding:0.3rem 0.8rem;"><i class="fa-solid fa-chevron-right"></i></button>
+    <!-- TAB 1 — CHAT P2P -->
+    <div class="hub-tab-pane active" id="tab-chat">
+      <div class="hub-tab-scroll">
+        <div class="hub-section-header">
+          <i class="fa-solid fa-wifi"></i>
+          <span>Chat Hors-Ligne</span>
+          <span id="p2p-status-badge" class="p2p-badge"></span>
+        </div>
+        <button id="btn-p2p-scan" class="btn-primary shimmer-btn hub-scan-btn">
+          <i class="fa-solid fa-satellite-dish" id="p2p-scan-icon"></i>
+          Scanner les environs
+        </button>
+        <div id="p2p-devices-list" class="p2p-devices-list">
+          <div class="p2p-empty" id="p2p-empty">
+            <i class="fa-solid fa-circle-question" style="font-size:2rem;opacity:0.3;display:block;margin-bottom:0.5rem"></i>
+            Aucun appareil à proximité
+          </div>
+        </div>
+        <div id="p2p-chat-zone" class="p2p-chat-zone hidden">
+          <div class="p2p-chat-header glass-card">
+            <div class="p2p-connected-dot"></div>
+            <span id="p2p-connected-name">Connecté</span>
+          </div>
+          <div id="p2p-messages" class="p2p-messages"></div>
+          <div class="p2p-input-bar glass-card">
+            <input type="text" id="p2p-msg-input" placeholder="Message…" autocomplete="off" />
+            <button id="btn-p2p-send" class="btn-send shimmer-btn">
+              <i class="fa-solid fa-paper-plane"></i>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- SECTION CASINO -->
-    <div class="glass-card stagger-in" style="padding: 1rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span><i class="fa-solid fa-dice"></i> <strong>Machine à sous</strong></span>
-        <span>💰 <span id="hub-casino-tokens">500</span> jetons</span>
-        <button id="hub-casino-reset" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Recharger</button>
-      </div>
-      <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
-        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-0">🎰</div>
-        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-1">🎰</div>
-        <div style="background:var(--bg3); padding:0.5rem; border-radius:12px; font-size:2rem; width:60px; text-align:center;" id="hub-reel-2">🎰</div>
-      </div>
-      <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.5rem;">
-        <select id="hub-casino-bet" style="background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:0.3rem; color:var(--text);">
-          <option value="10">10</option>
-          <option value="25">25</option>
-          <option value="50" selected>50</option>
-          <option value="100">100</option>
-        </select>
-        <button id="hub-casino-spin" class="btn-primary" style="padding: 0.3rem 1rem;">Tourner</button>
-      </div>
-      <div id="hub-casino-result" style="text-align:center; font-size:0.8rem; color:var(--text-muted);"></div>
-    </div>
-
-    <!-- SECTION PARIS SPORTIFS -->
-    <div class="glass-card stagger-in" style="padding: 1rem;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-        <span><i class="fa-solid fa-trophy"></i> <strong>Paris sportifs</strong></span>
-        <span>💰 <span id="hub-paris-tokens">500</span> jetons</span>
-      </div>
-      <div id="hub-paris-matches" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
-      <div style="margin-top: 0.75rem;">
-        <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;">📜 Historique</div>
-        <div id="hub-paris-history" style="max-height:100px; overflow-y:auto; font-size:0.7rem;"></div>
+    <!-- TAB 2 — ACTUS -->
+    <div class="hub-tab-pane" id="tab-actus">
+      <div class="hub-tab-scroll">
+        <div class="hub-section-header">
+          <i class="fa-solid fa-newspaper"></i>
+          <span>Actualités</span>
+        </div>
+        <div class="hub-actus-cats">
+          <div class="hub-cat-card glass-card">
+            <i class="fa-solid fa-shirt hub-cat-icon" style="color:#ec4899"></i>
+            <span class="hub-cat-title">Mode</span>
+            <span class="hub-cat-sub">Tendances &amp; Défilés</span>
+          </div>
+          <div class="hub-cat-card glass-card">
+            <i class="fa-solid fa-microchip hub-cat-icon" style="color:#6366f1"></i>
+            <span class="hub-cat-title">Tech</span>
+            <span class="hub-cat-sub">Innovations &amp; Gadgets</span>
+          </div>
+        </div>
+        <div class="hub-actus-list">
+          <div class="hub-actus-label">
+            <i class="fa-solid fa-clock"></i> Dernières actualités
+            <span class="hub-actus-loading">Chargement…</span>
+          </div>
+          <div class="hub-shimmer-card"></div>
+          <div class="hub-shimmer-card" style="--sh-delay:0.15s"></div>
+          <div class="hub-shimmer-card" style="--sh-delay:0.3s"></div>
+          <div class="hub-shimmer-card" style="--sh-delay:0.45s"></div>
+        </div>
       </div>
     </div>
 
-  </div>
+    <!-- TAB 3 — SPORT -->
+    <div class="hub-tab-pane" id="tab-sport">
+      <div class="hub-tab-scroll">
+        <div class="hub-live-banner">
+          <span class="hub-live-dot"></span>
+          EN DIRECT
+        </div>
+        <div class="hub-matches-live">
+          <div class="hub-match-card glass-card">
+            <div class="hub-match-teams"><span>Lyon</span><span class="hub-match-score">2 – 1</span><span>Marseille</span></div>
+            <div class="hub-match-time">65ème minute</div>
+          </div>
+          <div class="hub-match-card glass-card">
+            <div class="hub-match-teams"><span>PSG</span><span class="hub-match-score">0 – 0</span><span>Monaco</span></div>
+            <div class="hub-match-time">32ème minute</div>
+          </div>
+          <div class="hub-match-card glass-card">
+            <div class="hub-match-teams"><span>Nantes</span><span class="hub-match-score">1 – 3</span><span>Bordeaux</span></div>
+            <div class="hub-match-time">78ème minute</div>
+          </div>
+        </div>
+        <div class="hub-section-header" style="margin-top:1rem">
+          <i class="fa-solid fa-trophy"></i>
+          <span>Paris Sportifs</span>
+          <span>💰 <span id="hub-paris-tokens">500</span> jetons</span>
+        </div>
+        <div id="hub-paris-matches" style="display: flex; flex-direction: column; gap: 0.5rem;"></div>
+        <div style="margin-top: 0.75rem;">
+          <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.3rem;">📜 Historique</div>
+          <div id="hub-paris-history" style="max-height:100px; overflow-y:auto; font-size:0.7rem;"></div>
+        </div>
+        <div class="hub-section-header" style="margin-top:1.25rem">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Prochains matchs</span>
+        </div>
+        <div class="hub-upcoming-card glass-card"><span>Real Madrid</span><span class="hub-upcoming-vs">VS</span><span>Barcelona</span><span class="hub-upcoming-time">Demain 21:00</span></div>
+        <div class="hub-upcoming-card glass-card"><span>Bayern</span><span class="hub-upcoming-vs">VS</span><span>Dortmund</span><span class="hub-upcoming-time">Sam. 18:30</span></div>
+        <div class="hub-upcoming-card glass-card"><span>Arsenal</span><span class="hub-upcoming-vs">VS</span><span>Chelsea</span><span class="hub-upcoming-time">Dim. 16:00</span></div>
+      </div>
+    </div>
+
+    <!-- TAB 4 — CASINO -->
+    <div class="hub-tab-pane" id="tab-casino">
+      <div class="hub-tab-scroll">
+        <div class="hub-section-header">
+          <i class="fa-solid fa-dice"></i>
+          <span>Casino</span>
+          <span style="display:flex;align-items:center;gap:0.4rem;font-size:0.8rem">
+            💰 <span id="hub-casino-tokens">500</span>
+            <button id="hub-casino-reset" class="hub-inline-btn">Recharger</button>
+          </span>
+        </div>
+        <div class="glass-card" style="padding: 1rem; margin-bottom:1rem">
+          <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.75rem; font-weight:600; text-align:center;">🎰 Machine à Sous</div>
+          <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div class="hub-reel" id="hub-reel-0">🎰</div>
+            <div class="hub-reel" id="hub-reel-1">🎰</div>
+            <div class="hub-reel" id="hub-reel-2">🎰</div>
+          </div>
+          <div style="display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 0.5rem;">
+            <select id="hub-casino-bet" class="hub-select">
+              <option value="10">10</option><option value="25">25</option><option value="50" selected>50</option><option value="100">100</option>
+            </select>
+            <button id="hub-casino-spin" class="btn-primary" style="padding: 0.3rem 1rem;">Tourner</button>
+          </div>
+          <div id="hub-casino-result" style="text-align:center; font-size:0.8rem; color:var(--text-muted); min-height:1.2em;"></div>
+        </div>
+        <div class="hub-games-grid">
+          <div class="hub-miniapp-card glass-card">
+            <i class="fa-solid fa-square hub-miniapp-icon" style="color:#9ca3af"></i>
+            <span class="hub-miniapp-title">Poker</span>
+            <span class="hub-miniapp-sub">Bientôt disponible</span>
+          </div>
+          <div class="hub-miniapp-card glass-card">
+            <i class="fa-solid fa-cards-blank hub-miniapp-icon" style="color:#f59e0b"></i>
+            <span class="hub-miniapp-title">Blackjack</span>
+            <span class="hub-miniapp-sub">Bientôt disponible</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5 — JEUX -->
+    <div class="hub-tab-pane" id="tab-jeux">
+      <div class="hub-tab-scroll">
+        <div class="hub-section-header">
+          <i class="fa-solid fa-gamepad"></i>
+          <span>Jeux</span>
+          <span style="font-size:0.78rem;color:var(--text-muted)">Best: <span id="hub-snake-best">0</span></span>
+        </div>
+        <div class="glass-card" style="padding: 1rem; margin-bottom:1rem">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span style="font-size:0.85rem; font-weight:600;">🐍 Snake</span>
+            <span style="font-size:0.78rem; color:var(--text-muted)">Score: <span id="hub-snake-score">0</span></span>
+            <button id="hub-snake-start" class="btn-primary" style="padding: 0.3rem 0.8rem; font-size: 0.7rem;">Jouer</button>
+          </div>
+          <canvas id="hub-snake-canvas" width="300" height="300" style="width:100%; max-width:300px; margin:0 auto; display:block; border-radius:12px; background:#0a0a18;"></canvas>
+          <div class="snake-controls" style="display: flex; flex-direction: column; align-items: center; gap: 0.3rem; margin-top: 0.5rem;">
+            <div><button data-dir="UP" class="snake-dir-btn"><i class="fa-solid fa-chevron-up"></i></button></div>
+            <div style="display:flex;gap:0.3rem">
+              <button data-dir="LEFT" class="snake-dir-btn"><i class="fa-solid fa-chevron-left"></i></button>
+              <button data-dir="DOWN" class="snake-dir-btn"><i class="fa-solid fa-chevron-down"></i></button>
+              <button data-dir="RIGHT" class="snake-dir-btn"><i class="fa-solid fa-chevron-right"></i></button>
+            </div>
+          </div>
+        </div>
+        <div class="hub-games-grid">
+          <div class="hub-miniapp-card glass-card">
+            <i class="fa-solid fa-chess-king hub-miniapp-icon" style="color:#c084fc"></i>
+            <span class="hub-miniapp-title">Échecs</span>
+            <span class="hub-miniapp-sub">Contre IA</span>
+          </div>
+          <div class="hub-miniapp-card glass-card">
+            <i class="fa-regular fa-circle hub-miniapp-icon" style="color:#6366f1"></i>
+            <span class="hub-miniapp-title">Dames</span>
+            <span class="hub-miniapp-sub">Stratégie</span>
+          </div>
+          <div class="hub-miniapp-card glass-card">
+            <i class="fa-solid fa-heart hub-miniapp-icon" style="color:#ec4899"></i>
+            <span class="hub-miniapp-title">Belote</span>
+            <span class="hub-miniapp-sub">Cartes</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /hub-content -->
+
+  <!-- Hub Inner Navigation -->
+  <nav class="hub-inner-nav glass-nav">
+    <button class="hub-tab-btn active" data-tab="tab-chat">
+      <i class="fa-solid fa-comments"></i><span>Chat P2P</span>
+    </button>
+    <button class="hub-tab-btn" data-tab="tab-actus">
+      <i class="fa-solid fa-newspaper"></i><span>Actus</span>
+    </button>
+    <button class="hub-tab-btn" data-tab="tab-sport">
+      <i class="fa-solid fa-futbol"></i><span>Sport</span>
+    </button>
+    <button class="hub-tab-btn" data-tab="tab-casino">
+      <i class="fa-solid fa-dice"></i><span>Casino</span>
+    </button>
+    <button class="hub-tab-btn" data-tab="tab-jeux">
+      <i class="fa-solid fa-gamepad"></i><span>Jeux</span>
+    </button>
+  </nav>
+  </div><!-- /hub-body -->
+
 
   <nav class="bottom-nav glass-nav">
     <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
     <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
     <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
     <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
-    <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-wifi"></i></div><span>Hub</span></button>
+    <button class="nav-btn active" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
   </nav>
 </div>
 
-  <!-- ===== ÉCRAN CHAT ===== -->
+<!-- ===== ÉCRAN CHAT ===== -->
   <div id="screen-chat" class="screen">
     <header class="chat-header glass-header">
       <button id="btn-back" class="icon-btn">
@@ -659,6 +818,6 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./script.js"></script>
+  <script src="/script.js"></script>
 </body>
 </html>
