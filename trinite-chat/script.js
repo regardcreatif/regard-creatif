@@ -244,6 +244,13 @@ function showScreen(id) {
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
   updateFabVisibility(id);
+  
+  // Forcer le rafraîchissement du Hub à chaque affichage
+  if (id === "screen-hub") {
+    setTimeout(() => {
+      if (typeof window.refreshHub === 'function') window.refreshHub();
+    }, 50);
+  }
 }
 
 function initial(name) { return (name || "?").charAt(0).toUpperCase(); }
