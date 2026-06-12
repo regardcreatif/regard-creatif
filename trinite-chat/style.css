@@ -2114,3 +2114,175 @@ body::before {
   color: #c4b5fd;
   font-weight: 600;
 }
+
+/* ===================================================
+   SPLASH SCREEN MATRIX
+   =================================================== */
+.screen-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #0d0d1a;
+}
+
+.screen-splash.active {
+  display: flex;
+}
+
+.screen-splash.splash-exit {
+  animation: splashExit 0.5s ease forwards;
+}
+
+@keyframes splashExit {
+  to { opacity: 0; }
+}
+
+.splash-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 28px;
+  object-fit: cover;
+  box-shadow: 0 0 40px rgba(139,92,246,0.5);
+  animation: splashLogoIn 0.7s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes splashLogoIn {
+  from { opacity: 0; transform: scale(0.6); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.splash-credit {
+  position: absolute;
+  bottom: 2rem;
+  left: 0; right: 0;
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.3);
+  letter-spacing: 0.06em;
+  animation: splashLogoIn 0.6s ease 0.5s both;
+}
+
+/* ===================================================
+   AUTH TYPE TOGGLE (Email / Téléphone — style TikTok)
+   =================================================== */
+.auth-type-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 1.1rem;
+}
+
+.auth-type-btn {
+  flex: 1;
+  padding: 0.5rem 0;
+  border: none;
+  border-radius: 50px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.25s var(--spring);
+  font-family: inherit;
+}
+
+.auth-type-btn.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(139,92,246,0.4);
+}
+
+.auth-type-btn:not(.active):hover {
+  color: var(--text-primary);
+  background: rgba(255,255,255,0.07);
+}
+
+/* Hide UI elements during splash */
+.screen-splash.active ~ .theme-toggle,
+.screen-splash.active ~ #fab-main {
+  display: none !important;
+}
+
+/* ============================================================
+   BOUTON OFFLINE HUB (bas gauche)
+   ============================================================ */
+.btn-offline-hub {
+  position: fixed;
+  bottom: 88px;
+  left: 18px;
+  z-index: 1000;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #1e1b4b, #312e81);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-offline-hub:active { transform: scale(0.92); }
+.btn-offline-hub.offline-mode {
+  background: linear-gradient(135deg, #7c3aed, #db2777);
+  box-shadow: 0 4px 20px rgba(139,92,246,0.5);
+}
+.offline-hub-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  border: 2px solid #0d0d1a;
+  transition: background 0.3s;
+}
+.offline-hub-dot.offline { background: #ef4444; }
+
+/* Message en attente (offline) */
+.msg-pending { opacity: 0.7; }
+.msg-pending-badge {
+  display: block;
+  font-size: 0.65rem;
+  color: #f59e0b;
+  margin-top: 2px;
+  text-align: right;
+}
+
+/* Cacher le bouton offline sur les écrans auth/setup/splash */
+#screen-auth.active ~ #btn-offline-hub,
+#screen-setup.active ~ #btn-offline-hub {
+  display: none !important;
+}
+.screen-splash.active ~ #btn-offline-hub {
+  display: none !important;
+}
+
+/* Fix screen-hub scroll */
+#screen-hub {
+  overflow: hidden;
+  display: none;
+  flex-direction: column;
+}
+#screen-hub.active {
+  display: flex;
+}
+#screen-hub .profil-section {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
