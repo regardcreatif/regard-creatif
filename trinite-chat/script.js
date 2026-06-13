@@ -43,6 +43,8 @@
     btn.appendChild(r);
     r.addEventListener("animationend", () => r.remove());
   }
+  // Expose to global so other IIFEs (Hub) can reference it by name
+  window.addRipple = addRipple;
 
   if (!document.getElementById("ripple-style")) {
     const s = document.createElement("style");
@@ -149,6 +151,9 @@ const DEMO_VIDEOS = [
 
 let feedLiked      = {};
 let feedLikeCounts = {};
+let feedBookmarks  = JSON.parse(localStorage.getItem("trinite_bookmarks") || "{}");
+let feedFilter     = "all"; // "all" | "video" | "photo"
+let currentCommentsVideoId = null;
 
 // ============================================================
 // UTILITAIRES
@@ -180,7 +185,21 @@ function showScreen(id) {
       if (typeof window.refreshHub === 'function') window.refreshHub();
     }, 50);
   }
+  // FEED STATUS ADD: Charger les favoris à l'ouverture de l'écran
+  if (id === "screen-favorites") {
+    setTimeout(() => {
+      if (typeof buildFavorites === 'function') buildFavorites();
+    }, 50);
+  }
+  // Stats du profil à l'ouverture
+  if (id === "screen-profil") {
+    setTimeout(() => {
+      if (typeof loadProfilStats === 'function') loadProfilStats();
+    }, 100);
+  }
 }
+// Exposer showScreen globalement (nécessaire pour onclick dans le HTML)
+window.showScreen = showScreen;
 
 function initial(name) { return (name || "?").charAt(0).toUpperCase(); }
 
@@ -646,41 +665,128 @@ function updateHeaderProfile() {
 // STORIES
 // ============================================================
 
-function buildStories() {
+// FEED STATUS ADD: Load active stories (< 24h) from Supabase stories table
+async function loadStoriesFromSupabase() {
+  if (!currentUser) return [];
+  try {
+    const { data, error } = await db.from("stories")
+      .select("id, profile_id, media_url, media_type, created_at, expires_at, profiles(name, avatar_url)")
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(15);
+    if (!error && data) return data;
+  } catch (e) { /* non bloquant */ }
+  return [];
+}
+
+// FEED STATUS ADD: buildStories — WhatsApp-style vertical rectangles + Supabase stories table
+async function buildStories() {
   const scroll = document.getElementById("stories-scroll");
   if (!scroll) return;
   scroll.innerHTML = "";
 
+  // FEED STATUS ADD: Charger les stories Supabase (valides 24h)
+  const supabaseStories = await loadStoriesFromSupabase();
+
+  // Séparer mes stories des stories des autres
+  const myStories    = supabaseStories.filter(s => activeProfile && s.profile_id === activeProfile.id);
+  const otherStories = supabaseStories.filter(s => !activeProfile || s.profile_id !== activeProfile.id);
+
+  // ─── "MA STORY" — style WhatsApp ───────────────────────────────
   const addWrap = document.createElement("div");
   addWrap.className = "story-item";
 
-  const avatarContent = userAvatarUrl
-    ? `<img src="${escapeHtml(userAvatarUrl)}" alt="moi" />`
-    : (activeProfile ? profileEmoji(activeProfile.profile_type) : "👤");
+  if (myStories.length > 0) {
+    // J'ai des stories actives → montrer la plus récente en fond + ring coloré
+    const latest = myStories[0];
+    const mediaPreview = latest.media_url
+      ? (latest.media_type === "video"
+          ? `<video src="${escapeHtml(latest.media_url)}" muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video>`
+          : `<img src="${escapeHtml(latest.media_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="ma story" />`)
+      : `<span style="font-size:2rem">${activeProfile ? profileEmoji(activeProfile.profile_type) : "👤"}</span>`;
 
-  addWrap.innerHTML = `
-    <div class="story-add-ring" title="Ajouter une story">
-      <div class="story-avatar">${avatarContent}</div>
-      <span class="story-add-plus"><i class="fa-solid fa-plus" style="font-size:0.6rem"></i></span>
-    </div>
-    <span class="story-name">Ma story</span>`;
-  addWrap.addEventListener("click", () => toast("Stories : bientôt disponible !", "info"));
+    const timeLeft = Math.round((new Date(latest.expires_at) - Date.now()) / 3600000);
+    addWrap.innerHTML = `
+      <div class="story-ring my-story-ring" title="Voir ma story">
+        <div class="story-avatar">${mediaPreview}</div>
+        <span class="story-add-plus story-add-plus-sm" title="Ajouter une story">
+          <i class="fa-solid fa-plus" style="font-size:0.5rem"></i>
+        </span>
+      </div>
+      <span class="story-name">Ma story</span>
+      <span class="story-time-left">${timeLeft}h</span>`;
+
+    // Clic sur le "+" → upload ; clic ailleurs → voir mes stories
+    addWrap.addEventListener("click", (e) => {
+      if (e.target.closest(".story-add-plus")) { openStoryUpload(); }
+      else { openStoryFull(latest); }
+    });
+  } else {
+    // Pas encore de story → bouton + classique
+    const myAvatarHtml = userAvatarUrl
+      ? `<img src="${escapeHtml(userAvatarUrl)}" alt="moi" />`
+      : (activeProfile ? `<span style="font-size:1.8rem">${profileEmoji(activeProfile.profile_type)}</span>` : "👤");
+    addWrap.innerHTML = `
+      <div class="story-add-ring" title="Ajouter une story">
+        <div class="story-avatar">${myAvatarHtml}</div>
+        <span class="story-add-plus"><i class="fa-solid fa-plus" style="font-size:0.55rem"></i></span>
+      </div>
+      <span class="story-name">Ma story</span>`;
+    addWrap.addEventListener("click", () => openStoryUpload());
+  }
   scroll.appendChild(addWrap);
 
-  const STORY_EMOJIS = ["🔥","💜","✨","👋","🎵","🌙","💫","🎉"];
-  currentContacts.slice(0, 10).forEach((c, i) => {
-    const seen = seenStories.has(c.id);
+  // ─── STORIES DES AUTRES ────────────────────────────────────────
+  const renderStory = (story, i) => {
+    const seen = seenStories.has(story.id);
+    const name = story.profiles?.name || "Inconnu";
     const wrap = document.createElement("div");
     wrap.className = "story-item";
-    wrap.style.setProperty("--stagger-delay", `${i * 0.03}s`);
+    wrap.style.animationDelay = `${i * 0.04}s`;
+
+    const mediaPreview = story.media_url
+      ? (story.media_type === "video"
+          ? `<video src="${escapeHtml(story.media_url)}" muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video>`
+          : `<img src="${escapeHtml(story.media_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="story" />`)
+      : escapeHtml(initial(name));
+
+    const profileDot = story.profiles?.avatar_url
+      ? `<div class="story-profile-dot"><img src="${escapeHtml(story.profiles.avatar_url)}" alt="${escapeHtml(name)}" /></div>`
+      : `<div class="story-profile-dot">${escapeHtml(initial(name))}</div>`;
+
     wrap.innerHTML = `
       <div class="story-ring${seen ? " seen" : ""}">
-        <div class="story-avatar">${escapeHtml(initial(c.contact_name))}</div>
+        <div class="story-avatar">
+          ${mediaPreview}
+          ${profileDot}
+        </div>
       </div>
-      <span class="story-name">${escapeHtml(c.contact_name.split(" ")[0])}</span>`;
-    wrap.addEventListener("click", () => openStory(c, STORY_EMOJIS[i % STORY_EMOJIS.length]));
+      <span class="story-name">${escapeHtml(name.split(" ")[0])}</span>`;
+    wrap.addEventListener("click", () => openStoryFull(story));
     scroll.appendChild(wrap);
-  });
+  };
+
+  if (otherStories.length > 0) {
+    otherStories.forEach((story, i) => renderStory(story, i));
+  } else if (supabaseStories.length === 0) {
+    // FEED STATUS ADD: Fallback contacts si aucune story en base
+    const STORY_EMOJIS = ["🔥","💜","✨","👋","🎵","🌙","💫","🎉"];
+    currentContacts.slice(0, 10).forEach((c, i) => {
+      const seen = seenStories.has(c.id);
+      const wrap = document.createElement("div");
+      wrap.className = "story-item";
+      wrap.innerHTML = `
+        <div class="story-ring${seen ? " seen" : ""}">
+          <div class="story-avatar">
+            <span style="font-size:2rem">${STORY_EMOJIS[i % STORY_EMOJIS.length]}</span>
+            <div class="story-profile-dot">${escapeHtml(initial(c.contact_name))}</div>
+          </div>
+        </div>
+        <span class="story-name">${escapeHtml(c.contact_name.split(" ")[0])}</span>`;
+      wrap.addEventListener("click", () => openStory(c, STORY_EMOJIS[i % STORY_EMOJIS.length]));
+      scroll.appendChild(wrap);
+    });
+  }
 }
 
 function openStory(contact, emoji) {
@@ -1677,6 +1783,10 @@ function openChat(contact, myProfile) {
   }
 
   showScreen("screen-chat");
+  // Statut en ligne dans le header
+  setTimeout(() => setOnlineStatus(contact), 100);
+  // Mise à jour badge messages non lus
+  setTimeout(() => updateUnreadBadge(), 200);
 // ===== ACCUSÉS DE LECTURE + INDICATEUR DE FRAPPE =====
 const markAsRead = async () => {
   if (!chatContact.contact_profile_id) return;
@@ -1782,6 +1892,8 @@ function appendBubble(msg, myProfileId) {
   const isSent = msg.from_profile_id === myProfileId;
   const div    = document.createElement("div");
   div.className = `bubble ${isSent ? "sent" : "received"}`;
+  if (msg.id) div.dataset.msgId = msg.id;
+  div.dataset.isSent = isSent ? "1" : "0";
 
   if (msg.content_type === "voice") {
     div.innerHTML = `
@@ -1793,13 +1905,31 @@ function appendBubble(msg, myProfileId) {
       </div>
       <div class="bubble-voice-text">${escapeHtml(msg.content || "Message vocal")}</div>
       <div class="bubble-time">${formatTime(msg.created_at)}</div>`;
+  } else if (msg.content_type === "image") {
+    div.innerHTML = `
+      <img class="bubble-img" src="${escapeHtml(msg.content)}" alt="Image" loading="lazy" />
+      <div class="bubble-time">${formatTime(msg.created_at)}</div>`;
   } else {
-  const isRead = msg.read_at !== null;
-  const checkIcon = isRead ? '<i class="fa-solid fa-check-double"></i>' : '<i class="fa-regular fa-check"></i>';
-  div.innerHTML = `
-    ${escapeHtml(msg.content)}
-    <div class="bubble-time">${formatTime(msg.created_at)} ${checkIcon}</div>`;
-}
+    const isRead = msg.read_at !== null;
+    const checkIcon = isSent
+      ? (isRead ? '<i class="fa-solid fa-check-double" style="color:#818cf8"></i>' : '<i class="fa-solid fa-check"></i>')
+      : "";
+    div.innerHTML = `
+      <span class="msg-text">${escapeHtml(msg.content)}</span>
+      <div class="bubble-time">${formatTime(msg.created_at)} ${checkIcon}</div>`;
+  }
+
+  // Long press → reaction picker + delete
+  let pressTimer = null;
+  const startPress = () => { pressTimer = setTimeout(() => showReactionPicker(div, msg.id, isSent), 500); };
+  const clearPress = () => clearTimeout(pressTimer);
+  div.addEventListener("touchstart",  startPress, { passive: true });
+  div.addEventListener("touchend",    clearPress);
+  div.addEventListener("touchmove",   clearPress, { passive: true });
+  div.addEventListener("mousedown",   startPress);
+  div.addEventListener("mouseup",     clearPress);
+  div.addEventListener("mouseleave",  clearPress);
+  div.addEventListener("contextmenu", (e) => { e.preventDefault(); showReactionPicker(div, msg.id, isSent); });
 
   container.appendChild(div);
   container.scrollTop = container.scrollHeight;
@@ -1951,6 +2081,283 @@ async function toggleVoiceRecording() {
 }
 
 // ============================================================
+// FONCTIONNALITÉ: BADGE MESSAGES NON LUS
+// ============================================================
+
+async function updateUnreadBadge() {
+  if (!activeProfile) return;
+  try {
+    const { count } = await db.from("messages")
+      .select("id", { count: "exact", head: true })
+      .eq("to_profile_id", activeProfile.id)
+      .is("read_at", null);
+    const badge = document.getElementById("msg-badge");
+    if (!badge) return;
+    if (count && count > 0) {
+      badge.textContent = count > 99 ? "99+" : String(count);
+      badge.classList.remove("hidden");
+    } else {
+      badge.classList.add("hidden");
+    }
+  } catch (_) {}
+}
+
+// ============================================================
+// FONCTIONNALITÉ: STATUT EN LIGNE dans le header du chat
+// ============================================================
+
+function setOnlineStatus(contact) {
+  const statusEl = document.getElementById("chat-online-status");
+  if (!statusEl) return;
+  // Simuler statut en ligne basé sur l'id du contact (stable par session)
+  const seed = [...(contact.id || "a")].reduce((a, c) => a + c.charCodeAt(0), 0);
+  const isOnline = seed % 5 < 2; // ~40% en ligne
+  statusEl.innerHTML = isOnline
+    ? `<span class="online-dot"></span><span class="online-label-green">En ligne</span>`
+    : `<span class="online-label-muted">Dernière vue récemment</span>`;
+}
+
+// ============================================================
+// FONCTIONNALITÉ: RÉACTIONS AUX MESSAGES (long press)
+// ============================================================
+
+let reactionTargetMsg = null;
+const messageReactions = {};
+
+function showReactionPicker(bubbleEl, msgId, isSent) {
+  reactionTargetMsg = { el: bubbleEl, id: msgId, isSent };
+  const picker = document.getElementById("reaction-picker");
+  if (!picker) return;
+  const rect = bubbleEl.getBoundingClientRect();
+  const top  = Math.max(4, rect.top - 68 + window.scrollY);
+  const left = Math.max(4, Math.min(rect.left, window.innerWidth - 260));
+  picker.style.top  = top  + "px";
+  picker.style.left = left + "px";
+  picker.classList.remove("hidden");
+  haptic(12);
+  setTimeout(() => {
+    document.addEventListener("click", () => {
+      picker.classList.add("hidden");
+      reactionTargetMsg = null;
+    }, { once: true });
+  }, 50);
+}
+
+document.querySelectorAll(".react-btn[data-emoji]").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (!reactionTargetMsg) return;
+    const emoji = btn.dataset.emoji;
+    const { el, id } = reactionTargetMsg;
+    if (!messageReactions[id]) messageReactions[id] = [];
+    const existing = messageReactions[id].find(r => r.emoji === emoji);
+    if (existing) messageReactions[id] = messageReactions[id].filter(r => r !== existing);
+    else messageReactions[id].push({ emoji });
+    renderReactions(el, id);
+    document.getElementById("reaction-picker")?.classList.add("hidden");
+    reactionTargetMsg = null;
+    haptic(8);
+  });
+});
+
+function renderReactions(bubbleEl, msgId) {
+  let bar = bubbleEl.querySelector(".bubble-reactions");
+  const reactions = messageReactions[msgId] || [];
+  if (reactions.length === 0) { bar?.remove(); return; }
+  if (!bar) { bar = document.createElement("div"); bar.className = "bubble-reactions"; bubbleEl.appendChild(bar); }
+  const grouped = {};
+  reactions.forEach(r => { grouped[r.emoji] = (grouped[r.emoji] || 0) + 1; });
+  bar.innerHTML = Object.entries(grouped)
+    .map(([em, cnt]) => `<span class="bubble-reaction-chip">${em}${cnt > 1 ? ` ${cnt}` : ""}</span>`)
+    .join("");
+}
+
+// ============================================================
+// FONCTIONNALITÉ: SUPPRIMER UN MESSAGE
+// ============================================================
+
+document.querySelector(".delete-msg-btn")?.addEventListener("click", async (e) => {
+  e.stopPropagation();
+  if (!reactionTargetMsg) return;
+  const { el, id, isSent } = reactionTargetMsg;
+  document.getElementById("reaction-picker")?.classList.add("hidden");
+  reactionTargetMsg = null;
+  if (!isSent) { toast("Vous ne pouvez supprimer que vos propres messages.", "info"); return; }
+  if (!id) { el.remove(); return; }
+  try {
+    await db.from("messages").delete().eq("id", id);
+    el.style.transition = "opacity 0.3s, transform 0.3s";
+    el.style.opacity    = "0";
+    el.style.transform  = "scale(0.8)";
+    setTimeout(() => el.remove(), 320);
+    toast("Message supprimé", "info");
+  } catch (err) {
+    toast("Erreur : " + (err.message || err), "error");
+  }
+});
+
+// ============================================================
+// FONCTIONNALITÉ: RECHERCHE DANS LE CHAT
+// ============================================================
+
+document.getElementById("btn-chat-search")?.addEventListener("click", () => {
+  const bar = document.getElementById("chat-search-bar");
+  if (!bar) return;
+  bar.classList.toggle("hidden");
+  if (!bar.classList.contains("hidden")) {
+    document.getElementById("chat-search-input")?.focus();
+  } else {
+    // Reset highlights when closing
+    document.querySelectorAll("#messages-container .bubble").forEach(b => {
+      b.style.opacity = ""; b.style.outline = "";
+    });
+    const inp = document.getElementById("chat-search-input");
+    if (inp) inp.value = "";
+    const cnt = document.getElementById("chat-search-count");
+    if (cnt) cnt.textContent = "";
+  }
+});
+
+document.getElementById("chat-search-input")?.addEventListener("input", (e) => {
+  const q = e.target.value.toLowerCase().trim();
+  const bubbles = document.querySelectorAll("#messages-container .bubble");
+  let count = 0;
+  bubbles.forEach(b => {
+    const text = b.textContent.toLowerCase();
+    if (!q) { b.style.opacity = ""; b.style.outline = ""; return; }
+    if (text.includes(q)) {
+      b.style.opacity = "1"; b.style.outline = "2px solid var(--primary)";
+      b.style.borderRadius = "12px"; count++;
+      b.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    } else {
+      b.style.opacity = "0.25"; b.style.outline = "";
+    }
+  });
+  const countEl = document.getElementById("chat-search-count");
+  if (countEl) countEl.textContent = q ? `${count} résultat${count !== 1 ? "s" : ""}` : "";
+});
+
+// ============================================================
+// FONCTIONNALITÉ: IMAGE EN PIÈCE JOINTE (aperçu avant envoi)
+// ============================================================
+
+let pendingImgFile = null;
+
+document.getElementById("btn-attach-img")?.addEventListener("click", () => {
+  document.getElementById("chat-img-input")?.click();
+});
+
+document.getElementById("chat-img-input")?.addEventListener("change", (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  e.target.value = "";
+  pendingImgFile = file;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const modal = document.getElementById("img-preview-modal");
+    const img   = document.getElementById("img-preview-src");
+    if (img) img.src = ev.target.result;
+    modal?.classList.remove("hidden");
+  };
+  reader.readAsDataURL(file);
+});
+
+document.getElementById("btn-img-cancel")?.addEventListener("click", () => {
+  document.getElementById("img-preview-modal")?.classList.add("hidden");
+  pendingImgFile = null;
+});
+
+document.getElementById("btn-img-send")?.addEventListener("click", async () => {
+  if (!pendingImgFile || !chatContact || !chatMyProfile) {
+    toast("Ouvrez un chat avant d'envoyer une image.", "info"); return;
+  }
+  document.getElementById("img-preview-modal")?.classList.add("hidden");
+  toast("Envoi en cours…", "info");
+  const path = `chat/${chatMyProfile.id}/${Date.now()}_${pendingImgFile.name}`;
+  const { error: upErr } = await db.storage.from("avatars").upload(path, pendingImgFile, { upsert: false });
+  pendingImgFile = null;
+  if (upErr) { toast("Erreur upload : " + upErr.message, "error"); return; }
+  const { data: urlData } = db.storage.from("avatars").getPublicUrl(path);
+  const publicUrl = urlData?.publicUrl;
+  if (!publicUrl) { toast("Erreur URL image", "error"); return; }
+  const { error } = await db.from("messages").insert({
+    from_profile_id: chatMyProfile.id,
+    to_profile_id:   chatContact.contact_profile_id || null,
+    content:         publicUrl,
+    content_type:    "image"
+  });
+  if (error) toast("Erreur envoi : " + error.message, "error");
+});
+
+// ============================================================
+// FONCTIONNALITÉ: THÈMES DE COULEUR
+// ============================================================
+
+const COLOR_THEMES = {
+  purple: { primary: "#7c3aed", accent: "#ec4899", glow: "rgba(124,58,237,0.4)" },
+  blue:   { primary: "#1d4ed8", accent: "#3b82f6", glow: "rgba(29,78,216,0.4)"  },
+  rose:   { primary: "#be185d", accent: "#f43f5e", glow: "rgba(190,24,93,0.4)"  },
+  green:  { primary: "#059669", accent: "#10b981", glow: "rgba(5,150,105,0.4)"  },
+  orange: { primary: "#c2410c", accent: "#f97316", glow: "rgba(194,65,12,0.4)"  },
+};
+
+function applyColorTheme(name) {
+  const theme = COLOR_THEMES[name];
+  if (!theme) return;
+  const root = document.documentElement;
+  root.style.setProperty("--primary",      theme.primary);
+  root.style.setProperty("--accent",       theme.accent);
+  root.style.setProperty("--primary-glow", theme.glow);
+  localStorage.setItem("trinite_color_theme", name);
+  document.querySelectorAll(".color-dot").forEach(d =>
+    d.classList.toggle("active", d.dataset.color === name));
+}
+
+// Restaurer le thème sauvegardé
+const _savedColorTheme = localStorage.getItem("trinite_color_theme");
+if (_savedColorTheme && COLOR_THEMES[_savedColorTheme]) applyColorTheme(_savedColorTheme);
+
+document.getElementById("btn-theme-color")?.addEventListener("click", (e) => {
+  e.stopPropagation();
+  document.getElementById("color-theme-panel")?.classList.toggle("hidden");
+});
+
+document.querySelectorAll(".color-dot").forEach(btn => {
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    applyColorTheme(btn.dataset.color);
+    document.getElementById("color-theme-panel")?.classList.add("hidden");
+    haptic(8);
+    toast("Thème appliqué ✓", "success");
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#btn-theme-color") && !e.target.closest("#color-theme-panel")) {
+    document.getElementById("color-theme-panel")?.classList.add("hidden");
+  }
+});
+
+// ============================================================
+// FONCTIONNALITÉ: STATS DU PROFIL
+// ============================================================
+
+async function loadProfilStats() {
+  if (!activeProfile) return;
+  try {
+    const [cRes, pRes, sRes] = await Promise.all([
+      db.from("contacts").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id),
+      db.from("posts").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id),
+      db.from("stories").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id).gte("expires_at", new Date().toISOString())
+    ]);
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? 0; };
+    setVal("stat-contacts", cRes.count);
+    setVal("stat-posts",    pRes.count);
+    setVal("stat-stories",  sRes.count);
+  } catch (_) {}
+}
+
+// ============================================================
 // FEED TIKTOK
 // ============================================================
 
@@ -1959,8 +2366,39 @@ async function buildFeed() {
   if (!container) return;
   container.innerHTML = "";
 
-  let videos = [...DEMO_VIDEOS];
+  let videos = [];
 
+  // FEED STATUS ADD: Primary source — load posts from Supabase posts table
+  if (currentUser) {
+    try {
+      const { data: posts, error } = await db.from("posts")
+        .select("id, profile_id, video_url, caption, likes_count, is_demo, created_at, profiles(name, avatar_url)")
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!error && posts && posts.length > 0) {
+        // FEED STATUS ADD: Map posts rows to video objects used by the feed renderer
+        videos = posts.map(p => ({
+          id:         p.id,
+          url:        p.video_url,
+          author:     "@" + (p.profiles?.name || "trinité").toLowerCase().replace(/\s+/g, "_"),
+          desc:       p.caption || "",
+          likes:      p.likes_count || 0,
+          comments:   0,
+          isDemo:     p.is_demo || false,
+          profile_id: p.profile_id
+        }));
+      }
+    } catch (_) { /* non bloquant */ }
+  }
+
+  // FEED STATUS ADD: If posts table is empty, seed demo posts then fall back to DEMO_VIDEOS
+  if (videos.length === 0) {
+    if (currentUser) await initDemoPosts(); // FEED STATUS ADD: seed on first launch
+    videos = [...DEMO_VIDEOS];              // FEED STATUS ADD: local fallback
+  }
+
+  // FEED STATUS ADD: Also surface user-uploaded videos from Storage not yet in posts table
   try {
     const { data: uploads } = await db.storage.from("videos").list(currentUser?.id || "", {
       limit: 20,
@@ -1980,32 +2418,30 @@ async function buildFeed() {
           comments:     Math.floor(Math.random() * 50),
           isDemo:       false,
           profile_id:   activeProfile?.id,
-          // FIX: visibilité selon paramètre du profil
           visibility:   activeProfile?.video_visibility || "everyone"
         };
-      }).filter(v => v.url);
+      }).filter(v => v.url && !videos.some(existing => existing.url === v.url));
       videos = [...userVids, ...videos];
     }
-
-    // FIX: Charger aussi les vidéos des autres utilisateurs selon LEUR paramètre de visibilité
-    // everyone = visible à tous | contacts = visible seulement si contact | nobody = masqué
-    const { data: allProfiles } = await db.from("profiles")
-      .select("id, user_id, video_visibility")
-      .neq("user_id", currentUser?.id || "")
-      .eq("video_visibility", "everyone"); // FIX: seulement ceux qui ont choisi "tout le monde"
-
-    // (Les vidéos "contacts" seront filtrées plus bas quand on aura les contacts)
   } catch (_) {}
 
   videos.forEach(v => {
     feedLikeCounts[v.id] = feedLikeCounts[v.id] ?? v.likes;
   });
+  // FEED STATUS ADD: Cache global pour buildFavorites()
+  window._feedVideosCache = videos;
 
   videos.forEach((v, index) => {
     const item = document.createElement("div");
     item.className = "feed-item";
+    const isBookmarked = feedBookmarks[v.id] || false;
+    const mediaType = v.media_type || "video";
+    // Render photo as <img> if media_type is photo/image
+    const mediaEl = (mediaType === "photo" || mediaType === "image")
+      ? `<img class="feed-video" src="${escapeHtml(v.url)}" style="width:100%;height:100%;object-fit:cover" alt="${escapeHtml(v.desc)}" />`
+      : `<video class="feed-video" src="${escapeHtml(v.url)}" loop playsinline preload="none" ${feedSoundEnabled ? "" : "muted"}></video>`;
     item.innerHTML = `
-      <video class="feed-video" src="${escapeHtml(v.url)}" loop playsinline preload="none" ${feedSoundEnabled ? "" : "muted"}></video>
+      ${mediaEl}
       <div class="feed-item-gradient"></div>
       ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÉOS</div>'}
       <div class="feed-item-info">
@@ -2023,11 +2459,17 @@ async function buildFeed() {
           <button class="feed-action-btn btn-comment" aria-label="Commenter">
             <i class="fa-regular fa-comment"></i>
           </button>
-          <span class="feed-action-label">${formatCount(v.comments)}</span>
+          <span class="feed-action-label comment-count">${formatCount(v.comments)}</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
+          <button class="feed-action-btn btn-bookmark${isBookmarked ? " bookmarked" : ""}" data-vid="${v.id}" aria-label="Favoris">
+            <i class="fa-${isBookmarked ? "solid" : "regular"} fa-bookmark"></i>
+          </button>
+          <span class="feed-action-label">Sauv.</span>
         </div>
         <div style="display:flex;flex-direction:column;align-items:center;gap:0.3rem">
           <button class="feed-action-btn btn-share" aria-label="Partager">
-            <i class="fa-solid fa-share"></i>
+            <i class="fa-solid fa-share-nodes"></i>
           </button>
           <span class="feed-action-label">Partager</span>
         </div>
@@ -2087,16 +2529,20 @@ function wireFeedItem(item, video, index) {
 
   item.querySelector(".btn-comment")?.addEventListener("click", e => {
     e.stopPropagation();
-    openChatFromFeed();
+    openComments(video.id, video.desc);
+    haptic(10);
+  });
+
+  item.querySelector(".btn-bookmark")?.addEventListener("click", e => {
+    e.stopPropagation();
+    toggleBookmark(video.id, item);
+    haptic(12);
   });
 
   item.querySelector(".btn-share")?.addEventListener("click", e => {
     e.stopPropagation();
-    if (navigator.share) {
-      navigator.share({ title: "Trinite Chat", text: video.desc, url: location.href });
-    } else {
-      toast("Lien copié !", "success");
-    }
+    shareVideo(video);
+    haptic(10);
   });
 
   let touchStartX = null;
@@ -2387,6 +2833,20 @@ btnUpload?.addEventListener("click", async () => {
 
   if (error) { toast("Erreur upload : " + error.message, "error"); return; }
 
+  // FEED STATUS ADD: Get public URL and write a record in the posts table
+  const { data: vidUrlData } = db.storage.from("videos").getPublicUrl(path);
+  const vidPublicUrl = vidUrlData?.publicUrl;
+  if (vidPublicUrl && activeProfile) {
+    const { error: postErr } = await db.from("posts").insert({
+      profile_id:  activeProfile.id,
+      video_url:   vidPublicUrl,
+      caption:     desc,
+      likes_count: 0,
+      is_demo:     false
+    });
+    if (postErr) console.warn("Trinite: post insert error:", postErr.message);
+  }
+
   if (progressBar) progressBar.style.width = "100%";
   toast("Publié dans le Feed ✓", "success");
   haptic(20);
@@ -2536,6 +2996,353 @@ document.getElementById("btn-forgot")?.addEventListener("click", async () => {
     toast("Email de réinitialisation envoyé ✓", "success");
   }
 });
+
+// ============================================================
+// FEED STATUS ADD: DEMO POSTS SEEDER — seeds DEMO_VIDEOS into posts table on first launch
+// ============================================================
+
+async function initDemoPosts() {
+  if (!currentUser || !userProfiles.length) return;
+  try {
+    // FEED STATUS ADD: Check if demo posts already exist to avoid duplicate seeding
+    const { data: existing } = await db.from("posts")
+      .select("id")
+      .eq("is_demo", true)
+      .limit(1);
+    if (existing && existing.length > 0) return; // already seeded
+
+    const profileId = userProfiles[0]?.id;
+    if (!profileId) return;
+
+    // FEED STATUS ADD: Insert DEMO_VIDEOS array into Supabase posts table
+    const demoPosts = DEMO_VIDEOS.map(v => ({
+      profile_id:  profileId,
+      video_url:   v.url,
+      caption:     v.desc,
+      likes_count: v.likes,
+      is_demo:     true
+    }));
+
+    const { error } = await db.from("posts").insert(demoPosts);
+    if (error) console.warn("Trinite initDemoPosts:", error.message);
+  } catch (e) { /* non bloquant */ }
+}
+
+// ============================================================
+// FEED STATUS ADD: STORY FULL-SCREEN VIEWER — for Supabase stories
+// ============================================================
+
+function openStoryFull(story) {
+  // FEED STATUS ADD: Mark story as seen and open the shared story modal
+  seenStories.add(story.id);
+  haptic(8);
+
+  const modal    = document.getElementById("modal-story");
+  const avatarEl = document.getElementById("story-modal-avatar");
+  const nameEl   = document.getElementById("story-modal-name");
+  const bodyEl   = document.getElementById("story-modal-body");
+
+  const name = story.profiles?.name || "Inconnu";
+
+  if (avatarEl) {
+    if (story.profiles?.avatar_url) {
+      avatarEl.innerHTML = `<img src="${escapeHtml(story.profiles.avatar_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" />`;
+    } else {
+      avatarEl.textContent = initial(name);
+    }
+  }
+  if (nameEl) nameEl.textContent = name;
+
+  if (bodyEl) {
+    // FEED STATUS ADD: Show video or image depending on media_type
+    if (story.media_type === "video" && story.media_url) {
+      bodyEl.innerHTML = `<video src="${escapeHtml(story.media_url)}" autoplay loop muted playsinline style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px"></video>`;
+    } else if (story.media_url) {
+      bodyEl.innerHTML = `<img src="${escapeHtml(story.media_url)}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px" alt="story" />`;
+    } else {
+      bodyEl.textContent = "✨";
+    }
+  }
+
+  const progressBar = modal?.querySelector(".story-progress-bar");
+  if (progressBar) {
+    progressBar.style.transition = "none";
+    progressBar.style.animation  = "none";
+    progressBar.style.width      = "0%";
+    void progressBar.offsetWidth; // force reflow
+    progressBar.style.animation  = "storyProgress 4s linear forwards";
+  }
+
+  modal?.classList.remove("hidden");
+  buildStories();
+
+  clearTimeout(openStory._t);
+  openStory._t = setTimeout(() => modal?.classList.add("hidden"), 4000);
+}
+
+// ============================================================
+// FEED STATUS ADD: STORY UPLOAD — ouvre la galerie du téléphone
+// ============================================================
+
+function openStoryUpload() {
+  // FEED STATUS ADD: Trigger l'input file caché pour accéder à la galerie
+  const input = document.getElementById("story-gallery-input");
+  if (input) input.click();
+}
+
+// FEED STATUS ADD: Gestionnaire upload story depuis la galerie
+document.getElementById("story-gallery-input")?.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file || !currentUser || !activeProfile) return;
+  e.target.value = "";
+
+  const isVideo = file.type.startsWith("video/");
+  const ext     = file.name.split(".").pop() || (isVideo ? "mp4" : "jpg");
+  const path    = `stories/${currentUser.id}/${Date.now()}.${ext}`;
+
+  toast("Publication de votre statut…", "info");
+
+  // FEED STATUS ADD: Utilise le bucket "avatars" (existant) pour les stories
+  const bucket = isVideo ? "videos" : "avatars";
+  const { error: upErr } = await db.storage.from(bucket).upload(path, file, {
+    cacheControl: "3600", upsert: false
+  });
+  if (upErr) {
+    toast("Erreur upload story : " + (upErr.message || "vérifiez vos buckets Supabase."), "error");
+    return;
+  }
+
+  const { data: urlData } = db.storage.from(bucket).getPublicUrl(path);
+  const publicUrl = urlData?.publicUrl;
+  if (!publicUrl) { toast("Erreur URL story", "error"); return; }
+
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+  await db.from("stories").insert({
+    profile_id: activeProfile.id,
+    media_url:  publicUrl,
+    media_type: isVideo ? "video" : "image",
+    expires_at: expiresAt
+  });
+
+  toast("Statut publié ! Visible 24h ✓", "success");
+  buildStories();
+});
+
+// ============================================================
+// FEED STATUS ADD: COMMENTAIRES — bottom sheet
+// ============================================================
+
+let commentsCache = {}; // videoId → [{author, text, time}]
+
+function openComments(videoId, videoDesc) {
+  currentCommentsVideoId = videoId;
+  const sheet    = document.getElementById("comments-sheet");
+  const backdrop = document.getElementById("comments-backdrop");
+  sheet?.classList.add("open");
+  backdrop?.classList.add("open");
+  renderComments(videoId);
+  document.getElementById("comment-input")?.focus();
+}
+
+function closeComments() {
+  currentCommentsVideoId = null;
+  document.getElementById("comments-sheet")?.classList.remove("open");
+  document.getElementById("comments-backdrop")?.classList.remove("open");
+}
+
+function renderComments(videoId) {
+  const list = document.getElementById("comments-list");
+  if (!list) return;
+  const items = commentsCache[videoId] || [];
+  if (items.length === 0) {
+    list.innerHTML = '<p class="comments-empty">Aucun commentaire — soyez le premier ! 💬</p>';
+    return;
+  }
+  list.innerHTML = items.map(c => `
+    <div class="comment-item">
+      <div class="comment-avatar">${escapeHtml(initial(c.author))}</div>
+      <div class="comment-body">
+        <div class="comment-author">${escapeHtml(c.author)}</div>
+        <div class="comment-text">${escapeHtml(c.text)}</div>
+        <div class="comment-time">${c.time}</div>
+      </div>
+    </div>`).join("");
+  list.scrollTop = list.scrollHeight;
+}
+
+function submitComment() {
+  const input   = document.getElementById("comment-input");
+  const text    = input?.value.trim();
+  if (!text || !currentCommentsVideoId) return;
+  input.value = "";
+
+  const author = activeProfile?.name || "Moi";
+  const entry  = { author, text, time: "À l'instant" };
+
+  if (!commentsCache[currentCommentsVideoId]) commentsCache[currentCommentsVideoId] = [];
+  commentsCache[currentCommentsVideoId].push(entry);
+
+  renderComments(currentCommentsVideoId);
+  haptic(8);
+
+  // FEED STATUS ADD: Update comment count badge on feed item
+  const btn = document.querySelector(`.btn-like[data-vid="${currentCommentsVideoId}"]`);
+  const countEl = btn?.closest(".feed-item")?.querySelector(".comment-count");
+  if (countEl) {
+    const n = commentsCache[currentCommentsVideoId].length;
+    countEl.textContent = formatCount(n);
+  }
+}
+
+document.getElementById("btn-comments-close")?.addEventListener("click", closeComments);
+document.getElementById("comments-backdrop")?.addEventListener("click", closeComments);
+document.getElementById("btn-comment-send")?.addEventListener("click", submitComment);
+document.getElementById("comment-input")?.addEventListener("keydown", e => {
+  if (e.key === "Enter") { e.preventDefault(); submitComment(); }
+});
+
+// ============================================================
+// FEED STATUS ADD: FAVORIS / BOOKMARK
+// ============================================================
+
+function toggleBookmark(videoId, item) {
+  const wasBookmarked  = !!feedBookmarks[videoId];
+  feedBookmarks[videoId] = !wasBookmarked;
+  localStorage.setItem("trinite_bookmarks", JSON.stringify(feedBookmarks));
+
+  const btn  = item.querySelector(".btn-bookmark");
+  const icon = btn?.querySelector("i");
+  if (btn)  btn.classList.toggle("bookmarked", !wasBookmarked);
+  if (icon) icon.className = wasBookmarked ? "fa-regular fa-bookmark" : "fa-solid fa-bookmark";
+
+  toast(wasBookmarked ? "Retiré des favoris" : "Ajouté aux favoris ⭐", "success");
+}
+
+// ============================================================
+// FEED STATUS ADD: PARTAGE AMÉLIORÉ
+// ============================================================
+
+function shareVideo(video) {
+  const shareData = {
+    title: "Trinite Chat",
+    text:  video.desc || "Regarde cette vidéo sur Trinite Chat !",
+    url:   video.url  || location.href
+  };
+  if (navigator.share && navigator.canShare?.(shareData)) {
+    navigator.share(shareData).catch(() => {});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(video.url || location.href)
+      .then(() => toast("Lien copié dans le presse-papier !", "success"))
+      .catch(() => toast("Partage non disponible", "info"));
+  } else {
+    toast("Lien : " + (video.url || location.href), "info");
+  }
+}
+
+// ============================================================
+// FEED STATUS ADD: ÉCRAN FAVORIS
+// ============================================================
+
+function buildFavorites() {
+  const list = document.getElementById("favorites-list");
+  if (!list) return;
+
+  // Trouver toutes les vidéos/posts bookmarkés
+  const bookmarkedIds = Object.keys(feedBookmarks).filter(id => feedBookmarks[id]);
+  const allVideos = window._feedVideosCache || [];
+  const bookmarked = bookmarkedIds
+    .map(id => allVideos.find(v => v.id === id))
+    .filter(Boolean);
+
+  if (bookmarked.length === 0) {
+    list.innerHTML = `
+      <div class="favorites-empty">
+        <i class="fa-regular fa-bookmark" style="font-size:2.5rem;color:var(--text-muted)"></i>
+        <p>Aucun favori pour l'instant.</p>
+        <p style="font-size:0.8rem;color:var(--text-muted)">Tape <i class="fa-solid fa-bookmark"></i> sur une vidéo du feed.</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = "";
+  bookmarked.forEach(v => {
+    const card = document.createElement("div");
+    card.className = "fav-card";
+    const mediaType = v.media_type || "video";
+    const mediaEl = (mediaType === "photo" || mediaType === "image")
+      ? `<img src="${escapeHtml(v.url)}" alt="${escapeHtml(v.desc)}" />`
+      : `<video src="${escapeHtml(v.url)}" muted playsinline preload="metadata"></video>`;
+    card.innerHTML = `
+      ${mediaEl}
+      <div class="fav-card-overlay">
+        <div class="fav-card-author">${escapeHtml(v.author)}</div>
+        <div class="fav-card-desc">${escapeHtml(v.desc)}</div>
+      </div>
+      <button class="fav-card-remove" aria-label="Retirer des favoris"><i class="fa-solid fa-bookmark"></i></button>`;
+
+    // Clic sur la carte → aller au feed
+    card.addEventListener("click", e => {
+      if (e.target.closest(".fav-card-remove")) return;
+      showScreen("screen-feed");
+      document.querySelectorAll(".nav-btn").forEach(b =>
+        b.classList.toggle("active", b.dataset.screen === "screen-feed"));
+    });
+
+    // Retirer des favoris
+    card.querySelector(".fav-card-remove").addEventListener("click", e => {
+      e.stopPropagation();
+      feedBookmarks[v.id] = false;
+      localStorage.setItem("trinite_bookmarks", JSON.stringify(feedBookmarks));
+      // Mettre à jour le bouton dans le feed si visible
+      const feedBtn = document.querySelector(`.btn-bookmark[data-vid="${v.id}"]`);
+      if (feedBtn) {
+        feedBtn.classList.remove("bookmarked");
+        const icon = feedBtn.querySelector("i");
+        if (icon) icon.className = "fa-regular fa-bookmark";
+      }
+      buildFavorites();
+      toast("Retiré des favoris", "info");
+      haptic(8);
+    });
+
+    list.appendChild(card);
+  });
+}
+
+// FEED STATUS ADD: Hook showScreen pour charger les favoris à l'ouverture
+const _origShowScreen = window.showScreen;
+if (_origShowScreen) {
+  window.showScreen = function(id) {
+    _origShowScreen(id);
+    if (id === "screen-favorites") buildFavorites();
+  };
+}
+
+// ============================================================
+// FEED STATUS ADD: FILTRE VIDÉO / PHOTO
+// ============================================================
+
+document.querySelectorAll(".feed-filter-btn").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".feed-filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    feedFilter = btn.dataset.filter || "all";
+    applyFeedFilter();
+    haptic(8);
+  });
+});
+
+function applyFeedFilter() {
+  document.querySelectorAll(".feed-item").forEach(item => {
+    if (feedFilter === "all") {
+      item.style.display = "";
+      return;
+    }
+    const hasVideo = !!item.querySelector("video");
+    const show = feedFilter === "video" ? hasVideo : !hasVideo;
+    item.style.display = show ? "" : "none";
+  });
+}
 
 // ============================================================
 // DÉMARRAGE
@@ -3322,17 +4129,27 @@ window.refreshHub = function() {
     var splash = document.getElementById('splash-screen');
     if (!splash) return;
 
-    // HUB ADD: Attendre 3 secondes puis masquer le splash
-    setTimeout(function () {
-      // HUB ADD: Ajouter la classe de fadeOut
+    // HUB ADD: Attendre que l'image logo charge, puis masquer (min 1200ms)
+    var splashImg = splash.querySelector('img');
+    var splashHide = function () {
       splash.classList.add('splash-hide');
-
-      // HUB ADD: Après la transition (0.5s), masquer complètement
-      setTimeout(function () {
-        splash.style.display = 'none';
-        // HUB ADD: Pas de redirection ici — initAuth() gère déjà screen-auth vs screen-main
-      }, 500);
-    }, 3000);
+      setTimeout(function () { splash.style.display = 'none'; }, 400);
+    };
+    var minDelay = 1500; // ms minimum affiché
+    var start = Date.now();
+    var doHide = function () {
+      var elapsed = Date.now() - start;
+      var remaining = Math.max(0, minDelay - elapsed);
+      setTimeout(splashHide, remaining);
+    };
+    if (splashImg && !splashImg.complete) {
+      splashImg.addEventListener('load',  doHide, { once: true });
+      splashImg.addEventListener('error', doHide, { once: true });
+      // Sécurité : si l'image met trop longtemps (>4s), on cache quand même
+      setTimeout(splashHide, 4000);
+    } else {
+      doHide();
+    }
   });
 
   // ============================================================
