@@ -1,7 +1,7 @@
 // ============================================================
-// TRINITE CHAT — script.js v2
-// Particles · Theme · Ripple · Avatar · FAB · Swipe Delete
-// Typing Indicator · Sound Toggle · Skeleton · QR Scan
+// TRINITE CHAT â€” script.js v2
+// Particles Â· Theme Â· Ripple Â· Avatar Â· FAB Â· Swipe Delete
+// Typing Indicator Â· Sound Toggle Â· Skeleton Â· QR Scan
 // ============================================================
 (function () {
   "use strict";
@@ -92,7 +92,7 @@
 })();
 
 // ============================================================
-// TRINITE CHAT — Logique principale
+// TRINITE CHAT â€” Logique principale
 // ============================================================
 
 
@@ -103,7 +103,7 @@ const LOGO_URL      = "https://i.postimg.cc/WpqGN1y6/Picsart-26-06-09-10-15-05-5
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
 // ============================================================
-// ÉTAT GLOBAL
+// Ã‰TAT GLOBAL
 // ============================================================
 let currentUser     = null;
 let userProfiles    = [];
@@ -116,7 +116,7 @@ let realtimeChannel = null;
 let notifChannel    = null;
 let typingChannel = null;
 let typingTimeout = null;
-let currentTypingHandler = null;   // FIX: éviter l'accumulation de listeners
+let currentTypingHandler = null;   // FIX: Ã©viter l'accumulation de listeners
 let unreadCount     = 0;
 let userAvatarUrl   = null;
 let feedSoundEnabled = false;
@@ -126,7 +126,7 @@ let cameraStream   = null;
 let studioFile     = null;
 let studioBlob     = null;
 let studioFileName = null;
-let currentBlobUrl = null;   // FIX: blob URL à révoquer pour éviter les fuites mémoire
+let currentBlobUrl = null;   // FIX: blob URL Ã  rÃ©voquer pour Ã©viter les fuites mÃ©moire
 
 // Voice
 let mediaRecorder  = null;
@@ -140,13 +140,13 @@ let avatarCamStream = null;
 const seenStories = new Set();
 
 // ============================================================
-// VIDÉOS DEMO
+// VIDÃ‰OS DEMO
 // ============================================================
 const DEMO_VIDEOS = [
-  { id:"v1", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",      author:"@trinitechat",  desc:"Bienvenue sur Trinite Chat 🔥 Trois profils, une seule app !", likes:3102, comments:95, isDemo:true },
-  { id:"v2", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",          author:"@profil_pro",   desc:"Gérez vos conversations pros séparément 💼 #pro #business",   likes:1284, comments:48, isDemo:true },
-  { id:"v3", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",        author:"@anonyme_x",    desc:"Mode anonyme activé 👻 Personne ne saura qui vous êtes",       likes:873,  comments:22, isDemo:true },
-  { id:"v4", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", author:"@prive_heart", desc:"Vos messages privés restent privés ❤️ #love #privé",        likes:642,  comments:17, isDemo:true }
+  { id:"v1", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",      author:"@trinitechat",  desc:"Bienvenue sur Trinite Chat ðŸ”¥ Trois profils, une seule app !", likes:3102, comments:95, isDemo:true },
+  { id:"v2", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",          author:"@profil_pro",   desc:"GÃ©rez vos conversations pros sÃ©parÃ©ment ðŸ’¼ #pro #business",   likes:1284, comments:48, isDemo:true },
+  { id:"v3", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",        author:"@anonyme_x",    desc:"Mode anonyme activÃ© ðŸ‘» Personne ne saura qui vous Ãªtes",       likes:873,  comments:22, isDemo:true },
+  { id:"v4", url:"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4", author:"@prive_heart", desc:"Vos messages privÃ©s restent privÃ©s â¤ï¸ #love #privÃ©",        likes:642,  comments:17, isDemo:true }
 ];
 
 let feedLiked      = {};
@@ -173,32 +173,34 @@ function formatTime(iso) {
   return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 }
 
+let _hubRefreshTimer = null;
 function showScreen(id) {
+  clearTimeout(_hubRefreshTimer); // FIX: annuler tout timer hub en cours pour Ã©viter redirect
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const el = document.getElementById(id);
   if (el) el.classList.add("active");
   updateFabVisibility(id);
   
-  // Forcer le rafraîchissement du Hub à chaque affichage
+  // Forcer le rafraÃ®chissement du Hub Ã  chaque affichage
   if (id === "screen-hub") {
-    setTimeout(() => {
+    _hubRefreshTimer = setTimeout(() => {
       if (typeof window.refreshHub === 'function') window.refreshHub();
     }, 50);
   }
-  // FEED STATUS ADD: Charger les favoris à l'ouverture de l'écran
+  // FEED STATUS ADD: Charger les favoris Ã  l'ouverture de l'Ã©cran
   if (id === "screen-favorites") {
     setTimeout(() => {
       if (typeof buildFavorites === 'function') buildFavorites();
     }, 50);
   }
-  // Stats du profil à l'ouverture
+  // Stats du profil Ã  l'ouverture
   if (id === "screen-profil") {
     setTimeout(() => {
       if (typeof loadProfilStats === 'function') loadProfilStats();
     }, 100);
   }
 }
-// Exposer showScreen globalement (nécessaire pour onclick dans le HTML)
+// Exposer showScreen globalement (nÃ©cessaire pour onclick dans le HTML)
 window.showScreen = showScreen;
 
 function initial(name) { return (name || "?").charAt(0).toUpperCase(); }
@@ -211,8 +213,8 @@ function escapeHtml(s) {
     .replace(/"/g, "&quot;");
 }
 
-function profileLabel(type) { return { pro:"Pro", prive:"Privé", anonyme:"Anonyme" }[type] || type; }
-function profileEmoji(type) { return { pro:"💼", prive:"❤️", anonyme:"👻" }[type] || "👤"; }
+function profileLabel(type) { return { pro:"Pro", prive:"PrivÃ©", anonyme:"Anonyme" }[type] || type; }
+function profileEmoji(type) { return { pro:"ðŸ’¼", prive:"â¤ï¸", anonyme:"ðŸ‘»" }[type] || "ðŸ‘¤"; }
 function profileColor(type) {
   return { pro:"linear-gradient(135deg,#6366f1,#8b5cf6)", prive:"linear-gradient(135deg,#ec4899,#f97316)", anonyme:"linear-gradient(135deg,#6b7280,#374151)" }[type] || "linear-gradient(135deg,#8b5cf6,#db2777)";
 }
@@ -245,7 +247,7 @@ function updateMsgBadge(count) {
   if (unreadCount > 0) {
     badge.textContent = unreadCount > 99 ? "99+" : unreadCount;
     badge.classList.remove("hidden");
-    // FIX: Forcer re-déclenchement des animations (badgePop + neonPulse)
+    // FIX: Forcer re-dÃ©clenchement des animations (badgePop + neonPulse)
     badge.style.animation = "none";
     void badge.offsetWidth; // force reflow
     badge.style.animation = "badgePop 0.35s var(--spring), neonPulse 1.5s ease-in-out infinite 0.5s";
@@ -286,10 +288,10 @@ async function initAuth() {
     const { data } = await db.auth.getSession();
     session = data?.session ?? null;
   } catch (e) {
-    console.error("Trinite initAuth — getSession failed:", e);
+    console.error("Trinite initAuth â€” getSession failed:", e);
   }
 
-  // Afficher immédiatement — plus de délai splash
+  // Afficher immÃ©diatement â€” plus de dÃ©lai splash
   if (session) {
     currentUser = session.user;
     await afterLogin();
@@ -315,7 +317,7 @@ async function initAuth() {
 async function afterLogin() {
   window.showSkeleton();
 
-  // FIX: Vérifier que le bucket "avatars" existe dans Supabase Storage
+  // FIX: VÃ©rifier que le bucket "avatars" existe dans Supabase Storage
   try {
     const { data: buckets } = await db.storage.listBuckets();
     const avatarBucketExists = buckets?.some(b => b.name === "avatars");
@@ -335,13 +337,13 @@ async function afterLogin() {
     window.hideSkeleton();
     const rows = [
       { user_id: currentUser.id, profile_type: "pro",     name: "Pro" },
-      { user_id: currentUser.id, profile_type: "prive",   name: "Privé" },
+      { user_id: currentUser.id, profile_type: "prive",   name: "PrivÃ©" },
       { user_id: currentUser.id, profile_type: "anonyme", name: "Anonyme" }
     ];
     const { data: nd, error: ne } = await db.from("profiles").insert(rows).select();
-    if (ne) { toast("Erreur création profils : " + ne.message, "error"); showScreen("screen-setup"); return; }
+    if (ne) { toast("Erreur crÃ©ation profils : " + ne.message, "error"); showScreen("screen-setup"); return; }
     userProfiles = nd || [];
-    toast("Vos 3 profils ont été créés !", "success");
+    toast("Vos 3 profils ont Ã©tÃ© crÃ©Ã©s !", "success");
   } else {
     userProfiles = data;
     userAvatarUrl = data[0]?.avatar_url || null;
@@ -361,7 +363,7 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   const btn      = e.target.querySelector("button[type=submit]");
   const email    = document.getElementById("login-email").value.trim();
   const password = document.getElementById("login-password").value;
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion…'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexionâ€¦'; }
   const { error } = await db.auth.signInWithPassword({ email, password });
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Se connecter'; }
   if (error) {
@@ -369,7 +371,7 @@ document.getElementById("form-login")?.addEventListener("submit", async e => {
   }
 });
 
-// FIX: Toggle Email / Téléphone style TikTok sur le formulaire d'inscription
+// FIX: Toggle Email / TÃ©lÃ©phone style TikTok sur le formulaire d'inscription
 document.querySelectorAll(".auth-type-btn").forEach(btn => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".auth-type-btn").forEach(b => b.classList.remove("active"));
@@ -400,56 +402,56 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
   const password = document.getElementById("register-password").value;
   const authType = document.querySelector(".auth-type-btn.active")?.dataset.type || "email";
 
-  // FIX: Déterminer email selon le type choisi (email ou téléphone)
+  // FIX: DÃ©terminer email selon le type choisi (email ou tÃ©lÃ©phone)
   let email = "";
   if (authType === "email") {
     email = document.getElementById("register-email").value.trim();
     if (!email) { toast("Entrez votre email", "error"); return; }
   } else {
     const phone = document.getElementById("register-phone").value.trim().replace(/\s+/g,"");
-    if (!phone) { toast("Entrez votre numéro", "error"); return; }
-    // FIX: Générer un email fictif à partir du numéro pour Supabase
+    if (!phone) { toast("Entrez votre numÃ©ro", "error"); return; }
+    // FIX: GÃ©nÃ©rer un email fictif Ã  partir du numÃ©ro pour Supabase
     email = phone + "@phone.trinite";
   }
 
-  if (password.length < 6) { toast("Mot de passe trop court (6 caractères min.)", "error"); return; }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
+  if (password.length < 6) { toast("Mot de passe trop court (6 caractÃ¨res min.)", "error"); return; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CrÃ©ationâ€¦'; }
 
   // FIX: signUp retourne { data: { user, session }, error }
-  // "Database error saving new user" = un trigger SQL sur auth.users est cassé.
-  // Solution : NE PAS utiliser de trigger. Créer les profils ici, manuellement.
+  // "Database error saving new user" = un trigger SQL sur auth.users est cassÃ©.
+  // Solution : NE PAS utiliser de trigger. CrÃ©er les profils ici, manuellement.
   const { data: signUpData, error } = await db.auth.signUp({ email, password });
 
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Créer mon compte'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> CrÃ©er mon compte'; }
 
   if (error) {
-    // FIX: Message d'erreur francisé + log console pour debug
+    // FIX: Message d'erreur francisÃ© + log console pour debug
     console.error("Trinite signUp error:", error);
     const msg = error.message.includes("Database error")
       ? "Erreur serveur : supprimez le trigger SQL sur auth.users (voir console)."
       : error.message.includes("already registered") || error.message.includes("already been registered")
-      ? "Cet email est déjà utilisé."
+      ? "Cet email est dÃ©jÃ  utilisÃ©."
       : error.message;
     toast(msg, "error");
     return;
   }
 
-  // FIX: Récupérer l'utilisateur depuis signUpData.user (disponible même sans confirmation email)
+  // FIX: RÃ©cupÃ©rer l'utilisateur depuis signUpData.user (disponible mÃªme sans confirmation email)
   // Ne pas utiliser db.auth.getUser() ici : la session n'est pas encore active si
-  // "Confirm email" est activé dans Supabase Auth settings.
+  // "Confirm email" est activÃ© dans Supabase Auth settings.
   const user = signUpData?.user;
 
   if (user) {
-    // FIX: Sauvegarder le numéro de téléphone dans les métadonnées user
+    // FIX: Sauvegarder le numÃ©ro de tÃ©lÃ©phone dans les mÃ©tadonnÃ©es user
     const phone = document.getElementById("register-phone")?.value.trim() || null;
     if (phone) {
       await db.auth.updateUser({ phone, data: { phone } });
     }
 
-    // FIX: Créer les 3 profils directement après signUp, sans trigger SQL.
+    // FIX: CrÃ©er les 3 profils directement aprÃ¨s signUp, sans trigger SQL.
     const rows = [
       { user_id: user.id, profile_type: "pro",     name: "Pro",     phone: phone },
-      { user_id: user.id, profile_type: "prive",   name: "Privé",   phone: phone },
+      { user_id: user.id, profile_type: "prive",   name: "PrivÃ©",   phone: phone },
       { user_id: user.id, profile_type: "anonyme", name: "Anonyme", phone: phone }
     ];
     const { error: profileErr } = await db.from("profiles").insert(rows);
@@ -457,23 +459,23 @@ document.getElementById("form-register")?.addEventListener("submit", async e => 
       // FIX: Retenter sans colonne phone si elle n'existe pas encore
       const rows2 = [
         { user_id: user.id, profile_type: "pro",     name: "Pro" },
-        { user_id: user.id, profile_type: "prive",   name: "Privé" },
+        { user_id: user.id, profile_type: "prive",   name: "PrivÃ©" },
         { user_id: user.id, profile_type: "anonyme", name: "Anonyme" }
       ];
       const { error: profileErr2 } = await db.from("profiles").insert(rows2);
-      if (profileErr2) console.warn("Trinite: profils non créés :", profileErr2.message);
+      if (profileErr2) console.warn("Trinite: profils non crÃ©Ã©s :", profileErr2.message);
     }
   }
 
-  // FIX: Si confirmation email désactivée dans Supabase, la session est active
-  // et onAuthStateChange va déclencher afterLogin() automatiquement.
-  // Si confirmation email activée, on affiche juste un message d'attente.
+  // FIX: Si confirmation email dÃ©sactivÃ©e dans Supabase, la session est active
+  // et onAuthStateChange va dÃ©clencher afterLogin() automatiquement.
+  // Si confirmation email activÃ©e, on affiche juste un message d'attente.
   const needsConfirm = !signUpData?.session;
   if (needsConfirm) {
-    toast("Compte créé ! Vérifiez votre boîte mail pour confirmer.", "success");
+    toast("Compte crÃ©Ã© ! VÃ©rifiez votre boÃ®te mail pour confirmer.", "success");
   } else {
-    toast("Compte créé et connecté !", "success");
-    // FIX: onAuthStateChange s'en charge — pas besoin d'appeler afterLogin() manuellement
+    toast("Compte crÃ©Ã© et connectÃ© !", "success");
+    // FIX: onAuthStateChange s'en charge â€” pas besoin d'appeler afterLogin() manuellement
   }
 });
 
@@ -494,22 +496,22 @@ document.querySelectorAll(".tab").forEach(tab => {
 document.getElementById("form-setup")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création…'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CrÃ©ationâ€¦'; }
   const rows = [
     { user_id: currentUser.id, profile_type: "pro",     name: document.getElementById("name-pro")?.value.trim()     || "Pro" },
-    { user_id: currentUser.id, profile_type: "prive",   name: document.getElementById("name-prive")?.value.trim()   || "Privé" },
+    { user_id: currentUser.id, profile_type: "prive",   name: document.getElementById("name-prive")?.value.trim()   || "PrivÃ©" },
     { user_id: currentUser.id, profile_type: "anonyme", name: document.getElementById("name-anonyme")?.value.trim() || "Anonyme" }
   ];
   const { data, error } = await db.from("profiles").insert(rows).select();
-  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Créer mes profils'; }
+  if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> CrÃ©er mes profils'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
   userProfiles = data || [];
-  toast("Vos 3 identités sont prêtes !", "success");
+  toast("Vos 3 identitÃ©s sont prÃªtes !", "success");
   await loadMainScreen();
 });
 
 // ============================================================
-// DÉCONNEXION
+// DÃ‰CONNEXION
 // ============================================================
 
 function handleLogout() {
@@ -524,7 +526,7 @@ document.getElementById("btn-logout")       ?.addEventListener("click", handleLo
 document.getElementById("btn-logout-profil")?.addEventListener("click", handleLogout);
 
 // ============================================================
-// ÉCRAN PRINCIPAL
+// Ã‰CRAN PRINCIPAL
 // ============================================================
 
 async function loadMainScreen() {
@@ -549,7 +551,7 @@ async function loadMainScreen() {
 }
 
 // ============================================================
-// SWIPER DE PROFILS (bug fix: offset précis)
+// SWIPER DE PROFILS (bug fix: offset prÃ©cis)
 // ============================================================
 
 function buildSwiper() {
@@ -585,13 +587,13 @@ function buildSwiper() {
   });
 
   const wrap = document.getElementById("profile-swiper-wrap");
-  // FIX: retirer les anciens listeners en remplaçant le nœud
+  // FIX: retirer les anciens listeners en remplaÃ§ant le nÅ“ud
   const newWrap = wrap?.cloneNode(true);
   if (wrap && newWrap) wrap.parentNode.replaceChild(newWrap, wrap);
   const swiperWrap = document.getElementById("profile-swiper-wrap");
 
   let startX = null;
-  let startY = null; // FIX: tracking Y pour empêcher swipe vertical
+  let startY = null; // FIX: tracking Y pour empÃªcher swipe vertical
   let dragging = false;
 
   swiperWrap?.addEventListener("touchstart", e => {
@@ -615,7 +617,7 @@ function buildSwiper() {
     startX   = null;
     startY   = null;
     dragging = false;
-    // FIX: Seuil réduit à 30px + vérification que c'est bien horizontal
+    // FIX: Seuil rÃ©duit Ã  30px + vÃ©rification que c'est bien horizontal
     if (Math.abs(dx) < Math.abs(dy) * 1.5) return; // FIX: annuler si trop vertical
     if (dx < -30 && activeIdx < userProfiles.length - 1) {
       setActiveProfile(activeIdx + 1);
@@ -669,7 +671,7 @@ function updateHeaderProfile() {
 async function loadStoriesFromSupabase() {
   if (!currentUser) return [];
   try {
-    const { data, error } = await db.from("stories")
+    const { data, error } = await db.from("status")
       .select("id, profile_id, media_url, media_type, created_at, expires_at, profiles(name, avatar_url)")
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false })
@@ -679,7 +681,7 @@ async function loadStoriesFromSupabase() {
   return [];
 }
 
-// FEED STATUS ADD: buildStories — WhatsApp-style vertical rectangles + Supabase stories table
+// FEED STATUS ADD: buildStories â€” WhatsApp-style vertical rectangles + Supabase stories table
 async function buildStories() {
   const scroll = document.getElementById("stories-scroll");
   if (!scroll) return;
@@ -688,22 +690,22 @@ async function buildStories() {
   // FEED STATUS ADD: Charger les stories Supabase (valides 24h)
   const supabaseStories = await loadStoriesFromSupabase();
 
-  // Séparer mes stories des stories des autres
+  // SÃ©parer mes stories des stories des autres
   const myStories    = supabaseStories.filter(s => activeProfile && s.profile_id === activeProfile.id);
   const otherStories = supabaseStories.filter(s => !activeProfile || s.profile_id !== activeProfile.id);
 
-  // ─── "MA STORY" — style WhatsApp ───────────────────────────────
+  // â”€â”€â”€ "MA STORY" â€” style WhatsApp â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const addWrap = document.createElement("div");
   addWrap.className = "story-item";
 
   if (myStories.length > 0) {
-    // J'ai des stories actives → montrer la plus récente en fond + ring coloré
+    // J'ai des stories actives â†’ montrer la plus rÃ©cente en fond + ring colorÃ©
     const latest = myStories[0];
     const mediaPreview = latest.media_url
       ? (latest.media_type === "video"
           ? `<video src="${escapeHtml(latest.media_url)}" muted playsinline style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video>`
           : `<img src="${escapeHtml(latest.media_url)}" style="width:100%;height:100%;object-fit:cover;border-radius:10px" alt="ma story" />`)
-      : `<span style="font-size:2rem">${activeProfile ? profileEmoji(activeProfile.profile_type) : "👤"}</span>`;
+      : `<span style="font-size:2rem">${activeProfile ? profileEmoji(activeProfile.profile_type) : "ðŸ‘¤"}</span>`;
 
     const timeLeft = Math.round((new Date(latest.expires_at) - Date.now()) / 3600000);
     addWrap.innerHTML = `
@@ -716,16 +718,16 @@ async function buildStories() {
       <span class="story-name">Ma story</span>
       <span class="story-time-left">${timeLeft}h</span>`;
 
-    // Clic sur le "+" → upload ; clic ailleurs → voir mes stories
+    // Clic sur le "+" â†’ upload ; clic ailleurs â†’ voir mes stories
     addWrap.addEventListener("click", (e) => {
       if (e.target.closest(".story-add-plus")) { openStoryUpload(); }
       else { openStoryFull(latest); }
     });
   } else {
-    // Pas encore de story → bouton + classique
+    // Pas encore de story â†’ bouton + classique
     const myAvatarHtml = userAvatarUrl
       ? `<img src="${escapeHtml(userAvatarUrl)}" alt="moi" />`
-      : (activeProfile ? `<span style="font-size:1.8rem">${profileEmoji(activeProfile.profile_type)}</span>` : "👤");
+      : (activeProfile ? `<span style="font-size:1.8rem">${profileEmoji(activeProfile.profile_type)}</span>` : "ðŸ‘¤");
     addWrap.innerHTML = `
       <div class="story-add-ring" title="Ajouter une story">
         <div class="story-avatar">${myAvatarHtml}</div>
@@ -736,7 +738,7 @@ async function buildStories() {
   }
   scroll.appendChild(addWrap);
 
-  // ─── STORIES DES AUTRES ────────────────────────────────────────
+  // â”€â”€â”€ STORIES DES AUTRES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   const renderStory = (story, i) => {
     const seen = seenStories.has(story.id);
     const name = story.profiles?.name || "Inconnu";
@@ -770,7 +772,7 @@ async function buildStories() {
     otherStories.forEach((story, i) => renderStory(story, i));
   } else if (supabaseStories.length === 0) {
     // FEED STATUS ADD: Fallback contacts si aucune story en base
-    const STORY_EMOJIS = ["🔥","💜","✨","👋","🎵","🌙","💫","🎉"];
+    const STORY_EMOJIS = ["ðŸ”¥","ðŸ’œ","âœ¨","ðŸ‘‹","ðŸŽµ","ðŸŒ™","ðŸ’«","ðŸŽ‰"];
     currentContacts.slice(0, 10).forEach((c, i) => {
       const seen = seenStories.has(c.id);
       const wrap = document.createElement("div");
@@ -815,7 +817,7 @@ function openStory(contact, emoji) {
   modal?.classList.remove("hidden");
   buildStories();
 
-  // FIX: Fermeture automatique exactement après 4 secondes
+  // FIX: Fermeture automatique exactement aprÃ¨s 4 secondes
   clearTimeout(openStory._t);
   openStory._t = setTimeout(() => modal?.classList.add("hidden"), 4000);
 }
@@ -933,7 +935,7 @@ function wireSwipeDelete(wrapper, item, deleteBg, contact) {
         if (error) {
           toast("Erreur suppression : " + error.message, "error");
         } else {
-          toast("Contact supprimé", "info");
+          toast("Contact supprimÃ©", "info");
           await loadContacts();
           buildStories();
         }
@@ -957,7 +959,7 @@ function wireContactSearch() {
   input.addEventListener("input", () => {
     const q = input.value.trim().toLowerCase();
     if (!q) { renderContacts(currentContacts); return; }
-    // FIX: Recherche par nom, email OU téléphone
+    // FIX: Recherche par nom, email OU tÃ©lÃ©phone
     const filtered = currentContacts.filter(c =>
       c.contact_name.toLowerCase().includes(q) ||
       (c.contact_email || "").toLowerCase().includes(q) ||
@@ -978,7 +980,7 @@ document.getElementById("btn-add-contact")?.addEventListener("click", () => {
     userProfiles.forEach(p => {
       const opt = document.createElement("option");
       opt.value = p.id;
-      opt.textContent = `${profileEmoji(p.profile_type)} ${profileLabel(p.profile_type)} — ${p.name}`;
+      opt.textContent = `${profileEmoji(p.profile_type)} ${profileLabel(p.profile_type)} â€” ${p.name}`;
       if (p.id === activeProfile?.id) opt.selected = true;
       sel.appendChild(opt);
     });
@@ -994,19 +996,19 @@ document.getElementById("modal-add-contact")?.addEventListener("click", e => {
   if (e.target === e.currentTarget) e.currentTarget.classList.add("hidden");
 });
 
-// FIX: Recherche de contact par numéro de téléphone (style WhatsApp)
+// FIX: Recherche de contact par numÃ©ro de tÃ©lÃ©phone (style WhatsApp)
 document.getElementById("btn-search-phone")?.addEventListener("click", async () => {
   const phone = document.getElementById("contact-phone")?.value.trim();
   const resultEl = document.getElementById("phone-search-result");
-  if (!phone) { toast("Entrez un numéro de téléphone", "error"); return; }
+  if (!phone) { toast("Entrez un numÃ©ro de tÃ©lÃ©phone", "error"); return; }
 
   if (resultEl) {
     resultEl.classList.remove("hidden");
-    resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Recherche…';
+    resultEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Rechercheâ€¦';
     resultEl.className = "phone-search-result searching";
   }
 
-  // FIX: Chercher dans les profils par numéro de téléphone
+  // FIX: Chercher dans les profils par numÃ©ro de tÃ©lÃ©phone
   const phoneClean = phone.replace(/\s+/g, "");
   const { data, error } = await db.from("profiles")
     .select("id, name, user_id, profile_type, phone")
@@ -1014,19 +1016,19 @@ document.getElementById("btn-search-phone")?.addEventListener("click", async () 
     .limit(1);
 
   if (error || !data || data.length === 0) {
-    // FIX: Pas trouvé — on peut quand même ajouter manuellement
+    // FIX: Pas trouvÃ© â€” on peut quand mÃªme ajouter manuellement
     if (resultEl) {
-      resultEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Aucun utilisateur Trinite trouvé — vous pouvez quand même ajouter ce contact.';
+      resultEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> Aucun utilisateur Trinite trouvÃ© â€” vous pouvez quand mÃªme ajouter ce contact.';
       resultEl.className = "phone-search-result not-found";
     }
-    // Pré-remplir l'email hidden avec le numéro
+    // PrÃ©-remplir l'email hidden avec le numÃ©ro
     const emailInput = document.getElementById("contact-email");
     if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
     return;
   }
 
   const found = data[0];
-  // FIX: Pré-remplir automatiquement nom et ID Trinite
+  // FIX: PrÃ©-remplir automatiquement nom et ID Trinite
   const nameInput = document.getElementById("contact-name");
   const profileIdInput = document.getElementById("contact-profile-id");
   const emailInput = document.getElementById("contact-email");
@@ -1036,13 +1038,13 @@ document.getElementById("btn-search-phone")?.addEventListener("click", async () 
   if (emailInput) emailInput.value = phoneClean + "@phone.trinite";
 
   if (resultEl) {
-    resultEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> Trouvé : <strong>${escapeHtml(found.name)}</strong> (${escapeHtml(found.profile_type)})`;
+    resultEl.innerHTML = `<i class="fa-solid fa-circle-check"></i> TrouvÃ© : <strong>${escapeHtml(found.name)}</strong> (${escapeHtml(found.profile_type)})`;
     resultEl.className = "phone-search-result found";
   }
   haptic(15);
 });
 
-// FIX: Recherche aussi en tapant (après 1 seconde sans frappe)
+// FIX: Recherche aussi en tapant (aprÃ¨s 1 seconde sans frappe)
 document.getElementById("contact-phone")?.addEventListener("input", () => {
   const resultEl = document.getElementById("phone-search-result");
   if (resultEl) resultEl.classList.add("hidden");
@@ -1062,12 +1064,12 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   const name             = document.getElementById("contact-name").value.trim();
   const profileId        = document.getElementById("contact-profile-select").value;
   const contactProfileId = document.getElementById("contact-profile-id").value.trim() || null;
-  // FIX: email généré à partir du téléphone si pas trouvé dans profiles
+  // FIX: email gÃ©nÃ©rÃ© Ã  partir du tÃ©lÃ©phone si pas trouvÃ© dans profiles
   const emailHidden      = document.getElementById("contact-email").value.trim()
                            || (phone.replace(/\s+/g,"") + "@phone.trinite");
 
-  if (!phone || !name) { toast("Entrez un numéro et un nom", "error"); return; }
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajout…'; }
+  if (!phone || !name) { toast("Entrez un numÃ©ro et un nom", "error"); return; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Ajoutâ€¦'; }
 
   // FIX: contact_user_id est le vrai nom de la colonne dans la table (pas contact_profile_id)
   const { error } = await db.from("contacts").insert({
@@ -1082,7 +1084,7 @@ document.getElementById("form-add-contact")?.addEventListener("submit", async e 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-user-plus"></i> Ajouter'; }
   if (error) { toast("Erreur : " + error.message, "error"); return; }
 
-  toast("Contact ajouté !", "success");
+  toast("Contact ajoutÃ© !", "success");
   haptic(15);
   document.getElementById("modal-add-contact")?.classList.add("hidden");
   e.target.reset();
@@ -1114,11 +1116,11 @@ document.getElementById("btn-qr-simulate")?.addEventListener("click", () => {
   const input  = document.getElementById("contact-profile-id");
   if (input) input.value = fakeId;
   document.getElementById("qr-scanner-mock")?.classList.add("hidden");
-  toast("QR Code scanné ! ID : " + fakeId, "success");
+  toast("QR Code scannÃ© ! ID : " + fakeId, "success");
 });
 
 // ============================================================
-// ÉCRAN PROFIL
+// Ã‰CRAN PROFIL
 // ============================================================
 
 function buildProfilScreen() {
@@ -1140,7 +1142,7 @@ function buildProfilScreen() {
     container.appendChild(card);
   });
 
-  // FIX: Afficher un QR code et statut pour CHAQUE profil séparément
+  // FIX: Afficher un QR code et statut pour CHAQUE profil sÃ©parÃ©ment
   const idSection = document.getElementById("profil-id-section");
   if (idSection && userProfiles.length > 0) {
     idSection.style.display = "";
@@ -1155,8 +1157,8 @@ function buildProfilScreen() {
             <span class="status-slider"></span>
           </label>
         </div>
-        <!-- FIX: Texte statut clair — visible seulement par les contacts de CE profil -->
-        <p class="status-label-text" id="status-label-${p.id}">${p.is_online ? "🟢 En ligne" : "⚫ Hors ligne"} — visible uniquement par vos contacts ${profileLabel(p.profile_type)}</p>
+        <!-- FIX: Texte statut clair â€” visible seulement par les contacts de CE profil -->
+        <p class="status-label-text" id="status-label-${p.id}">${p.is_online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne"} â€” visible uniquement par vos contacts ${profileLabel(p.profile_type)}</p>
         <div class="profil-id-box">
           <span class="profil-id-value" id="profil-id-${p.id}">${escapeHtml(p.id)}</span>
           <button class="icon-btn btn-copy-profile-id" data-pid="${p.id}" title="Copier ID">
@@ -1167,19 +1169,19 @@ function buildProfilScreen() {
         <div class="profil-qr-canvas-wrap">
           <div id="qr-canvas-${p.id}" class="profil-qr-canvas"></div>
           <p class="profil-id-hint">Faites scanner ce QR pour que vos contacts vous trouvent</p>
-          <!-- FIX: Boutons partager et télécharger le QR -->
+          <!-- FIX: Boutons partager et tÃ©lÃ©charger le QR -->
           <div class="qr-share-btns">
             <button class="btn-qr-share" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
               <i class="fa-solid fa-share-nodes"></i> Partager
             </button>
             <button class="btn-qr-download" data-pid="${p.id}" data-name="${escapeHtml(p.name)}">
-              <i class="fa-solid fa-download"></i> Télécharger
+              <i class="fa-solid fa-download"></i> TÃ©lÃ©charger
             </button>
           </div>
         </div>
-        <!-- FIX: Paramètres visibilité vidéo par profil -->
+        <!-- FIX: ParamÃ¨tres visibilitÃ© vidÃ©o par profil -->
         <div class="video-visibility-section">
-          <p class="video-visibility-title"><i class="fa-solid fa-film"></i> Qui peut voir mes vidéos (${profileLabel(p.profile_type)}) ?</p>
+          <p class="video-visibility-title"><i class="fa-solid fa-film"></i> Qui peut voir mes vidÃ©os (${profileLabel(p.profile_type)}) ?</p>
           <div class="video-visibility-options">
             <label class="vv-option">
               <input type="radio" name="vv-${p.id}" value="everyone" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"everyone")==="everyone"?"checked":""} />
@@ -1191,14 +1193,14 @@ function buildProfilScreen() {
             </label>
             <label class="vv-option">
               <input type="radio" name="vv-${p.id}" value="nobody" class="vv-radio" data-pid="${p.id}" ${(p.video_visibility||"")==="nobody"?"checked":""} />
-              <span class="vv-label"><i class="fa-solid fa-lock"></i> Personne (privé)</span>
+              <span class="vv-label"><i class="fa-solid fa-lock"></i> Personne (privÃ©)</span>
             </label>
           </div>
         </div>
       </div>
     `).join("");
 
-    // FIX: Générer les QR codes
+    // FIX: GÃ©nÃ©rer les QR codes
     loadQRLib().then(() => {
       userProfiles.forEach(p => {
         const el = document.getElementById("qr-canvas-" + p.id);
@@ -1222,12 +1224,12 @@ function buildProfilScreen() {
         const id = document.getElementById("profil-id-" + btn.dataset.pid)?.textContent;
         if (!id) return;
         navigator.clipboard?.writeText(id)
-          .then(() => toast("ID copié !", "success"))
+          .then(() => toast("ID copiÃ© !", "success"))
           .catch(() => toast("Impossible de copier", "error"));
       });
     });
 
-    // FIX: Statut en ligne — visible seulement par contacts du même profil
+    // FIX: Statut en ligne â€” visible seulement par contacts du mÃªme profil
     idSection.querySelectorAll(".status-checkbox").forEach(cb => {
       cb.addEventListener("change", async () => {
         const pid = cb.dataset.pid;
@@ -1237,13 +1239,13 @@ function buildProfilScreen() {
           const lbl = document.getElementById("status-label-" + pid);
           const p = userProfiles.find(x => x.id === pid);
           const label = p ? profileLabel(p.profile_type) : "";
-          if (lbl) lbl.textContent = (online ? "🟢 En ligne" : "⚫ Hors ligne") + " — visible uniquement par vos contacts " + label;
-          toast(online ? "🟢 En ligne" : "⚫ Hors ligne", "info");
+          if (lbl) lbl.textContent = (online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne") + " â€” visible uniquement par vos contacts " + label;
+          toast(online ? "ðŸŸ¢ En ligne" : "âš« Hors ligne", "info");
         }
       });
     });
 
-    // FIX: Partager QR code via Web Share API ou téléchargement
+    // FIX: Partager QR code via Web Share API ou tÃ©lÃ©chargement
     idSection.querySelectorAll(".btn-qr-share").forEach(btn => {
       btn.addEventListener("click", async () => {
         const pid  = btn.dataset.pid;
@@ -1256,7 +1258,7 @@ function buildProfilScreen() {
             canvas.toBlob(async blob => {
               if (!blob) { shareTextFallback(id, name); return; }
               const file = new File([blob], "trinite-qr-" + name + ".png", { type: "image/png" });
-              await navigator.share({ title: "Trinite Chat — " + name, files: [file], text: "Mon ID Trinite : " + id });
+              await navigator.share({ title: "Trinite Chat â€” " + name, files: [file], text: "Mon ID Trinite : " + id });
             });
           } catch (_) { shareTextFallback(id, name); }
         } else {
@@ -1266,23 +1268,23 @@ function buildProfilScreen() {
       });
     });
 
-    // FIX: Télécharger le QR code comme image
+    // FIX: TÃ©lÃ©charger le QR code comme image
     idSection.querySelectorAll(".btn-qr-download").forEach(btn => {
       btn.addEventListener("click", () => {
         const pid  = btn.dataset.pid;
         const name = btn.dataset.name;
         const canvas = document.querySelector("#qr-canvas-" + pid + " canvas");
-        if (!canvas) { toast("QR pas encore prêt", "error"); return; }
+        if (!canvas) { toast("QR pas encore prÃªt", "error"); return; }
         const link = document.createElement("a");
         link.download = "trinite-qr-" + name + ".png";
         link.href = canvas.toDataURL("image/png");
         link.click();
-        toast("QR téléchargé !", "success");
+        toast("QR tÃ©lÃ©chargÃ© !", "success");
         haptic(10);
       });
     });
 
-    // FIX: Visibilité vidéo — sauvegarde dans Supabase
+    // FIX: VisibilitÃ© vidÃ©o â€” sauvegarde dans Supabase
     idSection.querySelectorAll(".vv-radio").forEach(radio => {
       radio.addEventListener("change", async () => {
         if (!radio.checked) return;
@@ -1290,9 +1292,9 @@ function buildProfilScreen() {
         const val = radio.value;
         const { error } = await db.from("profiles").update({ video_visibility: val }).eq("id", pid);
         if (!error) {
-          const labels = { everyone: "Tout le monde", contacts: "Contacts seulement", nobody: "Personne (privé)" };
-          toast("Visibilité vidéo : " + (labels[val] || val), "success");
-          // FIX: Mettre à jour le cache local
+          const labels = { everyone: "Tout le monde", contacts: "Contacts seulement", nobody: "Personne (privÃ©)" };
+          toast("VisibilitÃ© vidÃ©o : " + (labels[val] || val), "success");
+          // FIX: Mettre Ã  jour le cache local
           const p = userProfiles.find(x => x.id === pid);
           if (p) p.video_visibility = val;
         }
@@ -1304,10 +1306,10 @@ function buildProfilScreen() {
 // FIX: Fallback partage par texte si image impossible
 function shareTextFallback(id, name) {
   if (navigator.share) {
-    navigator.share({ title: "Trinite Chat — " + name, text: "Ajoutez-moi sur Trinite Chat !\nMon ID : " + id });
+    navigator.share({ title: "Trinite Chat â€” " + name, text: "Ajoutez-moi sur Trinite Chat !\nMon ID : " + id });
   } else {
     navigator.clipboard?.writeText(id)
-      .then(() => toast("ID copié ! Partagez-le à vos contacts.", "success"))
+      .then(() => toast("ID copiÃ© ! Partagez-le Ã  vos contacts.", "success"))
       .catch(() => toast("ID : " + id, "info"));
   }
 }
@@ -1326,16 +1328,16 @@ function loadQRLib() {
 
 document.getElementById("btn-copy-id")?.addEventListener("click", () => {
   const idText = document.getElementById("profil-id-text")?.textContent;
-  if (!idText || idText === "—") return;
+  if (!idText || idText === "â€”") return;
   navigator.clipboard?.writeText(idText)
-    .then(() => toast("ID copié !", "success"))
+    .then(() => toast("ID copiÃ© !", "success"))
     .catch(() => toast("Impossible de copier", "error"));
 });
 
 document.getElementById("form-profil")?.addEventListener("submit", async e => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrement…'; }
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enregistrementâ€¦'; }
 
   const inputs = e.target.querySelectorAll("input[data-pid]");
   for (const input of inputs) {
@@ -1349,16 +1351,16 @@ document.getElementById("form-profil")?.addEventListener("submit", async e => {
   }
 
   if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Enregistrer'; }
-  toast("Profils mis à jour !", "success");
+  toast("Profils mis Ã  jour !", "success");
   buildSwiper();
   updateHeaderProfile();
 });
 
 // ============================================================
-// AVATAR — Photo de profil personnalisable
+// AVATAR â€” Photo de profil personnalisable
 // ============================================================
 
-// FIX: Cache simple des avatars dans localStorage pour éviter des rechargements inutiles
+// FIX: Cache simple des avatars dans localStorage pour Ã©viter des rechargements inutiles
 const AVATAR_CACHE_KEY = "trinite_avatar_cache";
 function getAvatarCache() {
   try { return JSON.parse(localStorage.getItem(AVATAR_CACHE_KEY) || "{}"); } catch { return {}; }
@@ -1368,13 +1370,13 @@ function setAvatarCache(url, dataUrl) {
     const cache = getAvatarCache();
     cache[url] = dataUrl;
     localStorage.setItem(AVATAR_CACHE_KEY, JSON.stringify(cache));
-  } catch (e) { /* quota ignoré silencieusement */ }
+  } catch (e) { /* quota ignorÃ© silencieusement */ }
 }
 function getCachedAvatar(url) {
   return getAvatarCache()[url] || null;
 }
 
-// FIX: Compression image avant upload (max 400x400, qualité 0.7)
+// FIX: Compression image avant upload (max 400x400, qualitÃ© 0.7)
 async function compressAvatar(file) {
   return new Promise((resolve) => {
     const MAX = 400;
@@ -1401,7 +1403,7 @@ async function compressAvatar(file) {
   });
 }
 
-// FIX: Fallback initiales si l'image ne charge pas après 3 secondes
+// FIX: Fallback initiales si l'image ne charge pas aprÃ¨s 3 secondes
 function renderAvatarWithFallback(el, name, avatarUrl) {
   if (!el) return;
   if (!avatarUrl) {
@@ -1409,7 +1411,7 @@ function renderAvatarWithFallback(el, name, avatarUrl) {
     el.style.background = "linear-gradient(135deg,var(--primary),var(--accent))";
     return;
   }
-  // Vérifier le cache d'abord
+  // VÃ©rifier le cache d'abord
   const cached = getCachedAvatar(avatarUrl);
   if (cached) {
     el.innerHTML = `<img src="${cached}" alt="${escapeHtml(name)}" />`;
@@ -1491,7 +1493,7 @@ async function uploadAvatar(file) {
 
   if (!publicUrl) {
     progressWrap?.classList.add("hidden");
-    toast("Impossible de récupérer l'URL de l'avatar", "error");
+    toast("Impossible de rÃ©cupÃ©rer l'URL de l'avatar", "error");
     return;
   }
 
@@ -1511,7 +1513,7 @@ async function uploadAvatar(file) {
   updateAvatarUI();
   buildSwiper();
   buildStories();
-  toast("Photo de profil mise à jour !", "success");
+  toast("Photo de profil mise Ã  jour !", "success");
   haptic(15);
 }
 
@@ -1535,10 +1537,10 @@ document.getElementById("btn-avatar-remove")?.addEventListener("click", async ()
   updateAvatarUI();
   buildSwiper();
   buildStories();
-  toast("Photo supprimée", "info");
+  toast("Photo supprimÃ©e", "info");
 });
 
-/* Avatar caméra */
+/* Avatar camÃ©ra */
 document.getElementById("btn-avatar-camera")?.addEventListener("click", async () => {
   try {
     avatarCamStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" }, audio: false });
@@ -1548,7 +1550,7 @@ document.getElementById("btn-avatar-camera")?.addEventListener("click", async ()
     controls?.classList.remove("hidden");
     haptic(10);
   } catch (err) {
-    toast("Caméra inaccessible : " + err.message, "error");
+    toast("CamÃ©ra inaccessible : " + err.message, "error");
   }
 });
 
@@ -1613,7 +1615,7 @@ function initFab() {
       const idx  = userProfiles.findIndex(p => p.profile_type === type);
       if (idx >= 0) {
         setActiveProfile(idx);
-        toast(`Profil ${profileLabel(type)} activé`, "success");
+        toast(`Profil ${profileLabel(type)} activÃ©`, "success");
       }
       toggleFabMenu(false);
       haptic(15);
@@ -1683,7 +1685,7 @@ function wireFabDrag(fab) {
       toggleFabMenu(true);
     }
     if (!dragging) return;
-    // FIX: Empêcher scroll page pendant drag FAB
+    // FIX: EmpÃªcher scroll page pendant drag FAB
     e.preventDefault();
 
     const tx = e.touches[0].clientX;
@@ -1697,7 +1699,7 @@ function wireFabDrag(fab) {
       const cx   = rect.left + rect.width / 2;
       const cy   = rect.top  + rect.height / 2;
       const dist = Math.sqrt((tx - cx) ** 2 + (ty - cy) ** 2);
-      // FIX: Feedback visuel renforcé sur l'option ciblée
+      // FIX: Feedback visuel renforcÃ© sur l'option ciblÃ©e
       if (dist < 55) {
         btn.style.transform = "scale(1.25)";
         btn.style.boxShadow = "0 0 0 3px #fff, 0 0 24px rgba(255,255,255,0.5)";
@@ -1714,7 +1716,7 @@ function wireFabDrag(fab) {
   fab.addEventListener("touchend", () => {
     if (!dragging) return;
     dragging = false;
-    // FIX: Réinitialiser tous les styles inline des options
+    // FIX: RÃ©initialiser tous les styles inline des options
     document.querySelectorAll(".fab-option").forEach(b => {
       b.style.transform = "";
       b.style.boxShadow = "";
@@ -1737,6 +1739,9 @@ function wireBottomNav() {
     btn.addEventListener("click", () => {
       const target = btn.dataset.screen;
       if (!target) return;
+      // FIX: ignorer les clics nav quand on est dans le chat (Ã©vite de quitter la conv)
+      const chatActive = document.getElementById("screen-chat")?.classList.contains("active");
+      if (chatActive) return;
 
       if (target === "screen-main") updateMsgBadge(0);
 
@@ -1752,7 +1757,7 @@ function wireBottomNav() {
       if (target === "screen-feed") {
         playCurrentFeedVideo();
       } else if (target === "screen-hub") {
-        // Forcer la réinitialisation du Hub
+        // Forcer la rÃ©initialisation du Hub
         setTimeout(() => {
           if (typeof window.refreshHub === 'function') window.refreshHub();
         }, 50);
@@ -1764,7 +1769,7 @@ function wireBottomNav() {
 }
 
 // ============================================================
-// CHAT TEMPS RÉEL
+// CHAT TEMPS RÃ‰EL
 // ============================================================
 
 function openChat(contact, myProfile) {
@@ -1785,9 +1790,9 @@ function openChat(contact, myProfile) {
   showScreen("screen-chat");
   // Statut en ligne dans le header
   setTimeout(() => setOnlineStatus(contact), 100);
-  // Mise à jour badge messages non lus
+  // Mise Ã  jour badge messages non lus
   setTimeout(() => updateUnreadBadge(), 200);
-// ===== ACCUSÉS DE LECTURE + INDICATEUR DE FRAPPE =====
+// ===== ACCUSÃ‰S DE LECTURE + INDICATEUR DE FRAPPE =====
 const markAsRead = async () => {
   if (!chatContact.contact_profile_id) return;
   const { error } = await db
@@ -1812,7 +1817,7 @@ typingChannel
   .subscribe();
 
 const input = document.getElementById('message-input');
-// FIX: retirer l'ancien listener avant d'en ajouter un nouveau (évite l'accumulation)
+// FIX: retirer l'ancien listener avant d'en ajouter un nouveau (Ã©vite l'accumulation)
 if (currentTypingHandler) {
   input?.removeEventListener('input', currentTypingHandler);
   currentTypingHandler = null;
@@ -1864,11 +1869,12 @@ async function loadMessages() {
       .order("created_at", { ascending: true })
       .limit(50);
   } else {
-    query = db.from("messages")
-      .select("*")
-      .eq("from_profile_id", myId)
-      .order("created_at", { ascending: true })
-      .limit(50);
+    // FIX: pas de contact_profile_id â€” on n'affiche rien pour Ã©viter une fuite de donnÃ©es
+    const hint = document.createElement("div");
+    hint.style.cssText = "text-align:center;font-size:0.75rem;color:var(--text-muted);padding:1.5rem 1rem;";
+    hint.textContent = "â„¹ï¸ Ce contact n'a pas encore d'ID Trinite. Demandez-lui de partager son profil.";
+    container.appendChild(hint);
+    return;
   }
 
   const { data, error } = await query;
@@ -1876,13 +1882,6 @@ async function loadMessages() {
 
   (data || []).forEach(msg => appendBubble(msg, myId));
   container.scrollTop = container.scrollHeight;
-
-  if (!contactPid) {
-    const hint = document.createElement("div");
-    hint.style.cssText = "text-align:center;font-size:0.75rem;color:var(--text-muted);padding:0.5rem 1rem;";
-    hint.textContent = "ℹ️ Ajoutez l'ID Trinite du contact pour voir les messages reçus.";
-    container.insertBefore(hint, container.firstChild);
-  }
 }
 
 function appendBubble(msg, myProfileId) {
@@ -1919,7 +1918,7 @@ function appendBubble(msg, myProfileId) {
       <div class="bubble-time">${formatTime(msg.created_at)} ${checkIcon}</div>`;
   }
 
-  // Long press → reaction picker + delete
+  // Long press â†’ reaction picker + delete
   let pressTimer = null;
   const startPress = () => { pressTimer = setTimeout(() => showReactionPicker(div, msg.id, isSent), 500); };
   const clearPress = () => clearTimeout(pressTimer);
@@ -1962,10 +1961,10 @@ function subscribeToMessages() {
 }
 
 /* ===== TYPING INDICATOR ===== */
-// FIX: Ancienne version ajoutait un nouveau listener à chaque ouverture de chat
-// et masquait (à tort) l'indicateur quand L'UTILISATEUR tapait plutôt que le contact.
-// L'indicateur est désormais piloté uniquement par le channel broadcast dans openChat().
-function wireTypingIndicator() { /* géré par typingChannel broadcast */ }
+// FIX: Ancienne version ajoutait un nouveau listener Ã  chaque ouverture de chat
+// et masquait (Ã  tort) l'indicateur quand L'UTILISATEUR tapait plutÃ´t que le contact.
+// L'indicateur est dÃ©sormais pilotÃ© uniquement par le channel broadcast dans openChat().
+function wireTypingIndicator() { /* gÃ©rÃ© par typingChannel broadcast */ }
 
 document.getElementById("btn-send")?.addEventListener("click", sendMessage);
 document.getElementById("message-input")?.addEventListener("keydown", e => {
@@ -1989,7 +1988,7 @@ async function sendMessage() {
 
   if (!isOnline) {
     await saveToOfflineQueue(payload);
-    toast("Message en attente (hors-ligne) 🕐", "info");
+    toast("Message en attente (hors-ligne) ðŸ•", "info");
     // Afficher le message localement avec badge "en attente"
     appendPendingMessage(content);
     return;
@@ -2000,7 +1999,7 @@ async function sendMessage() {
 }
 
 function appendPendingMessage(content) {
-  // FIX: était "messages-list" (inexistant) — le vrai conteneur est "messages-container"
+  // FIX: Ã©tait "messages-list" (inexistant) â€” le vrai conteneur est "messages-container"
   const list = document.getElementById("messages-container");
   if (!list) return;
   const div = document.createElement("div");
@@ -2056,7 +2055,7 @@ async function toggleVoiceRecording() {
       if (voiceChunks.length === 0 || !chatContact || !chatMyProfile) return;
 
       const durationSec = Math.max(1, Math.round(voiceChunks.length / 3));
-      const transcript  = `🎤 Message vocal (${durationSec}s)`;
+      const transcript  = `ðŸŽ¤ Message vocal (${durationSec}s)`;
 
       const contactPid = chatContact.contact_profile_id || null;
       const { error } = await db.from("messages").insert({
@@ -2071,7 +2070,7 @@ async function toggleVoiceRecording() {
     mediaRecorder.start(100);
     isRecording = true;
     btn.classList.add("recording");
-    btn.title = "Arrêter l'enregistrement";
+    btn.title = "ArrÃªter l'enregistrement";
     btn.innerHTML = '<i class="fa-solid fa-stop"></i>';
     haptic(15);
 
@@ -2081,7 +2080,7 @@ async function toggleVoiceRecording() {
 }
 
 // ============================================================
-// FONCTIONNALITÉ: BADGE MESSAGES NON LUS
+// FONCTIONNALITÃ‰: BADGE MESSAGES NON LUS
 // ============================================================
 
 async function updateUnreadBadge() {
@@ -2103,22 +2102,22 @@ async function updateUnreadBadge() {
 }
 
 // ============================================================
-// FONCTIONNALITÉ: STATUT EN LIGNE dans le header du chat
+// FONCTIONNALITÃ‰: STATUT EN LIGNE dans le header du chat
 // ============================================================
 
 function setOnlineStatus(contact) {
   const statusEl = document.getElementById("chat-online-status");
   if (!statusEl) return;
-  // Simuler statut en ligne basé sur l'id du contact (stable par session)
+  // Simuler statut en ligne basÃ© sur l'id du contact (stable par session)
   const seed = [...(contact.id || "a")].reduce((a, c) => a + c.charCodeAt(0), 0);
   const isOnline = seed % 5 < 2; // ~40% en ligne
   statusEl.innerHTML = isOnline
     ? `<span class="online-dot"></span><span class="online-label-green">En ligne</span>`
-    : `<span class="online-label-muted">Dernière vue récemment</span>`;
+    : `<span class="online-label-muted">DerniÃ¨re vue rÃ©cemment</span>`;
 }
 
 // ============================================================
-// FONCTIONNALITÉ: RÉACTIONS AUX MESSAGES (long press)
+// FONCTIONNALITÃ‰: RÃ‰ACTIONS AUX MESSAGES (long press)
 // ============================================================
 
 let reactionTargetMsg = null;
@@ -2173,7 +2172,7 @@ function renderReactions(bubbleEl, msgId) {
 }
 
 // ============================================================
-// FONCTIONNALITÉ: SUPPRIMER UN MESSAGE
+// FONCTIONNALITÃ‰: SUPPRIMER UN MESSAGE
 // ============================================================
 
 document.querySelector(".delete-msg-btn")?.addEventListener("click", async (e) => {
@@ -2190,14 +2189,14 @@ document.querySelector(".delete-msg-btn")?.addEventListener("click", async (e) =
     el.style.opacity    = "0";
     el.style.transform  = "scale(0.8)";
     setTimeout(() => el.remove(), 320);
-    toast("Message supprimé", "info");
+    toast("Message supprimÃ©", "info");
   } catch (err) {
     toast("Erreur : " + (err.message || err), "error");
   }
 });
 
 // ============================================================
-// FONCTIONNALITÉ: RECHERCHE DANS LE CHAT
+// FONCTIONNALITÃ‰: RECHERCHE DANS LE CHAT
 // ============================================================
 
 document.getElementById("btn-chat-search")?.addEventListener("click", () => {
@@ -2234,11 +2233,11 @@ document.getElementById("chat-search-input")?.addEventListener("input", (e) => {
     }
   });
   const countEl = document.getElementById("chat-search-count");
-  if (countEl) countEl.textContent = q ? `${count} résultat${count !== 1 ? "s" : ""}` : "";
+  if (countEl) countEl.textContent = q ? `${count} rÃ©sultat${count !== 1 ? "s" : ""}` : "";
 });
 
 // ============================================================
-// FONCTIONNALITÉ: IMAGE EN PIÈCE JOINTE (aperçu avant envoi)
+// FONCTIONNALITÃ‰: IMAGE EN PIÃˆCE JOINTE (aperÃ§u avant envoi)
 // ============================================================
 
 let pendingImgFile = null;
@@ -2272,7 +2271,7 @@ document.getElementById("btn-img-send")?.addEventListener("click", async () => {
     toast("Ouvrez un chat avant d'envoyer une image.", "info"); return;
   }
   document.getElementById("img-preview-modal")?.classList.add("hidden");
-  toast("Envoi en cours…", "info");
+  toast("Envoi en coursâ€¦", "info");
   const path = `chat/${chatMyProfile.id}/${Date.now()}_${pendingImgFile.name}`;
   const { error: upErr } = await db.storage.from("avatars").upload(path, pendingImgFile, { upsert: false });
   pendingImgFile = null;
@@ -2290,7 +2289,7 @@ document.getElementById("btn-img-send")?.addEventListener("click", async () => {
 });
 
 // ============================================================
-// FONCTIONNALITÉ: THÈMES DE COULEUR
+// FONCTIONNALITÃ‰: THÃˆMES DE COULEUR
 // ============================================================
 
 const COLOR_THEMES = {
@@ -2313,7 +2312,7 @@ function applyColorTheme(name) {
     d.classList.toggle("active", d.dataset.color === name));
 }
 
-// Restaurer le thème sauvegardé
+// Restaurer le thÃ¨me sauvegardÃ©
 const _savedColorTheme = localStorage.getItem("trinite_color_theme");
 if (_savedColorTheme && COLOR_THEMES[_savedColorTheme]) applyColorTheme(_savedColorTheme);
 
@@ -2328,7 +2327,7 @@ document.querySelectorAll(".color-dot").forEach(btn => {
     applyColorTheme(btn.dataset.color);
     document.getElementById("color-theme-panel")?.classList.add("hidden");
     haptic(8);
-    toast("Thème appliqué ✓", "success");
+    toast("ThÃ¨me appliquÃ© âœ“", "success");
   });
 });
 
@@ -2339,7 +2338,7 @@ document.addEventListener("click", (e) => {
 });
 
 // ============================================================
-// FONCTIONNALITÉ: STATS DU PROFIL
+// FONCTIONNALITÃ‰: STATS DU PROFIL
 // ============================================================
 
 async function loadProfilStats() {
@@ -2348,7 +2347,7 @@ async function loadProfilStats() {
     const [cRes, pRes, sRes] = await Promise.all([
       db.from("contacts").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id),
       db.from("posts").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id),
-      db.from("stories").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id).gte("expires_at", new Date().toISOString())
+      db.from("status").select("id", { count: "exact", head: true }).eq("profile_id", activeProfile.id).gte("expires_at", new Date().toISOString())
     ]);
     const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v ?? 0; };
     setVal("stat-contacts", cRes.count);
@@ -2368,7 +2367,7 @@ async function buildFeed() {
 
   let videos = [];
 
-  // FEED STATUS ADD: Primary source — load posts from Supabase posts table
+  // FEED STATUS ADD: Primary source â€” load posts from Supabase posts table
   if (currentUser) {
     try {
       const { data: posts, error } = await db.from("posts")
@@ -2381,7 +2380,7 @@ async function buildFeed() {
         videos = posts.map(p => ({
           id:         p.id,
           url:        p.video_url,
-          author:     "@" + (p.profiles?.name || "trinité").toLowerCase().replace(/\s+/g, "_"),
+          author:     "@" + (p.profiles?.name || "trinitÃ©").toLowerCase().replace(/\s+/g, "_"),
           desc:       p.caption || "",
           likes:      p.likes_count || 0,
           comments:   0,
@@ -2443,7 +2442,7 @@ async function buildFeed() {
     item.innerHTML = `
       ${mediaEl}
       <div class="feed-item-gradient"></div>
-      ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÉOS</div>'}
+      ${v.isDemo ? "" : '<div class="feed-uploaded-badge">MES VIDÃ‰OS</div>'}
       <div class="feed-item-info">
         <div class="feed-author">${escapeHtml(v.author)}</div>
         <div class="feed-desc">${escapeHtml(v.desc)}</div>
@@ -2492,11 +2491,11 @@ document.getElementById("btn-feed-sound")?.addEventListener("click", () => {
     v.muted = !feedSoundEnabled;
   });
   haptic(10);
-  toast(feedSoundEnabled ? "Son activé 🔊" : "Son coupé 🔇", "info");
+  toast(feedSoundEnabled ? "Son activÃ© ðŸ”Š" : "Son coupÃ© ðŸ”‡", "info");
 });
 
 // ============================================================
-// FEED — Interactions
+// FEED â€” Interactions
 // ============================================================
 
 function wireFeedItem(item, video, index) {
@@ -2586,7 +2585,7 @@ function toggleLike(videoId, item) {
 function showHeartAnimation(item) {
   const heart = document.createElement("div");
   heart.className = "heart-anim";
-  heart.textContent = "❤️";
+  heart.textContent = "â¤ï¸";
   item.appendChild(heart);
   setTimeout(() => heart.remove(), 750);
 }
@@ -2624,7 +2623,7 @@ function openChatFromFeed(item) {
   if (item) {
     const hint = document.createElement("div");
     hint.className = "swipe-hint";
-    hint.textContent = "💬 Ouverture du chat…";
+    hint.textContent = "ðŸ’¬ Ouverture du chatâ€¦";
     item.appendChild(hint);
     setTimeout(() => hint.remove(), 900);
   }
@@ -2641,7 +2640,7 @@ function openChatFromFeed(item) {
 }
 
 // ============================================================
-// FEED — AutoPlay IntersectionObserver
+// FEED â€” AutoPlay IntersectionObserver
 // ============================================================
 
 let feedObserver = null;
@@ -2721,7 +2720,7 @@ btnCameraStart?.addEventListener("click", async () => {
     studioFile = null; studioBlob = null;
     haptic(10);
   } catch (err) {
-    toast("Caméra inaccessible : " + err.message, "error");
+    toast("CamÃ©ra inaccessible : " + err.message, "error");
   }
 });
 
@@ -2751,7 +2750,7 @@ btnTakePhoto?.addEventListener("click", () => {
     if (!blob) return;
     studioBlob     = blob;
     studioFileName = `photo_${Date.now()}.jpg`;
-    // FIX: révoquer l'ancienne URL pour éviter les fuites mémoire
+    // FIX: rÃ©voquer l'ancienne URL pour Ã©viter les fuites mÃ©moire
     if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); }
     const url = URL.createObjectURL(blob);
     currentBlobUrl = url;
@@ -2760,7 +2759,7 @@ btnTakePhoto?.addEventListener("click", () => {
     videoPreview.classList.add("hidden");
     placeholder?.classList.add("hidden");
     stopCamera();
-    showUploadSection(`📷 Photo — ${(blob.size / 1024).toFixed(0)} Ko`);
+    showUploadSection(`ðŸ“· Photo â€” ${(blob.size / 1024).toFixed(0)} Ko`);
     haptic(15);
   }, "image/jpeg", 0.88);
 });
@@ -2770,7 +2769,7 @@ fileInput?.addEventListener("change", e => {
   if (!file) return;
   studioFile = file; studioBlob = null; studioFileName = file.name;
 
-  // FIX: révoquer l'ancienne URL pour éviter les fuites mémoire
+  // FIX: rÃ©voquer l'ancienne URL pour Ã©viter les fuites mÃ©moire
   if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); }
   const url = URL.createObjectURL(file);
   currentBlobUrl = url;
@@ -2786,7 +2785,7 @@ fileInput?.addEventListener("change", e => {
   cameraPreview.classList.add("hidden");
   placeholder?.classList.add("hidden");
   stopCamera();
-  showUploadSection(`📁 ${file.name} — ${(file.size / (1024*1024)).toFixed(2)} Mo`);
+  showUploadSection(`ðŸ“ ${file.name} â€” ${(file.size / (1024*1024)).toFixed(2)} Mo`);
   e.target.value = "";
 });
 
@@ -2796,18 +2795,18 @@ function showUploadSection(info) {
 }
 
 btnUpload?.addEventListener("click", async () => {
-  const desc    = document.getElementById("studio-desc")?.value.trim() || "Vidéo Trinite Chat";
+  const desc    = document.getElementById("studio-desc")?.value.trim() || "VidÃ©o Trinite Chat";
   const fileObj = studioBlob
     ? new File([studioBlob], studioFileName, { type: "image/jpeg" })
     : studioFile;
 
-  if (!fileObj) { toast("Aucun fichier à publier", "error"); return; }
+  if (!fileObj) { toast("Aucun fichier Ã  publier", "error"); return; }
   if (!currentUser) { toast("Connectez-vous d'abord", "error"); return; }
 
   const progressWrap = document.getElementById("studio-upload-progress");
   const progressBar  = document.getElementById("studio-progress-bar");
   btnUpload.disabled = true;
-  btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publication…';
+  btnUpload.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Publicationâ€¦';
   progressWrap?.classList.remove("hidden");
   if (progressBar) progressBar.style.width = "10%";
 
@@ -2848,11 +2847,11 @@ btnUpload?.addEventListener("click", async () => {
   }
 
   if (progressBar) progressBar.style.width = "100%";
-  toast("Publié dans le Feed ✓", "success");
+  toast("PubliÃ© dans le Feed âœ“", "success");
   haptic(20);
 
   studioFile = null; studioBlob = null; studioFileName = null;
-  // FIX: révoquer le blob URL après publication
+  // FIX: rÃ©voquer le blob URL aprÃ¨s publication
   if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
   if (videoPreview) { videoPreview.src = ""; videoPreview.classList.add("hidden"); }
   if (photoPreview) { photoPreview.src = ""; photoPreview.classList.add("hidden"); }
@@ -2879,8 +2878,8 @@ let isOnline = navigator.onLine;
     dot?.classList.toggle("offline", !isOnline);
     btn?.classList.toggle("offline-mode", !isOnline);
     if (notify === true) {
-      if (!isOnline) toast("Mode hors-ligne activé", "info");
-      else { toast("Connexion rétablie ✓", "success"); syncOfflineQueue(); }
+      if (!isOnline) toast("Mode hors-ligne activÃ©", "info");
+      else { toast("Connexion rÃ©tablie âœ“", "success"); syncOfflineQueue(); }
     }
   }
 
@@ -2888,16 +2887,17 @@ let isOnline = navigator.onLine;
   window.addEventListener("offline", () => updateStatus(true));
   updateStatus(false);
 
-  // Bouton toujours visible sauf sur auth/setup — polling simple
+  // Bouton toujours visible sauf sur auth/setup â€” polling simple
   function showOfflineBtn() {
     if (!btn) return;
     const active = document.querySelector(".screen.active");
     const id = active ? active.id : "";
-    const hide = !id || id === "screen-auth" || id === "screen-setup";
+    // FIX: aussi cacher sur screen-chat pour Ã©viter navigation accidentelle
+    const hide = !id || id === "screen-auth" || id === "screen-setup" || id === "screen-chat";
     btn.style.display = hide ? "none" : "flex";
   }
 
-  // Vérifier toutes les 500ms — simple et fiable
+  // VÃ©rifier toutes les 500ms â€” simple et fiable
   setInterval(showOfflineBtn, 500);
   showOfflineBtn();
 
@@ -2909,7 +2909,7 @@ let isOnline = navigator.onLine;
   });
 })();
 
-// IndexedDB — file d'attente messages offline
+// IndexedDB â€” file d'attente messages offline
 const IDB_NAME    = "trinite-offline";
 const IDB_STORE   = "msg-queue";
 let   idb         = null;
@@ -2953,7 +2953,7 @@ async function syncOfflineQueue() {
     });
     if (!error) { store.delete(item.id); sent++; }
   }
-  if (sent) toast(`${sent} message(s) synchronisé(s) ✓`, "success");
+  if (sent) toast(`${sent} message(s) synchronisÃ©(s) âœ“`, "success");
 }
 
 // ============================================================
@@ -2973,7 +2973,7 @@ setupReveal("reveal-login",    "login-password");
 setupReveal("reveal-register", "register-password");
 
 // ============================================================
-// MOT DE PASSE OUBLIÉ
+// MOT DE PASSE OUBLIÃ‰
 // ============================================================
 document.getElementById("btn-forgot")?.addEventListener("click", async () => {
   const email = document.getElementById("login-email").value.trim();
@@ -2984,21 +2984,21 @@ document.getElementById("btn-forgot")?.addEventListener("click", async () => {
   }
   const btn = document.getElementById("btn-forgot");
   btn.disabled = true;
-  btn.textContent = "Envoi en cours…";
+  btn.textContent = "Envoi en coursâ€¦";
   const { error } = await db.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.href
   });
   btn.disabled = false;
-  btn.textContent = "Mot de passe oublié ?";
+  btn.textContent = "Mot de passe oubliÃ© ?";
   if (error) {
     toast("Erreur : " + error.message, "error");
   } else {
-    toast("Email de réinitialisation envoyé ✓", "success");
+    toast("Email de rÃ©initialisation envoyÃ© âœ“", "success");
   }
 });
 
 // ============================================================
-// FEED STATUS ADD: DEMO POSTS SEEDER — seeds DEMO_VIDEOS into posts table on first launch
+// FEED STATUS ADD: DEMO POSTS SEEDER â€” seeds DEMO_VIDEOS into posts table on first launch
 // ============================================================
 
 async function initDemoPosts() {
@@ -3029,7 +3029,7 @@ async function initDemoPosts() {
 }
 
 // ============================================================
-// FEED STATUS ADD: STORY FULL-SCREEN VIEWER — for Supabase stories
+// FEED STATUS ADD: STORY FULL-SCREEN VIEWER â€” for Supabase stories
 // ============================================================
 
 function openStoryFull(story) {
@@ -3060,7 +3060,7 @@ function openStoryFull(story) {
     } else if (story.media_url) {
       bodyEl.innerHTML = `<img src="${escapeHtml(story.media_url)}" style="width:100%;max-height:70vh;object-fit:contain;border-radius:12px" alt="story" />`;
     } else {
-      bodyEl.textContent = "✨";
+      bodyEl.textContent = "âœ¨";
     }
   }
 
@@ -3081,11 +3081,11 @@ function openStoryFull(story) {
 }
 
 // ============================================================
-// FEED STATUS ADD: STORY UPLOAD — ouvre la galerie du téléphone
+// FEED STATUS ADD: STORY UPLOAD â€” ouvre la galerie du tÃ©lÃ©phone
 // ============================================================
 
 function openStoryUpload() {
-  // FEED STATUS ADD: Trigger l'input file caché pour accéder à la galerie
+  // FEED STATUS ADD: Trigger l'input file cachÃ© pour accÃ©der Ã  la galerie
   const input = document.getElementById("story-gallery-input");
   if (input) input.click();
 }
@@ -3100,7 +3100,7 @@ document.getElementById("story-gallery-input")?.addEventListener("change", async
   const ext     = file.name.split(".").pop() || (isVideo ? "mp4" : "jpg");
   const path    = `stories/${currentUser.id}/${Date.now()}.${ext}`;
 
-  toast("Publication de votre statut…", "info");
+  toast("Publication de votre statutâ€¦", "info");
 
   // FEED STATUS ADD: Utilise le bucket "avatars" (existant) pour les stories
   const bucket = isVideo ? "videos" : "avatars";
@@ -3108,7 +3108,7 @@ document.getElementById("story-gallery-input")?.addEventListener("change", async
     cacheControl: "3600", upsert: false
   });
   if (upErr) {
-    toast("Erreur upload story : " + (upErr.message || "vérifiez vos buckets Supabase."), "error");
+    toast("Erreur upload story : " + (upErr.message || "vÃ©rifiez vos buckets Supabase."), "error");
     return;
   }
 
@@ -3117,22 +3117,22 @@ document.getElementById("story-gallery-input")?.addEventListener("change", async
   if (!publicUrl) { toast("Erreur URL story", "error"); return; }
 
   const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
-  await db.from("stories").insert({
+  await db.from("status").insert({
     profile_id: activeProfile.id,
     media_url:  publicUrl,
     media_type: isVideo ? "video" : "image",
     expires_at: expiresAt
   });
 
-  toast("Statut publié ! Visible 24h ✓", "success");
+  toast("Statut publiÃ© ! Visible 24h âœ“", "success");
   buildStories();
 });
 
 // ============================================================
-// FEED STATUS ADD: COMMENTAIRES — bottom sheet
+// FEED STATUS ADD: COMMENTAIRES â€” bottom sheet
 // ============================================================
 
-let commentsCache = {}; // videoId → [{author, text, time}]
+let commentsCache = {}; // videoId â†’ [{author, text, time}]
 
 function openComments(videoId, videoDesc) {
   currentCommentsVideoId = videoId;
@@ -3155,7 +3155,7 @@ function renderComments(videoId) {
   if (!list) return;
   const items = commentsCache[videoId] || [];
   if (items.length === 0) {
-    list.innerHTML = '<p class="comments-empty">Aucun commentaire — soyez le premier ! 💬</p>';
+    list.innerHTML = '<p class="comments-empty">Aucun commentaire â€” soyez le premier ! ðŸ’¬</p>';
     return;
   }
   list.innerHTML = items.map(c => `
@@ -3177,7 +3177,7 @@ function submitComment() {
   input.value = "";
 
   const author = activeProfile?.name || "Moi";
-  const entry  = { author, text, time: "À l'instant" };
+  const entry  = { author, text, time: "Ã€ l'instant" };
 
   if (!commentsCache[currentCommentsVideoId]) commentsCache[currentCommentsVideoId] = [];
   commentsCache[currentCommentsVideoId].push(entry);
@@ -3215,24 +3215,24 @@ function toggleBookmark(videoId, item) {
   if (btn)  btn.classList.toggle("bookmarked", !wasBookmarked);
   if (icon) icon.className = wasBookmarked ? "fa-regular fa-bookmark" : "fa-solid fa-bookmark";
 
-  toast(wasBookmarked ? "Retiré des favoris" : "Ajouté aux favoris ⭐", "success");
+  toast(wasBookmarked ? "RetirÃ© des favoris" : "AjoutÃ© aux favoris â­", "success");
 }
 
 // ============================================================
-// FEED STATUS ADD: PARTAGE AMÉLIORÉ
+// FEED STATUS ADD: PARTAGE AMÃ‰LIORÃ‰
 // ============================================================
 
 function shareVideo(video) {
   const shareData = {
     title: "Trinite Chat",
-    text:  video.desc || "Regarde cette vidéo sur Trinite Chat !",
+    text:  video.desc || "Regarde cette vidÃ©o sur Trinite Chat !",
     url:   video.url  || location.href
   };
   if (navigator.share && navigator.canShare?.(shareData)) {
     navigator.share(shareData).catch(() => {});
   } else if (navigator.clipboard) {
     navigator.clipboard.writeText(video.url || location.href)
-      .then(() => toast("Lien copié dans le presse-papier !", "success"))
+      .then(() => toast("Lien copiÃ© dans le presse-papier !", "success"))
       .catch(() => toast("Partage non disponible", "info"));
   } else {
     toast("Lien : " + (video.url || location.href), "info");
@@ -3240,14 +3240,14 @@ function shareVideo(video) {
 }
 
 // ============================================================
-// FEED STATUS ADD: ÉCRAN FAVORIS
+// FEED STATUS ADD: Ã‰CRAN FAVORIS
 // ============================================================
 
 function buildFavorites() {
   const list = document.getElementById("favorites-list");
   if (!list) return;
 
-  // Trouver toutes les vidéos/posts bookmarkés
+  // Trouver toutes les vidÃ©os/posts bookmarkÃ©s
   const bookmarkedIds = Object.keys(feedBookmarks).filter(id => feedBookmarks[id]);
   const allVideos = window._feedVideosCache || [];
   const bookmarked = bookmarkedIds
@@ -3259,7 +3259,7 @@ function buildFavorites() {
       <div class="favorites-empty">
         <i class="fa-regular fa-bookmark" style="font-size:2.5rem;color:var(--text-muted)"></i>
         <p>Aucun favori pour l'instant.</p>
-        <p style="font-size:0.8rem;color:var(--text-muted)">Tape <i class="fa-solid fa-bookmark"></i> sur une vidéo du feed.</p>
+        <p style="font-size:0.8rem;color:var(--text-muted)">Tape <i class="fa-solid fa-bookmark"></i> sur une vidÃ©o du feed.</p>
       </div>`;
     return;
   }
@@ -3280,7 +3280,7 @@ function buildFavorites() {
       </div>
       <button class="fav-card-remove" aria-label="Retirer des favoris"><i class="fa-solid fa-bookmark"></i></button>`;
 
-    // Clic sur la carte → aller au feed
+    // Clic sur la carte â†’ aller au feed
     card.addEventListener("click", e => {
       if (e.target.closest(".fav-card-remove")) return;
       showScreen("screen-feed");
@@ -3293,7 +3293,7 @@ function buildFavorites() {
       e.stopPropagation();
       feedBookmarks[v.id] = false;
       localStorage.setItem("trinite_bookmarks", JSON.stringify(feedBookmarks));
-      // Mettre à jour le bouton dans le feed si visible
+      // Mettre Ã  jour le bouton dans le feed si visible
       const feedBtn = document.querySelector(`.btn-bookmark[data-vid="${v.id}"]`);
       if (feedBtn) {
         feedBtn.classList.remove("bookmarked");
@@ -3301,7 +3301,7 @@ function buildFavorites() {
         if (icon) icon.className = "fa-regular fa-bookmark";
       }
       buildFavorites();
-      toast("Retiré des favoris", "info");
+      toast("RetirÃ© des favoris", "info");
       haptic(8);
     });
 
@@ -3309,7 +3309,7 @@ function buildFavorites() {
   });
 }
 
-// FEED STATUS ADD: Hook showScreen pour charger les favoris à l'ouverture
+// FEED STATUS ADD: Hook showScreen pour charger les favoris Ã  l'ouverture
 const _origShowScreen = window.showScreen;
 if (_origShowScreen) {
   window.showScreen = function(id) {
@@ -3319,7 +3319,7 @@ if (_origShowScreen) {
 }
 
 // ============================================================
-// FEED STATUS ADD: FILTRE VIDÉO / PHOTO
+// FEED STATUS ADD: FILTRE VIDÃ‰O / PHOTO
 // ============================================================
 
 document.querySelectorAll(".feed-filter-btn").forEach(btn => {
@@ -3345,7 +3345,7 @@ function applyFeedFilter() {
 }
 
 // ============================================================
-// DÉMARRAGE
+// DÃ‰MARRAGE
 // ============================================================
 initAuth();
 
@@ -3355,7 +3355,7 @@ initAuth();
 // ============================================================
 
 window.initHub = function() {
-  // Attendre que l'écran Hub soit chargé
+  // Attendre que l'Ã©cran Hub soit chargÃ©
   const hubScreen = document.getElementById("screen-hub");
   if (!hubScreen) return;
 
@@ -3395,7 +3395,7 @@ window.initHub = function() {
     snakeCtx.font = "16px serif";
     snakeCtx.textAlign = "center";
     snakeCtx.textBaseline = "middle";
-    snakeCtx.fillText("🍎", snakeFood.x * CELL + CELL/2, snakeFood.y * CELL + CELL/2);
+    snakeCtx.fillText("ðŸŽ", snakeFood.x * CELL + CELL/2, snakeFood.y * CELL + CELL/2);
     // Snake
     snake.forEach((seg, i) => {
       const ratio = 1 - i / snake.length;
@@ -3463,8 +3463,8 @@ window.initHub = function() {
   initHubSnake();
 
   // ========== CASINO ==========
-  const SYMBOLS = ["🍒", "⭐", "🍋", "🍊", "7️⃣", "💎", "🎰"];
-  const PAYTABLE = { "💎💎💎": 50, "7️⃣7️⃣7️⃣": 20, "🍒🍒🍒": 10, "⭐⭐⭐": 5 };
+  const SYMBOLS = ["ðŸ’", "â­", "ðŸ‹", "ðŸŠ", "7ï¸âƒ£", "ðŸ’Ž", "ðŸŽ°"];
+  const PAYTABLE = { "ðŸ’ŽðŸ’ŽðŸ’Ž": 50, "7ï¸âƒ£7ï¸âƒ£7ï¸âƒ£": 20, "ðŸ’ðŸ’ðŸ’": 10, "â­â­â­": 5 };
   let casinoTokens = parseInt(localStorage.getItem("hub-casino-tokens") || "500");
   let casinoSpinning = false;
 
@@ -3474,7 +3474,7 @@ window.initHub = function() {
     casinoTokens = 500;
     localStorage.setItem("hub-casino-tokens", casinoTokens);
     document.getElementById("hub-casino-tokens").textContent = casinoTokens;
-    document.getElementById("hub-casino-result").textContent = "Jetons rechargés !";
+    document.getElementById("hub-casino-result").textContent = "Jetons rechargÃ©s !";
   });
 
   document.getElementById("hub-casino-spin")?.addEventListener("click", async () => {
@@ -3504,12 +3504,12 @@ window.initHub = function() {
     let resultTxt = "";
     if (PAYTABLE[key]) {
       win = bet * PAYTABLE[key];
-      resultTxt = `🎉 Jackpot ! +${win} jetons`;
+      resultTxt = `ðŸŽ‰ Jackpot ! +${win} jetons`;
     } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
       win = bet * 2;
-      resultTxt = `✓ Deux identiques ! +${win} jetons`;
+      resultTxt = `âœ“ Deux identiques ! +${win} jetons`;
     } else {
-      resultTxt = `Perdu… -${bet} jetons`;
+      resultTxt = `Perduâ€¦ -${bet} jetons`;
     }
     casinoTokens += win;
     localStorage.setItem("hub-casino-tokens", casinoTokens);
@@ -3546,14 +3546,14 @@ window.initHub = function() {
         <div style="display:flex; gap:0.5rem;">
           <button class="paris-bet-btn" data-match="${m.id}" data-pick="1" data-odds="${m.odds1}" ${existingBet ? 'disabled' : ''}
             style="flex:1; background:${existingBet?.pick === 1 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team1}<br><strong>${m.odds1}×</strong>
+            ${m.team1}<br><strong>${m.odds1}Ã—</strong>
           </button>
           <button class="paris-bet-btn" data-match="${m.id}" data-pick="2" data-odds="${m.odds2}" ${existingBet ? 'disabled' : ''}
             style="flex:1; background:${existingBet?.pick === 2 ? 'var(--primary)' : 'var(--bg-card)'}; border:1px solid var(--border); border-radius:8px; padding:0.4rem; cursor:pointer;">
-            ${m.team2}<br><strong>${m.odds2}×</strong>
+            ${m.team2}<br><strong>${m.odds2}Ã—</strong>
           </button>
         </div>
-        ${existingBet ? `<div style="margin-top:0.5rem; font-size:0.7rem; color:#f59e0b;">Pari: ${existingBet.amount} jetons <button class="resolve-bet" data-match="${m.id}" style="margin-left:0.5rem; background:var(--primary); border:none; border-radius:8px; padding:0.2rem 0.5rem; color:#fff;">Résoudre</button></div>` :
+        ${existingBet ? `<div style="margin-top:0.5rem; font-size:0.7rem; color:#f59e0b;">Pari: ${existingBet.amount} jetons <button class="resolve-bet" data-match="${m.id}" style="margin-left:0.5rem; background:var(--primary); border:none; border-radius:8px; padding:0.2rem 0.5rem; color:#fff;">RÃ©soudre</button></div>` :
           `<div style="margin-top:0.5rem;"><input type="number" id="mise-${m.id}" placeholder="Mise" value="50" min="10" max="${parisTokens}" style="width:70px; background:var(--bg-input); border:1px solid var(--border); border-radius:8px; padding:0.2rem 0.4rem; color:var(--text);"></div>`}
       `;
       container.appendChild(card);
@@ -3634,7 +3634,7 @@ window.initHub = function() {
 // Lance le Hub au chargement
 window.initHub();
 
-// Rafraîchir le Hub à chaque affichage
+// RafraÃ®chir le Hub Ã  chaque affichage
 window.refreshHub = function() {
   const casinoSpan = document.getElementById("hub-casino-tokens");
   if (casinoSpan) casinoSpan.textContent = localStorage.getItem("hub-casino-tokens") || "500";
@@ -3647,7 +3647,7 @@ window.refreshHub = function() {
 };
 
 /* ===================================================
-   HUB REORG — NEW LOGIC (2026)
+   HUB REORG â€” NEW LOGIC (2026)
    =================================================== */
 
 (function initHubReorg() {
@@ -3670,14 +3670,14 @@ window.refreshHub = function() {
 
   /* ---- P2P Scan Simulation ---- */
   var FAKE_DEVICES = [
-    { name: 'Amine T.',   emoji: '🧑', dist: '12m',  signal: '▂▄▆▊' },
-    { name: 'Sofia K.',   emoji: '👩', dist: '28m',  signal: '▂▄▆'  },
-    { name: 'Yacine M.',  emoji: '👨‍💻', dist: '45m',  signal: '▂▄'   },
+    { name: 'Amine T.',   emoji: 'ðŸ§‘', dist: '12m',  signal: 'â–‚â–„â–†â–Š' },
+    { name: 'Sofia K.',   emoji: 'ðŸ‘©', dist: '28m',  signal: 'â–‚â–„â–†'  },
+    { name: 'Yacine M.',  emoji: 'ðŸ‘¨â€ðŸ’»', dist: '45m',  signal: 'â–‚â–„'   },
   ];
   var FAKE_REPLIES = [
-    'Salut !', "T'es là ?", 'Ça va ?', 'On se voit ce soir ?',
-    '👋', '🔥', 'Nickel !', 'OK chef !', 'Ptdr 😂', 'RDV dans 10 min',
-    'Je suis en bas ⬇️', 'Attends-moi !', 'Top !', '❤️'
+    'Salut !', "T'es lÃ  ?", 'Ã‡a va ?', 'On se voit ce soir ?',
+    'ðŸ‘‹', 'ðŸ”¥', 'Nickel !', 'OK chef !', 'Ptdr ðŸ˜‚', 'RDV dans 10 min',
+    'Je suis en bas â¬‡ï¸', 'Attends-moi !', 'Top !', 'â¤ï¸'
   ];
 
   var p2pConnectedDevice = null;
@@ -3696,7 +3696,7 @@ window.refreshHub = function() {
   if (scanBtn) {
     scanBtn.addEventListener('click', function() {
       scanBtn.disabled = true;
-      scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scan en cours…';
+      scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Scan en coursâ€¦';
       setTimeout(function() {
         scanBtn.disabled = false;
         scanBtn.innerHTML = '<i class="fa-solid fa-satellite-dish" id="p2p-scan-icon"></i> Scanner les environs';
@@ -3733,7 +3733,7 @@ window.refreshHub = function() {
     if (connectedName) connectedName.textContent = dev.name;
     if (chatZone) chatZone.classList.remove('hidden');
     if (messagesEl) messagesEl.innerHTML = '';
-    addP2PBubble('received', 'Salut ! Je suis à portée 👋');
+    addP2PBubble('received', 'Salut ! Je suis Ã  portÃ©e ðŸ‘‹');
     clearInterval(p2pMsgInterval);
     p2pMsgInterval = setInterval(function() {
       if (Math.random() < 0.45) {
@@ -3766,9 +3766,9 @@ window.refreshHub = function() {
     msgInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') sendP2PMessage(); });
   }
 
-  /* ---- Casino (machine à sous) ---- */
-  var CASINO_SYMBOLS = ['🍒','🍋','🍊','🍇','💎','⭐','7️⃣','🎰'];
-  var CASINO_MULT    = { '💎':10, '7️⃣':7, '⭐':5, '🍇':3, '🍊':2, '🍋':1.5, '🍒':1.3, '🎰':1 };
+  /* ---- Casino (machine Ã  sous) ---- */
+  var CASINO_SYMBOLS = ['ðŸ’','ðŸ‹','ðŸŠ','ðŸ‡','ðŸ’Ž','â­','7ï¸âƒ£','ðŸŽ°'];
+  var CASINO_MULT    = { 'ðŸ’Ž':10, '7ï¸âƒ£':7, 'â­':5, 'ðŸ‡':3, 'ðŸŠ':2, 'ðŸ‹':1.5, 'ðŸ’':1.3, 'ðŸŽ°':1 };
 
   var casinoTokens   = parseInt(localStorage.getItem('hub_casino_tokens') || '500', 10);
   var spinBtn2       = document.getElementById('hub-casino-spin');
@@ -3791,7 +3791,7 @@ window.refreshHub = function() {
   if (resetBtn2) {
     resetBtn2.addEventListener('click', function() {
       updateCasinoTokens(500);
-      if (resultEl2) resultEl2.textContent = '🎁 Rechargé !';
+      if (resultEl2) resultEl2.textContent = 'ðŸŽ RechargÃ© !';
     });
   }
 
@@ -3800,7 +3800,7 @@ window.refreshHub = function() {
       var betSel = document.getElementById('hub-casino-bet');
       var bet    = parseInt(betSel ? betSel.value : '50', 10);
       if (casinoTokens < bet) {
-        if (resultEl2) resultEl2.textContent = '❌ Jetons insuffisants !';
+        if (resultEl2) resultEl2.textContent = 'âŒ Jetons insuffisants !';
         return;
       }
       updateCasinoTokens(casinoTokens - bet);
@@ -3818,18 +3818,18 @@ window.refreshHub = function() {
           clearInterval(iv);
           reels2.forEach(function(r) { if (r) r.classList.remove('spinning'); });
           spinBtn2.disabled = false;
-          var result = reels2.map(function(r) { return r ? r.textContent : '🎰'; });
+          var result = reels2.map(function(r) { return r ? r.textContent : 'ðŸŽ°'; });
           if (result[0] === result[1] && result[1] === result[2]) {
             var mult = CASINO_MULT[result[0]] || 2;
             var win  = Math.round(bet * mult * 3);
             updateCasinoTokens(casinoTokens + win);
-            if (resultEl2) resultEl2.textContent = '🎉 JACKPOT ! +' + win + ' jetons !';
+            if (resultEl2) resultEl2.textContent = 'ðŸŽ‰ JACKPOT ! +' + win + ' jetons !';
           } else if (result[0] === result[1] || result[1] === result[2] || result[0] === result[2]) {
             var win2 = Math.round(bet * 1.5);
             updateCasinoTokens(casinoTokens + win2);
-            if (resultEl2) resultEl2.textContent = '✨ Paire ! +' + win2 + ' jetons';
+            if (resultEl2) resultEl2.textContent = 'âœ¨ Paire ! +' + win2 + ' jetons';
           } else {
-            if (resultEl2) resultEl2.textContent = '😔 Perdu ! -' + bet + ' jetons';
+            if (resultEl2) resultEl2.textContent = 'ðŸ˜” Perdu ! -' + bet + ' jetons';
           }
         }
       }, 100);
@@ -3874,7 +3874,7 @@ window.refreshHub = function() {
       ctx.font = (GRID - 2) + 'px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('🍎', food.x * GRID + GRID/2, food.y * GRID + GRID/2);
+      ctx.fillText('ðŸŽ', food.x * GRID + GRID/2, food.y * GRID + GRID/2);
       snake.forEach(function(seg, i) {
         ctx.fillStyle = (i === 0) ? '#8b5cf6' : 'rgba(139,92,246,0.65)';
         ctx.beginPath();
@@ -3930,7 +3930,7 @@ window.refreshHub = function() {
 
     draw2();
     loop2 = setInterval(step2, 130);
-    if (snakeStartBtn2) snakeStartBtn2.textContent = 'Arrêter';
+    if (snakeStartBtn2) snakeStartBtn2.textContent = 'ArrÃªter';
 
     snakeGame2 = {
       stop: function() { running2 = false; clearInterval(loop2); snakeGame2 = null; },
@@ -3967,7 +3967,7 @@ window.refreshHub = function() {
   /* ---- Paris Sportifs (hub) ---- */
   var PARIS_DATA = [
     { id:'pm1', home:'France',    away:'Espagne',   ho:2.1, do:3.2, ao:3.5 },
-    { id:'pm2', home:'Brésil',    away:'Argentine', ho:2.4, do:3.0, ao:2.8 },
+    { id:'pm2', home:'BrÃ©sil',    away:'Argentine', ho:2.4, do:3.0, ao:2.8 },
     { id:'pm3', home:'Allemagne', away:'Portugal',  ho:1.9, do:3.4, ao:4.0 },
   ];
   var parisTokens2  = parseInt(localStorage.getItem('hub_paris_tokens2') || '500', 10);
@@ -3987,7 +3987,7 @@ window.refreshHub = function() {
     if (!parisHistory2.length) { el.innerHTML = '<span style="color:var(--text-muted)">Aucun pari</span>'; return; }
     el.innerHTML = parisHistory2.slice(-5).reverse().map(function(h) {
       return '<div style="padding:0.2rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between">' +
-        '<span>' + h.match + ' — ' + (h.bet==='H'?'Dom.':h.bet==='D'?'Nul':'Ext.') + '</span>' +
+        '<span>' + h.match + ' â€” ' + (h.bet==='H'?'Dom.':h.bet==='D'?'Nul':'Ext.') + '</span>' +
         '<span style="color:' + (h.win>=0?'#22c55e':'#ef4444') + '">' + (h.win>=0?'+':'') + h.win + 'j</span>' +
       '</div>';
     }).join('');
@@ -4002,9 +4002,9 @@ window.refreshHub = function() {
           '<span>' + m.home + '</span><span style="color:var(--text-muted);font-weight:400">VS</span><span>' + m.away + '</span>' +
         '</div>' +
         '<div style="display:flex;gap:0.3rem">' +
-          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'H\',' + m.ho + ')" class="paris-bet-btn">Dom. ×' + m.ho + '</button>' +
-          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'D\',' + m.do + ')" class="paris-bet-btn" style="background:rgba(99,102,241,0.15)">Nul ×' + m.do + '</button>' +
-          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'A\',' + m.ao + ')" class="paris-bet-btn" style="background:rgba(236,72,153,0.15)">Ext. ×' + m.ao + '</button>' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'H\',' + m.ho + ')" class="paris-bet-btn">Dom. Ã—' + m.ho + '</button>' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'D\',' + m.do + ')" class="paris-bet-btn" style="background:rgba(99,102,241,0.15)">Nul Ã—' + m.do + '</button>' +
+          '<button onclick="parisPlaceBet(\'' + m.id + '\',\'A\',' + m.ao + ')" class="paris-bet-btn" style="background:rgba(236,72,153,0.15)">Ext. Ã—' + m.ao + '</button>' +
         '</div>' +
       '</div>';
     }).join('');
@@ -4023,7 +4023,7 @@ window.refreshHub = function() {
     if (parisHistory2.length > 20) parisHistory2.shift();
     localStorage.setItem('hub_paris_history2', JSON.stringify(parisHistory2));
     renderParisHistory2();
-    var msg = won ? '✅ Gagné ! +' + (Math.round(stake*odds)-stake) + ' jetons' : '❌ Perdu ! -' + stake + ' jetons';
+    var msg = won ? 'âœ… GagnÃ© ! +' + (Math.round(stake*odds)-stake) + ' jetons' : 'âŒ Perdu ! -' + stake + ' jetons';
     if (typeof showToast === 'function') showToast(msg);
     else alert(msg);
   };
@@ -4050,7 +4050,7 @@ window.refreshHub = function() {
     // Create the toggle handle
     var handle = document.createElement('button');
     handle.id = 'hub-sidebar-toggle';
-    handle.setAttribute('aria-label', 'Rétracter/afficher barre');
+    handle.setAttribute('aria-label', 'RÃ©tracter/afficher barre');
     handle.innerHTML = '<i class="fa-solid fa-chevron-right"></i>';
     hubBody.appendChild(handle);
 
@@ -4065,7 +4065,7 @@ window.refreshHub = function() {
           ? 'fa-solid fa-chevron-left'
           : 'fa-solid fa-chevron-right';
       }
-      handle.title = retract ? 'Afficher la barre' : 'Rétracter la barre';
+      handle.title = retract ? 'Afficher la barre' : 'RÃ©tracter la barre';
       if (typeof haptic === 'function') haptic(6);
     }
 
@@ -4076,7 +4076,7 @@ window.refreshHub = function() {
     // Auto-deploy sidebar when hub screen becomes active
     var hubObserver = new MutationObserver(function () {
       if (hubScreen.classList.contains('active') && isRetracted) {
-        // keep user preference — do NOT auto-redeploy
+        // keep user preference â€” do NOT auto-redeploy
       }
       if (hubScreen.classList.contains('active')) {
         updateFabForHub(true);
@@ -4122,10 +4122,10 @@ window.refreshHub = function() {
   });
 
   // ============================================================
-  // HUB ADD: SPLASH SCREEN — Affichage 3 secondes au démarrage
+  // HUB ADD: SPLASH SCREEN â€” Affichage 3 secondes au dÃ©marrage
   // ============================================================
   window.addEventListener('DOMContentLoaded', function () {
-    // HUB ADD: Récupérer le splash screen
+    // HUB ADD: RÃ©cupÃ©rer le splash screen
     var splash = document.getElementById('splash-screen');
     if (!splash) return;
 
@@ -4135,7 +4135,7 @@ window.refreshHub = function() {
       splash.classList.add('splash-hide');
       setTimeout(function () { splash.style.display = 'none'; }, 400);
     };
-    var minDelay = 1500; // ms minimum affiché
+    var minDelay = 1500; // ms minimum affichÃ©
     var start = Date.now();
     var doHide = function () {
       var elapsed = Date.now() - start;
@@ -4145,7 +4145,7 @@ window.refreshHub = function() {
     if (splashImg && !splashImg.complete) {
       splashImg.addEventListener('load',  doHide, { once: true });
       splashImg.addEventListener('error', doHide, { once: true });
-      // Sécurité : si l'image met trop longtemps (>4s), on cache quand même
+      // SÃ©curitÃ© : si l'image met trop longtemps (>4s), on cache quand mÃªme
       setTimeout(splashHide, 4000);
     } else {
       doHide();
@@ -4153,17 +4153,17 @@ window.refreshHub = function() {
   });
 
   // ============================================================
-  // HUB ADD: ACTUS — Chargement depuis l'URL JSON distante
+  // HUB ADD: ACTUS â€” Chargement depuis l'URL JSON distante
   // ============================================================
 
   var URL_ACTUS = 'https://regardcreatif.github.io/regard-creatif/actus.json';
 
-  // HUB ADD: Cache des données d'actus en mémoire
+  // HUB ADD: Cache des donnÃ©es d'actus en mÃ©moire
   var actusDataCache = null;
 
   // HUB ADD: Fonction asynchrone de chargement des actus
   async function loadActusFromAPI() {
-    // HUB ADD: Si déjà en cache mémoire, retourner directement
+    // HUB ADD: Si dÃ©jÃ  en cache mÃ©moire, retourner directement
     if (actusDataCache) return actusDataCache;
 
     try {
@@ -4184,7 +4184,7 @@ window.refreshHub = function() {
     } catch (fetchErr) {
       console.warn('HUB ADD: fetch actus failed, trying localStorage', fetchErr);
 
-      // HUB ADD: En cas d'échec, lire le cache localStorage
+      // HUB ADD: En cas d'Ã©chec, lire le cache localStorage
       try {
         var cached = localStorage.getItem('hub_actus_cache');
         if (cached) {
@@ -4195,12 +4195,12 @@ window.refreshHub = function() {
         console.warn('HUB ADD: localStorage parse failed', parseErr);
       }
 
-      // HUB ADD: Rien trouvé — retourner null
+      // HUB ADD: Rien trouvÃ© â€” retourner null
       return null;
     }
   }
 
-  // HUB ADD: Fonction de rendu des actus pour une catégorie donnée
+  // HUB ADD: Fonction de rendu des actus pour une catÃ©gorie donnÃ©e
   function renderActus(categorie) {
     var feedEl = document.getElementById('actus-' + categorie + '-feed');
     if (!feedEl) return;
@@ -4216,9 +4216,9 @@ window.refreshHub = function() {
       // HUB ADD: Vider le conteneur
       feedEl.innerHTML = '';
 
-      // HUB ADD: Pas de données
+      // HUB ADD: Pas de donnÃ©es
       if (!data || !data[categorie] || !data[categorie].length) {
-        feedEl.innerHTML = '<div class="hub-actus-empty"><i class="fa-solid fa-newspaper" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3"></i>Aucune actualité disponible</div>';
+        feedEl.innerHTML = '<div class="hub-actus-empty"><i class="fa-solid fa-newspaper" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.3"></i>Aucune actualitÃ© disponible</div>';
         return;
       }
 
@@ -4254,14 +4254,14 @@ window.refreshHub = function() {
     });
   }
 
-  // HUB ADD: Fonction utilitaire d'échappement HTML
+  // HUB ADD: Fonction utilitaire d'Ã©chappement HTML
   function escapeHtml(str) {
     var div = document.createElement('div');
     div.appendChild(document.createTextNode(str));
     return div.innerHTML;
   }
 
-  // HUB ADD: Wiring des boutons de catégorie d'actus
+  // HUB ADD: Wiring des boutons de catÃ©gorie d'actus
   function wireActusCatButtons() {
     var catBtns = document.querySelectorAll('.hub-actus-cat-btn');
     catBtns.forEach(function (btn) {
@@ -4272,7 +4272,7 @@ window.refreshHub = function() {
         var cat = btn.dataset.cat;
         if (!cat) return;
 
-        // HUB ADD: Mettre à jour l'état actif des boutons
+        // HUB ADD: Mettre Ã  jour l'Ã©tat actif des boutons
         catBtns.forEach(function (b) { b.classList.remove('active'); });
         btn.classList.add('active');
 
@@ -4283,7 +4283,7 @@ window.refreshHub = function() {
         var targetFeed = document.getElementById('actus-' + cat + '-feed');
         if (targetFeed) targetFeed.style.display = 'flex';
 
-        // HUB ADD: Charger les actus pour cette catégorie
+        // HUB ADD: Charger les actus pour cette catÃ©gorie
         renderActus(cat);
 
         // HUB ADD: Effet ripple sur le bouton
@@ -4300,7 +4300,7 @@ window.refreshHub = function() {
         if (m.target.classList.contains('active') && !m.target.dataset.actusLoaded) {
           m.target.dataset.actusLoaded = '1';
           wireActusCatButtons();
-          renderActus('tech'); // HUB ADD: Charger tech par défaut
+          renderActus('tech'); // HUB ADD: Charger tech par dÃ©faut
         }
       });
     });
@@ -4310,7 +4310,7 @@ window.refreshHub = function() {
   // HUB ADD: Wirer aussi les boutons de ripple sur les nouveaux boutons hub au chargement
   document.addEventListener('DOMContentLoaded', function () {
     wireActusCatButtons();
-    // HUB ADD: Étendre wireRipples aux nouveaux boutons hub
+    // HUB ADD: Ã‰tendre wireRipples aux nouveaux boutons hub
     document.querySelectorAll('.hub-tab-btn, .hub-actus-cat-btn, .hub-scan-btn').forEach(function (btn) {
       if (btn.dataset.ripple) return;
       btn.dataset.ripple = '1';
