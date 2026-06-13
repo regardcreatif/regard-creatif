@@ -33,8 +33,8 @@
   <!-- HUB ADD: SPLASH SCREEN — Page de bienvenue style WhatsApp/TikTok -->
   <div id="splash-screen">
     <div class="splash-logo">
-      <h1>TRINITÉ</h1>
-      <p>Trois profils, un seul chat</p>
+      <img src="https://i.postimg.cc/wBPNzyJs/Picsart-26-06-09-10-15-05-552.png"
+           alt="Trinité" class="splash-logo-img" />
     </div>
   </div>
   <!-- /HUB ADD: SPLASH SCREEN -->
@@ -210,26 +210,11 @@
     </div>
 
     <nav class="bottom-nav glass-nav">
-  <button class="nav-btn" data-screen="screen-feed">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-    <span>Feed</span>
-  </button>
-  <button class="nav-btn active" data-screen="screen-main">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-    <span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span>
-  </button>
-  <button class="nav-btn" data-screen="screen-studio">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-    <span>Studio</span>
-  </button>
-  <button class="nav-btn" data-screen="screen-profil">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-    <span>Profil</span>
-  </button>
-  <button class="nav-btn" data-screen="screen-hub">
-    <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
-    <span>Hub</span>
-  </button>
+  <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+  <button class="nav-btn active" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span class="nav-msg-wrap">Messages<span id="msg-badge" class="nav-badge hidden">0</span></span></button>
+  <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+  <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+  <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
 </nav>
   </div>
 
@@ -243,29 +228,27 @@
       </button>
     </div>
 
+    <!-- Filtre Vidéo / Photo -->
+    <div class="feed-filter-bar">
+      <button class="feed-filter-btn active" data-filter="all" id="filter-all">
+        <i class="fa-solid fa-border-all"></i> Tout
+      </button>
+      <button class="feed-filter-btn" data-filter="video" id="filter-video">
+        <i class="fa-solid fa-video"></i> Vidéos
+      </button>
+      <button class="feed-filter-btn" data-filter="photo" id="filter-photo">
+        <i class="fa-solid fa-image"></i> Photos
+      </button>
+    </div>
+
     <div class="feed-container" id="feed-container"></div>
 
     <nav class="bottom-nav feed-nav glass-nav">
-      <button class="nav-btn active" data-screen="screen-feed">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-        <span>Feed</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-main">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-        <span>Messages</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-studio">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <span>Studio</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-profil">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-        <span>Profil</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
-        <span>Hub</span>
-      </button>
+      <button class="nav-btn active" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+      <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+      <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+      <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+      <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
     </nav>
   </div>
 
@@ -333,26 +316,11 @@
     </div>
 
     <nav class="bottom-nav glass-nav">
-      <button class="nav-btn" data-screen="screen-feed">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-        <span>Feed</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-main">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-        <span>Messages</span>
-      </button>
-      <button class="nav-btn active" data-screen="screen-studio">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <span>Studio</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-profil">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-        <span>Profil</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
-        <span>Hub</span>
-      </button>
+      <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+      <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+      <button class="nav-btn active" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+      <button class="nav-btn" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+      <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
     </nav>
   </div>
 
@@ -409,6 +377,25 @@
       <!-- FIX: QR codes par profil générés dynamiquement par JS -->
       <div id="profil-id-section" style="display:none"></div>
 
+      <!-- Thème de couleur — dans le profil -->
+      <div class="profil-theme-row">
+        <span class="profil-theme-label"><i class="fa-solid fa-palette"></i> Couleur du thème</span>
+        <div class="profil-color-dots">
+          <button class="color-dot active" data-color="purple" style="background:linear-gradient(135deg,#7c3aed,#a855f7)" title="Violet"></button>
+          <button class="color-dot" data-color="blue"   style="background:linear-gradient(135deg,#1d4ed8,#3b82f6)" title="Bleu"></button>
+          <button class="color-dot" data-color="rose"   style="background:linear-gradient(135deg,#be185d,#ec4899)" title="Rose"></button>
+          <button class="color-dot" data-color="green"  style="background:linear-gradient(135deg,#059669,#10b981)" title="Vert"></button>
+          <button class="color-dot" data-color="orange" style="background:linear-gradient(135deg,#c2410c,#f97316)" title="Orange"></button>
+        </div>
+      </div>
+
+      <!-- Stats du profil -->
+      <div class="profil-stats-row" id="profil-stats-row">
+        <div class="stat-card"><span class="stat-val" id="stat-contacts">—</span><span class="stat-label">Contacts</span></div>
+        <div class="stat-card"><span class="stat-val" id="stat-posts">—</span><span class="stat-label">Posts</span></div>
+        <div class="stat-card"><span class="stat-val" id="stat-stories">—</span><span class="stat-label">Stories</span></div>
+      </div>
+
       <h3 class="profil-title">Mes identités</h3>
       <form id="form-profil" class="auth-form">
         <div id="profil-cards"></div>
@@ -421,29 +408,21 @@
         <i class="fa-solid fa-arrow-right-from-bracket"></i>
         Se déconnecter
       </button>
+
+      <!-- Accès Favoris depuis le Profil -->
+      <button class="profil-favorites-btn" onclick="showScreen('screen-favorites');document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'))">
+        <i class="fa-solid fa-bookmark"></i>
+        <span>Mes Favoris</span>
+        <i class="fa-solid fa-chevron-right" style="margin-left:auto;opacity:0.5"></i>
+      </button>
     </div>
 
     <nav class="bottom-nav glass-nav">
-      <button class="nav-btn" data-screen="screen-feed">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div>
-        <span>Feed</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-main">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div>
-        <span>Messages</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-studio">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div>
-        <span>Studio</span>
-      </button>
-      <button class="nav-btn active" data-screen="screen-profil">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div>
-        <span>Profil</span>
-      </button>
-      <button class="nav-btn" data-screen="screen-hub">
-        <div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div>
-        <span>Hub</span>
-      </button>
+      <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+      <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+      <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+      <button class="nav-btn active" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+      <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
     </nav>
   </div>
 
@@ -707,6 +686,30 @@
   </nav>
 </div>
 
+<!-- ===== ÉCRAN FAVORIS ===== -->
+<div id="screen-favorites" class="screen">
+  <header class="main-header glass-header">
+    <div class="header-title" style="display:flex;align-items:center;gap:8px">
+      <i class="fa-solid fa-bookmark" style="color:var(--primary)"></i>
+      Favoris
+    </div>
+  </header>
+  <div id="favorites-list" class="favorites-list">
+    <div class="favorites-empty">
+      <i class="fa-regular fa-bookmark" style="font-size:2.5rem;color:var(--text-muted)"></i>
+      <p>Aucun favori pour l'instant.</p>
+      <p style="font-size:0.8rem;color:var(--text-muted)">Tape <i class="fa-solid fa-bookmark"></i> sur une vidéo du feed.</p>
+    </div>
+  </div>
+  <nav class="bottom-nav glass-nav">
+    <button class="nav-btn" data-screen="screen-feed"><div class="nav-icon-wrap"><i class="fa-solid fa-play"></i></div><span>Feed</span></button>
+    <button class="nav-btn" data-screen="screen-main"><div class="nav-icon-wrap"><i class="fa-solid fa-message"></i></div><span>Messages</span></button>
+    <button class="nav-btn" data-screen="screen-studio"><div class="nav-icon-wrap"><i class="fa-solid fa-camera"></i></div><span>Studio</span></button>
+    <button class="nav-btn active" data-screen="screen-profil"><div class="nav-icon-wrap"><i class="fa-solid fa-user"></i></div><span>Profil</span></button>
+    <button class="nav-btn" data-screen="screen-hub"><div class="nav-icon-wrap"><i class="fa-solid fa-gamepad"></i></div><span>Hub</span></button>
+  </nav>
+</div>
+
 <!-- ===== ÉCRAN CHAT ===== -->
   <div id="screen-chat" class="screen">
     <header class="chat-header glass-header">
@@ -718,9 +721,20 @@
       </div>
       <div class="chat-header-info">
         <span id="chat-contact-name" class="chat-title"></span>
-        <span id="chat-profile-badge" class="profile-badge"></span>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span id="chat-profile-badge" class="profile-badge"></span>
+          <div id="chat-online-status" class="chat-online-status"></div>
+        </div>
       </div>
+      <button id="btn-chat-search" class="icon-btn" title="Rechercher dans le chat">
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </button>
     </header>
+    <div id="chat-search-bar" class="chat-search-bar hidden">
+      <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted)"></i>
+      <input type="text" id="chat-search-input" placeholder="Rechercher dans la conversation…" autocomplete="off" />
+      <span id="chat-search-count" class="chat-search-count"></span>
+    </div>
     <div id="typing-indicator" class="typing-indicator hidden">
       <div class="typing-bubble">
         <span></span><span></span><span></span>
@@ -729,6 +743,10 @@
     </div>
     <div id="messages-container" class="messages-container"></div>
     <div class="message-input-bar glass-input-bar">
+      <button id="btn-attach-img" class="btn-voice" title="Envoyer une image">
+        <i class="fa-solid fa-image"></i>
+      </button>
+      <input type="file" id="chat-img-input" accept="image/*" style="display:none" />
       <button id="btn-voice" class="btn-voice" title="Message vocal">
         <i class="fa-solid fa-microphone"></i>
       </button>
@@ -852,6 +870,56 @@
 
   <!-- ===== TOAST ===== -->
   <div id="toast" class="toast hidden"></div>
+
+  <!-- Input caché — galerie pour stories -->
+  <input type="file" id="story-gallery-input" accept="image/*,video/*" style="display:none" />
+
+  <!-- ===== MODAL APERÇU IMAGE ===== -->
+  <div id="img-preview-modal" class="img-preview-modal hidden">
+    <div class="img-preview-content">
+      <img id="img-preview-src" alt="Aperçu" />
+      <div class="img-preview-actions">
+        <button id="btn-img-send" class="btn-primary shimmer-btn">
+          <i class="fa-solid fa-paper-plane"></i> Envoyer
+        </button>
+        <button id="btn-img-cancel" class="icon-btn" style="font-size:0.85rem;padding:0.6rem 1rem">
+          <i class="fa-solid fa-xmark"></i> Annuler
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== REACTION PICKER (long press message) ===== -->
+  <div id="reaction-picker" class="reaction-picker hidden">
+    <button class="react-btn" data-emoji="❤️">❤️</button>
+    <button class="react-btn" data-emoji="😂">😂</button>
+    <button class="react-btn" data-emoji="👍">👍</button>
+    <button class="react-btn" data-emoji="😮">😮</button>
+    <button class="react-btn" data-emoji="😢">😢</button>
+    <button class="react-btn" data-emoji="🔥">🔥</button>
+    <button class="react-btn delete-msg-btn" title="Supprimer">
+      <i class="fa-solid fa-trash" style="font-size:0.9rem;color:#f87171"></i>
+    </button>
+  </div>
+
+  <!-- ===== COMMENTAIRES — Bottom Sheet ===== -->
+  <div id="comments-backdrop" class="comments-backdrop"></div>
+  <div id="comments-sheet" class="comments-sheet" aria-label="Commentaires">
+    <div class="comments-handle"></div>
+    <div class="comments-header">
+      <span>Commentaires</span>
+      <button id="btn-comments-close" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="comments-list" class="comments-list">
+      <p class="comments-empty">Aucun commentaire pour l'instant.</p>
+    </div>
+    <div class="comments-input-bar">
+      <input type="text" id="comment-input" placeholder="Ajouter un commentaire…" autocomplete="off" />
+      <button id="btn-comment-send" class="btn-comment-send" aria-label="Envoyer">
+        <i class="fa-solid fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./script.js"></script>
