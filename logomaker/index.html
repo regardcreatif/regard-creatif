@@ -1274,9 +1274,9 @@ function loadTemplate(index) {
     var tpl = TEMPLATES[index];
     var data = {
         name: tpl.name,
-        bg: tpl.cat === 'luxe' ? '#1a1a2e' : '#ffffff',
-        shape: tpl.cat === 'tech' ? 'tech' : (tpl.cat === 'sport' ? 'polygon' : 'rect'),
-        color: tpl.cat === 'luxe' ? '#d4af37' : (tpl.cat === 'nature' ? '#10b981' : (tpl.cat === 'tech' ? '#00e5ff' : '#5b6af0')),
+        svg: tpl.svg,
+        bg: tpl.bg,
+        cat: tpl.cat,
         text: tpl.name.toUpperCase(),
         font: tpl.cat === 'luxe' || tpl.cat === 'vintage' ? 'Georgia' : 'Montserrat',
         weight: '900'
