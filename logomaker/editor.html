@@ -275,6 +275,84 @@ button{font-family:inherit;cursor:pointer}
 
 /* IMAGE PROPS */
 .img-opacity-row{margin-bottom:6px;}
+
+/* ══ SMART TEMPLATE FINDER FAB & PANEL ══════════════════════════════════════ */
+#ai-fab{
+  position:fixed;bottom:72px;right:12px;z-index:3000;
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,#5b6af0,#7c4af0);
+  border:none;color:#fff;font-size:18px;cursor:pointer;
+  box-shadow:0 4px 16px rgba(91,106,240,.55);
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .2s,box-shadow .2s;
+}
+#ai-fab:hover{transform:scale(1.08);box-shadow:0 6px 22px rgba(91,106,240,.7);}
+#ai-panel{
+  position:fixed;bottom:124px;right:12px;z-index:3001;
+  width:300px;background:var(--panel2);border:1px solid var(--border);
+  border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.35);
+  display:none;flex-direction:column;overflow:hidden;
+  animation:aiSlideIn .22s ease;
+}
+#ai-panel.open{display:flex;}
+@keyframes aiSlideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+#ai-panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;background:linear-gradient(135deg,#5b6af0,#7c4af0);
+  color:#fff;font-size:13px;font-weight:700;
+}
+#ai-panel-close{
+  background:none;border:none;color:#fff;font-size:18px;cursor:pointer;
+  line-height:1;padding:0 2px;opacity:.8;
+}
+#ai-panel-close:hover{opacity:1;}
+#ai-panel-body{padding:12px;display:flex;flex-direction:column;gap:9px;}
+.ai-field{display:flex;flex-direction:column;gap:4px;}
+.ai-field label{font-size:11px;color:var(--text2);font-weight:600;}
+.ai-field input{
+  padding:7px 10px;border-radius:8px;border:1px solid var(--border);
+  background:var(--panel);color:var(--text);font-family:inherit;font-size:12px;
+  outline:none;transition:border .2s;
+}
+.ai-field input:focus{border-color:var(--accent);}
+#ai-results{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:7px;
+  max-height:260px;overflow-y:auto;padding-right:2px;
+}
+#ai-results:empty::after{
+  content:'Tape un mot-clé pour filtrer…';
+  grid-column:1/-1;font-size:11px;color:var(--text2);text-align:center;padding:10px 0;
+}
+.stf-card{
+  border-radius:9px;border:1.5px solid var(--border);
+  background:var(--panel);cursor:pointer;overflow:hidden;
+  transition:border-color .18s,transform .15s,box-shadow .15s;
+  display:flex;flex-direction:column;align-items:center;gap:0;
+}
+.stf-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 14px rgba(91,106,240,.35);}
+.stf-card-thumb{
+  width:100%;aspect-ratio:1;display:flex;align-items:center;justify-content:center;
+  overflow:hidden;
+}
+.stf-card-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.stf-card-info{
+  width:100%;padding:4px 5px;
+  font-size:9px;font-weight:700;color:var(--text);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;
+}
+.stf-cat{
+  display:inline-block;font-size:8px;padding:1px 5px;border-radius:4px;
+  font-weight:600;margin-bottom:3px;
+}
+.stf-cat-luxe{background:#3d2c0a;color:#f5d48b;}
+.stf-cat-tech{background:#001a3a;color:#00e5ff;}
+.stf-cat-nature{background:#0d2e0e;color:#a8e063;}
+.stf-cat-sport{background:#2d0a00;color:#ff8c00;}
+.stf-cat-minimal{background:#222;color:#eee;}
+.stf-cat-vintage{background:#2e1f0a;color:#d4a843;}
+.stf-hint{font-size:10px;color:var(--text2);text-align:center;padding:2px 0;}
+.ai-status{font-size:11px;color:var(--text2);text-align:center;padding:6px 0;}
+.ai-err{font-size:11px;color:#e53e3e;text-align:center;padding:6px 0;}
 </style>
 </head>
 <body>
@@ -440,6 +518,23 @@ button{font-family:inherit;cursor:pointer}
     </div>
   </div>
   <div id="toast"></div>
+
+  <!-- SMART TEMPLATE FINDER PANEL -->
+  <div id="ai-panel">
+    <div id="ai-panel-header">
+      <span>🔍 Choisir un template</span>
+      <button id="ai-panel-close">×</button>
+    </div>
+    <div id="ai-panel-body">
+      <div class="ai-field">
+        <label>Filtre par style / secteur</label>
+        <input type="text" id="stf-search" placeholder="luxe, sport, tech, nature, minimal…" autocomplete="off" maxlength="80" />
+      </div>
+      <div class="stf-hint">Clique sur un template pour l'ouvrir dans l'éditeur</div>
+      <div id="ai-results"></div>
+    </div>
+  </div>
+  <button id="ai-fab" title="Choisir un template">🗂</button>
 </div>
 
 <script>
@@ -2143,6 +2238,141 @@ updateRightPanel();
 updatePanelToggle();
 initDrawCanvas();
 
+// ─── APPLY TEMPLATE DATA (used by URL load AND Smart Template Finder) ────────
+function applyTemplateData(tpl) {
+    newProject();
+
+    function _fallbackTpl(t) {
+        S.canvasBg = (t.bg && t.bg.includes('linear-gradient')) ? '#1a1a2e' : (t.bg || '#1a1a2e');
+        const bgRect = mkRect();
+        bgRect.x = 40; bgRect.y = 40;
+        bgRect.w = S.canvasW - 80; bgRect.h = S.canvasH - 80;
+        bgRect.fill = t.color || '#5b6af0'; bgRect.rx = 16;
+        S.elements.push(bgRect);
+        const txt = mkText(t.text || (t.name || '').toUpperCase());
+        txt.fontSize = 48; txt.weight = t.weight || '900';
+        txt.font = t.font || 'Montserrat'; txt.fill = '#ffffff';
+        S.elements.push(txt);
+        S.selectedIds = [bgRect.id];
+        saveHistory(); render(); updateRightPanel(); updateContextBar();
+        toast('📐 Template "' + t.name + '" chargé !');
+    }
+
+    if (tpl.svg) {
+        try {
+            const parser = new DOMParser();
+            const svgDoc = parser.parseFromString(tpl.svg, 'image/svg+xml');
+            const svgEl = svgDoc.documentElement;
+            const scale = S.canvasW / 80;
+
+            function resolveColor(fillStr) {
+                if (!fillStr || !fillStr.startsWith('url(#')) return fillStr || '#ffffff';
+                const gid = (fillStr.match(/url\(#([^)]+)\)/) || [])[1];
+                if (!gid) return '#ffffff';
+                const grad = svgDoc.getElementById(gid);
+                if (!grad) return '#ffffff';
+                const stop = grad.querySelector('stop');
+                return stop ? (stop.getAttribute('stop-color') || '#ffffff') : '#ffffff';
+            }
+
+            // ── Step 1: harvest text nodes
+            const textNodes = Array.from(svgEl.querySelectorAll('text'));
+            const textData = textNodes.map(function(tn) {
+                return {
+                    content: (tn.textContent || '').trim(),
+                    x: parseFloat(tn.getAttribute('x') || '40'),
+                    y: parseFloat(tn.getAttribute('y') || '40'),
+                    fontSize: parseFloat(tn.getAttribute('font-size') || '8'),
+                    fill: resolveColor(tn.getAttribute('fill')),
+                    fontFamily: tn.getAttribute('font-family') || 'sans-serif',
+                    letterSpacing: parseFloat(tn.getAttribute('letter-spacing') || '0'),
+                    fontWeight: tn.getAttribute('font-weight') || '700',
+                    textAnchor: tn.getAttribute('text-anchor') || 'start',
+                    opacity: parseFloat(tn.getAttribute('opacity') || '1')
+                };
+            }).filter(function(tn) { return tn.content.length > 0; });
+            textNodes.forEach(function(tn) { if (tn.parentNode) tn.parentNode.removeChild(tn); });
+
+            // ── Step 2: find & strip the SVG background rect → use as canvas bg
+            let extractedBg = null;
+            const allRects = Array.from(svgEl.querySelectorAll('rect'));
+            const bgRectEl = allRects.find(function(r) {
+                const rx = parseFloat(r.getAttribute('x') || '0');
+                const ry = parseFloat(r.getAttribute('y') || '0');
+                const rw = parseFloat(r.getAttribute('width') || '0');
+                const rh = parseFloat(r.getAttribute('height') || '0');
+                return rx <= 2 && ry <= 2 && rw >= 76 && rh >= 76;
+            });
+            if (bgRectEl) {
+                const fillAttr = bgRectEl.getAttribute('fill') || '';
+                extractedBg = fillAttr.startsWith('url(#') ? resolveColor(fillAttr) : (fillAttr || null);
+                bgRectEl.parentNode.removeChild(bgRectEl);
+            }
+
+            // ── Step 3: render remaining graphic (no bg, no text) as centered PNG
+            const GS = Math.round(S.canvasW * 0.88);
+            const GO = Math.round((S.canvasW - GS) / 2);
+            svgEl.setAttribute('width', String(GS));
+            svgEl.setAttribute('height', String(GS));
+            const svgStr = new XMLSerializer().serializeToString(svgEl);
+            const svgBlob = new Blob([svgStr], { type: 'image/svg+xml' });
+            const svgUrl = URL.createObjectURL(svgBlob);
+            const tmpImg = new Image();
+            tmpImg.onload = function() {
+                const tmpCv = document.createElement('canvas');
+                tmpCv.width = GS; tmpCv.height = GS;
+                tmpCv.getContext('2d').drawImage(tmpImg, 0, 0, GS, GS);
+                URL.revokeObjectURL(svgUrl);
+                const dataUrl = tmpCv.toDataURL('image/png');
+                const finalImg = new Image();
+                finalImg.onload = function() {
+                    // Set canvas background from extracted SVG bg rect
+                    S.canvasBg = extractedBg ||
+                        ((tpl.bg && tpl.bg.includes('linear-gradient')) ? '#1a1a2e' : (tpl.bg || '#1a1a2e'));
+
+                    // ── Layer 1: graphic image — CENTERED, movable & resizable
+                    S.elements.push({
+                        id: mkId(), type: 'image',
+                        x: GO, y: GO, w: GS, h: GS,
+                        src: dataUrl, img: finalImg,
+                        opacity: 1, rotation: 0, visible: true
+                    });
+
+                    // ── Layer 2+: one editable text element per <text> in the SVG
+                    textData.forEach(function(td) {
+                        const el = mkText(td.content);
+                        el.x = td.x * scale;
+                        el.y = td.y * scale;
+                        el.fontSize = Math.max(8, Math.round(td.fontSize * scale));
+                        el.fill = td.fill || '#ffffff';
+                        el.align = td.textAnchor === 'middle' ? 'center' : (td.textAnchor === 'end' ? 'right' : 'left');
+                        const ff = (td.fontFamily || '').toLowerCase();
+                        el.font = ff.includes('orbitron') ? 'Orbitron' :
+                                  ff.includes('cinzel') ? 'Cinzel' :
+                                  ff.includes('playfair') ? 'Playfair Display' :
+                                  ff.includes('bebas') ? 'Bebas Neue' :
+                                  ff.includes('rajdhani') ? 'Rajdhani' :
+                                  (ff.includes('georgia') || ff.includes('serif')) ? 'Georgia' : 'Montserrat';
+                        el.weight = td.fontWeight || '700';
+                        el.letterSpacing = Math.round(td.letterSpacing * scale);
+                        el.opacity = td.opacity;
+                        S.elements.push(el);
+                    });
+
+                    S.selectedIds = [];
+                    saveHistory(); render(); updateRightPanel(); updateContextBar();
+                    toast('📐 "' + tpl.name + '" — fond + graphique + ' + textData.length + ' texte(s) éditables');
+                };
+                finalImg.src = dataUrl;
+            };
+            tmpImg.onerror = function() { URL.revokeObjectURL(svgUrl); _fallbackTpl(tpl); };
+            tmpImg.src = svgUrl;
+        } catch(svgErr) { console.warn('SVG render error:', svgErr); _fallbackTpl(tpl); }
+    } else {
+        _fallbackTpl(tpl);
+    }
+}
+
 // ─── CHARGEMENT INTELLIGENT (template / projet / import / sauvegarde) ─────
 (function loadTemplateIfNeeded() {
     // CAS 1 : Ouverture d'un projet publié ou d'une création
@@ -2168,39 +2398,19 @@ initDrawCanvas();
             } catch(e) { console.warn('Erreur projet:', e); }
         }
     }
+
     // CAS 2 : Chargement d'un template (index.html → clic sur template)
-if (_urlTemplate !== null) {
-    const raw = sessionStorage.getItem('rcTemplate');
-    if (raw) {
-        try {
-            const tpl = JSON.parse(raw);
-            sessionStorage.removeItem('rcTemplate');
-            newProject();
-            S.canvasBg = (tpl.bg && tpl.bg.includes('linear-gradient')) ? '#1a1a2e' : (tpl.bg || '#1a1a2e');
-            const bgRect = mkRect();
-            bgRect.x = 40;
-            bgRect.y = 40;
-            bgRect.w = S.canvasW - 80;
-            bgRect.h = S.canvasH - 80;
-            bgRect.fill = tpl.color || '#5b6af0';
-            bgRect.rx = 16;
-            S.elements.push(bgRect);
-            const txt = mkText(tpl.text || tpl.name.toUpperCase());
-            txt.fontSize = 48;
-            txt.weight = tpl.weight || '900';
-            txt.font = tpl.font || 'Montserrat';
-            txt.fill = '#ffffff';
-            S.elements.push(txt);
-            S.selectedIds = [bgRect.id];
-            saveHistory();
-            render();
-            updateRightPanel();
-            updateContextBar();
-            toast('📐 Template "' + tpl.name + '" chargé !');
-            return;
-        } catch(e) { console.warn('Erreur template:', e); }
+    if (_urlTemplate !== null) {
+        const raw = sessionStorage.getItem('rcTemplate');
+        if (raw) {
+            try {
+                const tpl = JSON.parse(raw);
+                sessionStorage.removeItem('rcTemplate');
+                applyTemplateData(tpl);
+            } catch(e) { console.warn('Erreur template:', e); }
+        }
+        return;
     }
-}
 
     // CAS 3 : Import d'une image depuis index.html
     if (_urlImport) {
@@ -2236,6 +2446,7 @@ if (_urlTemplate !== null) {
             return;
         }
     }
+
     // CAS 4 (défaut) : Restaurer la dernière sauvegarde automatique
     if (loadProject()) {
         toast('✓ Projet restauré');
@@ -2289,6 +2500,149 @@ document.getElementById('publish-name').addEventListener('keydown', function(e) 
   if (e.key === 'Escape') closePublishModal();
 });
 setInterval(saveProject, 60000);
+
+// ══════════════════════════════════════════════
+//  SMART TEMPLATE FINDER  (no API key needed)
+// ══════════════════════════════════════════════
+var TEMPLATES_CATALOG = [
+  {name:"Crown Royal",    cat:"luxe",    bg:"linear-gradient(135deg,#1a0a00,#3d1f00)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g1a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5d48b"/><stop offset="50%" stop-color="#e8b84b"/><stop offset="100%" stop-color="#c47f0a"/></linearGradient><linearGradient id="g1b" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="#7a4a00"/><stop offset="100%" stop-color="#c89030"/></linearGradient></defs><rect x="8" y="8" width="64" height="64" rx="6" fill="#1a0a00"/><rect x="12" y="12" width="56" height="56" rx="4" fill="none" stroke="url(#g1a)" stroke-width="0.6"/><polygon points="40,14 44,26 54,22 48,32 58,36 48,38 52,50 40,44 28,50 32,38 22,36 32,32 26,22 36,26" fill="none" stroke="url(#g1a)" stroke-width="0.7" opacity="0.4"/><path d="M20,52 L20,34 L26,40 L33,28 L40,38 L47,28 L54,40 L60,34 L60,52 Z" fill="url(#g1a)" opacity="0.9"/><rect x="18" y="52" width="44" height="5" rx="2" fill="url(#g1b)"/><rect x="22" y="57" width="36" height="4" rx="1.5" fill="url(#g1a)" opacity="0.7"/><circle cx="40" cy="34" r="2.5" fill="#fff" opacity="0.9"/></svg>`},
+  {name:"HexaCore",       cat:"tech",    bg:"linear-gradient(135deg,#030818,#0a1a3a)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g2a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00e5ff"/><stop offset="100%" stop-color="#0066ff"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="8" fill="#030818"/><polygon points="40,10 58,20 58,40 40,50 22,40 22,20" fill="none" stroke="url(#g2a)" stroke-width="1.2"/><polygon points="40,16 53,23.5 53,38.5 40,46 27,38.5 27,23.5" fill="none" stroke="#00e5ff" stroke-width="0.5" opacity="0.5"/><polygon points="40,22 48,27 48,37 40,42 32,37 32,27" fill="#0a1a3a" stroke="url(#g2a)" stroke-width="0.8"/><circle cx="40" cy="32" r="5" fill="url(#g2a)" opacity="0.9"/><circle cx="40" cy="32" r="2.5" fill="#030818"/><circle cx="40" cy="32" r="1" fill="#00e5ff"/></svg>`},
+  {name:"Terra Leaf",     cat:"nature",  bg:"linear-gradient(135deg,#0d1f0e,#1a3d1c)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g3a" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#1db954"/><stop offset="100%" stop-color="#a8e063"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="10" fill="#0d1f0e"/><circle cx="40" cy="38" r="26" fill="none" stroke="#1db954" stroke-width="0.5" opacity="0.3"/><path d="M40,18 Q60,20 60,42 Q60,58 40,60 Q40,40 20,32 Q28,18 40,18 Z" fill="url(#g3a)" opacity="0.85"/><path d="M40,18 Q40,40 20,32" fill="none" stroke="#fff" stroke-width="0.8" opacity="0.6"/><rect x="38.5" y="60" width="3" height="8" rx="1.5" fill="url(#g3a)" opacity="0.7"/></svg>`},
+  {name:"Blaze Runner",   cat:"sport",   bg:"linear-gradient(135deg,#1a0500,#2d0a00)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g4a" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#ff4500"/><stop offset="50%" stop-color="#ff8c00"/><stop offset="100%" stop-color="#ffd700"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="4" fill="#1a0500"/><polygon points="40,8 70,72 10,72" fill="none" stroke="url(#g4a)" stroke-width="0.7" opacity="0.4"/><path d="M32,62 L18,62 L28,40 L22,40 L36,18 L34,36 L42,36 L30,56 L38,56 Z" fill="url(#g4a)" opacity="0.95"/><path d="M44,62 L36,62 L44,44 L50,44 L42,62 Z" fill="url(#g4a)" opacity="0.6"/><line x1="8" y1="66" x2="72" y2="66" stroke="url(#g4a)" stroke-width="0.8"/></svg>`},
+  {name:"Mono Mark",      cat:"minimal", bg:"linear-gradient(135deg,#f8f8f8,#e8e8e8)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="80" height="80" rx="6" fill="#fafafa"/><rect x="4" y="4" width="72" height="72" rx="4" fill="none" stroke="#222" stroke-width="1"/><text x="40" y="50" text-anchor="middle" font-family="'Playfair Display',serif" font-size="32" font-weight="700" fill="#111" letter-spacing="-1">M</text><rect x="16" y="54" width="48" height="1" fill="#111"/><circle cx="16" cy="16" r="2" fill="#111" opacity="0.2"/><circle cx="64" cy="16" r="2" fill="#111" opacity="0.2"/></svg>`},
+  {name:"Seal & Stamp",   cat:"vintage", bg:"linear-gradient(135deg,#1c0f06,#3b1e0a)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g6a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#d4a843"/><stop offset="100%" stop-color="#8a6010"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#1c0f06"/><circle cx="40" cy="38" r="28" fill="none" stroke="url(#g6a)" stroke-width="1" stroke-dasharray="3,2"/><circle cx="40" cy="38" r="23" fill="none" stroke="url(#g6a)" stroke-width="0.5"/><path d="M40,16 L43,23 L51,21 L47,28 L54,32 L47,34 L50,42 L43,39 L40,46 L37,39 L30,42 L33,34 L26,32 L33,28 L29,21 L37,23 Z" fill="url(#g6a)" opacity="0.8"/><circle cx="40" cy="38" r="8" fill="#1c0f06" stroke="url(#g6a)" stroke-width="0.8"/></svg>`},
+  {name:"Shield Elite",   cat:"luxe",    bg:"linear-gradient(135deg,#0a0a14,#1a1a2e)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g7a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#8a6020"/></linearGradient><linearGradient id="g7b" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8cc7a"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="8" fill="#0a0a14"/><path d="M40,10 L62,18 L62,42 Q62,58 40,68 Q18,58 18,42 L18,18 Z" fill="#1a1a2e" stroke="url(#g7a)" stroke-width="1"/><path d="M40,16 L56,23 L56,42 Q56,54 40,62 Q24,54 24,42 L24,23 Z" fill="none" stroke="url(#g7b)" stroke-width="0.5" opacity="0.5"/><line x1="40" y1="16" x2="40" y2="62" stroke="url(#g7a)" stroke-width="0.8" opacity="0.6"/><text x="40" y="46" text-anchor="middle" font-family="Cinzel,serif" font-size="8" font-weight="700" fill="url(#g7b)">E</text></svg>`},
+  {name:"NeonGrid",       cat:"tech",    bg:"linear-gradient(135deg,#020614,#080d2a)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g8a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#b400ff"/><stop offset="100%" stop-color="#00d4ff"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#020614"/><line x1="20" y1="0" x2="20" y2="80" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><line x1="40" y1="0" x2="40" y2="80" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><line x1="60" y1="0" x2="60" y2="80" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="20" x2="80" y2="20" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="40" x2="80" y2="40" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><line x1="0" y1="60" x2="80" y2="60" stroke="#b400ff" stroke-width="0.3" opacity="0.15"/><rect x="16" y="16" width="24" height="24" rx="2" fill="none" stroke="url(#g8a)" stroke-width="1.2"/><circle cx="28" cy="28" r="4" fill="url(#g8a)" opacity="0.8"/><circle cx="54" cy="54" r="4" fill="url(#g8a)" opacity="0.8"/></svg>`},
+  {name:"Summit",         cat:"nature",  bg:"linear-gradient(135deg,#0a1628,#162848)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g9a" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#1e90ff"/><stop offset="100%" stop-color="#87ceeb"/></linearGradient><linearGradient id="g9b" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8f4ff"/><stop offset="100%" stop-color="#c0d8f0"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="8" fill="#0a1628"/><polygon points="40,14 55,46 25,46" fill="none" stroke="url(#g9b)" stroke-width="1.2"/><polygon points="40,14 43,22 37,22" fill="url(#g9b)" opacity="0.9"/><rect x="12" y="48" width="56" height="1.5" rx="0.7" fill="url(#g9a)" opacity="0.4"/></svg>`},
+  {name:"Velocity",       cat:"sport",   bg:"linear-gradient(135deg,#050010,#0d001c)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g10a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#7b2fff"/><stop offset="100%" stop-color="#ff3cac"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#050010"/><path d="M-2,50 Q20,20 80,30" fill="none" stroke="url(#g10a)" stroke-width="8" opacity="0.12"/><path d="M10,60 L30,20 L50,40 L42,40 L58,20 L70,20" fill="none" stroke="url(#g10a)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polygon points="10,60 26,22 42,40 48,28 72,18 72,24 52,32 40,44 32,28 16,64" fill="url(#g10a)" opacity="0.7"/></svg>`},
+  {name:"Pure Type",      cat:"minimal", bg:"linear-gradient(135deg,#ffffff,#f0f0f0)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="80" height="80" fill="#fff"/><rect x="10" y="26" width="60" height="1" fill="#111"/><rect x="10" y="54" width="60" height="0.5" fill="#111" opacity="0.3"/><text x="11" y="44" font-family="Georgia,serif" font-size="20" font-weight="700" fill="#111" letter-spacing="-1">PURE</text><text x="11" y="52" font-family="Georgia,serif" font-size="6" fill="#555" letter-spacing="5">TYPE   STUDIO</text></svg>`},
+  {name:"Retro Badge",    cat:"vintage", bg:"linear-gradient(135deg,#1a1008,#2e1f0a)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g12a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0c060"/><stop offset="100%" stop-color="#b07820"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="8" fill="#1a1008"/><path d="M40,8 L48,14 L56,10 L57,18 L65,20 L61,28 L66,35 L58,38 L60,46 L52,46 L50,54 L42,51 L40,58 L38,51 L30,54 L28,46 L20,46 L22,38 L14,35 L19,28 L15,20 L23,18 L24,10 L32,14 Z" fill="none" stroke="url(#g12a)" stroke-width="0.8"/><circle cx="40" cy="33" r="18" fill="#1a1008" stroke="url(#g12a)" stroke-width="1"/></svg>`},
+  {name:"Diamond Lux",   cat:"luxe",    bg:"linear-gradient(135deg,#100820,#1e1040)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g13a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f8eaff"/><stop offset="50%" stop-color="#c080ff"/><stop offset="100%" stop-color="#7020c0"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="8" fill="#100820"/><polygon points="40,12 60,32 40,52 20,32" fill="none" stroke="url(#g13a)" stroke-width="1"/><polygon points="40,12 60,32 40,22" fill="url(#g13a)" opacity="0.5"/><polygon points="40,12 20,32 40,22" fill="url(#g13a)" opacity="0.6"/><circle cx="40" cy="32" r="3" fill="url(#g13a)" opacity="0.9"/><circle cx="40" cy="32" r="1.5" fill="#fff" opacity="0.8"/></svg>`},
+  {name:"Atom Tech",     cat:"tech",    bg:"linear-gradient(135deg,#001810,#003020)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g14a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ff88"/><stop offset="100%" stop-color="#00aa44"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#001810"/><ellipse cx="40" cy="36" rx="24" ry="10" fill="none" stroke="url(#g14a)" stroke-width="0.8"/><ellipse cx="40" cy="36" rx="24" ry="10" fill="none" stroke="url(#g14a)" stroke-width="0.8" transform="rotate(60,40,36)"/><ellipse cx="40" cy="36" rx="24" ry="10" fill="none" stroke="url(#g14a)" stroke-width="0.8" transform="rotate(120,40,36)"/><circle cx="40" cy="36" r="5" fill="url(#g14a)" opacity="0.9"/><circle cx="40" cy="36" r="2.5" fill="#001810"/></svg>`},
+  {name:"WildWave",      cat:"nature",  bg:"linear-gradient(135deg,#001428,#002244)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g15a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#0066cc"/><stop offset="50%" stop-color="#0099ff"/><stop offset="100%" stop-color="#00ccee"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="10" fill="#001428"/><path d="M12,38 Q22,26 32,38 Q42,50 52,38 Q62,26 70,32" fill="none" stroke="url(#g15a)" stroke-width="2" stroke-linecap="round"/><path d="M10,44 Q22,32 34,44 Q46,56 58,44 Q66,36 72,40" fill="none" stroke="url(#g15a)" stroke-width="1.2" stroke-linecap="round" opacity="0.6"/><circle cx="40" cy="38" r="6" fill="url(#g15a)" opacity="0.2" stroke="url(#g15a)" stroke-width="1"/><circle cx="40" cy="38" r="2" fill="url(#g15a)"/></svg>`},
+  {name:"Iron Fist",     cat:"sport",   bg:"linear-gradient(135deg,#0a0a0a,#1a1a1a)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g16a" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#888"/><stop offset="100%" stop-color="#333"/></linearGradient><linearGradient id="g16b" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#ff4444"/><stop offset="100%" stop-color="#cc0000"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#0a0a0a"/><polygon points="40,8 64,20 72,44 56,68 24,68 8,44 16,20" fill="none" stroke="url(#g16a)" stroke-width="1"/><path d="M28,34 L36,22 L44,34 L52,22 L56,42 L48,42 L44,52 L40,46 L36,52 L32,42 L24,42 Z" fill="url(#g16a)" opacity="0.8"/><rect x="24" y="54" width="32" height="2" rx="1" fill="url(#g16b)" opacity="0.7"/></svg>`},
+  {name:"Line Space",    cat:"minimal", bg:"linear-gradient(135deg,#f5f5f0,#ebebeb)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="80" height="80" fill="#f8f8f4"/><line x1="14" y1="24" x2="66" y2="24" stroke="#222" stroke-width="2"/><line x1="14" y1="30" x2="66" y2="30" stroke="#222" stroke-width="0.5"/><text x="14" y="48" font-family="'Playfair Display',serif" font-size="13" font-weight="700" fill="#111" letter-spacing="-0.5">LS</text><text x="32" y="48" font-family="Georgia,serif" font-size="6" fill="#555" letter-spacing="1">LINE</text><line x1="14" y1="60" x2="66" y2="60" stroke="#222" stroke-width="0.5"/><circle cx="62" cy="48" r="6" fill="none" stroke="#222" stroke-width="1"/></svg>`},
+  {name:"Old Press",     cat:"vintage", bg:"linear-gradient(135deg,#160c04,#2a1808)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g18a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8c070"/><stop offset="100%" stop-color="#9a6a20"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#160c04"/><rect x="8" y="8" width="64" height="64" rx="4" fill="none" stroke="url(#g18a)" stroke-width="0.8"/><rect x="14" y="22" width="52" height="1.5" fill="url(#g18a)" opacity="0.8"/><rect x="14" y="56" width="52" height="1.5" fill="url(#g18a)" opacity="0.8"/><text x="40" y="38" text-anchor="middle" font-family="'Playfair Display',serif" font-size="11" font-weight="700" fill="url(#g18a)">OLD</text><text x="40" y="51" text-anchor="middle" font-family="'Playfair Display',serif" font-size="11" font-weight="700" fill="url(#g18a)" opacity="0.7">PRESS</text></svg>`},
+  {name:"Pulse Wave",    cat:"tech",    bg:"linear-gradient(135deg,#001020,#001a30)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g19a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00aaff"/><stop offset="50%" stop-color="#00eeff"/><stop offset="100%" stop-color="#00aaff"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#001020"/><line x1="8" y1="36" x2="20" y2="36" stroke="url(#g19a)" stroke-width="1.5"/><path d="M20,36 L26,36 L28,24 L32,50 L36,28 L40,44 L44,36 L54,36" fill="none" stroke="url(#g19a)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="54" y1="36" x2="72" y2="36" stroke="url(#g19a)" stroke-width="1.5"/><circle cx="40" cy="36" r="12" fill="none" stroke="url(#g19a)" stroke-width="0.6" opacity="0.4"/></svg>`},
+  {name:"Wing Strike",   cat:"sport",   bg:"linear-gradient(135deg,#0a0500,#1a0c00)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g20a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff9900"/><stop offset="100%" stop-color="#cc5500"/></linearGradient><linearGradient id="g20b" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffcc44"/><stop offset="100%" stop-color="#ff8800"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#0a0500"/><path d="M40,36 Q22,16 8,24 Q18,28 22,34 Q14,36 10,44 Q22,38 30,42 Q24,52 20,58 Q32,48 40,48 Z" fill="url(#g20a)" opacity="0.85"/><path d="M40,36 Q58,16 72,24 Q62,28 58,34 Q66,36 70,44 Q58,38 50,42 Q56,52 60,58 Q48,48 40,48 Z" fill="url(#g20b)" opacity="0.85"/><ellipse cx="40" cy="42" rx="5" ry="7" fill="url(#g20a)" opacity="0.9"/></svg>`}
+];
+
+// Per-template extra keywords for better matching
+var STF_EXTRA = {
+  'Crown Royal':  ['couronne','crown','royal','or','prestige','majesté'],
+  'HexaCore':     ['hexagone','hex','connectivité','réseau','cyber'],
+  'Terra Leaf':   ['feuille','leaf','plante','plant','eco','bio','vert'],
+  'Blaze Runner': ['feu','flamme','fire','orange','vitesse','speed'],
+  'Mono Mark':    ['monogramme','noir','noir et blanc','typographie'],
+  'Seal & Stamp': ['tampon','cachet','badge','médaille','or'],
+  'Shield Elite': ['bouclier','shield','armoiries','gold','or'],
+  'NeonGrid':     ['neon','grille','violet','purple','cyber','réseau'],
+  'Summit':       ['montagne','mountain','pic','alpine','neige','snow'],
+  'Velocity':     ['vitesse','violet','rose','énergie','dynamique'],
+  'Pure Type':    ['blanc','white','épuré','simple','typographie'],
+  'Retro Badge':  ['étoile','star','badge','rétro','or','médaille'],
+  'Diamond Lux':  ['diamant','diamond','violet','crystal','gemme'],
+  'Atom Tech':    ['atome','atom','science','chimie','vert','green'],
+  'WildWave':     ['vague','wave','mer','ocean','bleu','eau','surf'],
+  'Iron Fist':    ['métal','metal','iron','rouge','red','combat','gris'],
+  'Line Space':   ['lignes','lines','blanc','typographie','studio'],
+  'Old Press':    ['presse','imprimerie','journal','or','classique'],
+  'Pulse Wave':   ['pulsation','onde','médecine','bleu','cyan','signal'],
+  'Wing Strike':  ['aile','wing','oiseau','bird','orange','faucon','aigle']
+};
+
+var CAT_KEYWORDS = {
+  luxe:    ['luxe','luxury','premium','elite','royal','prestige','haute','noble','chic','or','gold'],
+  tech:    ['tech','technologie','technology','digital','numérique','cyber','code','app','startup','data','ia','ai'],
+  nature:  ['nature','eco','bio','vert','green','organic','environnement','vague','ocean','montagne','forêt'],
+  sport:   ['sport','fitness','gym','athletic','athlétisme','vitesse','speed','force','power','combat','énergie'],
+  minimal: ['minimal','minimaliste','simple','clean','épuré','moderne','modern','typographie','blanc'],
+  vintage: ['vintage','retro','rétro','classique','classic','old','artisan','tradition','héritage','badge']
+};
+
+function stfScore(tpl, query) {
+  var q = query.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .split(/[\s,;|]+/).filter(Boolean);
+  if (!q.length) return 1;
+  var score = 0;
+  var tplNameLower = tpl.name.toLowerCase();
+  q.forEach(function(w) {
+    if (tplNameLower.includes(w)) score += 4;
+    if (tpl.cat.includes(w) || w.includes(tpl.cat)) score += 3;
+    (CAT_KEYWORDS[tpl.cat] || []).forEach(function(kw) {
+      if (kw.includes(w) || w.includes(kw)) score += 2;
+    });
+    (STF_EXTRA[tpl.name] || []).forEach(function(kw) {
+      var kn = kw.normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+      if (kn.includes(w) || w.includes(kn)) score += 2;
+    });
+  });
+  return score;
+}
+
+(function() {
+  var fab      = document.getElementById('ai-fab');
+  var panel    = document.getElementById('ai-panel');
+  var btnClose = document.getElementById('ai-panel-close');
+  var search   = document.getElementById('stf-search');
+  var results  = document.getElementById('ai-results');
+
+  function svgDataUrl(svg) {
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+  }
+
+  function renderGrid(list) {
+    results.innerHTML = '';
+    if (!list.length) {
+      results.innerHTML = '<div class="ai-status" style="grid-column:1/-1">Aucun résultat — essaie un autre mot.</div>';
+      return;
+    }
+    list.forEach(function(tpl) {
+      var card = document.createElement('div');
+      card.className = 'stf-card';
+      card.title = tpl.name + ' · ' + tpl.cat;
+      card.innerHTML =
+        '<div class="stf-card-thumb"><img src="' + svgDataUrl(tpl.svg) + '" loading="lazy" alt="' + tpl.name + '"/></div>' +
+        '<div class="stf-card-info"><span class="stf-cat stf-cat-' + tpl.cat + '">' + tpl.cat + '</span><br>' + tpl.name + '</div>';
+      card.addEventListener('click', function() {
+        var hasWork = S.elements.length > 0;
+        if (hasWork && !confirm('Charger "' + tpl.name + '" ? Le contenu actuel sera remplacé.')) return;
+        panel.classList.remove('open');
+        applyTemplateData(tpl);
+      });
+      results.appendChild(card);
+    });
+  }
+
+  function refresh() {
+    var q = (search.value || '').trim();
+    if (!q) {
+      renderGrid(TEMPLATES_CATALOG);
+      return;
+    }
+    var scored = TEMPLATES_CATALOG.map(function(t) { return {t:t, s:stfScore(t,q)}; });
+    scored.sort(function(a,b) { return b.s - a.s; });
+    var filtered = scored.filter(function(x) { return x.s > 0; }).map(function(x) { return x.t; });
+    renderGrid(filtered.length ? filtered : TEMPLATES_CATALOG);
+  }
+
+  fab.addEventListener('click', function() {
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) {
+      refresh();
+      setTimeout(function() { search.focus(); }, 120);
+    }
+  });
+  btnClose.addEventListener('click', function() { panel.classList.remove('open'); });
+  search.addEventListener('input', refresh);
+
+  document.addEventListener('click', function(e) {
+    if (panel.classList.contains('open') && !panel.contains(e.target) && e.target !== fab) {
+      panel.classList.remove('open');
+    }
+  }, true);
+})();
 </script>
 </body>
 </html>
