@@ -1,26 +1,72 @@
 {
-    "id": "/",
-    "name": "RC Logo Maker – Regard Créatif",
-    "short_name": "RC Logo Maker",
-    "start_url": "./index.html",
-    "scope": "./",
-    "display": "standalone",
-    "orientation": "portrait",
-    "background_color": "#0a0a0f",
-    "theme_color": "#5b6af0",
-    "description": "Créez des logos professionnels gratuitement avec RC Logo Maker",
-    "icons": [
-        {
-            "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "any"
-        },
-        {
-            "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
-        }
-    ]
+  "id": "rc-logo-maker",
+  "name": "RC Logo Maker – Regard Créatif",
+  "short_name": "RC Logo",
+  "description": "Créez des logos professionnels gratuitement avec RC Logo Maker",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#5b6af0",
+  "lang": "fr",
+  "categories": [
+    "productivity",
+    "graphics"
+  ],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }
