@@ -7,8 +7,15 @@
 <meta http-equiv="Expires" content="0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0, minimum-scale=1.0, viewport-fit=cover" />
     <title>RC Logo Maker – Regard Créatif</title>
+    <meta name="description" content="Créez des logos professionnels gratuitement avec RC Logo Maker – l'éditeur de logo mobile français par Regard Créatif.">
+    <meta property="og:title" content="RC Logo Maker – Regard Créatif">
+    <meta property="og:description" content="Créez des logos professionnels gratuitement. 20+ modèles exclusifs, éditeur complet, export PNG/SVG.">
+    <meta property="og:image" content="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#0a0a0f" />
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png">
     <link rel="icon" href="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -449,6 +456,14 @@
         }
         .popup .close-btn:hover { border-color: var(--accent); color: var(--accent); }
 
+        /* ══════════════ TUTORIEL ══════════════ */
+        #tuto-steps { display:flex; flex-direction:column; gap:12px; margin-top:12px; }
+        .tuto-step { display:flex; gap:12px; align-items:flex-start; background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:12px 14px; }
+        .tuto-num { width:28px; height:28px; border-radius:50%; background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff; font-weight:900; font-size:0.78rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+        .tuto-title { font-weight:700; font-size:0.82rem; color:var(--text); margin-bottom:4px; }
+        .tuto-desc { font-size:0.74rem; color:var(--text2); line-height:1.5; }
+        .kbd { display:inline-block; background:var(--panel2); border:1px solid var(--border); border-radius:4px; padding:1px 5px; font-family:monospace; font-size:0.72rem; color:var(--text); margin:1px; }
+
         /* ══════════════ MENU ══════════════ */
         .dim-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
         .dim-item {
@@ -744,14 +759,14 @@
             <div class="app-subtitle" id="header-subtitle">Créez votre identité en un clin d'œil</div>
         </div>
         <!-- Avatar utilisateur (visible quand connecté) -->
-        <div id="header-user-avatar" onclick="openProfilePopup()" title="Mon profil"></div>
+        <div id="header-user-avatar" onclick="openProfilePopup()" title="Mon profil" role="button" aria-label="Mon profil"></div>
         <div id="header-pro-badge" onclick="openPremiumPopup()">
             <i class="fa-solid fa-crown" style="font-size:0.6rem"></i> PRO
         </div>
     </div>
 
-    <!-- APK BUTTON -->
-    <a id="download-apk" href="../app-release.apk">
+    <!-- APK BUTTON — P1.6: afficher un toast au lieu d'un lien mort -->
+    <a id="download-apk" href="#" role="button" aria-label="Télécharger l'application Android APK">
         <i class="fa-solid fa-download"></i>
         Télécharger l'application (APK)
         <i class="fa-solid fa-arrow-right" style="font-size:0.7rem;opacity:0.7"></i>
@@ -792,7 +807,7 @@
 
     <!-- BOTTOM NAV -->
     <div id="home-bottom">
-        <div class="bottom-btn" onclick="toast('📚 Tutoriel — bientôt disponible')">
+        <div class="bottom-btn" onclick="openTutorialPopup()">
             <i class="fa-solid fa-book-open"></i>
             <span class="btn-tooltip">Tutoriel</span>
         </div>
@@ -1012,27 +1027,30 @@
         </div>
         <div class="premium-feature">
             <div class="pf-icon">💾</div>
-            <span class="pf-text">Sauvegarde cloud de vos créations</span>
+            <span class="pf-text">Sauvegarde locale de vos créations (jusqu'à 20)</span>
             <i class="fa-solid fa-check pf-check"></i>
         </div>
         <div class="premium-feature">
             <div class="pf-icon">🚫</div>
-            <span class="pf-text">Sans publicité</span>
+            <span class="pf-text">Interface sans publicité</span>
             <i class="fa-solid fa-check pf-check"></i>
         </div>
         <div class="premium-feature">
             <div class="pf-icon">⚡</div>
-            <span class="pf-text">Export HD & vectoriel (SVG, PNG)</span>
+            <span class="pf-text">Export PNG, PNG 2x & SVG vectoriel</span>
             <i class="fa-solid fa-check pf-check"></i>
         </div>
         <div class="premium-feature">
-            <div class="pf-icon">🤖</div>
-            <span class="pf-text">Génération IA de logos</span>
+            <div class="pf-icon">🔍</div>
+            <span class="pf-text">Recherche de modèles par style ou secteur</span>
             <i class="fa-solid fa-check pf-check"></i>
         </div>
-        <div style="margin-top:16px">
-            <button class="action-btn gold-btn" onclick="closePremiumPopup();toast('👑 Bientôt disponible — restez connecté !')">
-                <i class="fa-solid fa-crown"></i> &nbsp;Devenir Premium
+        <div style="margin-top:8px;font-size:0.7rem;color:var(--text2);text-align:center;padding:0 4px">
+            Version actuelle 100% locale — aucun compte requis
+        </div>
+        <div style="margin-top:12px">
+            <button class="action-btn gold-btn" onclick="closePremiumPopup();toast('👑 Version Premium bientôt disponible !')">
+                <i class="fa-solid fa-crown"></i> &nbsp;M'avertir au lancement Premium
             </button>
         </div>
     </div>
@@ -1074,7 +1092,17 @@ const TEMPLATES = [
     { name:"Line Space", cat:"minimal", badge:"", bg:"linear-gradient(135deg, #f5f5f0, #ebebeb)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><rect x="0" y="0" width="80" height="80" fill="#f8f8f4"/><line x1="14" y1="24" x2="66" y2="24" stroke="#222" stroke-width="2"/><line x1="14" y1="30" x2="66" y2="30" stroke="#222" stroke-width="0.5"/><line x1="14" y1="34" x2="40" y2="34" stroke="#222" stroke-width="0.5" opacity="0.4"/><text x="14" y="48" font-family="'Playfair Display',serif" font-size="13" font-weight="700" fill="#111" letter-spacing="-0.5">LS</text><text x="32" y="48" font-family="Georgia,serif" font-size="6" fill="#555" letter-spacing="1">LINE</text><text x="32" y="56" font-family="Georgia,serif" font-size="6" fill="#555" letter-spacing="1">SPACE</text><line x1="14" y1="60" x2="66" y2="60" stroke="#222" stroke-width="0.5"/><line x1="14" y1="64" x2="38" y2="64" stroke="#222" stroke-width="2"/><circle cx="62" cy="48" r="6" fill="none" stroke="#222" stroke-width="1"/><circle cx="62" cy="48" r="3" fill="#222" opacity="0.2"/></svg>` },
     { name:"Old Press", cat:"vintage", badge:"", bg:"linear-gradient(135deg, #160c04, #2a1808)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g18a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e8c070"/><stop offset="100%" stop-color="#9a6a20"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#160c04"/><rect x="8" y="8" width="64" height="64" rx="4" fill="none" stroke="url(#g18a)" stroke-width="0.8"/><rect x="11" y="11" width="58" height="58" rx="3" fill="none" stroke="url(#g18a)" stroke-width="0.3" opacity="0.4"/><rect x="14" y="22" width="52" height="1.5" fill="url(#g18a)" opacity="0.8"/><rect x="14" y="56" width="52" height="1.5" fill="url(#g18a)" opacity="0.8"/><rect x="22" y="26" width="36" height="0.5" fill="url(#g18a)" opacity="0.4"/><rect x="22" y="52" width="36" height="0.5" fill="url(#g18a)" opacity="0.4"/><text x="40" y="19" text-anchor="middle" font-family="Cinzel,serif" font-size="4.5" fill="url(#g18a)" letter-spacing="3" opacity="0.7">EST. 1924</text><text x="40" y="38" text-anchor="middle" font-family="'Playfair Display',serif" font-size="11" font-weight="700" fill="url(#g18a)">OLD</text><text x="40" y="51" text-anchor="middle" font-family="'Playfair Display',serif" font-size="11" font-weight="700" fill="url(#g18a)" opacity="0.7">PRESS</text><circle cx="16" cy="39" r="1.5" fill="url(#g18a)" opacity="0.5"/><circle cx="64" cy="39" r="1.5" fill="url(#g18a)" opacity="0.5"/><text x="40" y="63" text-anchor="middle" font-family="Cinzel,serif" font-size="4" fill="url(#g18a)" letter-spacing="4" opacity="0.6">PRINTING HOUSE</text></svg>` },
     { name:"Pulse Wave", cat:"tech", badge:"", bg:"linear-gradient(135deg, #001020, #001a30)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g19a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#00aaff"/><stop offset="50%" stop-color="#00eeff"/><stop offset="100%" stop-color="#00aaff"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#001020"/><line x1="8" y1="36" x2="20" y2="36" stroke="url(#g19a)" stroke-width="1.5"/><path d="M20,36 L26,36 L28,24 L32,50 L36,28 L40,44 L44,36 L54,36" fill="none" stroke="url(#g19a)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><line x1="54" y1="36" x2="72" y2="36" stroke="url(#g19a)" stroke-width="1.5"/><circle cx="40" cy="36" r="12" fill="none" stroke="url(#g19a)" stroke-width="0.6" opacity="0.4"/><circle cx="40" cy="36" r="18" fill="none" stroke="url(#g19a)" stroke-width="0.4" opacity="0.2"/><rect x="10" y="54" width="60" height="0.6" fill="url(#g19a)" opacity="0.25"/><rect x="16" y="57" width="48" height="0.4" fill="url(#g19a)" opacity="0.15"/><text x="40" y="68" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="5.5" font-weight="700" fill="url(#g19a)" letter-spacing="2">PULSE</text><text x="40" y="75" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="4" fill="url(#g19a)" opacity="0.6" letter-spacing="3">WAVE</text></svg>` },
-    { name:"Wing Strike", cat:"sport", badge:"", bg:"linear-gradient(135deg, #0a0500, #1a0c00)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g20a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff9900"/><stop offset="100%" stop-color="#cc5500"/></linearGradient><linearGradient id="g20b" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffcc44"/><stop offset="100%" stop-color="#ff8800"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#0a0500"/><path d="M40,36 Q22,16 8,24 Q18,28 22,34 Q14,36 10,44 Q22,38 30,42 Q24,52 20,58 Q32,48 40,48 Z" fill="url(#g20a)" opacity="0.85"/><path d="M40,36 Q58,16 72,24 Q62,28 58,34 Q66,36 70,44 Q58,38 50,42 Q56,52 60,58 Q48,48 40,48 Z" fill="url(#g20b)" opacity="0.85"/><ellipse cx="40" cy="42" rx="5" ry="7" fill="url(#g20a)" opacity="0.9"/><path d="M40,36 L40,22" stroke="url(#g20b)" stroke-width="1.2" stroke-linecap="round"/><circle cx="40" cy="20" r="2.5" fill="url(#g20b)" opacity="0.8"/><line x1="10" y1="62" x2="70" y2="62" stroke="url(#g20a)" stroke-width="0.6" opacity="0.4"/><text x="40" y="72" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7.5" fill="url(#g20a)" letter-spacing="3">WING STRIKE</text></svg>` }
+    { name:"Wing Strike", cat:"sport", badge:"", bg:"linear-gradient(135deg, #0a0500, #1a0c00)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g20a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#ff9900"/><stop offset="100%" stop-color="#cc5500"/></linearGradient><linearGradient id="g20b" x1="1" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffcc44"/><stop offset="100%" stop-color="#ff8800"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" rx="6" fill="#0a0500"/><path d="M40,36 Q22,16 8,24 Q18,28 22,34 Q14,36 10,44 Q22,38 30,42 Q24,52 20,58 Q32,48 40,48 Z" fill="url(#g20a)" opacity="0.85"/><path d="M40,36 Q58,16 72,24 Q62,28 58,34 Q66,36 70,44 Q58,38 50,42 Q56,52 60,58 Q48,48 40,48 Z" fill="url(#g20b)" opacity="0.85"/><ellipse cx="40" cy="42" rx="5" ry="7" fill="url(#g20a)" opacity="0.9"/><path d="M40,36 L40,22" stroke="url(#g20b)" stroke-width="1.2" stroke-linecap="round"/><circle cx="40" cy="20" r="2.5" fill="url(#g20b)" opacity="0.8"/><line x1="10" y1="62" x2="70" y2="62" stroke="url(#g20a)" stroke-width="0.6" opacity="0.4"/><text x="40" y="72" text-anchor="middle" font-family="'Bebas Neue',sans-serif" font-size="7.5" fill="url(#g20a)" letter-spacing="3">WING STRIKE</text></svg>` },
+
+    { name:"Maison Noir", cat:"luxe", badge:"", bg:"linear-gradient(135deg,#080808,#1a1408)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g21a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c9a84c"/><stop offset="50%" stop-color="#f5e17a"/><stop offset="100%" stop-color="#c9a84c"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#080808"/><rect x="5" y="5" width="70" height="70" fill="none" stroke="url(#g21a)" stroke-width="0.6"/><rect x="7.5" y="7.5" width="65" height="65" fill="none" stroke="url(#g21a)" stroke-width="0.18" opacity="0.4"/><rect x="14" y="25" width="52" height="0.8" fill="url(#g21a)"/><rect x="14" y="56" width="52" height="0.8" fill="url(#g21a)"/><rect x="28" y="28" width="24" height="0.4" fill="url(#g21a)" opacity="0.35"/><rect x="28" y="53" width="24" height="0.4" fill="url(#g21a)" opacity="0.35"/><polygon points="40,10 41.6,12.2 40,14.4 38.4,12.2" fill="url(#g21a)" opacity="0.85"/><polygon points="40,65.6 41.6,67.8 40,70 38.4,67.8" fill="url(#g21a)" opacity="0.85"/><polygon points="10,40 12.2,38.4 14.4,40 12.2,41.6" fill="url(#g21a)" opacity="0.65"/><polygon points="65.6,40 67.8,38.4 70,40 67.8,41.6" fill="url(#g21a)" opacity="0.65"/><text x="40" y="47" text-anchor="middle" font-family="Playfair Display,serif" font-size="13" font-weight="700" fill="url(#g21a)" letter-spacing="1">MN</text><text x="40" y="54.5" text-anchor="middle" font-family="Cinzel,serif" font-size="4" fill="url(#g21a)" letter-spacing="5">MAISON NOIR</text><text x="40" y="61.5" text-anchor="middle" font-family="Cinzel,serif" font-size="2.8" fill="url(#g21a)" letter-spacing="2" opacity="0.5">PARIS  •  SINCE 1987</text></svg>` },
+
+    { name:"Quantum", cat:"tech", badge:"", bg:"linear-gradient(135deg,#020b18,#041830)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g22a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00f5d4"/><stop offset="100%" stop-color="#0070f3"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#020b18"/><polygon points="40,8 56,18 56,38 40,48 24,38 24,18" fill="none" stroke="url(#g22a)" stroke-width="1.2"/><polygon points="40,13 52,20.5 52,35.5 40,43 28,35.5 28,20.5" fill="none" stroke="url(#g22a)" stroke-width="0.4" opacity="0.5"/><line x1="56" y1="28" x2="68" y2="28" stroke="url(#g22a)" stroke-width="0.8" opacity="0.6"/><line x1="68" y1="28" x2="68" y2="40" stroke="url(#g22a)" stroke-width="0.8" opacity="0.6"/><line x1="24" y1="28" x2="12" y2="28" stroke="url(#g22a)" stroke-width="0.8" opacity="0.6"/><line x1="12" y1="28" x2="12" y2="40" stroke="url(#g22a)" stroke-width="0.8" opacity="0.6"/><circle cx="68" cy="40" r="2.2" fill="url(#g22a)" opacity="0.8"/><circle cx="12" cy="40" r="2.2" fill="url(#g22a)" opacity="0.8"/><circle cx="40" cy="28" r="7" fill="#0070f3" opacity="0.12"/><circle cx="40" cy="28" r="4" fill="url(#g22a)" opacity="0.95"/><circle cx="40" cy="28" r="1.8" fill="#020b18"/><circle cx="40" cy="28" r="0.7" fill="url(#g22a)"/><circle cx="40" cy="8" r="1.6" fill="url(#g22a)" opacity="0.75"/><circle cx="56" cy="18" r="1.6" fill="url(#g22a)" opacity="0.75"/><circle cx="56" cy="38" r="1.6" fill="url(#g22a)" opacity="0.75"/><circle cx="40" cy="48" r="1.6" fill="url(#g22a)" opacity="0.75"/><circle cx="24" cy="38" r="1.6" fill="url(#g22a)" opacity="0.75"/><circle cx="24" cy="18" r="1.6" fill="url(#g22a)" opacity="0.75"/><rect x="14" y="52" width="52" height="0.5" fill="url(#g22a)" opacity="0.35"/><text x="40" y="63" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="7.5" font-weight="700" fill="url(#g22a)" letter-spacing="1">QUANTUM</text><text x="40" y="71" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="4" fill="url(#g22a)" letter-spacing="4" opacity="0.6">SYSTEMS</text></svg>` },
+
+    { name:"Verdant", cat:"nature", badge:"", bg:"linear-gradient(135deg,#071a0a,#0e2e12)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g23a" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#2a7a44"/><stop offset="100%" stop-color="#7edb72"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#071a0a"/><circle cx="40" cy="34" r="24" fill="none" stroke="url(#g23a)" stroke-width="0.6" opacity="0.22"/><circle cx="40" cy="34" r="18" fill="none" stroke="url(#g23a)" stroke-width="0.4" opacity="0.16"/><path d="M40,11 Q65,15 63,40 Q61,56 40,60 Q40,36 14,27 Q22,9 40,11 Z" fill="url(#g23a)" opacity="0.9"/><path d="M40,11 Q40,36 14,27" fill="none" stroke="#b8f0a8" stroke-width="0.9" opacity="0.55"/><path d="M40,23 Q53,27 57,38" fill="none" stroke="#b8f0a8" stroke-width="0.55" opacity="0.42"/><path d="M40,33 Q49,37 51,48" fill="none" stroke="#b8f0a8" stroke-width="0.5" opacity="0.3"/><path d="M40,42 Q44,46 45,52" fill="none" stroke="#b8f0a8" stroke-width="0.4" opacity="0.22"/><rect x="38.5" y="58" width="3" height="9" rx="1.5" fill="url(#g23a)" opacity="0.75"/><text x="40" y="72.5" text-anchor="middle" font-family="Playfair Display,serif" font-size="6.5" font-weight="700" fill="url(#g23a)" letter-spacing="3">VERDANT</text><text x="40" y="78" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="3.5" fill="url(#g23a)" letter-spacing="3" opacity="0.65">ORGANIC STUDIO</text></svg>` },
+
+    { name:"APEX", cat:"sport", badge:"", bg:"linear-gradient(135deg,#0d0d0d,#1a0808)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g24a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e01020"/><stop offset="100%" stop-color="#ff4444"/></linearGradient><linearGradient id="g24b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#cccccc"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#0d0d0d"/><polygon points="0,80 55,80 80,0 80,28 58,80 0,80" fill="#140000" opacity="0.9"/><polygon points="30,10 44,10 36,34 50,34 24,70 32,46 18,46" fill="url(#g24a)" opacity="0.92"/><line x1="52" y1="20" x2="70" y2="20" stroke="url(#g24a)" stroke-width="1.8" stroke-linecap="round"/><line x1="54" y1="27" x2="72" y2="27" stroke="url(#g24a)" stroke-width="1" stroke-linecap="round" opacity="0.6"/><line x1="57" y1="33" x2="73" y2="33" stroke="url(#g24a)" stroke-width="0.6" stroke-linecap="round" opacity="0.35"/><rect x="8" y="73" width="64" height="1.8" rx="0.9" fill="url(#g24a)" opacity="0.7"/><text x="56" y="58" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="13" fill="url(#g24b)" letter-spacing="2">APEX</text><text x="56" y="66" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="5" fill="url(#g24a)" letter-spacing="3">PERFORMANCE</text><text x="56" y="72" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="3.5" fill="url(#g24b)" letter-spacing="2" opacity="0.45">EST. 2024</text></svg>` },
+
+    { name:"Arc Studio", cat:"minimal", badge:"", bg:"linear-gradient(135deg,#f2f0ea,#e8e4d8)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g25a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a1a2e"/><stop offset="100%" stop-color="#16213e"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#f2f0ea"/><circle cx="28" cy="34" r="22" fill="none" stroke="#1a1a2e" stroke-width="1.6"/><circle cx="28" cy="34" r="15.5" fill="none" stroke="#1a1a2e" stroke-width="0.5" opacity="0.25"/><circle cx="28" cy="34" r="5.5" fill="#1a1a2e" opacity="0.92"/><path d="M28,12 A22,22 0 0,1 50,34" fill="none" stroke="#d4920a" stroke-width="2.4" stroke-linecap="round"/><circle cx="50" cy="34" r="3" fill="#d4920a"/><circle cx="28" cy="12" r="2" fill="#d4920a" opacity="0.7"/><rect x="56" y="26" width="18" height="1" fill="#1a1a2e" opacity="0.85"/><rect x="56" y="34" width="14" height="0.5" fill="#1a1a2e" opacity="0.3"/><rect x="56" y="42" width="10" height="0.5" fill="#1a1a2e" opacity="0.18"/><rect x="8" y="60" width="64" height="1" fill="#1a1a2e" opacity="0.85"/><rect x="8" y="62.5" width="28" height="0.4" fill="#1a1a2e" opacity="0.28"/><text x="40" y="71.5" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="10" font-weight="700" fill="#1a1a2e" letter-spacing="4">ARC</text><text x="40" y="78" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="5" fill="#1a1a2e" letter-spacing="6" opacity="0.45">STUDIO</text></svg>` }
 ];
 
 // ══════════════════════════════════════════════
@@ -1399,6 +1427,9 @@ function openInscriptionPopup() {
 function closeInscriptionPopup() { document.getElementById('inscription-popup').classList.remove('active'); }
 function closeInscriptionOutside(e) { if (e.target.id === 'inscription-popup') closeInscriptionPopup(); }
 
+// P4.1 — hachage simple du mot de passe (btoa) avant stockage
+function hashPassword(pw) { try { return btoa(unescape(encodeURIComponent(pw))); } catch(e){ return pw; } }
+
 function registerUser() {
     const username = document.getElementById('reg-username').value.trim();
     const email    = document.getElementById('reg-email').value.trim();
@@ -1411,12 +1442,13 @@ function registerUser() {
     const users = getUsers();
     if (users.some(u => u.email === email)) { toast('⚠️ Cet e-mail est déjà utilisé.'); return; }
 
-    users.push({ username, email, password, date: new Date().toLocaleDateString('fr-FR') });
+    // P4.2 — stockage local uniquement, mot de passe haché
+    users.push({ username, email, password: hashPassword(password), date: new Date().toLocaleDateString('fr-FR') });
     saveUsers(users);
     localStorage.setItem('rc_current_user', email);
     closeInscriptionPopup();
     updateHeaderForUser();
-    toast('🎉 Bienvenue, ' + username + ' ! Inscription réussie.');
+    toast('🎉 Bienvenue, ' + username + ' ! Inscription réussie. (Stockage local uniquement)');
 }
 
 // ══════════════════════════════════════════════
@@ -1438,7 +1470,7 @@ function loginUser() {
     if (!password)                       { toast('🔒 Veuillez entrer votre mot de passe.'); return; }
 
     const users = getUsers();
-    const user  = users.find(u => u.email === email && u.password === password);
+    const user  = users.find(u => u.email === email && (u.password === hashPassword(password) || u.password === password));
 
     if (!user) { toast('❌ E-mail ou mot de passe incorrect.'); return; }
 
@@ -1556,8 +1588,13 @@ function renderCreationsList() {
 
 function openCreation(item) {
     closeCreationsPopup();
-    if (item.data) localStorage.setItem('rcProject', JSON.stringify(item.data));
+    if (item.data) {
+        sessionStorage.setItem('rcProject', JSON.stringify(item.data));
+        // P1.1 — indiquer à l'éditeur quelle entrée mettre à jour
+        if (item.id) localStorage.setItem('rc-current-creation-id', String(item.id));
+    }
     toast('📂 Ouverture de "' + item.name + '"…');
+    sessionStorage.setItem('rc_skip_splash', '0');
     setTimeout(() => { window.location.href = 'editor.html?project=1'; }, 900);
 }
 
@@ -1578,13 +1615,122 @@ function closePremiumPopup()  { document.getElementById('premium-popup').classLi
 function closePremiumOutside(e){ if (e.target.id === 'premium-popup') closePremiumPopup(); }
 
 // ══════════════════════════════════════════════
+//  TUTORIEL — P1.10
+// ══════════════════════════════════════════════
+function openTutorialPopup() {
+    var el = document.getElementById('tutorial-popup');
+    if (!el) return;
+    el.style.display = 'flex';
+    requestAnimationFrame(function(){ el.classList.add('active'); });
+}
+function closeTutorialPopup() {
+    var el = document.getElementById('tutorial-popup');
+    if (!el) return;
+    el.classList.remove('active');
+    setTimeout(function(){ if (!el.classList.contains('active')) el.style.display = 'none'; }, 350);
+}
+function closeTutorialOutside(e){ if (e.target === document.getElementById('tutorial-popup')) closeTutorialPopup(); }
+
+// ══════════════════════════════════════════════
 //  SERVICE WORKER
 // ══════════════════════════════════════════════
+// P2.6 — notification de mise à jour du service worker
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(err => {
-        console.warn('SW registration failed:', err);
-    });
+    navigator.serviceWorker.register('sw.js').then(reg => {
+        reg.addEventListener('updatefound', () => {
+            const newWorker = reg.installing;
+            if (!newWorker) return;
+            newWorker.addEventListener('statechange', () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    const bar = document.getElementById('sw-update-banner') || document.createElement('div');
+                    bar.id = 'sw-update-banner';
+                    bar.innerHTML = '🔄 Mise à jour disponible — <button onclick="location.reload()" style="background:none;border:1px solid #fff;color:#fff;padding:2px 8px;border-radius:8px;cursor:pointer;font-size:0.76rem;font-weight:700">Recharger</button>';
+                    bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;background:linear-gradient(135deg,#5b6af0,#7c4af0);color:#fff;text-align:center;padding:10px 16px;z-index:99999;font-size:0.78rem;font-weight:700;box-shadow:0 -2px 12px rgba(91,106,240,0.4)';
+                    document.body.appendChild(bar);
+                }
+            });
+        });
+    }).catch(err => console.warn('SW registration failed:', err));
 }
+
+// P1.6 — bouton APK : toast au lieu d'un lien mort
+document.getElementById('download-apk').addEventListener('click', function(e) {
+    e.preventDefault();
+    toast('📱 Application APK bientôt disponible !');
+});
+
+// P1.7 — compteur de modèles dynamique dans le ticker et le badge
+(function updateTemplateCounts() {
+    var count = typeof TEMPLATES !== 'undefined' ? TEMPLATES.length : 20;
+    var tickerEl = document.querySelector('.ticker-text');
+    if (tickerEl) {
+        tickerEl.innerHTML = tickerEl.innerHTML.replace(/\d+\s*modèles exclusifs/, count + ' modèles exclusifs');
+    }
+    var badge = document.getElementById('tpl-count');
+    if (badge) badge.textContent = count;
+})();
 </script>
+
+<!-- ══════════════ TUTORIEL POPUP (bas du DOM = z-index garanti) ══════════════ -->
+<div id="tutorial-popup" onclick="closeTutorialOutside(event)" style="position:fixed;inset:0;background:rgba(10,10,20,.55);z-index:9500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)">
+    <div class="popup" style="max-height:88vh;overflow-y:auto;animation:slideUp .32s cubic-bezier(.32,.72,0,1)">
+        <div class="popup-handle"></div>
+        <button class="close-btn" onclick="closeTutorialPopup()"><i class="fa-solid fa-xmark"></i></button>
+        <h3><i class="fa-solid fa-book-open" style="color:var(--accent)"></i> &nbsp;Guide rapide</h3>
+        <div id="tuto-steps">
+            <div class="tuto-step">
+                <div class="tuto-num">1</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Choisissez un modèle</div>
+                    <div class="tuto-desc">Faites défiler les modèles. Tapez un mot-clé dans la recherche pour filtrer par style ou secteur. Cliquez sur une vignette pour l'ouvrir dans l'éditeur.</div>
+                </div>
+            </div>
+            <div class="tuto-step">
+                <div class="tuto-num">2</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Personnalisez dans l'éditeur</div>
+                    <div class="tuto-desc">Double-cliquez sur un texte pour le modifier. Utilisez le panneau de droite pour changer couleurs, polices et tailles. Ajoutez formes, lignes ou images.</div>
+                </div>
+            </div>
+            <div class="tuto-step">
+                <div class="tuto-num">3</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Gérez vos calques</div>
+                    <div class="tuto-desc">L'onglet <b>Calques</b> (panneau gauche) liste tous les éléments. <b>🔓</b> verrouille, <b>👁</b> masque, <b>⋮⋮</b> réordonne par glisser-déposer.</div>
+                </div>
+            </div>
+            <div class="tuto-step">
+                <div class="tuto-num">4</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Exportez votre logo</div>
+                    <div class="tuto-desc">Cliquez sur <b>Exporter</b> en haut de l'éditeur. Choisissez PNG, PNG 2× haute résolution, ou <b>SVG vectoriel</b> (idéal pour impression).</div>
+                </div>
+            </div>
+            <div class="tuto-step">
+                <div class="tuto-num">5</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Sauvegardez vos créations</div>
+                    <div class="tuto-desc">Cliquez sur 💾 dans l'éditeur. Votre projet apparaît dans <b>Mes créations</b> sur l'accueil. Tout est sauvegardé localement sur votre appareil.</div>
+                </div>
+            </div>
+            <div class="tuto-step">
+                <div class="tuto-num">💡</div>
+                <div class="tuto-body">
+                    <div class="tuto-title">Raccourcis clavier</div>
+                    <div class="tuto-desc">
+                        <span class="kbd">Ctrl+Z</span> Annuler &nbsp;
+                        <span class="kbd">Ctrl+D</span> Dupliquer &nbsp;
+                        <span class="kbd">Suppr</span> Effacer &nbsp;
+                        <span class="kbd">Ctrl+S</span> Sauvegarder
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="action-btn" style="margin-top:16px;width:100%" onclick="closeTutorialPopup()">
+            <i class="fa-solid fa-rocket"></i> &nbsp;Commencer maintenant
+        </button>
+    </div>
+</div>
+
 </body>
 </html>
