@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>RC Logo Maker – Éditeur</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0a0f">
@@ -52,7 +52,7 @@ input[type=text]:focus,input[type=number]:focus{border-color:var(--accent)}
 input[type=color]{padding:2px;height:28px;width:36px;cursor:pointer;border:1px solid var(--border);border-radius:5px;background:var(--panel2);flex-shrink:0}
 button{font-family:inherit;cursor:pointer}
 
-#app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+#app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
 
 /* TOPBAR */
 #topbar{height:46px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 6px;gap:4px;flex-shrink:0;z-index:100;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch}
@@ -80,10 +80,10 @@ button{font-family:inherit;cursor:pointer}
 #main{display:flex;flex:1;overflow:hidden}
 
 /* SIDEBAR */
-#sidebar{width:50px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow:hidden}
+#sidebar{width:50px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;flex-shrink:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
 #sidebar-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;align-items:center;padding:6px 0;gap:2px;width:100%;scrollbar-width:none}
 #sidebar-scroll::-webkit-scrollbar{display:none}
-#sidebar-bottom{flex-shrink:0;padding:6px 0 6px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;width:100%;background:var(--panel)}
+#sidebar-bottom{flex-shrink:0;padding:6px 0 max(8px,env(safe-area-inset-bottom));border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;width:100%;background:var(--panel);position:sticky;bottom:0;z-index:5}
 .stool{width:40px;min-height:40px;border-radius:7px;background:transparent;border:1px solid transparent;color:var(--text2);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:6px;text-transform:uppercase;letter-spacing:.3px;transition:all .2s}
 .stool:hover,.stool.active{background:rgba(91,106,240,.15);border-color:var(--accent);color:var(--accent)}
 .stool svg{width:15px;height:15px}
@@ -506,6 +506,7 @@ button{font-family:inherit;cursor:pointer}
         <button class="export-fmt" data-fmt="png"><span class="export-fmt-icon">🖼</span><div><span class="export-fmt-name">PNG</span><span class="export-fmt-desc">Fond blanc — recommandé</span></div></button>
         <button class="export-fmt" data-fmt="transparent"><span class="export-fmt-icon">◻</span><div><span class="export-fmt-name">PNG Transparent</span><span class="export-fmt-desc">Sans fond</span></div></button>
         <button class="export-fmt" data-fmt="png2x"><span class="export-fmt-icon">🔆</span><div><span class="export-fmt-name" id="png2x-label">PNG @2x</span><span class="export-fmt-desc">Résolution Retina</span></div></button>
+        <button class="export-fmt" data-fmt="png4x"><span class="export-fmt-icon">⬛</span><div><span class="export-fmt-name">PNG @4x</span><span class="export-fmt-desc">Ultra HD — impression print</span></div></button>
         <button class="export-fmt" data-fmt="jpg"><span class="export-fmt-icon">📷</span><div><span class="export-fmt-name">JPG</span><span class="export-fmt-desc">Qualité 92% — web</span></div></button>
         <button class="export-fmt" data-fmt="svg"><span class="export-fmt-icon">✏️</span><div><span class="export-fmt-name">SVG</span><span class="export-fmt-desc">Vectoriel — impression</span></div></button>
       </div>
@@ -661,10 +662,21 @@ function getBB(el) {
     }
     case 'text': {
       ctx.font = `${el.style||'normal'} ${el.weight||'400'} ${el.fontSize||40}px "${el.font}"`;
+      // Appliquer letterSpacing avant measureText (même contexte que drawEl)
+      const ls = el.letterSpacing || 0;
+      if ('letterSpacing' in ctx) ctx.letterSpacing = ls + 'px';
       const lines = (el.text||'').split('\n');
-      const w = Math.max(...lines.map(l => ctx.measureText(l).width));
+      const w = Math.max(...lines.map(l => {
+        const base = ctx.measureText(l).width;
+        // Fallback manuel si letterSpacing non supporté (ex: ancien Webkit)
+        return ('letterSpacing' in ctx) ? base : base + Math.max(0, l.length - 1) * ls;
+      }));
+      if ('letterSpacing' in ctx) ctx.letterSpacing = '0px';
       const h = (el.fontSize||40) * (el.lineHeight||1.2) * lines.length;
-      return {x:el.x - w/2, y:el.y, w, h};
+      // Respecter l'alignement du texte pour la position x du rectangle
+      const align = el.align || 'center';
+      const bx = align === 'left' ? el.x : align === 'right' ? el.x - w : el.x - w/2;
+      return {x:bx, y:el.y, w, h};
     }
     case 'icon':    return {x:el.x-el.size/2, y:el.y-el.size/2, w:el.size, h:el.size};
     case 'image':   return {x:el.x, y:el.y, w:el.w, h:el.h};
@@ -1007,8 +1019,9 @@ function resizeElement(el, dir, dx, dy) {
 }
 
 // ─── CANVAS POINTER EVENTS ────────────────────────────────────────────────────
+let _cachedRect = null;   // mis en cache au pointerdown, libéré au pointerup
 function canvasPos(e) {
-  const r = mainCanvas.getBoundingClientRect();
+  const r = _cachedRect || mainCanvas.getBoundingClientRect();
   return {x:(e.clientX-r.left)/S.zoom, y:(e.clientY-r.top)/S.zoom};
 }
 
@@ -1022,6 +1035,7 @@ mainCanvas.addEventListener('pointerdown', e=>{
       S.isRotating=true; S.rotCX=bb.x+bb.w/2; S.rotCY=bb.y+bb.h/2;
       S.rotStartAngle=Math.atan2(pos.y-S.rotCY,pos.x-S.rotCX);
       S.rotOrigAngle=el.rotation||0;
+      _cachedRect = mainCanvas.getBoundingClientRect();
       mainCanvas.setPointerCapture(e.pointerId); return;
     }
   }
@@ -1031,6 +1045,7 @@ mainCanvas.addEventListener('pointerdown', e=>{
       const dir = getResizeHandle(pos,el);
       if (dir) {
         S.isResizing=true; S.resizeDir=dir; S.dragOffX=pos.x; S.dragOffY=pos.y;
+        _cachedRect = mainCanvas.getBoundingClientRect();
         mainCanvas.setPointerCapture(e.pointerId); return;
       }
     }
@@ -1043,6 +1058,7 @@ mainCanvas.addEventListener('pointerdown', e=>{
       if (!S.selectedIds.includes(hit.id)) S.selectedIds=[hit.id];
     }
     S.isDragging=true; S.dragOffX=pos.x-hit.x; S.dragOffY=pos.y-hit.y;
+    _cachedRect = mainCanvas.getBoundingClientRect();
     mainCanvas.setPointerCapture(e.pointerId);
     S.activeTab='props'; updateTabUI(); updateRightPanel();
   } else {
@@ -1075,7 +1091,11 @@ mainCanvas.addEventListener('pointermove', e=>{
     S.selectedIds.forEach(id=>{
       const el=S.elements.find(e=>e.id===id); if (!el) return;
       let nx=pos.x-S.dragOffX, ny=pos.y-S.dragOffY;
-      if (S.snap) { nx=Math.round(nx/SNAP_GRID)*SNAP_GRID; ny=Math.round(ny/SNAP_GRID)*SNAP_GRID; }
+      if (S.snap) {
+        // Smart snap : accroche seulement à moins de 8 px d'une ligne de grille
+        const T=8, gx=Math.round(nx/SNAP_GRID)*SNAP_GRID, gy=Math.round(ny/SNAP_GRID)*SNAP_GRID;
+        if(Math.abs(nx-gx)<T) nx=gx; if(Math.abs(ny-gy)<T) ny=gy;
+      }
       el.x=nx; el.y=ny;
       if (el.type==='line') { const dx=el.x2-el.x1; const dy=el.y2-el.y1; el.x1=nx; el.y1=ny; el.x2=nx+dx; el.y2=ny+dy; }
     });
@@ -1086,6 +1106,7 @@ mainCanvas.addEventListener('pointermove', e=>{
 mainCanvas.addEventListener('pointerup', ()=>{
   if (S.isDragging||S.isResizing||S.isRotating) { saveHistory(); updateRightPanel(); }
   S.isDragging=false; S.isResizing=false; S.isRotating=false; S.resizeDir=null;
+  _cachedRect = null;   // libère le cache après le geste
 });
 
 mainCanvas.addEventListener('dblclick', e=>{
@@ -1926,7 +1947,7 @@ document.getElementById('export-modal').addEventListener('click',e=>{if(e.target
 document.querySelectorAll('.export-fmt').forEach(b=>b.addEventListener('click',()=>exportImage(b.dataset.fmt)));
 
 function exportImage(fmt) {
-  const scale = fmt==='png2x'?2:1;
+  const scale = fmt==='png4x'?4:fmt==='png2x'?2:1;
   const exportCanvas = document.createElement('canvas');
   exportCanvas.width  = S.canvasW*scale;
   exportCanvas.height = S.canvasH*scale;
@@ -1944,7 +1965,7 @@ function exportImage(fmt) {
   if (fmt==='svg') { exportSVG(); return; }
   const link=document.createElement('a');
   if (fmt==='jpg') { link.href=exportCanvas.toDataURL('image/jpeg',.92); link.download='rc-logo.jpg'; }
-  else { link.href=exportCanvas.toDataURL('image/png'); link.download=scale>1?'rc-logo@2x.png':fmt==='transparent'?'rc-logo-transparent.png':'rc-logo.png'; }
+  else { link.href=exportCanvas.toDataURL('image/png'); link.download=scale===4?'rc-logo@4x.png':scale===2?'rc-logo@2x.png':fmt==='transparent'?'rc-logo-transparent.png':'rc-logo.png'; }
   link.click();
   document.getElementById('export-modal').classList.add('hidden');
   toast('Exporté ✓');
