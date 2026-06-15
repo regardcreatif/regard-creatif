@@ -1,6 +1,5 @@
-const CACHE_NAME = 'logomaker-v4';
-const URLS_TO_CACHE = [
-    '.',
+const CACHE_NAME = 'logomaker-v6';
+const STATIC_URLS = [
     './index.html',
     './editor.html',
     './manifest.json',
@@ -15,56 +14,56 @@ const URLS_TO_CACHE = [
 self.addEventListener('install', e => {
     self.skipWaiting();
     e.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(URLS_TO_CACHE).catch(err => console.warn('Certaines ressources non mises en cache :', err)))
+        caches.open(CACHE_NAME).then(cache =>
+            cache.addAll(STATIC_URLS).catch(err => console.warn('[SW] Pre-cache partiel:', err))
+        )
     );
 });
 
 self.addEventListener('activate', e => {
     e.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        }).then(() => self.clients.claim())
+        caches.keys().then(keys =>
+            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+        ).then(() => self.clients.claim())
     );
 });
 
 self.addEventListener('message', e => {
-    if (e.data && e.data.type === 'SKIP_WAITING') {
-        self.skipWaiting();
-    }
+    if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', e => {
+    const url = new URL(e.request.url);
+    const isHTML = e.request.destination === 'document' || url.pathname.endsWith('.html');
+    const isSameOrigin = url.origin === self.location.origin;
+
+    if (isHTML && isSameOrigin) {
+        // Network-first pour les pages HTML (toujours fraîches si possible)
+        e.respondWith(
+            fetch(e.request).then(res => {
+                const clone = res.clone();
+                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                return res;
+            }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
+        );
+        return;
+    }
+
+    // Cache-first pour tous les autres assets (fontes, icônes, FA)
     e.respondWith(
-        caches.match(e.request)
-            .then(response => {
-                if (response) {
-                    return response;
+        caches.match(e.request).then(cached => {
+            if (cached) return cached;
+            return fetch(e.request).then(res => {
+                // Ne cache que les réponses valides (évite les réponses opaques corrompues)
+                if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
+                    const clone = res.clone();
+                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
                 }
-                return fetch(e.request)
-                    .then(response => {
-                        if (!response || response.status !== 200 || response.type !== 'basic') {
-                            return response;
-                        }
-                        const responseToCache = response.clone();
-                        caches.open(CACHE_NAME)
-                            .then(cache => {
-                                cache.put(e.request, responseToCache);
-                            });
-                        return response;
-                    })
-                    .catch(() => {
-                        if (e.request.destination === 'document') {
-                            return caches.match('./index.html');
-                        }
-                        return new Response('Hors ligne', { status: 503, statusText: 'Service Unavailable' });
-                    });
-            })
+                return res;
+            }).catch(() => {
+                if (e.request.destination === 'document') return caches.match('./index.html');
+                return new Response('', { status: 503 });
+            });
+        })
     );
 });
