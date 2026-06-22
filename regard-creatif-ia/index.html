@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Regard Créatif IA</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 <style>
 /*=============================================
   REGARD CRÉATIF IA v2 — MASTER STYLESHEET
@@ -245,12 +244,12 @@ img{max-width:100%;display:block}
 .img-tile img{width:100%;height:100%;object-fit:cover;transition:transform .5s}
 .img-tile:hover img{transform:scale(1.05)}
 .img-tile-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.7))}
-.img-tile-label{position:absolute;bottom:14px;left:14px;z-index:2;font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.85);text-transform:uppercase;background:rgba(124,58,237,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)padding:5px 12px;border-radius:20px;border:1px solid rgba(124,58,237,.4)}
+.img-tile-label{position:absolute;bottom:14px;left:14px;z-index:2;font-size:11px;font-weight:700;letter-spacing:1px;color:rgba(255,255,255,.85);text-transform:uppercase;background:rgba(124,58,237,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);padding:5px 12px;border-radius:20px;border:1px solid rgba(124,58,237,.4)}
 
 /* ============================
    HEADER (site)
 ============================ */
-#site-header{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(3,2,10,.8);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px)border-bottom:1px solid var(--brd);transition:all .3s}
+#site-header{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:rgba(3,2,10,.8);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-bottom:1px solid var(--brd);transition:all .3s}
 #site-header.scrolled{padding:10px 28px;background:rgba(3,2,10,.95)}
 .hdr-logo{display:flex;align-items:center;gap:10px;cursor:pointer}
 .hdr-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px var(--gp);flex-shrink:0;overflow:hidden}
@@ -283,7 +282,7 @@ img{max-width:100%;display:block}
    CHAT PAGE
 ============================ */
 #chat-page{display:none;flex-direction:column;height:100vh;height:100dvh;height:-webkit-fill-available;position:fixed;inset:0;z-index:10;background:linear-gradient(135deg,var(--bg) 0%,var(--bg2) 100%);isolation:isolate;overscroll-behavior:contain}
-#chat-header{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;background:rgba(10,9,20,.92);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)border-bottom:1px solid var(--brd);flex-shrink:0}
+#chat-header{display:flex;align-items:center;justify-content:space-between;padding:13px 22px;background:rgba(10,9,20,.92);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-bottom:1px solid var(--brd);flex-shrink:0}
 .chat-logo{display:flex;align-items:center;gap:10px;cursor:pointer}
 .chat-logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--p),var(--s));border-radius:9px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 14px var(--gp);animation:pulse 3s ease-in-out infinite;overflow:hidden}
 .chat-logo-icon svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
@@ -330,7 +329,7 @@ img{max-width:100%;display:block}
 .tdot:nth-child(2){animation-delay:.2s;background:var(--a)}
 .tdot:nth-child(3){animation-delay:.4s;background:var(--s)}
 .typing-label{font-size:12px;color:var(--t2);margin-left:4px}
-#chat-input-bar{padding:10px 20px calc(18px + env(safe-area-inset-bottom,0px));background:rgba(10,9,20,.95);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px)border-top:1px solid var(--brd);flex-shrink:0}
+#chat-input-bar{padding:10px 20px calc(18px + env(safe-area-inset-bottom,0px));background:rgba(10,9,20,.95);-webkit-backdrop-filter:blur(24px);backdrop-filter:blur(24px);border-top:1px solid var(--brd);flex-shrink:0}
 #attach-preview{max-width:820px;margin:0 auto}
 #chat-input-wrap{display:flex;align-items:flex-end;gap:10px;max-width:820px;margin:0 auto;background:var(--card);border:1px solid var(--brd);border-radius:14px;padding:10px 14px;transition:border-color .2s,box-shadow .2s}
 #chat-input-wrap:focus-within{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
@@ -437,7 +436,7 @@ img{max-width:100%;display:block}
 .chart-grid-line{position:absolute;left:42px;right:0;border-top:1px dashed rgba(255,255,255,.04)}
 
 /* Modals */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)z-index:800;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:800;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
 .modal-box{background:var(--card2);border:1px solid var(--brd);border-radius:20px;padding:32px;width:92%;max-width:520px;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 50px var(--gp);animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;position:relative}
 .modal-box.modal-lg{max-width:720px}
 .modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);transition:all .2s;font-size:0}
@@ -592,9 +591,8 @@ img{max-width:100%;display:block}
 /* Admin & signup triggers — now inline, not floating */
 .site-footer-actions{display:flex;align-items:center;justify-content:center;gap:14px;padding:34px 24px 42px;border-top:1px solid var(--brd);background:var(--bg2);flex-wrap:wrap}
 .site-footer-actions .footer-copy{width:100%;text-align:center;font-size:12px;color:rgba(148,163,184,.5);margin-top:6px;order:3}
-#admin-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:rgba(124,58,237,.1);border:1px solid var(--brd);border-radius:10px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:var(--t2)}
-#admin-btn:hover{border-color:var(--p);color:var(--t1);background:rgba(124,58,237,.16)}
-#admin-btn svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+#admin-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;background:transparent;border:1px solid transparent;border-radius:50%;cursor:pointer;transition:all .2s;font-size:15px;line-height:1;color:var(--t2);opacity:.4}
+#admin-btn:hover{opacity:1;border-color:var(--brd);background:rgba(124,58,237,.12);color:var(--t1)}
 
 #signup-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:9px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:#7dd3e0}
 #signup-btn:hover{border-color:var(--s);background:rgba(6,182,212,.18);color:#fff}
@@ -665,10 +663,7 @@ img{max-width:100%;display:block}
 
   <!-- Bottom-of-page actions: admin access lives here, in normal page flow (not floating) -->
   <div class="site-footer-actions">
-    <button id="admin-btn" onclick="openAdminLogin()" title="Administration">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/><circle cx="12" cy="12" r="10"/></svg>
-      Administration
-    </button>
+    <button id="admin-btn" onclick="openAdminLogin()" title="Administration">🧭</button>
     <span class="footer-copy" id="site-footer-copy">Regard Créatif IA — © 2025</span>
   </div>
 </div>
