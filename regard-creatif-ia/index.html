@@ -1334,6 +1334,18 @@ let siteData = {};
 let lastRotation = null;
 let todayMsgs = 0;
 
+// Échappement HTML pour l'affichage des messages du chat (corrige un bug v14 :
+// escH() était appelée mais jamais définie, ce qui plantait sendMessage() avant
+// le try/finally et bloquait isSending=true pour toujours -> chat figé/écran noir)
+function escH(s){
+  return (s==null ? '' : String(s))
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 // ─── VISITOR ───────────────────────────────────
 // Fallback UUID si crypto.randomUUID indisponible (contexte non sécurisé / sandbox)
 function safeUUID(){
@@ -2045,35 +2057,39 @@ async function sendMessage() {
   attachedFiles = [];
   renderAttachPreview();
 
-  document.getElementById('chat-welcome').style.display='none';
-  // messages-list always visible via CSS
-
-  // Add user message (with file previews)
-  const userFilesHTML = buildFilesHTML(files);
-  const wrap=document.getElementById('messages-list');
-  const userDiv=document.createElement('div');
-  userDiv.className='chat-message user';
-  const now0=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  userDiv.innerHTML=`
-    <div class="msg-wrap" style="align-items:flex-end;">
-      <div class="bubble user">${userFilesHTML}${msg ? escH(msg) : ''}</div>
-      <div class="msg-time" style="text-align:right;">${now0}</div>
-    </div>
-    <div class="msg-avatar user-av"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
-  wrap.appendChild(userDiv);
-
-  // Build content for history (text + images for providers that support it)
-  const userContent = msg || '(fichier joint)';
-  history.push({role:'user', content: userContent});
-
-  document.getElementById('send-btn').disabled=true;
-  scrollBottom();
-
-  // Phase 1 : Réflexion visible (cube tourne)
-  setThinking(true);
-  scrollBottom();
-
+  // Tout ce qui suit (y compris la construction synchrone de la bulle utilisateur)
+  // est désormais couvert par le try/finally : si une erreur survient ici (ex. une
+  // fonction manquante comme l'ancien bug escH), le bouton et isSending sont quand
+  // même réinitialisés au lieu de bloquer le chat pour toujours.
   try{
+    document.getElementById('chat-welcome').style.display='none';
+    // messages-list always visible via CSS
+
+    // Add user message (with file previews)
+    const userFilesHTML = buildFilesHTML(files);
+    const wrap=document.getElementById('messages-list');
+    const userDiv=document.createElement('div');
+    userDiv.className='chat-message user';
+    const now0=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    userDiv.innerHTML=`
+      <div class="msg-wrap" style="align-items:flex-end;">
+        <div class="bubble user">${userFilesHTML}${msg ? escH(msg) : ''}</div>
+        <div class="msg-time" style="text-align:right;">${now0}</div>
+      </div>
+      <div class="msg-avatar user-av"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>`;
+    wrap.appendChild(userDiv);
+
+    // Build content for history (text + images for providers that support it)
+    const userContent = msg || '(fichier joint)';
+    history.push({role:'user', content: userContent});
+
+    document.getElementById('send-btn').disabled=true;
+    scrollBottom();
+
+    // Phase 1 : Réflexion visible (cube tourne)
+    setThinking(true);
+    scrollBottom();
+
     const r=await sendWithRotation(msg, files);
 
     // Phase 2 : Stop thinking, show typing dots briefly
