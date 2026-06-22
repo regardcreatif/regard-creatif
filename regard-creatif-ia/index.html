@@ -335,7 +335,9 @@ img{max-width:100%;display:block}
 #chat-input-wrap:focus-within{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
 #user-input{flex:1;width:100%;min-width:0;background:none;border:none;color:var(--t1);font-family:var(--font);font-size:14px;line-height:1.5;resize:none;max-height:120px;min-height:24px;white-space:pre-wrap;overflow-wrap:break-word;word-break:break-word;overflow-x:hidden;overflow-y:auto}
 #user-input::placeholder{color:var(--t2)}
-#send-btn{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--s));border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s;flex-shrink:0;box-shadow:0 0 12px var(--gp)}
+#send-btn{width:38px;height:38px;background:linear-gradient(135deg,var(--p),var(--s));border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .2s,box-shadow .2s,background .2s;flex-shrink:0;box-shadow:0 0 12px var(--gp)}
+#send-btn.stop-mode{background:linear-gradient(135deg,#ef4444,#f97316);box-shadow:0 0 12px rgba(239,68,68,.45)}
+#send-btn.stop-mode:hover{box-shadow:0 0 22px rgba(239,68,68,.6)}
 #send-btn:hover{transform:scale(1.08);box-shadow:0 0 22px var(--gp)}
 #send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 #send-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
@@ -1294,8 +1296,12 @@ const safeStorage = (() => {
   };
 })();
 
-let SUPA_URL = safeStorage.getItem('rc_supa_url') || '';
-let SUPA_KEY = safeStorage.getItem('rc_supa_key') || '';
+// Valeurs par défaut intégrées au fichier : tous les navigateurs/appareils se connectent
+// automatiquement au même projet Supabase, sans configuration manuelle préalable.
+// La clé "publishable" est conçue pour être publique côté client (protégée par les règles RLS) —
+// ce n'est pas un secret. Un override stocké localement (admin -> onglet Supabase) reste prioritaire.
+let SUPA_URL = safeStorage.getItem('rc_supa_url') || 'https://fybmykunipimvpysutwf.supabase.co';
+let SUPA_KEY = safeStorage.getItem('rc_supa_key') || 'sb_publishable_rJW6JCefxFmHTubuW9n0tQ_-c9K8xvS';
 let supa = null;
 
 function initSupa() {
@@ -1325,6 +1331,8 @@ let keyIdx = 0;
 let selectedProv = 'auto';
 let history = [];
 let isSending = false;
+let currentAbortController = null;
+let generationStopped = false;
 let siteData = {};
 let lastRotation = null;
 let todayMsgs = 0;
@@ -1942,19 +1950,22 @@ FORMAT :
 - Adapte la longueur à la complexité : court pour les questions simples, détaillé pour les questions complexes.
 - Termine par une question ou une proposition si tu peux approfondir quelque chose.`;
 
-async function callProxy(messages, provider, retryCount = 0) {
+async function callProxy(messages, provider, retryCount = 0, signal) {
   const res = await fetch(PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, provider, visitor_id: visitorId })
+    body: JSON.stringify({ messages, provider, visitor_id: visitorId }),
+    signal
   });
 
   if (res.status === 429) throw new Error('Limite journalière atteinte. Revenez demain !');
 
   if (!res.ok) {
+    if (signal?.aborted) { const e=new Error('Aborted'); e.name='AbortError'; throw e; }
     if (retryCount < 2) {
       await new Promise(r => setTimeout(r, 1200 * (retryCount + 1)));
-      return callProxy(messages, provider, retryCount + 1);
+      if (signal?.aborted) { const e=new Error('Aborted'); e.name='AbortError'; throw e; }
+      return callProxy(messages, provider, retryCount + 1, signal);
     }
     throw new Error('Serveur momentanément indisponible. Réessayez dans quelques secondes.');
   }
@@ -1964,38 +1975,28 @@ async function callProxy(messages, provider, retryCount = 0) {
   return data;
 }
 
-async function streamText(text, bubbleEl) {
-  // Streaming naturel : caractère par caractère, vitesse variable
-  // Pause plus longue après ponctuation (., !, ?, :) pour simuler une vraie réflexion
-  let displayed = '';
-  const pauseAfter = new Set(['.','!','?',':','\n']);
-  const pauseMid   = new Set([',',' — ',';']);
-
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    displayed += ch;
-
-    // Ne re-render que tous les N caractères pour la perf, sauf ponctuation
-    const shouldRender = pauseAfter.has(ch) || pauseMid.has(ch) || i % 4 === 0 || i === text.length - 1;
-    if (shouldRender) {
-      bubbleEl.innerHTML = fmtMsg(displayed + (i < text.length - 1 ? '▋' : ''));
-      scrollBottom();
-    }
-
-    // Délai variable selon contexte
-    let delay = 12; // base : ~80 chars/sec
-    if (ch === '\n')          delay = 180; // saut de ligne : pause visible
-    else if (pauseAfter.has(ch)) delay = 120 + Math.random() * 80; // fin de phrase
-    else if (pauseMid.has(ch))   delay = 50  + Math.random() * 30;  // virgule
-    else                         delay = 8   + Math.random() * 16;  // normal
-
-    await new Promise(r => setTimeout(r, delay));
+async function streamText(text, bubbleEl, isStopped) {
+  // Révélation rapide et fluide, façon Claude/Replit : on découpe en blocs dont la taille
+  // s'adapte à la longueur totale, pour qu'une réponse courte ou longue se révèle toujours
+  // en environ 0.3 à 1.2s au lieu de défiler lettre par lettre pendant de longues secondes.
+  const total = text.length;
+  if (total === 0) { bubbleEl.innerHTML = fmtMsg(text); return text; }
+  const targetTicks = Math.min(120, Math.max(30, Math.ceil(total / 5)));
+  const chunkSize = Math.max(1, Math.ceil(total / targetTicks));
+  let shown = '';
+  for (let i = 0; i < total; i += chunkSize) {
+    if (isStopped && isStopped()) break;
+    shown = text.slice(0, Math.min(i + chunkSize, total));
+    bubbleEl.innerHTML = fmtMsg(shown + (shown.length < total ? '▋' : ''));
+    scrollBottom();
+    await new Promise(r => setTimeout(r, 10));
   }
-  bubbleEl.innerHTML = fmtMsg(text);
+  bubbleEl.innerHTML = fmtMsg(shown);
   scrollBottom();
+  return shown;
 }
 
-async function sendWithRotation(msg, files = []) {
+async function sendWithRotation(msg, files = [], signal) {
   const provider = selectedProv === 'auto' ? 'groq' : selectedProv;
 
   // System prompt : priorité à celui configuré dans l'admin, sinon le prompt amélioré
@@ -2027,7 +2028,7 @@ async function sendWithRotation(msg, files = []) {
     { role: 'user', content: lastUserContent }
   ];
 
-  const data = await callProxy(messages, provider);
+  const data = await callProxy(messages, provider, 0, signal);
 
   todayMsgs++;
   safeStorage.setItem('rc_today', JSON.stringify({ d: new Date().toDateString(), c: todayMsgs }));
@@ -2081,45 +2082,66 @@ async function sendMessage() {
     document.getElementById('send-btn').disabled=true;
     scrollBottom();
 
-    // Phase 1 : Réflexion visible (cube tourne)
+    // Préparation de l'annulation : un clic sur le bouton (devenu "stop") peut interrompre
+    // soit la requête réseau en vol, soit la révélation du texte déjà reçu.
+    generationStopped = false;
+    currentAbortController = new AbortController();
+    setSendBtnMode('stop');
+
+    // Phase 1 : Réflexion visible (cube tourne) — reste affiché au même endroit
+    // pendant TOUTE la génération (attente API + écriture), pas de petit logo à côté.
     setThinking(true);
     scrollBottom();
 
-    const r=await sendWithRotation(msg, files);
+    const r=await sendWithRotation(msg, files, currentAbortController.signal);
 
-    // Phase 2 : Stop thinking, show typing dots briefly
-    setThinking(false);
-    setTyping(true);
+    // Phase 2 : la réponse est prête — on garde le même cube visible, on change juste le
+    // libellé, au lieu de basculer vers une autre animation (style Replit/Claude : transition
+    // directe et fluide, sans étape intermédiaire artificielle).
+    if (thinkTimer) { clearInterval(thinkTimer); thinkTimer = null; }
+    const labelEl = document.querySelector('#thinking-block .think-label');
+    const stepEl = document.getElementById('think-step-text');
+    if (labelEl) labelEl.textContent = "En train d'écrire…";
+    if (stepEl) stepEl.textContent = 'Rédaction de la réponse';
     scrollBottom();
-    await new Promise(res => setTimeout(res, 420));
-    setTyping(false);
 
-    // Phase 3 : Stream the response character by character
+    // Phase 3 : Révélation rapide du texte — pas d'avatar/logo, juste la bulle.
+    // Le cube (thinking-block) reste affiché juste en dessous jusqu'à la fin de l'écriture.
     const div=document.createElement('div');
     div.className='chat-message ai';
     const now=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
     const ptag=r.provider?`<div class="msg-provider">${PROVIDERS[r.provider]?.name||r.provider}</div>`:'';
     const bubbleId='bubble-'+Date.now();
     div.innerHTML=`
-      ${aiAvatarHTML()}
       <div class="msg-wrap">${ptag}<div class="bubble ai" id="${bubbleId}"></div><div class="msg-time">${now}</div></div>`;
     wrap.appendChild(div);
     scrollBottom();
 
-    await streamText(r.text, document.getElementById(bubbleId));
+    const shown = await streamText(r.text, document.getElementById(bubbleId), () => generationStopped);
 
-    history.push({role:'assistant',content:r.text});
+    setThinking(false);
+
+    if (generationStopped) {
+      document.getElementById(bubbleId)?.insertAdjacentHTML('beforeend','<div style="font-size:11px;color:var(--t2);margin-top:6px;font-style:italic;">⏹ Génération interrompue</div>');
+    }
+
+    history.push({role:'assistant',content:shown});
     if(history.length>40) history=history.slice(-30);
     if(hasSupa()) supa.from('conversations').insert({visitor_id:visitorId,provider:r.provider,messages:history.slice(-4)}).then(()=>{});
   }catch(e){
     setThinking(false);
     setTyping(false);
-    addMsg('ai',`❌ ${e?.message||'Une erreur est survenue.'}`,null,true);
+    if (e?.name === 'AbortError') {
+      // Arrêt volontaire de l'utilisateur avant même de recevoir une réponse : pas une erreur.
+    } else {
+      addMsg('ai',`❌ ${e?.message||'Une erreur est survenue.'}`,null,true);
+    }
   }finally{
-    // Toujours réactiver le bouton et le flag, même en cas d'erreur inattendue
+    // Toujours réactiver le bouton (mode envoi) et le flag, même en cas d'erreur inattendue
     isSending=false;
-    const btn=document.getElementById('send-btn');
-    if(btn) btn.disabled=false;
+    generationStopped=false;
+    currentAbortController=null;
+    setSendBtnMode('send');
     scrollBottom();
   }
 }
@@ -2132,7 +2154,6 @@ function addMsg(role, text, prov, isErr) {
   const ptag=prov?`<div class="msg-provider">${PROVIDERS[prov]?.name||prov}</div>`:'';
   if(role==='ai'){
     div.innerHTML=`
-      ${aiAvatarHTML()}
       <div class="msg-wrap">${ptag}<div class="bubble ai${isErr?' border-red':''}" style="${isErr?'border-color:rgba(239,68,68,.35);':''}">${fmtMsg(text)}</div><div class="msg-time">${now}</div></div>`;
   } else {
     div.innerHTML=`
@@ -2225,6 +2246,33 @@ function setThinking(on) {
 }
 
 function setTyping(on){const e=document.getElementById('typing-ind');on?e.classList.add('on'):e.classList.remove('on');}
+
+// Bascule le bouton d'envoi en bouton "stop" pendant la génération, et inversement.
+// Le même bouton physique change juste d'icône/couleur/action — pas de nouvel élément flottant.
+function setSendBtnMode(mode){
+  const btn = document.getElementById('send-btn');
+  if(!btn) return;
+  if(mode==='stop'){
+    btn.classList.add('stop-mode');
+    btn.title = 'Arrêter la génération';
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3" fill="#fff" stroke="none"/></svg>';
+    btn.onclick = stopGeneration;
+    btn.disabled = false;
+  } else {
+    btn.classList.remove('stop-mode');
+    btn.title = 'Envoyer';
+    btn.innerHTML = '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    btn.onclick = sendMessage;
+    btn.disabled = false;
+  }
+}
+
+// Arrête la génération en cours : annule la requête réseau si elle est encore en vol,
+// et/ou interrompt l'affichage progressif du texte si la réponse est déjà en train de s'écrire.
+function stopGeneration(){
+  generationStopped = true;
+  if (currentAbortController) { try{ currentAbortController.abort(); }catch(e){} }
+}
 
 // ─── FILE UPLOAD ────────────────────────────────
 let attachedFiles = []; // [{type:'image'|'pdf', name, dataUrl, base64, mimeType}]
