@@ -1659,83 +1659,34 @@ function toggleFAQ(i) {
   el.classList.toggle('open');
 }
 
-// ─── API CALLS ─────────────────────────────────
-async function callProvider(key, msg, hist) {
-  const cfg = PROVIDERS[key.provider];
-  if(!cfg) throw new Error('Provider inconnu');
-  const model = key.model || cfg.model;
-  const sysmsg = (siteData.chat_config?.system_message) || DEFAULT_DATA.chat_config.system_message;
-  if(cfg.fmt==='openai') return callOAI(cfg.ep, key.key_value, model, msg, hist, key.provider, sysmsg);
-  if(cfg.fmt==='gemini') return callGemini(key.key_value, model, msg, hist);
-  if(cfg.fmt==='cohere') return callCohere(key.key_value, model, msg, hist);
-  if(cfg.fmt==='hf') return callHF(key.key_value, model, msg, hist);
-  throw new Error('Format inconnu');
-}
-
-async function callOAI(ep, apiKey, model, msg, hist, prov, sys) {
-  const msgs = [{ role:'system', content:sys }, ...hist.slice(-10).map(m=>({role:m.role,content:m.content})), {role:'user',content:msg}];
-  const h = {'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`};
-  if(prov==='openrouter'){h['HTTP-Referer']=location.href;h['X-Title']='Regard Créatif IA';}
-  const r = await fetch(ep,{method:'POST',headers:h,body:JSON.stringify({model,messages:msgs,max_tokens:1024,temperature:.7})});
-  if(r.status===429) throw Object.assign(new Error('Quota'),{status:429});
-  if(r.status===401||r.status===403) throw Object.assign(new Error('Clé invalide'),{status:401});
-  if(!r.ok) throw new Error(`Erreur ${r.status}`);
-  return (await r.json()).choices?.[0]?.message?.content||'Réponse vide';
-}
-
-async function callGemini(k, model, msg, hist) {
-  const contents=[...hist.slice(-8).map(m=>({role:m.role==='user'?'user':'model',parts:[{text:m.content}]})),{role:'user',parts:[{text:msg}]}];
-  const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${k}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents,generationConfig:{maxOutputTokens:1024,temperature:.7}})});
-  if(r.status===429) throw Object.assign(new Error('Quota'),{status:429});
-  if(!r.ok) throw new Error(`Erreur Gemini ${r.status}`);
-  return (await r.json()).candidates?.[0]?.content?.parts?.[0]?.text||'Réponse vide';
-}
-
-async function callCohere(k, model, msg, hist) {
-  const ch=hist.slice(-8).map(m=>({role:m.role==='user'?'USER':'CHATBOT',message:m.content}));
-  const r=await fetch('https://api.cohere.ai/v1/chat',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${k}`},body:JSON.stringify({model,message:msg,chat_history:ch,max_tokens:1024})});
-  if(r.status===429) throw Object.assign(new Error('Quota'),{status:429});
-  if(!r.ok) throw new Error(`Erreur Cohere ${r.status}`);
-  return (await r.json()).text||'Réponse vide';
-}
-
-async function callHF(k, model, msg, hist) {
-  const p=hist.slice(-6).map(m=>`${m.role==='user'?'[INST]':''}${m.content}${m.role==='user'?'[/INST]':''}`).join('\n')+`\n[INST]${msg}[/INST]`;
-  const r=await fetch(`https://api-inference.huggingface.co/models/${model}`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${k}`},body:JSON.stringify({inputs:p,parameters:{max_new_tokens:512,temperature:.7}})});
-  if(r.status===429) throw Object.assign(new Error('Quota'),{status:429});
-  if(!r.ok) throw new Error(`Erreur HF ${r.status}`);
-  const d=await r.json();
-  if(Array.isArray(d)) return d[0]?.generated_text?.split('[/INST]').pop()?.trim()||'Réponse vide';
-  return d.generated_text||'Réponse vide';
-}
-
-// ─── ROTATION ──────────────────────────────────
-function getActiveKeys() {
-  let k = apiKeys.filter(x=>x.active&&!x.quota_exceeded);
-  if(selectedProv!=='auto') k=k.filter(x=>x.provider===selectedProv);
-  return k.sort((a,b)=>a.priority-b.priority);
-}
+// ─── API CALLS via proxy sécurisé ──────────────
+const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
 
 async function sendWithRotation(msg) {
-  const keys = getActiveKeys();
-  if(!keys.length) throw new Error('Aucune clé API active. Configurez vos clés dans l\'administration.');
-  for(let i=0;i<Math.min(keys.length,10);i++){
-    const k=keys[(keyIdx+i)%keys.length];
-    try{
-      const res=await callProvider(k,msg,history);
-      keyIdx=(keyIdx+i)%keys.length; lastRotation=new Date().toISOString();
-      k.last_used=lastRotation;
-      if(hasSupa()) supa.from('api_keys').update({last_used:lastRotation}).eq('id',k.id).then(()=>{});
-      else saveKeysLocal();
-      todayMsgs++;
-      localStorage.setItem('rc_today',JSON.stringify({d:new Date().toDateString(),c:todayMsgs}));
-      return {text:res,provider:k.provider};
-    }catch(e){
-      if(e.status===429){k.quota_exceeded=true;if(hasSupa())supa.from('api_keys').update({quota_exceeded:true}).eq('id',k.id).then(()=>{});else saveKeysLocal();}
-      continue;
-    }
-  }
-  throw new Error('Nos serveurs sont momentanément saturés. Réessayez dans quelques minutes.');
+  const provider = selectedProv === 'auto' ? 'groq' : selectedProv;
+  const sysmsg = siteData.chat_config?.system_message || DEFAULT_DATA.chat_config.system_message;
+  const messages = [
+    { role: 'system', content: sysmsg },
+    ...history.slice(-10).map(m => ({ role: m.role, content: m.content })),
+    { role: 'user', content: msg }
+  ];
+
+  const res = await fetch(PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages, provider, visitor_id: visitorId })
+  });
+
+  if (res.status === 429) throw new Error('Limite journalière atteinte. Revenez demain !');
+  if (!res.ok) throw new Error('Serveur momentanément indisponible. Réessayez.');
+
+  const data = await res.json();
+  if (data.error) throw new Error(data.error);
+
+  todayMsgs++;
+  localStorage.setItem('rc_today', JSON.stringify({ d: new Date().toDateString(), c: todayMsgs }));
+
+  return { text: data.content, provider: data.provider };
 }
 
 // ─── CHAT UI ───────────────────────────────────
