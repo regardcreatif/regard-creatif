@@ -1953,7 +1953,14 @@ FORMAT :
 async function callProxy(messages, provider, retryCount = 0, signal) {
   const res = await fetch(PROXY_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      // Les fonctions Edge Supabase exigent en général un en-tête d'authentification
+      // au niveau de la passerelle (vérification JWT), même si la fonction elle-même
+      // est ensuite ouverte à tous. On l'envoie systématiquement pour éviter un 401 silencieux.
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY
+    },
     body: JSON.stringify({ messages, provider, visitor_id: visitorId }),
     signal
   });
@@ -1962,12 +1969,24 @@ async function callProxy(messages, provider, retryCount = 0, signal) {
 
   if (!res.ok) {
     if (signal?.aborted) { const e=new Error('Aborted'); e.name='AbortError'; throw e; }
+    // On essaie de récupérer le détail renvoyé par le serveur (corps JSON ou texte brut)
+    // pour que le message affiché soit exploitable au lieu d'un "indisponible" générique.
+    let detail = '';
+    try {
+      const ct = res.headers.get('content-type') || '';
+      if (ct.includes('application/json')) {
+        const errBody = await res.json();
+        detail = errBody?.error || errBody?.message || JSON.stringify(errBody);
+      } else {
+        detail = (await res.text()).slice(0, 200);
+      }
+    } catch(e) {}
     if (retryCount < 2) {
       await new Promise(r => setTimeout(r, 1200 * (retryCount + 1)));
       if (signal?.aborted) { const e=new Error('Aborted'); e.name='AbortError'; throw e; }
       return callProxy(messages, provider, retryCount + 1, signal);
     }
-    throw new Error('Serveur momentanément indisponible. Réessayez dans quelques secondes.');
+    throw new Error(`Serveur momentanément indisponible (code ${res.status}${detail ? ' — ' + detail : ''}). Réessayez dans quelques secondes.`);
   }
 
   const data = await res.json();
