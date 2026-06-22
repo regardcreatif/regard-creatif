@@ -1662,15 +1662,35 @@ function toggleFAQ(i) {
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
 
-async function sendWithRotation(msg) {
-  const provider = selectedProv === 'auto' ? 'groq' : selectedProv;
-  const sysmsg = siteData.chat_config?.system_message || DEFAULT_DATA.chat_config.system_message;
-  const messages = [
-    { role: 'system', content: sysmsg },
-    ...history.slice(-10).map(m => ({ role: m.role, content: m.content })),
-    { role: 'user', content: msg }
-  ];
+const SYSTEM_PROMPT = `Tu es Regard Créatif IA, un assistant intelligent, moderne et polyvalent — aussi capable que les meilleures IA du marché.
 
+PERSONNALITÉ :
+- Ton et naturel : chaleureux, clair, direct. Ni trop formel ni trop décontracté.
+- Tu réponds toujours en français sauf si l'utilisateur écrit dans une autre langue.
+- Tu es confiant dans tes réponses mais tu mentionnes honnêtement tes limites quand elles existent.
+
+QUALITÉ DES RÉPONSES :
+- Donne des réponses complètes, utiles et précises. Ne survole pas les sujets.
+- Structure tes réponses : utilise des titres (##), des listes (- item), du **gras** pour les points importants.
+- Pour les questions techniques : explique le raisonnement, fournis des exemples concrets, du code si nécessaire.
+- Pour les questions créatives : sois inventif, propose plusieurs angles, développe les idées.
+- Pour les questions factuelles : sois précis, cite des chiffres/dates si pertinent.
+- Pour les questions personnelles : sois empathique et constructif.
+
+CAPACITÉS :
+- Rédaction, synthèse, traduction, correction de textes
+- Analyse, recherche, explication de concepts complexes
+- Code et développement (tous langages)
+- Mathématiques et sciences
+- Créativité : histoires, poésie, brainstorming, marketing
+- Conseils pratiques dans tous les domaines
+
+FORMAT :
+- Utilise le Markdown pour structurer tes réponses (titres, listes, tableaux, blocs de code).
+- Adapte la longueur à la complexité : court pour les questions simples, détaillé pour les questions complexes.
+- Termine par une question ou une proposition si tu peux approfondir quelque chose.`;
+
+async function callProxy(messages, provider, retryCount = 0) {
   const res = await fetch(PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -1678,10 +1698,49 @@ async function sendWithRotation(msg) {
   });
 
   if (res.status === 429) throw new Error('Limite journalière atteinte. Revenez demain !');
-  if (!res.ok) throw new Error('Serveur momentanément indisponible. Réessayez.');
+
+  if (!res.ok) {
+    if (retryCount < 2) {
+      await new Promise(r => setTimeout(r, 1200 * (retryCount + 1)));
+      return callProxy(messages, provider, retryCount + 1);
+    }
+    throw new Error('Serveur momentanément indisponible. Réessayez dans quelques secondes.');
+  }
 
   const data = await res.json();
   if (data.error) throw new Error(data.error);
+  return data;
+}
+
+async function streamText(text, bubbleEl) {
+  // Affiche le texte formaté progressivement mot par mot
+  const words = text.split(' ');
+  let displayed = '';
+  const CHUNK = 3; // mots par tick
+  for (let i = 0; i < words.length; i += CHUNK) {
+    displayed += (i > 0 ? ' ' : '') + words.slice(i, i + CHUNK).join(' ');
+    bubbleEl.innerHTML = fmtMsg(displayed + (i + CHUNK < words.length ? '▋' : ''));
+    scrollBottom();
+    await new Promise(r => setTimeout(r, 18));
+  }
+  bubbleEl.innerHTML = fmtMsg(text);
+  scrollBottom();
+}
+
+async function sendWithRotation(msg) {
+  const provider = selectedProv === 'auto' ? 'groq' : selectedProv;
+
+  // System prompt : priorité à celui configuré dans l'admin, sinon le prompt amélioré
+  const adminSys = siteData.chat_config?.system_message;
+  const sysmsg = (adminSys && adminSys.trim().length > 20) ? adminSys : SYSTEM_PROMPT;
+
+  const messages = [
+    { role: 'system', content: sysmsg },
+    ...history.slice(-20).map(m => ({ role: m.role, content: m.content })),
+    { role: 'user', content: msg }
+  ];
+
+  const data = await callProxy(messages, provider);
 
   todayMsgs++;
   localStorage.setItem('rc_today', JSON.stringify({ d: new Date().toDateString(), c: todayMsgs }));
@@ -1711,13 +1770,28 @@ async function sendMessage() {
   try{
     const r=await sendWithRotation(msg);
     setTyping(false);
-    addMsg('ai',r.text,r.provider);
+
+    // Créer la bulle IA vide, puis streamer le texte dedans
+    const wrap=document.getElementById('messages-list');
+    const div=document.createElement('div');
+    div.className='chat-message ai';
+    const now=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const ptag=r.provider?`<div class="msg-provider">${PROVIDERS[r.provider]?.name||r.provider}</div>`:'';
+    const bubbleId='bubble-'+Date.now();
+    div.innerHTML=`
+      <div class="msg-avatar ai-av"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+      <div class="msg-wrap">${ptag}<div class="bubble ai" id="${bubbleId}"></div><div class="msg-time">${now}</div></div>`;
+    wrap.appendChild(div);
+    scrollBottom();
+
+    await streamText(r.text, document.getElementById(bubbleId));
+
     history.push({role:'assistant',content:r.text});
     if(history.length>40) history=history.slice(-30);
     if(hasSupa()) supa.from('conversations').insert({visitor_id:visitorId,provider:r.provider,messages:history.slice(-4)}).then(()=>{});
   }catch(e){
     setTyping(false);
-    addMsg('ai',`Désolé : ${e.message}`,null,true);
+    addMsg('ai',`❌ ${e.message}`,null,true);
   }
   isSending=false;
   document.getElementById('send-btn').disabled=false;
@@ -1743,11 +1817,43 @@ function addMsg(role, text, prov, isErr) {
 }
 
 function fmtMsg(t){
-  return t.replace(/```(\w+)?\n?([\s\S]*?)```/g,'<pre><code>$2</code></pre>')
-    .replace(/`([^`]+)`/g,'<code>$1</code>')
-    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
-    .replace(/\*(.*?)\*/g,'<em>$1</em>')
-    .replace(/\n/g,'<br>');
+  // 1. Blocs de code (```)
+  t = t.replace(/```(\w+)?\n?([\s\S]*?)```/g, (_, lang, code) => {
+    const l = lang ? `<span style="font-size:10px;color:var(--s);display:block;margin-bottom:6px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">${lang}</span>` : '';
+    return `<pre style="position:relative;">${l}<code>${escH(code.trim())}</code></pre>`;
+  });
+  // 2. Code inline
+  t = t.replace(/`([^`]+)`/g,'<code>$1</code>');
+  // 3. Titres (### ## #)
+  t = t.replace(/^### (.+)$/gm,'<h4 style="font-size:14px;font-weight:700;color:var(--t1);margin:14px 0 6px;">$1</h4>');
+  t = t.replace(/^## (.+)$/gm,'<h3 style="font-size:16px;font-weight:800;color:var(--t1);margin:16px 0 8px;border-bottom:1px solid var(--brd);padding-bottom:6px;">$1</h3>');
+  t = t.replace(/^# (.+)$/gm,'<h2 style="font-size:18px;font-weight:900;color:var(--t1);margin:18px 0 10px;">$1</h2>');
+  // 4. Gras & italique
+  t = t.replace(/\*\*\*(.+?)\*\*\*/g,'<strong><em>$1</em></strong>');
+  t = t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  t = t.replace(/\*(.+?)\*/g,'<em>$1</em>');
+  // 5. Listes à puces (- ou *)
+  t = t.replace(/^[\-\*] (.+)$/gm,'<li style="margin:3px 0;padding-left:4px;">$1</li>');
+  t = t.replace(/(<li[^>]*>.*<\/li>\n?)+/g, m => `<ul style="padding-left:18px;margin:8px 0;list-style:disc;">${m}</ul>`);
+  // 6. Listes numérotées
+  t = t.replace(/^\d+\. (.+)$/gm,'<li style="margin:3px 0;padding-left:4px;">$1</li>');
+  // 7. Citations (>)
+  t = t.replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid var(--p);padding:6px 12px;margin:8px 0;color:var(--t2);font-style:italic;background:rgba(124,58,237,.06);border-radius:0 8px 8px 0;">$1</blockquote>');
+  // 8. Séparateurs
+  t = t.replace(/^---$/gm,'<hr style="border:none;border-top:1px solid var(--brd);margin:14px 0;">');
+  // 9. Tableaux Markdown simples
+  t = t.replace(/\|(.+)\|\n\|[-| :]+\|\n((?:\|.+\|\n?)+)/g, (_, header, rows) => {
+    const ths = header.split('|').filter(c=>c.trim()).map(c=>`<th style="padding:7px 12px;text-align:left;font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--brd);">${c.trim()}</th>`).join('');
+    const trs = rows.trim().split('\n').map(row=>{
+      const tds = row.split('|').filter(c=>c.trim()).map(c=>`<td style="padding:7px 12px;font-size:13px;border-bottom:1px solid rgba(255,255,255,.03);">${c.trim()}</td>`).join('');
+      return `<tr>${tds}</tr>`;
+    }).join('');
+    return `<div style="overflow-x:auto;margin:10px 0;border-radius:8px;border:1px solid var(--brd);"><table style="width:100%;border-collapse:collapse;"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
+  });
+  // 10. Retours à la ligne
+  t = t.replace(/\n\n/g,'</p><p style="margin:8px 0;">');
+  t = t.replace(/\n/g,'<br>');
+  return `<p style="margin:0;">${t}</p>`;
 }
 function escH(t){const d=document.createElement('div');d.appendChild(document.createTextNode(t));return d.innerHTML;}
 function setTyping(on){const e=document.getElementById('typing-ind');on?e.classList.add('on'):e.classList.remove('on');}
