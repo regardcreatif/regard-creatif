@@ -438,8 +438,8 @@ img{max-width:100%;display:block}
 .chart-grid-line{position:absolute;left:42px;right:0;border-top:1px dashed rgba(255,255,255,.04)}
 
 /* Modals */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:800;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease}
-.modal-box{background:var(--card2);border:1px solid var(--brd);border-radius:20px;padding:32px;width:92%;max-width:520px;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 50px var(--gp);animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;position:relative}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:950;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.modal-box{background:var(--card2);border:1px solid var(--brd);border-radius:20px;padding:32px;width:92%;max-width:520px;box-shadow:0 24px 80px rgba(0,0,0,.6),0 0 50px var(--gp);animation:slideUp .3s ease;max-height:90vh;overflow-y:auto;position:relative;-webkit-overflow-scrolling:touch}
 .modal-box.modal-lg{max-width:720px}
 .modal-close{position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:7px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.09);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--t2);transition:all .2s;font-size:0}
 .modal-close:hover{color:var(--t1);background:rgba(255,255,255,.1)}
@@ -636,6 +636,7 @@ img{max-width:100%;display:block}
 @media(max-width:900px){.grid-3{grid-template-columns:repeat(2,1fr)}.grid-4{grid-template-columns:repeat(2,1fr)}.form-grid-2{grid-template-columns:1fr}}
 @media(max-width:640px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.hero-section{padding:80px 16px 40px}.landing-section{padding:60px 0}#admin-sidebar{width:56px}.adm-logo-text,.nav-item span:not(.nav-icon-text){display:none}.site-footer-actions{padding:26px 16px 34px}}
 @media(max-width:480px){.heading-xl{letter-spacing:-1px}.stat-badge{padding:16px 14px}}
+@media(max-width:640px){.modal-box{width:94%;max-width:none;padding:22px 18px;max-height:92vh;border-radius:16px}.modal-box.modal-lg{max-width:none}}
 </style>
 </head>
 <body>
@@ -2515,13 +2516,31 @@ function editSection(id){
     else siteData.landing_sections.push(JSON.parse(JSON.stringify(s)));
   }
   const content=document.getElementById('generic-modal-content');
-  content.innerHTML=buildSectionForm(s);
-  document.getElementById('generic-modal').style.display='flex';
+  const modal=document.getElementById('generic-modal');
+  try{
+    content.innerHTML=buildSectionForm(s);
+  }catch(err){
+    console.error('buildSectionForm a échoué pour la section', id, err);
+    content.innerHTML=`<div class="modal-title grad-text">Éditer — ${s.title||s.id}</div>
+      <div class="modal-sub">Impossible de générer le formulaire pour cette section (données invalides).</div>
+      <div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-secondary" onclick="closeModal()">Fermer</button></div>`;
+  }
+  openGenericModal();
   // Wire up live thumbnail previews for every image field rendered in this form
   document.querySelectorAll('#generic-modal-content [data-thumb-for]').forEach(img=>{
     const inputId=img.getAttribute('data-thumb-for');
     updateThumb(inputId, img.id);
   });
+}
+
+// Centralized open/close so the modal always becomes visible immediately
+// and the background can't scroll behind it on mobile.
+function openGenericModal(){
+  const modal=document.getElementById('generic-modal');
+  modal.style.display='flex';
+  document.body.style.overflow='hidden';
+  const box=document.getElementById('generic-modal-box');
+  if(box) box.scrollTop=0;
 }
 
 function imageFieldHTML(inputId, thumbId, value, placeholder){
@@ -2914,7 +2933,7 @@ function openAddSection(){
       <button class="btn btn-primary" onclick="addNewSection()">Ajouter</button>
       <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
     </div>`;
-  document.getElementById('generic-modal').style.display='flex';
+  openGenericModal();
 }
 
 function addNewSection(){
@@ -3512,7 +3531,7 @@ function showToast(msg,type='info'){
   setTimeout(()=>{t.style.animation='toastOut .3s ease forwards';setTimeout(()=>t.remove(),300);},3500);
 }
 
-function closeModal(){document.getElementById('generic-modal').style.display='none';}
+function closeModal(){document.getElementById('generic-modal').style.display='none';document.body.style.overflow='';}
 function getVal(id){const e=document.getElementById(id);return e?e.value:'';}
 function setVal(id,v){const e=document.getElementById(id);if(e)e.value=v||'';}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
