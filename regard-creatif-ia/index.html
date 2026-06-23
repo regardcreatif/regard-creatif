@@ -637,6 +637,246 @@ img{max-width:100%;display:block}
 @media(max-width:640px){.grid-2,.grid-3,.grid-4{grid-template-columns:1fr}.hero-section{padding:80px 16px 40px}.landing-section{padding:60px 0}#admin-sidebar{width:56px}.adm-logo-text,.nav-item span:not(.nav-icon-text){display:none}.site-footer-actions{padding:26px 16px 34px}}
 @media(max-width:480px){.heading-xl{letter-spacing:-1px}.stat-badge{padding:16px 14px}}
 @media(max-width:640px){.modal-box{width:94%;max-width:none;padding:22px 18px;max-height:92vh;border-radius:16px}.modal-box.modal-lg{max-width:none}}
+
+/* ============================
+   BOUTON FLOTTANT CHAT
+============================ */
+#chat-fab{
+  position:fixed;bottom:90px;right:18px;z-index:500;
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--p),var(--s));
+  border:none;cursor:pointer;
+  display:none;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(124,58,237,.55);
+  transition:transform .2s,box-shadow .2s;
+  animation:pulse 3s ease-in-out infinite;
+}
+#chat-fab.visible{display:flex}
+#chat-fab:hover{transform:scale(1.1);box-shadow:0 6px 28px rgba(124,58,237,.7)}
+#chat-fab svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Menu flottant */
+#fab-menu{
+  position:fixed;bottom:148px;right:14px;z-index:501;
+  display:none;flex-direction:column;gap:8px;
+  animation:slideUp .2s ease;
+}
+#fab-menu.open{display:flex}
+.fab-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 16px;border-radius:12px;
+  background:var(--card);border:1px solid var(--brd);
+  cursor:pointer;color:var(--t1);font-size:13px;font-weight:600;
+  box-shadow:0 4px 20px rgba(0,0,0,.4);
+  transition:all .2s;white-space:nowrap;
+}
+.fab-item:hover{border-color:var(--p);background:rgba(124,58,237,.12);color:#c4b5fd}
+.fab-item svg{width:18px;height:18px;stroke:var(--p);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
+.fab-item.active-mode{border-color:rgba(6,182,212,.5);background:rgba(6,182,212,.1);color:#7dd3e0}
+.fab-item.active-mode svg{stroke:var(--s)}
+
+/* Popup Skills */
+#skills-popup{
+  position:fixed;bottom:260px;right:14px;z-index:502;
+  width:min(340px,90vw);
+  background:var(--card2);border:1px solid var(--brd);
+  border-radius:16px;padding:18px;
+  box-shadow:0 8px 40px rgba(0,0,0,.6),0 0 24px rgba(124,58,237,.15);
+  display:none;animation:slideUp .25s ease;
+  max-height:60vh;overflow-y:auto;
+}
+#skills-popup.open{display:block}
+.skills-popup-title{font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.skills-popup-title svg{width:15px;height:15px;stroke:var(--p);fill:none;stroke-width:2;stroke-linecap:round}
+.skill-item{
+  padding:10px 13px;border-radius:10px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  cursor:pointer;margin-bottom:7px;transition:all .2s;
+}
+.skill-item:hover{border-color:var(--p);background:rgba(124,58,237,.09)}
+.skill-item:last-child{margin-bottom:0}
+.skill-item-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.skill-item-desc{font-size:11px;color:var(--t2);line-height:1.4}
+
+/* Badge mode stats actif dans le chat */
+#stats-mode-badge{
+  display:none;align-items:center;gap:6px;
+  background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);
+  border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#7dd3e0;
+  cursor:pointer;transition:all .2s;
+}
+#stats-mode-badge.visible{display:inline-flex}
+#stats-mode-badge:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#ef4444}
+#stats-mode-badge svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* ============================
+   PAGE IMAGE IA
+============================ */
+#image-page{
+  display:none;flex-direction:column;height:100vh;height:100dvh;
+  position:fixed;inset:0;z-index:10;
+  background:linear-gradient(135deg,var(--bg) 0%,#0a0618 100%);
+  overflow-y:auto;
+}
+#image-page.open{display:flex}
+.img-page-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;background:rgba(10,9,20,.92);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--brd);flex-shrink:0;position:sticky;top:0;z-index:5;
+}
+.img-page-title{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px}
+.img-page-title svg{width:18px;height:18px;stroke:var(--p);fill:none;stroke-width:2;stroke-linecap:round}
+.img-page-body{flex:1;padding:24px 20px;max-width:900px;margin:0 auto;width:100%}
+
+/* Studio controls */
+.studio-section{margin-bottom:20px}
+.studio-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.studio-label svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.studio-textarea{
+  width:100%;min-height:80px;padding:13px 16px;
+  background:var(--card);border:1px solid var(--brd);border-radius:12px;
+  color:var(--t1);font-family:var(--font);font-size:14px;resize:vertical;
+  transition:border-color .2s,box-shadow .2s;line-height:1.5;
+}
+.studio-textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,.12);outline:none}
+.studio-textarea::placeholder{color:var(--t2)}
+
+/* Style chips */
+.style-chips{display:flex;flex-wrap:wrap;gap:8px}
+.style-chip{
+  padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.style-chip:hover{border-color:rgba(124,58,237,.5);color:#c4b5fd}
+.style-chip.selected{background:rgba(124,58,237,.15);border-color:var(--p);color:#c4b5fd}
+
+/* Size chips */
+.size-chips{display:flex;gap:8px;flex-wrap:wrap}
+.size-chip{
+  padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);
+  color:var(--t2);cursor:pointer;transition:all .2s;
+}
+.size-chip:hover,.size-chip.selected{background:rgba(6,182,212,.1);border-color:rgba(6,182,212,.4);color:#7dd3e0}
+
+/* Generate button */
+#img-gen-btn{
+  width:100%;padding:15px;border-radius:12px;
+  background:linear-gradient(135deg,var(--p),var(--s));
+  border:none;color:#fff;font-family:var(--font);font-size:15px;font-weight:700;
+  cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  box-shadow:0 0 28px rgba(124,58,237,.4);
+  background-size:200% 200%;animation:gradShift 4s ease-in-out infinite;
+}
+#img-gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 36px rgba(124,58,237,.55)}
+#img-gen-btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+#img-gen-btn svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+
+/* Result grid */
+.img-result-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:24px}
+.img-result-card{
+  border-radius:16px;overflow:hidden;position:relative;
+  background:var(--card);border:1px solid var(--brd);
+  aspect-ratio:1;
+}
+.img-result-card img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
+.img-result-card:hover img{transform:scale(1.03)}
+.img-result-card .img-overlay{
+  position:absolute;inset:0;background:linear-gradient(0deg,rgba(0,0,0,.7) 0%,transparent 50%);
+  opacity:0;transition:opacity .2s;
+  display:flex;align-items:flex-end;padding:14px;gap:8px;
+}
+.img-result-card:hover .img-overlay{opacity:1}
+.img-result-card .img-overlay a{
+  padding:7px 14px;border-radius:8px;background:rgba(255,255,255,.15);
+  backdrop-filter:blur(8px);color:#fff;font-size:12px;font-weight:700;text-decoration:none;
+  transition:background .2s;border:1px solid rgba(255,255,255,.2);
+}
+.img-result-card .img-overlay a:hover{background:rgba(255,255,255,.3)}
+
+.img-placeholder{
+  aspect-ratio:1;border-radius:16px;
+  background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(6,182,212,.04));
+  border:2px dashed rgba(124,58,237,.25);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  color:var(--t2);font-size:14px;text-align:center;padding:20px;
+}
+.img-placeholder svg{width:40px;height:40px;stroke:rgba(124,58,237,.4);fill:none;stroke-width:1.5;stroke-linecap:round}
+
+/* Spinner dans le bouton */
+.btn-spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0}
+
+/* Briques landing spéciales */
+.special-bricks{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin:0 auto;max-width:900px}
+@media(max-width:680px){.special-bricks{grid-template-columns:1fr}}
+.special-brick{
+  border-radius:24px;overflow:hidden;position:relative;
+  padding:36px 32px;cursor:pointer;
+  transition:transform .35s,box-shadow .35s;
+  min-height:280px;display:flex;flex-direction:column;justify-content:flex-end;
+}
+.special-brick:hover{transform:translateY(-8px)}
+.special-brick-stats{
+  background:linear-gradient(135deg,rgba(124,58,237,.18) 0%,rgba(6,182,212,.14) 100%);
+  border:1px solid rgba(124,58,237,.3);
+  box-shadow:0 8px 40px rgba(124,58,237,.2);
+}
+.special-brick-stats:hover{box-shadow:0 16px 56px rgba(124,58,237,.35)}
+.special-brick-img{
+  background:linear-gradient(135deg,rgba(168,85,247,.18) 0%,rgba(6,182,212,.14) 100%);
+  border:1px solid rgba(168,85,247,.3);
+  box-shadow:0 8px 40px rgba(168,85,247,.2);
+}
+.special-brick-img:hover{box-shadow:0 16px 56px rgba(168,85,247,.35)}
+.special-brick-bg{
+  position:absolute;inset:0;pointer-events:none;
+  display:flex;align-items:center;justify-content:center;opacity:.06;
+}
+.special-brick-bg svg{width:160px;height:160px;stroke:currentColor;fill:none;stroke-width:.8}
+.special-brick-icon{
+  width:56px;height:56px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:18px;position:relative;z-index:1;
+}
+.special-brick-stats .special-brick-icon{background:linear-gradient(135deg,var(--p),var(--a));box-shadow:0 0 24px rgba(124,58,237,.4)}
+.special-brick-img .special-brick-icon{background:linear-gradient(135deg,#a855f7,var(--s));box-shadow:0 0 24px rgba(168,85,247,.4)}
+.special-brick-icon svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.special-brick-content{position:relative;z-index:1}
+.special-brick-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;opacity:.7}
+.special-brick-stats .special-brick-label{color:#c4b5fd}
+.special-brick-img .special-brick-label{color:#e9d5ff}
+.special-brick-title{font-size:22px;font-weight:800;line-height:1.15;margin-bottom:10px;color:var(--t1)}
+.special-brick-desc{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px}
+.special-brick-cta{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;border-radius:10px;font-size:13px;font-weight:700;
+  border:none;cursor:pointer;transition:all .2s;font-family:var(--font);
+}
+.special-brick-stats .special-brick-cta{background:rgba(124,58,237,.25);color:#c4b5fd;border:1px solid rgba(124,58,237,.4)}
+.special-brick-stats .special-brick-cta:hover{background:rgba(124,58,237,.4);color:#fff}
+.special-brick-img .special-brick-cta{background:rgba(168,85,247,.25);color:#e9d5ff;border:1px solid rgba(168,85,247,.4)}
+.special-brick-img .special-brick-cta:hover{background:rgba(168,85,247,.4);color:#fff}
+.special-brick-cta svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round}
+
+/* Negative prompt input */
+.studio-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.studio-row-2{grid-template-columns:1fr}}
+
+/* Seed / steps */
+.studio-range{width:100%;accent-color:var(--p);cursor:pointer}
+.studio-range-val{font-size:12px;font-weight:700;color:var(--p);min-width:30px;text-align:right}
+
+/* Count selector */
+.count-btns{display:flex;gap:8px}
+.count-btn{
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--brd);
+  background:rgba(255,255,255,.04);color:var(--t2);font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .2s;font-family:var(--font);
+}
+.count-btn.selected,.count-btn:hover{border-color:var(--p);color:#c4b5fd;background:rgba(124,58,237,.12)}
 </style>
 </head>
 <body>
@@ -700,6 +940,14 @@ img{max-width:100%;display:block}
       </select>
     </div>
   </div>
+  <!-- Badge mode analyse actif -->
+  <div style="padding:6px 16px 0;display:flex;justify-content:center;">
+    <div id="stats-mode-badge" onclick="toggleAnalyseMode()">
+      <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Mode Analyse & Stats actif — Cliquer pour désactiver
+    </div>
+  </div>
+
   <div id="chat-messages">
     <div class="chat-welcome" id="chat-welcome">
       <div class="chat-welcome-icon">
@@ -752,6 +1000,123 @@ img{max-width:100%;display:block}
     </div>
   </div>
   <div id="chat-footer"><span id="chat-footer-text">Regard Créatif IA — © 2025</span></div>
+</div>
+
+<!-- =================== BOUTON FLOTTANT (chat only) =================== -->
+<button id="chat-fab" title="Outils IA" onclick="toggleFab()">
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/></svg>
+</button>
+
+<!-- Menu flottant -->
+<div id="fab-menu">
+  <div class="fab-item" id="fab-skills-btn" onclick="toggleSkillsPopup()">
+    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Skills IA
+  </div>
+  <div class="fab-item" id="fab-analyse-btn" onclick="toggleAnalyseMode()">
+    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Analyse & Stats
+  </div>
+</div>
+
+<!-- Popup Skills -->
+<div id="skills-popup">
+  <div class="skills-popup-title">
+    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+    Skills disponibles
+  </div>
+  <div id="skills-list"></div>
+</div>
+
+<!-- =================== PAGE GÉNÉRATION D'IMAGES =================== -->
+<div id="image-page">
+  <div class="img-page-header">
+    <div class="img-page-title">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      Studio Génération d'Images
+    </div>
+    <button class="btn btn-secondary" onclick="closeImagePage()" style="padding:8px 16px;font-size:13px;">
+      <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" style="display:inline;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Fermer
+    </button>
+  </div>
+
+  <div class="img-page-body">
+    <!-- Prompt -->
+    <div class="studio-section">
+      <div class="studio-label">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Décrivez votre image
+      </div>
+      <textarea id="img-prompt" class="studio-textarea" placeholder="Ex: Un paysage de montagne enneigé au coucher du soleil, style peinture à l'huile, lumière dorée, ultra détaillé..."></textarea>
+    </div>
+
+    <!-- Style -->
+    <div class="studio-section">
+      <div class="studio-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        Style artistique
+      </div>
+      <div class="style-chips" id="style-chips">
+        <div class="style-chip selected" data-style="">Aucun (libre)</div>
+        <div class="style-chip" data-style="photorealistic, 8k, DSLR">Photoréaliste</div>
+        <div class="style-chip" data-style="oil painting, artistic, masterpiece">Peinture à l'huile</div>
+        <div class="style-chip" data-style="digital art, concept art, trending on artstation">Art numérique</div>
+        <div class="style-chip" data-style="anime style, manga, vibrant colors">Anime / Manga</div>
+        <div class="style-chip" data-style="watercolor, soft, delicate, pastel colors">Aquarelle</div>
+        <div class="style-chip" data-style="3D render, octane render, unreal engine">3D Render</div>
+        <div class="style-chip" data-style="sketch, pencil drawing, black and white">Croquis</div>
+        <div class="style-chip" data-style="cinematic, movie still, dramatic lighting">Cinématique</div>
+        <div class="style-chip" data-style="low poly, geometric, abstract">Low Poly</div>
+        <div class="style-chip" data-style="pixel art, retro, 8-bit">Pixel Art</div>
+      </div>
+    </div>
+
+    <!-- Format + Quantité -->
+    <div class="studio-row-2">
+      <div class="studio-section" style="margin-bottom:0">
+        <div class="studio-label">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Format
+        </div>
+        <div class="size-chips" id="size-chips">
+          <div class="size-chip selected" data-ratio="1:1" data-w="1024" data-h="1024">1:1 Carré</div>
+          <div class="size-chip" data-ratio="16:9" data-w="1344" data-h="768">16:9 Large</div>
+          <div class="size-chip" data-ratio="9:16" data-w="768" data-h="1344">9:16 Portrait</div>
+          <div class="size-chip" data-ratio="4:3" data-w="1152" data-h="896">4:3</div>
+        </div>
+      </div>
+      <div class="studio-section" style="margin-bottom:0">
+        <div class="studio-label">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          Nombre d'images
+        </div>
+        <div class="count-btns" id="count-btns">
+          <button class="count-btn selected" data-count="1">1</button>
+          <button class="count-btn" data-count="2">2</button>
+          <button class="count-btn" data-count="4">4</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Prompt négatif -->
+    <div class="studio-section" style="margin-top:16px">
+      <div class="studio-label">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Exclure (optionnel)
+      </div>
+      <input id="img-negative" class="form-input" placeholder="Ex: flou, déformé, texte, watermark..." style="background:var(--card);border-color:var(--brd);">
+    </div>
+
+    <!-- Bouton générer -->
+    <button id="img-gen-btn" onclick="generateImages()">
+      <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Générer les images
+    </button>
+
+    <!-- Résultats -->
+    <div id="img-results"></div>
+  </div>
 </div>
 
 <!-- =================== TOAST =================== -->
@@ -1543,9 +1908,62 @@ function renderLanding(data) {
   const brand = data.brand || DEFAULT_DATA.brand;
   const sections = [...(data.landing_sections || DEFAULT_DATA.landing_sections)].sort((a,b)=>a.order-b.order);
   applyBrand(brand);
-  document.getElementById('landing-sections-wrap').innerHTML = sections.filter(s=>s.enabled).map(renderSection).join('');
+  const sectionsHtml = sections.filter(s=>s.enabled).map(renderSection).join('');
+  const specialBricks = renderSpecialBricks();
+  document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml + specialBricks;
   initFAQ();
   initScrollReveal();
+}
+
+function renderSpecialBricks() {
+  return `
+  <section class="landing-section section-bg-dark" id="special-section">
+    <div class="container">
+      <div class="single text-center mb-6 reveal">
+        <div class="label mb-3">Outils avancés</div>
+        <h2 class="heading-lg mb-3">Allez plus loin avec Lia</h2>
+        <p class="body-lg">Générez des images et analysez vos données directement depuis la plateforme.</p>
+      </div>
+      <div class="special-bricks reveal">
+        <!-- Brique Statistiques -->
+        <div class="special-brick special-brick-stats" onclick="openChatWithAnalyse()">
+          <div class="special-brick-bg" style="color:#7c3aed;">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
+          </div>
+          <div class="special-brick-icon">
+            <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div class="special-brick-content">
+            <div class="special-brick-label">Analyse intelligente</div>
+            <div class="special-brick-title">Analyse & Statistiques</div>
+            <div class="special-brick-desc">Soumettez vos données à Lia : tableaux, chiffres, rapports. Elle analyse, interprète et génère des insights en langage naturel.</div>
+            <button class="special-brick-cta">
+              Analyser mes données
+              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+        <!-- Brique Images -->
+        <div class="special-brick special-brick-img" onclick="openImagePage()">
+          <div class="special-brick-bg" style="color:#a855f7;">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="special-brick-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          </div>
+          <div class="special-brick-content">
+            <div class="special-brick-label">Créativité sans limite</div>
+            <div class="special-brick-title">Génération d'Images IA</div>
+            <div class="special-brick-desc">Transformez vos idées en images époustouflantes. Choisissez votre style, décrivez votre vision, et laissez l'IA créer.</div>
+            <button class="special-brick-cta">
+              Commencer à générer
+              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>`;
 }
 
 function renderSection(s) {
@@ -1884,7 +2302,10 @@ function openChat() {
   document.getElementById('site-header').style.display = 'none';
   document.getElementById('chat-page').style.display = 'flex';
   document.body.classList.add('chat-open');
-  setTimeout(()=>document.getElementById('user-input')?.focus(), 100);
+  setTimeout(()=>{
+    document.getElementById('user-input')?.focus();
+    showFab();
+  }, 100);
 }
 
 function goHome() {
@@ -1892,6 +2313,258 @@ function goHome() {
   document.getElementById('site-header').style.display = 'flex';
   document.getElementById('landing-page').style.display = 'block';
   document.body.classList.remove('chat-open');
+  hideFab();
+}
+
+// ─── NAVIGATION IMAGE PAGE ──────────────────────
+function openImagePage() {
+  document.getElementById('landing-page').style.display = 'none';
+  document.getElementById('site-header').style.display = 'none';
+  document.getElementById('image-page').classList.add('open');
+  initImageStudio();
+}
+
+function closeImagePage() {
+  document.getElementById('image-page').classList.remove('open');
+  document.getElementById('site-header').style.display = 'flex';
+  document.getElementById('landing-page').style.display = 'block';
+}
+
+// ─── CHAT AVEC MODE ANALYSE ─────────────────────
+function openChatWithAnalyse() {
+  openChat();
+  setTimeout(()=>activateAnalyseMode(), 200);
+}
+
+// ─── FAB (bouton flottant) ─────────────────────
+let fabOpen = false;
+let skillsOpen = false;
+let analyseMode = false;
+
+function showFab() {
+  document.getElementById('chat-fab').classList.add('visible');
+}
+function hideFab() {
+  document.getElementById('chat-fab').classList.remove('visible');
+  closeFabAll();
+}
+function toggleFab() {
+  fabOpen = !fabOpen;
+  document.getElementById('fab-menu').classList.toggle('open', fabOpen);
+  if(!fabOpen) closeSkillsPopup();
+}
+function closeFabAll() {
+  fabOpen = false;
+  document.getElementById('fab-menu').classList.remove('open');
+  closeSkillsPopup();
+}
+
+// Fermer le fab si on clique ailleurs
+document.addEventListener('click', e => {
+  if(!e.target.closest('#chat-fab') && !e.target.closest('#fab-menu') && !e.target.closest('#skills-popup')) {
+    closeFabAll();
+  }
+});
+
+// ─── SKILLS ────────────────────────────────────
+const SKILLS_LIST = [
+  { name: '📝 Résumé', prefix: 'Résume le texte suivant de façon concise :\n\n', desc: 'Condense un texte long en points clés' },
+  { name: '🔍 Analyse', prefix: 'Analyse en détail ce qui suit et donne-moi tes observations :\n\n', desc: 'Analyse approfondie d\'un sujet ou document' },
+  { name: '✏️ Rédaction', prefix: 'Rédige un texte professionnel sur le sujet suivant :\n\n', desc: 'Génère du contenu écrit de qualité' },
+  { name: '💻 Code', prefix: 'Écris du code pour réaliser ceci :\n\n', desc: 'Génère, explique ou corrige du code' },
+  { name: '📊 Données', prefix: 'Analyse ces données et génère des statistiques/insights :\n\n', desc: 'Interprète des chiffres et tableaux' },
+  { name: '🌐 Traduction', prefix: 'Traduis le texte suivant en français :\n\n', desc: 'Traduit vers le français ou autre langue' },
+  { name: '🎨 Créatif', prefix: 'Génère des idées créatives pour :\n\n', desc: 'Brainstorming et idées originales' },
+  { name: '📧 Email', prefix: 'Rédige un email professionnel pour :\n\n', desc: 'Emails formels et professionnels' },
+  { name: '❓ Expliquer', prefix: 'Explique simplement, comme si j\'avais 10 ans :\n\n', desc: 'Simplifie un concept complexe' },
+  { name: '🔧 Débogage', prefix: 'Identifie et corrige les problèmes dans ce code :\n\n', desc: 'Trouve les bugs et propose des corrections' },
+];
+
+function initSkillsList() {
+  const list = document.getElementById('skills-list');
+  if(!list) return;
+  list.innerHTML = SKILLS_LIST.map((sk, i) => `
+    <div class="skill-item" onclick="insertSkill(${i})">
+      <div class="skill-item-name">${sk.name}</div>
+      <div class="skill-item-desc">${sk.desc}</div>
+    </div>
+  `).join('');
+}
+
+function insertSkill(idx) {
+  const sk = SKILLS_LIST[idx];
+  if(!sk) return;
+  const inp = document.getElementById('user-input');
+  if(inp) {
+    inp.value = sk.prefix;
+    inp.focus();
+    inp.setSelectionRange(inp.value.length, inp.value.length);
+    autoResizeInput(inp);
+  }
+  closeSkillsPopup();
+  closeFabAll();
+}
+
+function toggleSkillsPopup() {
+  skillsOpen = !skillsOpen;
+  const popup = document.getElementById('skills-popup');
+  popup.classList.toggle('open', skillsOpen);
+  if(skillsOpen) initSkillsList();
+}
+
+function closeSkillsPopup() {
+  skillsOpen = false;
+  document.getElementById('skills-popup')?.classList.remove('open');
+}
+
+// ─── MODE ANALYSE ──────────────────────────────
+const ANALYSE_SYSTEM = `Tu es Lia, assistante IA spécialisée en analyse de données et statistiques.
+Quand l'utilisateur te soumet des données (tableaux, chiffres, CSV, textes avec des métriques), tu dois :
+1. Identifier le type et la structure des données
+2. Calculer les statistiques pertinentes (moyenne, médiane, tendances, variations, min/max, etc.)
+3. Interpréter les résultats en langage simple et clair
+4. Suggérer des insights actionnables
+5. Si pertinent, proposer une visualisation textuelle (tableau récapitulatif, liste structurée)
+Sois précis, structuré et pédagogue. Utilise des émojis pour rendre la lecture agréable.`;
+
+function activateAnalyseMode() {
+  analyseMode = true;
+  const badge = document.getElementById('stats-mode-badge');
+  const fabBtn = document.getElementById('fab-analyse-btn');
+  badge?.classList.add('visible');
+  fabBtn?.classList.add('active-mode');
+  const inp = document.getElementById('user-input');
+  if(inp) inp.placeholder = '📊 Collez vos données ici (tableau, chiffres, CSV...) ou posez votre question d\'analyse...';
+  showToast('Mode Analyse & Stats activé', 'success');
+}
+
+function deactivateAnalyseMode() {
+  analyseMode = false;
+  const badge = document.getElementById('stats-mode-badge');
+  const fabBtn = document.getElementById('fab-analyse-btn');
+  badge?.classList.remove('visible');
+  fabBtn?.classList.remove('active-mode');
+  const inp = document.getElementById('user-input');
+  if(inp) inp.placeholder = 'Écrivez votre question...';
+  showToast('Mode Analyse désactivé', 'info');
+}
+
+function toggleAnalyseMode() {
+  if(analyseMode) deactivateAnalyseMode();
+  else activateAnalyseMode();
+  closeFabAll();
+}
+
+// ─── AUTO RESIZE INPUT ─────────────────────────
+function autoResizeInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 160) + 'px';
+}
+
+// ─── IMAGE STUDIO ──────────────────────────────
+let imgSelectedStyle = '';
+let imgSelectedW = 1024;
+let imgSelectedH = 1024;
+let imgSelectedCount = 1;
+
+function initImageStudio() {
+  // Style chips
+  document.querySelectorAll('.style-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.style-chip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      imgSelectedStyle = chip.dataset.style || '';
+    });
+  });
+  // Size chips
+  document.querySelectorAll('.size-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.size-chip').forEach(c=>c.classList.remove('selected'));
+      chip.classList.add('selected');
+      imgSelectedW = parseInt(chip.dataset.w) || 1024;
+      imgSelectedH = parseInt(chip.dataset.h) || 1024;
+    });
+  });
+  // Count buttons
+  document.querySelectorAll('.count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.count-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      imgSelectedCount = parseInt(btn.dataset.count) || 1;
+    });
+  });
+}
+
+async function generateImages() {
+  const promptEl = document.getElementById('img-prompt');
+  const negEl = document.getElementById('img-negative');
+  const resultsEl = document.getElementById('img-results');
+  const btn = document.getElementById('img-gen-btn');
+
+  const userPrompt = promptEl?.value?.trim();
+  if(!userPrompt) { showToast('Décrivez l\'image à générer', 'warn'); return; }
+
+  const negative = negEl?.value?.trim() || '';
+  let fullPrompt = userPrompt;
+  if(imgSelectedStyle) fullPrompt += ', ' + imgSelectedStyle;
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="btn-spin"></div> Génération en cours...';
+
+  // Afficher les placeholders
+  resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_,i)=>`
+    <div class="img-placeholder" id="img-ph-${i}">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+      <span>Génération ${i+1}...</span>
+    </div>
+  `).join('')}</div>`;
+
+  const seed = Math.floor(Math.random() * 999999);
+
+  // Générer toutes les images en parallèle via Pollinations
+  const promises = Array(imgSelectedCount).fill(0).map((_, i) => {
+    const imgSeed = seed + i;
+    const encodedPrompt = encodeURIComponent(fullPrompt);
+    const encodedNeg = negative ? encodeURIComponent(negative) : '';
+    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${imgSelectedW}&height=${imgSelectedH}&seed=${imgSeed}&model=flux${negative?'&negative='+encodedNeg:''}&nologo=true`;
+    return { url, idx: i };
+  });
+
+  resultsEl.innerHTML = `<div class="img-result-grid">${promises.map(p=>`
+    <div class="img-result-card" id="img-card-${p.idx}">
+      <div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;">
+        <div class="btn-spin" style="border-color:rgba(124,58,237,.3);border-top-color:var(--p);width:36px;height:36px;border-width:3px;"></div>
+        <span style="font-size:12px;color:var(--t2);">Image ${p.idx+1}…</span>
+      </div>
+    </div>
+  `).join('')}</div>`;
+
+  await Promise.all(promises.map(async p => {
+    try {
+      const card = document.getElementById(`img-card-${p.idx}`);
+      const img = new Image();
+      img.onload = () => {
+        if(card) {
+          card.innerHTML = `
+            <img src="${p.url}" alt="Image générée ${p.idx+1}" loading="lazy">
+            <div class="img-overlay">
+              <a href="${p.url}" download="lia-image-${Date.now()}-${p.idx}.jpg" target="_blank">⬇ Télécharger</a>
+              <a href="${p.url}" target="_blank">🔍 Agrandir</a>
+            </div>`;
+        }
+      };
+      img.onerror = () => {
+        if(card) card.innerHTML = `<div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;"><span>Erreur de génération</span></div>`;
+      };
+      img.src = p.url;
+    } catch(e) {
+      const card = document.getElementById(`img-card-${p.idx}`);
+      if(card) card.innerHTML = `<div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;"><span>Erreur</span></div>`;
+    }
+  }));
+
+  btn.disabled = false;
+  btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Générer les images';
 }
 
 function scrollToFeatures() {
@@ -1922,7 +2595,7 @@ function toggleFAQ(i) {
 
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
-const RC_HMAC_SECRET = 'V46844227smesuredesecurite'; // même valeur que dans Supabase Secrets
+const RC_HMAC_SECRET = 'V46844227smesure..........'; // même valeur que dans Supabase Secrets
 
 async function generateHmacToken() {
   const timestamp = Date.now();
@@ -1957,7 +2630,8 @@ async function streamText(text, bubbleEl, isStopped) {
 
 async function sendWithRotation(msg, files = [], signal) {
   const provider = selectedProv === 'auto' ? 'auto' : selectedProv;
-  const sysmsg = siteData.chat_config?.system_message || DEFAULT_DATA.chat_config.system_message;
+  const baseSysmsg = siteData.chat_config?.system_message || DEFAULT_DATA.chat_config.system_message;
+  const sysmsg = analyseMode ? (baseSysmsg + '\n\n' + ANALYSE_SYSTEM) : baseSysmsg;
 
   // Construction du contenu utilisateur (texte + fichiers)
   let lastUserContent = msg || '';
