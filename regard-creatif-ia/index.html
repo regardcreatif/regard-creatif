@@ -2502,17 +2502,20 @@ async function generateImages() {
   const btn = document.getElementById('img-gen-btn');
 
   const userPrompt = promptEl?.value?.trim();
-  if(!userPrompt) { showToast('Décrivez l\'image à générer', 'warn'); return; }
+  if (!userPrompt) { 
+    showToast('Décrivez l\'image à générer', 'warn'); 
+    return; 
+  }
+
+  let fullPrompt = userPrompt;
+  if (imgSelectedStyle) fullPrompt += ', ' + imgSelectedStyle;
 
   const negative = negEl?.value?.trim() || '';
-  let fullPrompt = userPrompt;
-  if(imgSelectedStyle) fullPrompt += ', ' + imgSelectedStyle;
 
   btn.disabled = true;
   btn.innerHTML = '<div class="btn-spin"></div> Génération en cours...';
 
-  // Afficher les placeholders
-  resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_,i)=>`
+  resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_, i) => `
     <div class="img-result-card" id="img-card-${i}">
       <div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;">
         <div class="btn-spin" style="border-color:rgba(124,58,237,.3);border-top-color:var(--p);width:36px;height:36px;border-width:3px;"></div>
@@ -2522,16 +2525,16 @@ async function generateImages() {
   `).join('')}</div>`;
 
   try {
-    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-api', {
+    // 🔥 APPEL À TON WORKER CLOUDFLARE (au lieu de Supabase)
+    const res = await fetch('https://super-poetry-cd5b.vens942.workers.dev/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         prompt: fullPrompt,
         negative_prompt: negative,
-        model: 'flux_schnell',
         width: imgSelectedW,
         height: imgSelectedH,
-        count: imgSelectedCount,
+        count: imgSelectedCount
       })
     });
 
@@ -2541,21 +2544,24 @@ async function generateImages() {
     }
 
     const data = await res.json();
-    const images = data.images || [];
 
-    if (images.length === 0) throw new Error('Aucune image reçue');
+    if (data.error) throw new Error(data.error);
 
-    resultsEl.innerHTML = `<div class="img-result-grid">${images.map((url, i) => `
-      <div class="img-result-card" id="img-card-${i}">
-        <img src="${url}" alt="Image générée ${i+1}" loading="lazy">
-        <div class="img-overlay">
-          <a href="${url}" download="rcai-image-${Date.now()}-${i}.jpg" target="_blank">⬇ Télécharger</a>
-          <a href="${url}" target="_blank">🔍 Agrandir</a>
+    resultsEl.innerHTML = `
+      <div class="img-result-grid">
+        <div class="img-result-card">
+          <img src="data:image/png;base64,${data.image}" alt="Image générée" loading="lazy">
+          <div class="img-overlay">
+            <a href="data:image/png;base64,${data.image}" download="rcai-image-${Date.now()}.png" target="_blank">⬇ Télécharger</a>
+            <a href="data:image/png;base64,${data.image}" target="_blank">🔍 Agrandir</a>
+          </div>
         </div>
       </div>
-    `).join('')}</div>`;
+    `;
 
-  } catch(e) {
+    showToast('Image générée avec succès !', 'success');
+
+  } catch (e) {
     showToast(e.message || 'Erreur de génération', 'error');
     resultsEl.innerHTML = `<div class="img-result-grid">
       <div class="img-placeholder"><span>❌ ${e.message || 'Erreur'}</span></div>
