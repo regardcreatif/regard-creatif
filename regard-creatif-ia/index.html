@@ -642,7 +642,7 @@ img{max-width:100%;display:block}
    BOUTON FLOTTANT CHAT
 ============================ */
 #chat-fab{
-  position:fixed;bottom:90px;right:18px;z-index:500;
+  position:fixed;bottom:140px;right:18px;z-index:500;
   width:46px;height:46px;border-radius:50%;
   background:linear-gradient(135deg,var(--p),var(--s));
   border:none;cursor:pointer;
@@ -657,7 +657,7 @@ img{max-width:100%;display:block}
 
 /* Menu flottant */
 #fab-menu{
-  position:fixed;bottom:148px;right:14px;z-index:501;
+  position:fixed;bottom:198px;right:14px;z-index:501;
   display:none;flex-direction:column;gap:8px;
   animation:slideUp .2s ease;
 }
@@ -2522,7 +2522,7 @@ async function generateImages() {
   `).join('')}</div>`;
 
   try {
-    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-api', {
+    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/image-gen', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2872,6 +2872,10 @@ function setThinking(on) {
   if (!el) return;
   const stepEl = document.getElementById('think-step-text');
   if (on) {
+    // Move thinking block to end of messages-list so it's always visible after last message
+    const wrap = document.getElementById('messages-list');
+    if (wrap && el.parentNode !== wrap) wrap.appendChild(el);
+    else if (wrap) wrap.appendChild(el); // always move to end
     el.classList.add('on');
     thinkIdx = 0;
     if (stepEl) stepEl.textContent = THINK_STEPS[0];
