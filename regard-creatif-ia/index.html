@@ -2513,55 +2513,54 @@ async function generateImages() {
 
   // Afficher les placeholders
   resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_,i)=>`
-    <div class="img-placeholder" id="img-ph-${i}">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-      <span>Génération ${i+1}...</span>
-    </div>
-  `).join('')}</div>`;
-
-  const seed = Math.floor(Math.random() * 999999);
-
-  // Générer toutes les images en parallèle via Pollinations
-  const promises = Array(imgSelectedCount).fill(0).map((_, i) => {
-    const imgSeed = seed + i;
-    const encodedPrompt = encodeURIComponent(fullPrompt);
-    const encodedNeg = negative ? encodeURIComponent(negative) : '';
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${imgSelectedW}&height=${imgSelectedH}&seed=${imgSeed}&model=flux${negative?'&negative='+encodedNeg:''}&nologo=true`;
-    return { url, idx: i };
-  });
-
-  resultsEl.innerHTML = `<div class="img-result-grid">${promises.map(p=>`
-    <div class="img-result-card" id="img-card-${p.idx}">
+    <div class="img-result-card" id="img-card-${i}">
       <div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;">
         <div class="btn-spin" style="border-color:rgba(124,58,237,.3);border-top-color:var(--p);width:36px;height:36px;border-width:3px;"></div>
-        <span style="font-size:12px;color:var(--t2);">Image ${p.idx+1}…</span>
+        <span style="font-size:12px;color:var(--t2);">Image ${i+1}…</span>
       </div>
     </div>
   `).join('')}</div>`;
 
-  await Promise.all(promises.map(async p => {
-    try {
-      const card = document.getElementById(`img-card-${p.idx}`);
-      const img = new Image();
-      img.onload = () => {
-        if(card) {
-          card.innerHTML = `
-            <img src="${p.url}" alt="Image générée ${p.idx+1}" loading="lazy">
-            <div class="img-overlay">
-              <a href="${p.url}" download="lia-image-${Date.now()}-${p.idx}.jpg" target="_blank">⬇ Télécharger</a>
-              <a href="${p.url}" target="_blank">🔍 Agrandir</a>
-            </div>`;
-        }
-      };
-      img.onerror = () => {
-        if(card) card.innerHTML = `<div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;"><span>Erreur de génération</span></div>`;
-      };
-      img.src = p.url;
-    } catch(e) {
-      const card = document.getElementById(`img-card-${p.idx}`);
-      if(card) card.innerHTML = `<div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;"><span>Erreur</span></div>`;
+  try {
+    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-api', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: fullPrompt,
+        negative_prompt: negative,
+        model: 'flux_schnell',
+        width: imgSelectedW,
+        height: imgSelectedH,
+        count: imgSelectedCount,
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `Erreur ${res.status}`);
     }
-  }));
+
+    const data = await res.json();
+    const images = data.images || [];
+
+    if (images.length === 0) throw new Error('Aucune image reçue');
+
+    resultsEl.innerHTML = `<div class="img-result-grid">${images.map((url, i) => `
+      <div class="img-result-card" id="img-card-${i}">
+        <img src="${url}" alt="Image générée ${i+1}" loading="lazy">
+        <div class="img-overlay">
+          <a href="${url}" download="rcai-image-${Date.now()}-${i}.jpg" target="_blank">⬇ Télécharger</a>
+          <a href="${url}" target="_blank">🔍 Agrandir</a>
+        </div>
+      </div>
+    `).join('')}</div>`;
+
+  } catch(e) {
+    showToast(e.message || 'Erreur de génération', 'error');
+    resultsEl.innerHTML = `<div class="img-result-grid">
+      <div class="img-placeholder"><span>❌ ${e.message || 'Erreur'}</span></div>
+    </div>`;
+  }
 
   btn.disabled = false;
   btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Générer les images';
@@ -2595,7 +2594,7 @@ function toggleFAQ(i) {
 
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
-const RC_HMAC_SECRET = 'V46844227smesure..........'; // même valeur que dans Supabase Secrets
+const RC_HMAC_SECRET = 'V46844227smesuredesecurite'; // même valeur que dans Supabase Secrets
 
 async function generateHmacToken() {
   const timestamp = Date.now();
