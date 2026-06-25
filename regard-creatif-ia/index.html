@@ -2522,7 +2522,7 @@ async function generateImages() {
   `).join('')}</div>`;
 
   try {
-    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/image-gen', {
+    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-api', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
