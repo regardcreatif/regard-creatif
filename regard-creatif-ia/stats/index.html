@@ -419,6 +419,7 @@ async function loadVisits(from) {
     document.getElementById('kpi-visits-sub').textContent = `Sur ${periodDays} jours`;
   } catch(e) {
     document.getElementById('kpi-visits').textContent = '—';
+    document.getElementById('kpi-visits-sub').textContent = e.message || 'Table introuvable';
   }
 }
 
@@ -443,7 +444,9 @@ async function loadConversations(from) {
     renderConvTable(data?.slice(0,10) || []);
     renderProviderGrid(data || []);
   } catch(e) {
-    ['kpi-convs','kpi-msgs'].forEach(id=>document.getElementById(id).textContent='—');
+    ['kpi-convs','kpi-msgs'].forEach(id=>{ document.getElementById(id).textContent='—'; });
+    document.getElementById('kpi-convs-sub').textContent = e.message || 'Table introuvable';
+    document.getElementById('tbody-convs').innerHTML = `<tr><td colspan="5"><div class="empty-state">Erreur: ${e.message||'Table conversations introuvable'}</div></td></tr>`;
   }
 }
 
@@ -461,6 +464,8 @@ async function loadSignups(from) {
     renderSignupTable(data || []);
   } catch(e) {
     document.getElementById('kpi-signups').textContent = '—';
+    document.getElementById('kpi-signups-sub').textContent = e.message || 'Table introuvable';
+    document.getElementById('tbody-signups').innerHTML = `<tr><td colspan="3"><div class="empty-state">Erreur: ${e.message||'Table signups introuvable'}</div></td></tr>`;
   }
 }
 
