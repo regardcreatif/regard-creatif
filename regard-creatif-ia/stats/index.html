@@ -348,7 +348,7 @@ body{overflow-y:auto}
 // Ces valeurs sont synchronisÃ©es avec le fichier principal via localStorage
 const safeGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
 const SUPA_URL = safeGet('rc_supa_url') || 'https://fybmykunipimvpysutwf.supabase.co';
-const SUPA_KEY = safeGet('rc_supa_key') || 'sb_publishable_rJW6JCefxFmHTubuW9n0tQ_-c9K8xvS';
+const SUPA_KEY = safeGet('rc_supa_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5Ym15a3VuaXBpbXZweXN1dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NTkyNDksImV4cCI6MjA5NzUzNTI0OX0.EHhv9oJjUrH7FqdBTmFpsYR3KJcj2nQI4QbGMg90l0I';
 
 let supa = null;
 let periodDays = 30;
