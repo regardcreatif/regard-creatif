@@ -1213,6 +1213,10 @@ img{max-width:100%;display:block}
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span>Chat Config</span>
       </div>
+      <div class="nav-item" onclick="showAdmTab('img-cfg')" data-tab="img-cfg">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span>Images IA</span>
+      </div>
       <div class="nav-item" onclick="showAdmTab('keys')" data-tab="keys">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0 3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
         <span>Clés API</span>
@@ -1233,6 +1237,11 @@ img{max-width:100%;display:block}
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
         <span>Statistiques ↗</span>
       </div>
+      <div class="nav-item" onclick="window.open('https://huggingface.co','_blank')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+        <span>HuggingFace ↗</span>
+      </div>
+
       <div class="nav-item" onclick="showAdmTab('supa')" data-tab="supa">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         <span>Supabase</span>
@@ -1405,6 +1414,25 @@ img{max-width:100%;display:block}
           <textarea class="form-input form-textarea" id="cc-suggestions" rows="4" placeholder="Écrivez une histoire courte&#10;Expliquez la physique quantique&#10;Aidez-moi à coder"></textarea>
         </div>
         <button class="btn btn-primary" onclick="saveChatConfig()">Sauvegarder</button>
+      </div>
+    </section>
+
+
+    <!-- ========== IMAGE GEN CONFIG ========== -->
+    <section class="adm-section" id="adm-img-cfg">
+      <div class="adm-section-title grad-text">Générateur d'Images</div>
+      <div class="adm-section-sub">Valeurs par défaut pré-remplies à l'ouverture du studio.</div>
+      <div class="adm-card">
+        <div class="form-group">
+          <label class="form-label">Style par défaut</label>
+          <input class="form-input" id="ic-default-style" placeholder="photorealistic, 8k, cinematic lighting">
+          <div style="font-size:11px;color:var(--t2);margin-top:4px;">Ajouté automatiquement à chaque prompt.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prompt négatif par défaut</label>
+          <input class="form-input" id="ic-default-negative" placeholder="blurry, deformed, watermark, low quality">
+        </div>
+        <button class="btn btn-primary" onclick="saveImgConfig()">Sauvegarder</button>
       </div>
     </section>
 
@@ -2620,6 +2648,10 @@ function initImageStudio() {
 async function generateImages() {
   const promptEl = document.getElementById('img-prompt');
   const negEl = document.getElementById('img-negative');
+  // Pre-fill defaults
+  const ic = siteData?.img_config || {};
+  if(ic.default_style && !imgSelectedStyle) imgSelectedStyle = ic.default_style;
+  if(ic.default_negative && negEl && !negEl.value) negEl.value = ic.default_negative;
   const resultsEl = document.getElementById('img-results');
   const btn = document.getElementById('img-gen-btn');
 
@@ -2716,7 +2748,7 @@ function toggleFAQ(i) {
 
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
-const RC_HMAC_SECRET = 'V46844227smesure......'; // même valeur que dans Supabase Secrets
+const RC_HMAC_SECRET = 'V46844227smesuredesecurite'; // même valeur que dans Supabase Secrets
 
 async function generateHmacToken() {
   const timestamp = Date.now();
@@ -3165,6 +3197,21 @@ function loadAdminAll(){
 }
 
 
+
+// --- IMAGE GEN CONFIG ---
+function loadImgConfig(){
+  const ic = siteData.img_config || {};
+  setVal('ic-default-style', ic.default_style||'');
+  setVal('ic-default-negative', ic.default_negative||'');
+}
+function saveImgConfig(){
+  siteData.img_config = {
+    default_style: getVal('ic-default-style'),
+    default_negative: getVal('ic-default-negative'),
+  };
+  saveData();
+  showToast('Config images sauvegardée !','success');
+}
 // --- PUB & BANNIERES ---
 function loadPubConfig(){
   const p=siteData.pub_config||{};
@@ -3316,6 +3363,7 @@ function showAdmTab(name){
   if(name==='signups') loadSignups();
   if(name==='keys') loadKeys();
   if(name==='pub') loadPubConfig();
+  if(name==='img-cfg') loadImgConfig();
 }
 
 // ─── BRANDING ──────────────────────────────────
