@@ -642,7 +642,7 @@ img{max-width:100%;display:block}
    BOUTON FLOTTANT CHAT
 ============================ */
 #chat-fab{
-  position:fixed;bottom:140px;right:18px;z-index:500;
+  position:fixed;bottom:160px;right:18px;z-index:500;
   width:46px;height:46px;border-radius:50%;
   background:linear-gradient(135deg,var(--p),var(--s));
   border:none;cursor:pointer;
@@ -657,7 +657,7 @@ img{max-width:100%;display:block}
 
 /* Menu flottant */
 #fab-menu{
-  position:fixed;bottom:198px;right:14px;z-index:501;
+  position:fixed;bottom:218px;right:14px;z-index:501;
   display:none;flex-direction:column;gap:8px;
   animation:slideUp .2s ease;
 }
@@ -1225,6 +1225,10 @@ img{max-width:100%;display:block}
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span>Inscriptions</span>
       </div>
+      <div class="nav-item" onclick="showAdmTab('pub')" data-tab="pub">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+        <span>Pub &amp; Bannières</span>
+      </div>
       <div class="nav-item" onclick="showAdmTab('supa')" data-tab="supa">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         <span>Supabase</span>
@@ -1345,6 +1349,8 @@ img{max-width:100%;display:block}
         <button class="builder-quick" onclick="quickAddSection('features')"><strong>Brique cartes</strong><span>Ajoutez une grille de cartes modifiable.</span></button>
         <button class="builder-quick" onclick="quickAddSection('faq')"><strong>Brique FAQ</strong><span>Questions réponses avec accordéon.</span></button>
         <button class="builder-quick" onclick="quickAddSection('cta')"><strong>Brique bouton</strong><span>Appel à l'action remodelable.</span></button>
+        <button class="builder-quick" onclick="editSpecialBrick('stats')" style="border-color:rgba(124,58,237,.3);background:rgba(124,58,237,.06)"><strong>⚡ Brique Stats</strong><span>Chiffres clés affichés sur la landing.</span></button>
+        <button class="builder-quick" onclick="editSpecialBrick('imagegen')" style="border-color:rgba(168,85,247,.3);background:rgba(168,85,247,.06)"><strong>🎨 Générateur Images</strong><span>Titre et description de la brique IA image.</span></button>
       </div>
       <div id="sections-list"></div>
     </section>
@@ -1521,6 +1527,117 @@ img{max-width:100%;display:block}
           <p style="line-height:1.6;margin-bottom:12px;">Exécutez ce SQL une seule fois dans l'éditeur SQL de votre projet Supabase pour créer toutes les tables nécessaires.</p>
           <button class="btn btn-secondary btn-sm" onclick="copySQL()">Copier le SQL complet</button>
         </div>
+      </div>
+    </section>
+
+    <!-- ========== PUB & BANNIÈRES ========== -->
+    <section class="adm-section" id="adm-pub">
+      <div class="adm-section-title grad-text">Pub &amp; Bannières</div>
+      <div class="adm-section-sub">Configurez les bannières et pop-ups publicitaires de votre site.</div>
+      <div class="adm-card" style="margin-bottom:20px;">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px;">📢 Banderolle</div>
+        <div class="toggle-wrap" style="margin-bottom:14px;">
+          <button class="toggle" id="banner-enabled" onclick="this.classList.toggle('on')"></button>
+          <span class="toggle-label">Activer la banderolle</span>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Texte</label>
+            <input class="form-input" id="banner-text" placeholder="🎉 Offre spéciale — Rejoignez-nous !">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lien (optionnel)</label>
+            <input class="form-input" id="banner-link" placeholder="https://...">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Couleur de fond</label>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input type="color" id="banner-color" value="#7c3aed" style="width:44px;height:36px;border:none;border-radius:8px;cursor:pointer;">
+              <input class="form-input" id="banner-color-hex" value="#7c3aed" style="flex:1;" oninput="document.getElementById('banner-color').value=this.value">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hauteur (px)</label>
+            <input class="form-input" id="banner-height" type="number" value="42" min="30" max="100">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image / logo (URL, optionnel)</label>
+          <div class="img-field-row">
+            <img class="img-thumb" id="banner-img-thumb" src="" alt="" style="display:none;">
+            <input class="form-input" id="banner-img" placeholder="https://..." oninput="updateThumb('banner-img','banner-img-thumb')">
+          </div>
+        </div>
+      </div>
+      <div class="adm-card" style="margin-bottom:20px;">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px;">🪟 Pop-up publicitaire</div>
+        <div class="toggle-wrap" style="margin-bottom:14px;">
+          <button class="toggle" id="popup-enabled" onclick="this.classList.toggle('on')"></button>
+          <span class="toggle-label">Activer le pop-up</span>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Titre</label>
+            <input class="form-input" id="popup-title" placeholder="Offre exclusive !">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Texte</label>
+            <input class="form-input" id="popup-text" placeholder="Profitez de notre offre limitée...">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image publicitaire (URL)</label>
+          <div class="img-field-row">
+            <img class="img-thumb" id="popup-img-thumb" src="" alt="" style="display:none;">
+            <input class="form-input" id="popup-img" placeholder="https://..." oninput="updateThumb('popup-img','popup-img-thumb')">
+          </div>
+          <div style="font-size:11px;color:var(--t2);margin-top:4px;">Recommandé : 600×400px.</div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Lien CTA (optionnel)</label>
+            <input class="form-input" id="popup-link" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Texte du bouton</label>
+            <input class="form-input" id="popup-cta" placeholder="En savoir plus">
+          </div>
+        </div>
+      </div>
+      <div class="adm-card" style="margin-bottom:20px;">
+        <div style="font-weight:800;font-size:15px;margin-bottom:14px;">⏱ Timing</div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Délai avant apparition (secondes)</label>
+            <input class="form-input" id="popup-delay" type="number" value="5" min="0" max="300">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Fermeture auto après (sec, 0=jamais)</label>
+            <input class="form-input" id="popup-autoclose" type="number" value="0" min="0" max="600">
+          </div>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label">Réafficher toutes les (heures, 0=une fois)</label>
+            <input class="form-input" id="popup-repeat" type="number" value="24" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Animation</label>
+            <select class="form-input" id="popup-anim">
+              <option value="fadeIn">Fondu</option>
+              <option value="slideUp">Glissement</option>
+              <option value="zoomIn">Zoom</option>
+              <option value="bounceIn">Rebond</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="savePubConfig()">Sauvegarder</button>
+        <button class="btn btn-secondary" onclick="previewPopup()">Prévisualiser pop-up</button>
+        <button class="btn btn-secondary" onclick="previewBanner()">Prévisualiser banderolle</button>
       </div>
     </section>
 
@@ -1908,6 +2025,7 @@ function renderLanding(data) {
   const brand = data.brand || DEFAULT_DATA.brand;
   const sections = [...(data.landing_sections || DEFAULT_DATA.landing_sections)].sort((a,b)=>a.order-b.order);
   applyBrand(brand);
+  applyPubConfig(data.pub_config);
   const sectionsHtml = sections.filter(s=>s.enabled).map(renderSection).join('');
   const specialBricks = renderSpecialBricks();
   document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml + specialBricks;
@@ -2502,20 +2620,17 @@ async function generateImages() {
   const btn = document.getElementById('img-gen-btn');
 
   const userPrompt = promptEl?.value?.trim();
-  if (!userPrompt) { 
-    showToast('Décrivez l\'image à générer', 'warn'); 
-    return; 
-  }
-
-  let fullPrompt = userPrompt;
-  if (imgSelectedStyle) fullPrompt += ', ' + imgSelectedStyle;
+  if(!userPrompt) { showToast('Décrivez l\'image à générer', 'warn'); return; }
 
   const negative = negEl?.value?.trim() || '';
+  let fullPrompt = userPrompt;
+  if(imgSelectedStyle) fullPrompt += ', ' + imgSelectedStyle;
 
   btn.disabled = true;
   btn.innerHTML = '<div class="btn-spin"></div> Génération en cours...';
 
-  resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_, i) => `
+  // Afficher les placeholders
+  resultsEl.innerHTML = `<div class="img-result-grid">${Array(imgSelectedCount).fill(0).map((_,i)=>`
     <div class="img-result-card" id="img-card-${i}">
       <div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;">
         <div class="btn-spin" style="border-color:rgba(124,58,237,.3);border-top-color:var(--p);width:36px;height:36px;border-width:3px;"></div>
@@ -2525,16 +2640,16 @@ async function generateImages() {
   `).join('')}</div>`;
 
   try {
-    // 🔥 APPEL À TON WORKER CLOUDFLARE (au lieu de Supabase)
-    const res = await fetch('https://super-poetry-cd5b.vens942.workers.dev/generate', {
+    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/image-gen', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         prompt: fullPrompt,
         negative_prompt: negative,
+        model: 'flux_schnell',
         width: imgSelectedW,
         height: imgSelectedH,
-        count: imgSelectedCount
+        count: imgSelectedCount,
       })
     });
 
@@ -2544,24 +2659,21 @@ async function generateImages() {
     }
 
     const data = await res.json();
+    const images = data.images || [];
 
-    if (data.error) throw new Error(data.error);
+    if (images.length === 0) throw new Error('Aucune image reçue');
 
-    resultsEl.innerHTML = `
-      <div class="img-result-grid">
-        <div class="img-result-card">
-          <img src="data:image/png;base64,${data.image}" alt="Image générée" loading="lazy">
-          <div class="img-overlay">
-            <a href="data:image/png;base64,${data.image}" download="rcai-image-${Date.now()}.png" target="_blank">⬇ Télécharger</a>
-            <a href="data:image/png;base64,${data.image}" target="_blank">🔍 Agrandir</a>
-          </div>
+    resultsEl.innerHTML = `<div class="img-result-grid">${images.map((url, i) => `
+      <div class="img-result-card" id="img-card-${i}">
+        <img src="${url}" alt="Image générée ${i+1}" loading="lazy">
+        <div class="img-overlay">
+          <a href="${url}" download="rcai-image-${Date.now()}-${i}.jpg" target="_blank">⬇ Télécharger</a>
+          <a href="${url}" target="_blank">🔍 Agrandir</a>
         </div>
       </div>
-    `;
+    `).join('')}</div>`;
 
-    showToast('Image générée avec succès !', 'success');
-
-  } catch (e) {
+  } catch(e) {
     showToast(e.message || 'Erreur de génération', 'error');
     resultsEl.innerHTML = `<div class="img-result-grid">
       <div class="img-placeholder"><span>❌ ${e.message || 'Erreur'}</span></div>
@@ -2600,7 +2712,7 @@ function toggleFAQ(i) {
 
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
-const RC_HMAC_SECRET = 'V46844227smesuredesecurite'; // même valeur que dans Supabase Secrets
+const RC_HMAC_SECRET = 'V46844227smesure......'; // même valeur que dans Supabase Secrets
 
 async function generateHmacToken() {
   const timestamp = Date.now();
@@ -3048,6 +3160,147 @@ function loadAdminAll(){
   loadSupaTab();
 }
 
+
+// --- PUB & BANNIERES ---
+function loadPubConfig(){
+  const p=siteData.pub_config||{};
+  const tog=(id,v)=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',!!v);};
+  tog('banner-enabled',p.banner_enabled);
+  tog('popup-enabled',p.popup_enabled);
+  ['banner-text','banner-link','banner-height','banner-img','popup-title','popup-text','popup-img','popup-link','popup-cta','popup-delay','popup-autoclose','popup-repeat','popup-anim'].forEach(id=>{
+    const key=id.replace(/-/g,'_');
+    setVal(id,p[key]!==undefined?p[key]:'');
+  });
+  if(!getVal('banner-height')) setVal('banner-height',42);
+  if(!getVal('popup-delay')) setVal('popup-delay',5);
+  if(getVal('popup-repeat')==='') setVal('popup-repeat',24);
+  setVal('banner-color',p.banner_color||'#7c3aed');
+  setVal('banner-color-hex',p.banner_color||'#7c3aed');
+  updateThumb('banner-img','banner-img-thumb');
+  updateThumb('popup-img','popup-img-thumb');
+}
+function savePubConfig(){
+  const isOn=id=>document.getElementById(id)?.classList.contains('on');
+  const pub={
+    banner_enabled:isOn('banner-enabled'),
+    banner_text:getVal('banner-text'),
+    banner_link:getVal('banner-link'),
+    banner_height:parseInt(getVal('banner-height'))||42,
+    banner_img:getVal('banner-img'),
+    banner_color:getVal('banner-color-hex')||getVal('banner-color'),
+    popup_enabled:isOn('popup-enabled'),
+    popup_title:getVal('popup-title'),
+    popup_text:getVal('popup-text'),
+    popup_img:getVal('popup-img'),
+    popup_link:getVal('popup-link'),
+    popup_cta:getVal('popup-cta'),
+    popup_delay:parseInt(getVal('popup-delay'))||5,
+    popup_autoclose:parseInt(getVal('popup-autoclose'))||0,
+    popup_repeat:parseInt(getVal('popup-repeat'))||24,
+    popup_anim:getVal('popup-anim')||'fadeIn',
+  };
+  siteData.pub_config=pub;
+  saveData();
+  applyPubConfig(pub);
+  showToast('Pub & Bannières sauvegardées !','success');
+}
+function applyPubConfig(p){
+  if(!p) return;
+  let bar=document.getElementById('site-pub-banner');
+  if(p.banner_enabled&&p.banner_text){
+    if(!bar){bar=document.createElement('div');bar.id='site-pub-banner';document.body.prepend(bar);}
+    bar.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;';
+    bar.style.background=p.banner_color||'#7c3aed';
+    bar.style.height=(p.banner_height||42)+'px';
+    const imgHtml=p.banner_img?'<img src="'+p.banner_img+'" style="height:28px;object-fit:contain;">':'';
+    bar.innerHTML=imgHtml+'<span>'+p.banner_text+'</span><button onclick="document.getElementById(\'site-pub-banner\').remove()" style="background:none;border:none;color:#fff;cursor:pointer;margin-left:12px;font-size:20px;line-height:1;">&times;</button>';
+    if(p.banner_link) bar.addEventListener('click',e=>{if(e.target.tagName!=='BUTTON')window.open(p.banner_link,'_blank');});
+  } else {
+    if(bar) bar.remove();
+  }
+  if(p.popup_enabled){
+    const last=localStorage.getItem('rc_popup_shown');
+    const rep=(p.popup_repeat||0)*3600000;
+    const can=!last||(rep>0&&Date.now()-parseInt(last)>rep);
+    if(can) setTimeout(()=>showPubPopup(p),(p.popup_delay||5)*1000);
+  }
+}
+function showPubPopup(p){
+  let ov=document.getElementById('site-pub-popup');
+  if(ov) ov.remove();
+  ov=document.createElement('div');
+  ov.id='site-pub-popup';
+  ov.style.cssText='position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px;';
+  const anim=p.popup_anim||'fadeIn';
+  const imgH=p.popup_img?'<img src="'+p.popup_img+'" style="width:100%;max-height:220px;object-fit:cover;">':'';
+  const titleH=p.popup_title?'<div style="font-size:20px;font-weight:800;margin-bottom:8px;color:var(--t1);">'+p.popup_title+'</div>':'';
+  const textH=p.popup_text?'<div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px;">'+p.popup_text+'</div>':'';
+  const ctaH=p.popup_link?'<a href="'+p.popup_link+'" target="_blank" class="btn btn-primary btn-sm">'+(p.popup_cta||'En savoir plus')+'</a>':'';
+  ov.innerHTML='<div style="background:var(--card);border:1px solid var(--brd);border-radius:20px;max-width:520px;width:100%;overflow:hidden;animation:'+anim+' .35s ease;position:relative;"><button onclick="document.getElementById(\'site-pub-popup\').remove()" style="position:absolute;top:12px;right:14px;background:none;border:none;color:var(--t2);cursor:pointer;font-size:22px;line-height:1;">&times;</button>'+imgH+'<div style="padding:22px;">'+titleH+textH+ctaH+'</div></div>';
+  ov.onclick=e=>{if(e.target===ov)ov.remove();};
+  document.body.appendChild(ov);
+  localStorage.setItem('rc_popup_shown',Date.now());
+  if(p.popup_autoclose>0) setTimeout(()=>{const el=document.getElementById('site-pub-popup');if(el)el.remove();},p.popup_autoclose*1000);
+}
+function previewPopup(){
+  const p={popup_title:getVal('popup-title')||'Aperçu',popup_text:getVal('popup-text')||'Votre message ici.',popup_img:getVal('popup-img'),popup_link:getVal('popup-link'),popup_cta:getVal('popup-cta')||'En savoir plus',popup_anim:getVal('popup-anim')||'fadeIn',popup_autoclose:0};
+  showPubPopup(p);
+}
+function previewBanner(){
+  const p={banner_enabled:true,banner_text:getVal('banner-text')||'Aperçu banderolle',banner_link:getVal('banner-link'),banner_height:parseInt(getVal('banner-height'))||42,banner_img:getVal('banner-img'),banner_color:getVal('banner-color-hex')||'#7c3aed'};
+  applyPubConfig(p);
+}
+// --- SPECIAL BRICKS ---
+function editSpecialBrick(type){
+  let modal=document.getElementById('special-brick-modal');
+  if(!modal){
+    modal=document.createElement('div');
+    modal.id='special-brick-modal';
+    modal.className='modal-overlay';
+    modal.style.display='none';
+    modal.onclick=e=>{if(e.target===modal)modal.style.display='none';};
+    modal.innerHTML='<div class="modal-box"><button class="modal-close" onclick="document.getElementById(\'special-brick-modal\').style.display=\'none\'"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button><div class="modal-title grad-text" id="special-brick-modal-title"></div><input type="hidden" id="special-brick-type"><div id="special-brick-modal-body"></div><div style="display:flex;gap:10px;margin-top:20px;"><button class="btn btn-primary" onclick="saveSpecialBrick()">Sauvegarder</button><button class="btn btn-secondary" onclick="document.getElementById(\'special-brick-modal\').style.display=\'none\'">Annuler</button></div></div>';
+    document.body.appendChild(modal);
+  }
+  document.getElementById('special-brick-type').value=type;
+  const title=document.getElementById('special-brick-modal-title');
+  const body=document.getElementById('special-brick-modal-body');
+  if(type==='stats'){
+    title.textContent='Brique Statistiques';
+    const s=(siteData.landing_sections||[]).find(x=>x.id==='stats')||(DEFAULT_DATA.landing_sections||[]).find(x=>x.id==='stats')||{items:[]};
+    let html='<div style="font-size:12px;color:var(--t2);margin-bottom:14px;">Chiffres clés affichés sur la landing.</div>';
+    (s.items||[]).forEach((item,i)=>{
+      html+='<div class="form-grid-2" style="margin-bottom:10px;"><div class="form-group"><label class="form-label">Valeur '+(i+1)+'</label><input class="form-input" id="sb-stat-num-'+i+'" value="'+(item.num||'')+'"></div><div class="form-group"><label class="form-label">Label '+(i+1)+'</label><input class="form-input" id="sb-stat-lbl-'+i+'" value="'+(item.label||'')+'"></div></div>';
+    });
+    body.innerHTML=html;
+  } else if(type==='imagegen'){
+    title.textContent='Générateur d\'Images';
+    const s=(siteData.landing_sections||[]).find(x=>x.id==='special-img')||{};
+    body.innerHTML='<div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="sb-img-title" value="'+(s.title||"Génération d'images IA")+'"></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="sb-img-desc" rows="3">'+(s.description||"Créez des images uniques grâce à l'IA.")+'</textarea></div><div class="form-group"><label class="form-label">Texte du bouton</label><input class="form-input" id="sb-img-cta" value="'+(s.cta_text||"Générer une image")+'"></div>';
+  }
+  modal.style.display='flex';
+}
+function saveSpecialBrick(){
+  const type=document.getElementById('special-brick-type').value;
+  if(!siteData.landing_sections) siteData.landing_sections=JSON.parse(JSON.stringify(DEFAULT_DATA.landing_sections));
+  if(type==='stats'){
+    let s=siteData.landing_sections.find(x=>x.id==='stats');
+    if(!s){s={id:'stats',type:'stats',enabled:true,order:2,items:[]};siteData.landing_sections.push(s);}
+    s.items=(s.items||[]).map((item,i)=>({num:getVal('sb-stat-num-'+i)||item.num,label:getVal('sb-stat-lbl-'+i)||item.label}));
+    document.querySelectorAll('.stat-num').forEach((el,i)=>{if(s.items[i])el.textContent=s.items[i].num;});
+    document.querySelectorAll('.stat-label').forEach((el,i)=>{if(s.items[i])el.textContent=s.items[i].label;});
+  } else if(type==='imagegen'){
+    let s=siteData.landing_sections.find(x=>x.id==='special-img');
+    if(!s){s={id:'special-img',type:'special-img',enabled:true,order:99};siteData.landing_sections.push(s);}
+    s.title=getVal('sb-img-title');s.description=getVal('sb-img-desc');s.cta_text=getVal('sb-img-cta');
+    const t=document.querySelector('.special-brick-img .special-brick-title');if(t)t.textContent=s.title;
+    const d=document.querySelector('.special-brick-img .special-brick-desc');if(d)d.textContent=s.description;
+    const c=document.querySelector('.special-brick-img .special-brick-cta');if(c&&c.childNodes[0])c.childNodes[0].textContent=s.cta_text+' ';
+  }
+  saveData();
+  document.getElementById('special-brick-modal').style.display='none';
+  showToast('Brique mise à jour !','success');
+}
 function showAdmTab(name){
   document.querySelectorAll('.adm-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
@@ -3058,6 +3311,7 @@ function showAdmTab(name){
   if(name==='stats') loadStats();
   if(name==='signups') loadSignups();
   if(name==='keys') loadKeys();
+  if(name==='pub') loadPubConfig();
 }
 
 // ─── BRANDING ──────────────────────────────────
@@ -3112,6 +3366,7 @@ async function saveBranding(){
   };
   siteData.brand=brand;
   applyBrand(brand);
+  applyPubConfig(data.pub_config);
   const ok = await saveSiteData();
   if(ok) showToast('Branding sauvegardé','success');
 }
