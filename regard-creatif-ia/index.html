@@ -1229,6 +1229,10 @@ img{max-width:100%;display:block}
         <svg class="nav-icon" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
         <span>Pub &amp; Bannières</span>
       </div>
+      <div class="nav-item" onclick="window.open('https://regardcreatif.github.io/regard-creatif/stats/','_blank')">
+        <svg class="nav-icon" viewBox="0 0 24 24"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        <span>Statistiques ↗</span>
+      </div>
       <div class="nav-item" onclick="showAdmTab('supa')" data-tab="supa">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         <span>Supabase</span>
@@ -2712,7 +2716,7 @@ function toggleFAQ(i) {
 
 // ─── API CALLS via proxy sécurisé ──────────────
 const PROXY_URL = 'https://fybmykunipimvpysutwf.supabase.co/functions/v1/swift-service';
-const RC_HMAC_SECRET = 'V46844227smesuredesecurite'; // même valeur que dans Supabase Secrets
+const RC_HMAC_SECRET = 'V46844227smesure......'; // même valeur que dans Supabase Secrets
 
 async function generateHmacToken() {
   const timestamp = Date.now();
