@@ -4,7 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Regard Créatif IA</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// Charge Supabase de façon non-bloquante : si le CDN est lent/bloqué (réseau mobile,
+// artifact Claude, sandbox), le site s'affiche quand même depuis DEFAULT_DATA.
+// init() est appelé dès que possible — immédiatement si Supabase déjà là, sinon en fallback.
+(function loadSupabase(){
+  var s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+  s.async = true;
+  s.onload  = function(){ if(typeof init==='function') init(); };
+  s.onerror = function(){ console.warn('Supabase CDN indisponible — mode local activé'); if(typeof init==='function') init(); };
+  document.head.appendChild(s);
+})();
+</script>
 <style>
 /*=============================================
   REGARD CRÉATIF IA v2 — MASTER STYLESHEET
@@ -341,6 +353,17 @@ img{max-width:100%;display:block}
 #send-btn:hover{transform:scale(1.08);box-shadow:0 0 22px var(--gp)}
 #send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 #send-btn svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
+
+#history-panel{position:absolute;top:60px;left:0;right:0;bottom:0;z-index:200;background:var(--bg);display:none;flex-direction:column;}
+#history-panel.open{display:flex;}
+.history-header{padding:14px 16px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.history-list{flex:1;overflow-y:auto;padding:8px;}
+.history-item{padding:10px 12px;border-radius:10px;cursor:pointer;margin-bottom:4px;border:1px solid transparent;transition:all .2s;}
+.history-item:hover{background:var(--card);border-color:var(--brd);}
+.history-item-title{font-size:13px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.history-item-meta{font-size:11px;color:var(--t2);margin-top:2px;}
+.history-btn{width:34px;height:34px;border-radius:10px;background:none;border:1px solid var(--brd);color:var(--t1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.history-btn:hover{background:var(--card);}
 #chat-footer{text-align:center;padding:7px 7px env(safe-area-inset-bottom,0px);font-size:11px;color:rgba(148,163,184,.4);background:rgba(5,4,15,.9);flex-shrink:0}
 
 /* ============================
@@ -920,6 +943,9 @@ img{max-width:100%;display:block}
       </div>
       <span class="chat-logo-text" id="chat-brand-name">Regard <span class="acc">Créatif</span> IA</span>
     </div>
+    <button class="history-btn" id="history-toggle-btn" onclick="toggleHistory()" title="Conversations" style="display:none;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
+    </button>
     <div class="chat-header-right">
       <button class="back-btn" onclick="goHome()">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -2092,7 +2118,7 @@ const DEFAULT_DATA = {
       background:'gradient'
     },
     {
-      id:'pricing', type:'pricing', enabled:true, order:8,
+      id:'pricing', type:'pricing', enabled:true, order:9,
       title:'Simple et transparent',
       description:'Commencez gratuitement, passez Pro quand vous êtes prêt.',
       free_features:['5 images IA par jour','Accès aux modèles de base','Chat illimité','Sans inscription'],
@@ -2101,7 +2127,7 @@ const DEFAULT_DATA = {
       pro_cta:'Passer Pro maintenant'
     },
     {
-      id:'special-bricks', type:'special-bricks', enabled:true, order:9,
+      id:'special-bricks', type:'special-bricks', enabled:true, order:10,
       title:'Allez plus loin avec Lia',
       description:'Générez des images et analysez vos données directement depuis la plateforme.'
     }
@@ -2182,7 +2208,7 @@ function renderLanding(data) {
   const brand = data.brand || DEFAULT_DATA.brand;
   const sections = [...(data.landing_sections || DEFAULT_DATA.landing_sections)].sort((a,b)=>a.order-b.order);
   applyBrand(brand);
-  applyPubConfig(data.pub_config);
+  applyPubConfig(data.pub_config || siteData.pub_config);
   const sectionsHtml = sections.filter(s=>s.enabled).map(renderSection).join('');
   document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml;
   initFAQ();
@@ -2610,6 +2636,8 @@ function openChat() {
   document.getElementById('landing-page').style.display = 'none';
   document.getElementById('site-header').style.display = 'none';
   document.getElementById('chat-page').style.display = 'flex';
+  // Fix iOS Safari: save scroll position before position:fixed locks the body
+  document.body.style.top = `-${window.scrollY}px`;
   document.body.classList.add('chat-open');
   setTimeout(()=>{
     document.getElementById('user-input')?.focus();
@@ -2621,7 +2649,11 @@ function goHome() {
   document.getElementById('chat-page').style.display = 'none';
   document.getElementById('site-header').style.display = 'flex';
   document.getElementById('landing-page').style.display = 'block';
+  // Fix iOS Safari scroll lock: restore scroll position before removing position:fixed
+  const scrollY = parseInt(document.body.style.top || '0') * -1;
   document.body.classList.remove('chat-open');
+  document.body.style.top = '';
+  if(scrollY) window.scrollTo(0, scrollY);
   hideFab();
 }
 
@@ -2833,7 +2865,7 @@ async function generateImages() {
     <div class="img-result-card" id="img-card-${i}">
       <div class="img-placeholder" style="aspect-ratio:unset;height:100%;border:none;border-radius:0;">
         <div class="btn-spin" style="border-color:rgba(124,58,237,.3);border-top-color:var(--p);width:36px;height:36px;border-width:3px;"></div>
-        <span style="font-size:12px;color:var(--t2);">Image ${i+1}…</span>
+        
       </div>
     </div>
   `).join('')}</div>`;
@@ -2866,8 +2898,8 @@ async function generateImages() {
       <div class="img-result-card" id="img-card-${i}">
         <img src="${url}" alt="Image générée ${i+1}" loading="lazy">
         <div class="img-overlay">
-          <a href="${url}" download="rcai-image-${Date.now()}-${i}.jpg" target="_blank">⬇ Télécharger</a>
-          <a href="${url}" target="_blank">🔍 Agrandir</a>
+          <button onclick="downloadImg('${url}',${i})" style="background:rgba(255,255,255,.18);border:none;color:#fff;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;backdrop-filter:blur(8px);">⬇ Télécharger</button>
+          <a href="${url}" target="_blank" style="background:rgba(255,255,255,.12);color:#fff;padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;">🔍 Agrandir</a>
         </div>
       </div>
     `).join('')}</div>`;
@@ -2883,6 +2915,25 @@ async function generateImages() {
   btn.innerHTML = '<svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Générer les images';
 }
 
+
+function downloadImg(url, idx){
+  // Force download via blob to avoid opening the URL in browser tab
+  fetch(url)
+    .then(r=>r.blob())
+    .then(blob=>{
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'regard-creatif-image-'+(idx+1)+'.jpg';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(a.href);
+    })
+    .catch(()=>{
+      // Fallback: open in new tab if CORS blocks blob
+      window.open(url,'_blank');
+    });
+}
 function scrollToFeatures() {
   document.getElementById('features-section')?.scrollIntoView({behavior:'smooth'});
 }
@@ -3082,6 +3133,7 @@ async function sendMessage() {
     const shown = await streamText(r.text, document.getElementById(bubbleId), () => generationStopped);
 
     setThinking(false);
+    saveCurrentConversation();
 
     if (generationStopped) {
       document.getElementById(bubbleId)?.insertAdjacentHTML('beforeend','<div style="font-size:11px;color:var(--t2);margin-top:6px;font-style:italic;">⏹ Génération interrompue</div>');
@@ -3245,7 +3297,7 @@ function stopGeneration(){
 // ─── FILE UPLOAD ────────────────────────────────
 let attachedFiles = []; // [{type:'image'|'pdf', name, dataUrl, base64, mimeType}]
 
-document.getElementById('file-input')?.addEventListener('change', handleFileSelect);
+// Note: file-input event listener is registered inside init() to ensure DOM is ready
 
 function handleFileSelect(e) {
   const files = Array.from(e.target.files || []);
@@ -3298,6 +3350,130 @@ function buildFilesHTML(files) {
     }
   }).join('') + '</div>';
 }
+
+// ─── CONVERSATION HISTORY ───────────────────────
+const HISTORY_KEY_PREFIX = 'rc_conv_';
+const MAX_CONVS = 30;
+let currentConvId = null;
+
+function isUserLoggedIn(){
+  return !!localStorage.getItem('rc_auth_session') || !!localStorage.getItem('rc_user_email');
+}
+
+async function getLoggedUser(){
+  try { return (await supa?.auth?.getUser())?.data?.user || null; } catch(e){ return null; }
+}
+
+async function initHistory(){
+  const user = await getLoggedUser();
+  const btn = document.getElementById('history-toggle-btn');
+  if(user && btn) btn.style.display = 'flex';
+  currentConvId = 'conv_' + Date.now();
+}
+
+function toggleHistory(){
+  const panel = document.getElementById('history-panel');
+  if(!panel) return;
+  const isOpen = panel.classList.contains('open');
+  if(!isOpen){
+    renderHistoryList();
+    panel.classList.add('open');
+  } else {
+    panel.classList.remove('open');
+  }
+}
+
+function saveCurrentConversation(){
+  if(!currentConvId || history.length === 0) return;
+  const user = localStorage.getItem('rc_user_email');
+  if(!user) return; // seuls les inscrits
+  const key = HISTORY_KEY_PREFIX + user + '_' + currentConvId;
+  const firstMsg = history.find(m=>m.role==='user')?.content || 'Conversation';
+  const title = firstMsg.slice(0,50) + (firstMsg.length>50?'…':'');
+  const conv = { id: currentConvId, title, date: new Date().toISOString(), messages: history };
+  try { localStorage.setItem(key, JSON.stringify(conv)); } catch(e){}
+  pruneOldConversations(user);
+}
+
+function pruneOldConversations(user){
+  const prefix = HISTORY_KEY_PREFIX + user + '_';
+  const keys = Object.keys(localStorage).filter(k=>k.startsWith(prefix))
+    .sort((a,b)=>{
+      const da = JSON.parse(localStorage.getItem(a)||'{}').date||'';
+      const db = JSON.parse(localStorage.getItem(b)||'{}').date||'';
+      return db.localeCompare(da);
+    });
+  keys.slice(MAX_CONVS).forEach(k=>localStorage.removeItem(k));
+}
+
+function renderHistoryList(){
+  const user = localStorage.getItem('rc_user_email');
+  const list = document.getElementById('history-list');
+  if(!list) return;
+  if(!user){ list.innerHTML='<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Connectez-vous pour voir vos conversations.</div>'; return; }
+  const prefix = HISTORY_KEY_PREFIX + user + '_';
+  const convs = Object.keys(localStorage)
+    .filter(k=>k.startsWith(prefix))
+    .map(k=>{ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } })
+    .filter(Boolean)
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  if(convs.length===0){ list.innerHTML='<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Aucune conversation sauvegardée.</div>'; return; }
+  list.innerHTML = convs.map(c=>`
+    <div class="history-item" onclick="loadConversation('${c.id}')">
+      <div class="history-item-title">${c.title}</div>
+      <div class="history-item-meta">${new Date(c.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+    </div>
+  `).join('');
+}
+
+function loadConversation(convId){
+  const user = safeStorage.getItem('rc_user_email');
+  if(!user) return;
+  const prefix = HISTORY_KEY_PREFIX + user + '_';
+  const key = Object.keys(localStorage).find(k=>k.startsWith(prefix) && k.includes(convId));
+  if(!key) return;
+  try {
+    const conv = JSON.parse(safeStorage.getItem(key) || localStorage.getItem(key));
+    history = conv.messages || [];
+    currentConvId = conv.id;
+    // Hide welcome screen, show messages list
+    document.getElementById('chat-welcome').style.display = 'none';
+    // Render messages
+    const list = document.getElementById('messages-list');
+    list.innerHTML = '';
+    conv.messages.forEach(m=>{
+      if(m.role==='user') appendUserMessage(m.content);
+      else if(m.role==='assistant') appendAIMessage(m.content);
+    });
+    toggleHistory();
+    scrollBottom();
+  } catch(e){ console.error('loadConversation error', e); }
+}
+
+function startNewConversation(){
+  saveCurrentConversation();
+  currentConvId = 'conv_' + Date.now();
+  history = [];
+  document.getElementById('messages-list').innerHTML = '';
+  document.getElementById('chat-welcome').style.display = 'flex';
+  toggleHistory();
+}
+
+function appendUserMessage(text){
+  const list = document.getElementById('messages-list');
+  const div = document.createElement('div');
+  div.style.cssText='display:flex;gap:10px;justify-content:flex-end;margin-bottom:16px;';
+  div.innerHTML=`<div class="msg-wrap" style="align-items:flex-end;max-width:80%;"><div class="bubble user">${escH(text)}</div></div>`;
+  list.appendChild(div);
+}
+
+function appendAIMessage(text){
+  const list = document.getElementById('messages-list');
+  const div = document.createElement('div');
+  div.style.cssText='display:flex;gap:10px;margin-bottom:16px;';
+  div.innerHTML=`${aiAvatarHTML()}<div class="msg-wrap"><div class="bubble ai">${fmtMsg(text)}</div></div>`;
+  list.appendChild(div);
+}
 function scrollBottom(){const c=document.getElementById('chat-messages');if(c)c.scrollTop=c.scrollHeight;}
 
 document.getElementById('user-input')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
@@ -3331,6 +3507,7 @@ async function doLogin(){
   btn.innerHTML='<div class="spinner"></div> Connexion...';btn.disabled=true;errEl.style.display='none';
   try{
     const {error}=await supa.auth.signInWithPassword({email,password:pass});
+    if(!error) localStorage.setItem('rc_user_email', email);
     if(error) throw error;
     document.getElementById('login-modal').style.display='none';
     openAdmin(); showToast('Connecté avec succès','success');
@@ -3387,7 +3564,7 @@ const ROBOT_CHECKS = [
   { id:'supa-conn',    label:'Connexion Supabase',        fn: checkSupaConn },
   { id:'supa-tables',  label:'Tables Supabase',           fn: checkSupaTables },
   { id:'edge-fn',      label:'Edge Function image-gen',   fn: checkEdgeFn },
-  { id:'img-gen',      label:'Génération d'images',      fn: checkImgGen },
+  { id:'img-gen',      label:"Génération d'images",      fn: checkImgGen },
   { id:'js-errors',    label:'Erreurs JavaScript',        fn: checkJSErrors },
   { id:'storage',      label:'LocalStorage',              fn: checkStorage },
   { id:'pro-wall',     label:'Système Pro',               fn: checkProSystem },
@@ -3767,7 +3944,7 @@ async function saveBranding(){
   };
   siteData.brand=brand;
   applyBrand(brand);
-  applyPubConfig(data.pub_config);
+  applyPubConfig(siteData.pub_config);
   const ok = await saveSiteData();
   if(ok) showToast('Branding sauvegardé','success');
 }
@@ -4879,6 +5056,9 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 async function init(){
   initSupa();
 
+  // Register file input listener here (DOM guaranteed ready)
+  document.getElementById('file-input')?.addEventListener('change', handleFileSelect);
+
   // 1) Render IMMEDIATELY from localStorage (zero-delay paint)
   const cached = safeStorage.getItem('rc_site');
   if(cached){ try{ siteData=JSON.parse(cached); }catch(e){ siteData={}; } }
@@ -4939,7 +5119,9 @@ async function init(){
   trackVisit();
 }
 
-init();
+// Si Supabase était déjà en cache navigateur, window.supabase existe immédiatement
+// et onload ne se déclenchera jamais — on appelle init() directement dans ce cas.
+if(window.supabase){ init(); }
 </script>
 </body>
 </html>
