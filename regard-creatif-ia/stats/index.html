@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Regard CrÃ©atif IA â€” Statistiques</title>
+<title>Regard Créatif IA — Statistiques</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.50.0/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <style>
@@ -100,8 +100,8 @@ body{overflow-y:auto}
 .kpi-sub{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:5px}
 .kpi-trend-up{color:#10b981}
 .kpi-trend-dn{color:#ef4444}
-.kpi-trend-up::before{content:'â†‘ '}
-.kpi-trend-dn::before{content:'â†“ '}
+.kpi-trend-up::before{content:'↑ '}
+.kpi-trend-dn::before{content:'↓ '}
 
 /* Skeleton */
 .skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.08) 50%,rgba(255,255,255,.04) 75%);background-size:200% 100%;animation:shimmer 1.5s ease-in-out infinite;border-radius:6px;height:1em;width:80%}
@@ -166,7 +166,7 @@ body{overflow-y:auto}
 .prov-count{font-size:20px;font-weight:900;background:linear-gradient(135deg,var(--p),var(--s));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .prov-pct{font-size:10px;color:var(--t2)}
 
-/* Badge Ã©tat connexion */
+/* Badge état connexion */
 #conn-badge{
   font-size:11px;font-weight:700;padding:5px 12px;border-radius:20px;
   display:flex;align-items:center;gap:6px;
@@ -216,7 +216,7 @@ body{overflow-y:auto}
         <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
       </div>
       <div>
-        <div class="sb-logo-text">Regard CrÃ©atif IA</div>
+        <div class="sb-logo-text">Regard Créatif IA</div>
         <span class="sb-logo-sub">Statistiques</span>
       </div>
     </div>
@@ -236,7 +236,7 @@ body{overflow-y:auto}
       </div>
       <div class="sb-item" onclick="document.getElementById('section-live').scrollIntoView({behavior:'smooth'})">
         <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        ActivitÃ© live
+        Activité live
       </div>
       <a class="sb-item" href="regard_creatif_v26.html">
         <svg viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
@@ -245,7 +245,7 @@ body{overflow-y:auto}
     </nav>
 
     <div class="sb-bottom">
-      <div class="sb-period">PÃ©riode</div>
+      <div class="sb-period">Période</div>
       <button class="period-btn" onclick="setPeriod(7,this)">7 derniers jours</button>
       <button class="period-btn active" onclick="setPeriod(30,this)">30 derniers jours</button>
       <button class="period-btn" onclick="setPeriod(90,this)">90 derniers jours</button>
@@ -259,16 +259,16 @@ body{overflow-y:auto}
     <div class="stats-header">
       <div>
         <h1 class="stats-title">Tableau de bord <span class="grad-text">Statistiques</span></h1>
-        <div class="stats-subtitle" id="stats-subtitle">Chargement des donnÃ©esâ€¦</div>
+        <div class="stats-subtitle" id="stats-subtitle">Chargement des données…</div>
       </div>
       <div class="header-actions">
         <div id="conn-badge" class="conn-err">
           <div class="conn-dot"></div>
-          <span id="conn-text">Connexionâ€¦</span>
+          <span id="conn-text">Connexion…</span>
         </div>
         <button class="btn btn-secondary" onclick="loadAllData()">
           <svg id="refresh-icon" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
-          RafraÃ®chir
+          Rafraîchir
         </button>
       </div>
     </div>
@@ -277,20 +277,20 @@ body{overflow-y:auto}
     <div class="kpi-grid" id="kpi-grid">
       <div class="kpi-card"><div class="kpi-label"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Visiteurs</div><div class="kpi-val" id="kpi-visits"><span class="skel">&nbsp;</span></div><div class="kpi-sub" id="kpi-visits-sub"></div></div>
       <div class="kpi-card"><div class="kpi-label"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Conversations</div><div class="kpi-val" id="kpi-convs"><span class="skel">&nbsp;</span></div><div class="kpi-sub" id="kpi-convs-sub"></div></div>
-      <div class="kpi-card"><div class="kpi-label"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Messages Ã©changÃ©s</div><div class="kpi-val" id="kpi-msgs"><span class="skel">&nbsp;</span></div><div class="kpi-sub" id="kpi-msgs-sub"></div></div>
+      <div class="kpi-card"><div class="kpi-label"><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Messages échangés</div><div class="kpi-val" id="kpi-msgs"><span class="skel">&nbsp;</span></div><div class="kpi-sub" id="kpi-msgs-sub"></div></div>
       <div class="kpi-card"><div class="kpi-label"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Inscriptions</div><div class="kpi-val" id="kpi-signups"><span class="skel">&nbsp;</span></div><div class="kpi-sub" id="kpi-signups-sub"></div></div>
     </div>
 
     <!-- Charts -->
     <div class="charts-grid">
       <div class="chart-card">
-        <div class="chart-title">ActivitÃ© quotidienne</div>
-        <div class="chart-sub">Conversations dÃ©marrÃ©es par jour</div>
+        <div class="chart-title">Activité quotidienne</div>
+        <div class="chart-sub">Conversations démarrées par jour</div>
         <div class="chart-wrap"><canvas id="chart-daily"></canvas></div>
       </div>
       <div class="chart-card">
-        <div class="chart-title">RÃ©partition Fournisseurs</div>
-        <div class="chart-sub">Usage par modÃ¨le IA</div>
+        <div class="chart-title">Répartition Fournisseurs</div>
+        <div class="chart-sub">Usage par modèle IA</div>
         <div class="chart-wrap"><canvas id="chart-providers"></canvas></div>
       </div>
     </div>
@@ -298,29 +298,29 @@ body{overflow-y:auto}
     <!-- Conversations table -->
     <div id="section-convs" class="table-grid">
       <div class="table-card">
-        <div class="table-title">DerniÃ¨res conversations</div>
-        <div class="table-sub">Les 10 plus rÃ©centes</div>
+        <div class="table-title">Dernières conversations</div>
+        <div class="table-sub">Les 10 plus récentes</div>
         <table class="data-table" id="table-convs">
           <thead><tr><th>#</th><th>Visiteur</th><th>Fournisseur</th><th>Messages</th><th>Date</th></tr></thead>
-          <tbody id="tbody-convs"><tr><td colspan="5" class="empty-state">Chargementâ€¦</td></tr></tbody>
+          <tbody id="tbody-convs"><tr><td colspan="5" class="empty-state">Chargement…</td></tr></tbody>
         </table>
       </div>
       <div class="table-card">
-        <div class="table-title">DerniÃ¨res inscriptions</div>
+        <div class="table-title">Dernières inscriptions</div>
         <div class="table-sub">Formulaire de contact / signup</div>
         <table class="data-table" id="table-signups">
           <thead><tr><th>Nom</th><th>Email</th><th>Date</th></tr></thead>
-          <tbody id="tbody-signups"><tr><td colspan="3" class="empty-state">Chargementâ€¦</td></tr></tbody>
+          <tbody id="tbody-signups"><tr><td colspan="3" class="empty-state">Chargement…</td></tr></tbody>
         </table>
       </div>
     </div>
 
     <!-- Providers breakdown -->
     <div id="section-providers" class="chart-card" style="margin-bottom:24px">
-      <div class="chart-title">DÃ©tail Fournisseurs IA</div>
+      <div class="chart-title">Détail Fournisseurs IA</div>
       <div class="chart-sub">Nombre de conversations par fournisseur</div>
       <div class="provider-grid" id="provider-grid" style="margin-top:16px">
-        <div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>Chargementâ€¦</div></div>
+        <div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>Chargement…</div></div>
       </div>
     </div>
 
@@ -328,11 +328,11 @@ body{overflow-y:auto}
     <div id="section-live" class="live-feed">
       <div class="live-title">
         <div class="live-dot"></div>
-        ActivitÃ© en temps rÃ©el
+        Activité en temps réel
       </div>
-      <div class="live-sub">DerniÃ¨res conversations (mise Ã  jour toutes les 30s)</div>
+      <div class="live-sub">Dernières conversations (mise à jour toutes les 30s)</div>
       <div class="feed-list" id="feed-list">
-        <div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Chargement du fluxâ€¦</div></div>
+        <div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Chargement du flux…</div></div>
       </div>
     </div>
 
@@ -344,8 +344,8 @@ body{overflow-y:auto}
 <script>
 'use strict';
 
-// â”€â”€â”€ CONFIG SUPABASE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-// Ces valeurs sont synchronisÃ©es avec le fichier principal via localStorage
+// ─── CONFIG SUPABASE ────────────────────────────
+// Ces valeurs sont synchronisées avec le fichier principal via localStorage
 const safeGet = k => { try { return localStorage.getItem(k); } catch(e){ return null; } };
 const SUPA_URL = safeGet('rc_supa_url') || 'https://fybmykunipimvpysutwf.supabase.co';
 const SUPA_KEY = safeGet('rc_supa_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ5Ym15a3VuaXBpbXZweXN1dHdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE5NTkyNDksImV4cCI6MjA5NzUzNTI0OX0.EHhv9oJjUrH7FqdBTmFpsYR3KJcj2nQI4QbGMg90l0I';
@@ -363,7 +363,7 @@ function initSupa() {
   }
 }
 
-// â”€â”€â”€ TOAST â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── TOAST ──────────────────────────────────────
 function showToast(msg, type='info') {
   const c = document.getElementById('toast-c');
   const t = document.createElement('div');
@@ -373,7 +373,7 @@ function showToast(msg, type='info') {
   setTimeout(() => t.remove(), 3200);
 }
 
-// â”€â”€â”€ PÃ‰RIODE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PÉRIODE ────────────────────────────────────
 function setPeriod(days, btn) {
   periodDays = days;
   document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
@@ -387,14 +387,14 @@ function getFromDate() {
   return d.toISOString();
 }
 
-// â”€â”€â”€ CHARGEMENT DONNÃ‰ES â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CHARGEMENT DONNÉES ─────────────────────────
 async function loadAllData() {
   if(!supa) return;
   const icon = document.getElementById('refresh-icon');
   icon.classList.add('spinning');
 
   const from = getFromDate();
-  document.getElementById('stats-subtitle').textContent = `PÃ©riode : ${periodDays} derniers jours â€” Mise Ã  jour ${new Date().toLocaleString('fr-FR')}`;
+  document.getElementById('stats-subtitle').textContent = `Période : ${periodDays} derniers jours — Mise à jour ${new Date().toLocaleString('fr-FR')}`;
 
   await Promise.all([
     loadVisits(from),
@@ -408,7 +408,7 @@ async function loadAllData() {
   icon.classList.remove('spinning');
 }
 
-// â”€â”€â”€ VISITEURS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── VISITEURS ──────────────────────────────────
 async function loadVisits(from) {
   try {
     const { data, error } = await supa.from('visits').select('id, created_at', { count: 'exact' })
@@ -418,12 +418,12 @@ async function loadVisits(from) {
     document.getElementById('kpi-visits').textContent = count.toLocaleString('fr-FR');
     document.getElementById('kpi-visits-sub').textContent = `Sur ${periodDays} jours`;
   } catch(e) {
-    document.getElementById('kpi-visits').textContent = 'â€”';
+    document.getElementById('kpi-visits').textContent = '—';
     document.getElementById('kpi-visits-sub').textContent = e.message || 'Table introuvable';
   }
 }
 
-// â”€â”€â”€ CONVERSATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CONVERSATIONS ──────────────────────────────
 async function loadConversations(from) {
   try {
     const { data, error } = await supa.from('conversations')
@@ -444,13 +444,13 @@ async function loadConversations(from) {
     renderConvTable(data?.slice(0,10) || []);
     renderProviderGrid(data || []);
   } catch(e) {
-    ['kpi-convs','kpi-msgs'].forEach(id=>{ document.getElementById(id).textContent='â€”'; });
+    ['kpi-convs','kpi-msgs'].forEach(id=>{ document.getElementById(id).textContent='—'; });
     document.getElementById('kpi-convs-sub').textContent = e.message || 'Table introuvable';
     document.getElementById('tbody-convs').innerHTML = `<tr><td colspan="5"><div class="empty-state">Erreur: ${e.message||'Table conversations introuvable'}</div></td></tr>`;
   }
 }
 
-// â”€â”€â”€ INSCRIPTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── INSCRIPTIONS ────────────────────────────────
 async function loadSignups(from) {
   try {
     const { data, error } = await supa.from('signups')
@@ -460,23 +460,23 @@ async function loadSignups(from) {
       .limit(20);
     if(error) throw error;
     document.getElementById('kpi-signups').textContent = (data?.length || 0).toLocaleString('fr-FR');
-    document.getElementById('kpi-signups-sub').textContent = `Contacts reÃ§us`;
+    document.getElementById('kpi-signups-sub').textContent = `Contacts reçus`;
     renderSignupTable(data || []);
   } catch(e) {
-    document.getElementById('kpi-signups').textContent = 'â€”';
+    document.getElementById('kpi-signups').textContent = '—';
     document.getElementById('kpi-signups-sub').textContent = e.message || 'Table introuvable';
     document.getElementById('tbody-signups').innerHTML = `<tr><td colspan="3"><div class="empty-state">Erreur: ${e.message||'Table signups introuvable'}</div></td></tr>`;
   }
 }
 
-// â”€â”€â”€ TABLE CONVERSATIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── TABLE CONVERSATIONS ─────────────────────────
 function renderConvTable(rows) {
   const tb = document.getElementById('tbody-convs');
-  if(!rows.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty-state">Aucune conversation trouvÃ©e</div></td></tr>'; return; }
+  if(!rows.length) { tb.innerHTML = '<tr><td colspan="5"><div class="empty-state">Aucune conversation trouvée</div></td></tr>'; return; }
   tb.innerHTML = rows.map((r,i) => {
     const msgs = Array.isArray(r.messages) ? r.messages.length : 0;
-    const vis = r.visitor_id ? r.visitor_id.substring(0,8)+'â€¦' : 'â€”';
-    const prov = r.provider || 'â€”';
+    const vis = r.visitor_id ? r.visitor_id.substring(0,8)+'…' : '—';
+    const prov = r.provider || '—';
     const dt = new Date(r.created_at).toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     return `<tr>
       <td><span class="rank-badge">${i+1}</span></td>
@@ -488,28 +488,28 @@ function renderConvTable(rows) {
   }).join('');
 }
 
-// â”€â”€â”€ TABLE INSCRIPTIONS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── TABLE INSCRIPTIONS ─────────────────────────
 function renderSignupTable(rows) {
   const tb = document.getElementById('tbody-signups');
   if(!rows.length) { tb.innerHTML = '<tr><td colspan="3"><div class="empty-state">Aucune inscription</div></td></tr>'; return; }
   tb.innerHTML = rows.map(r => {
     const dt = new Date(r.created_at).toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit'});
     return `<tr>
-      <td style="font-weight:700">${r.name||'â€”'}</td>
-      <td style="font-size:12px;color:var(--t2)">${r.email||'â€”'}</td>
+      <td style="font-weight:700">${r.name||'—'}</td>
+      <td style="font-size:12px;color:var(--t2)">${r.email||'—'}</td>
       <td style="color:var(--t2);font-size:12px">${dt}</td>
     </tr>`;
   }).join('');
 }
 
-// â”€â”€â”€ PROVIDER GRID â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── PROVIDER GRID ──────────────────────────────
 function renderProviderGrid(convs) {
   const counts = {};
   convs.forEach(c => { const p = c.provider || 'inconnu'; counts[p] = (counts[p]||0)+1; });
   const total = Object.values(counts).reduce((a,b)=>a+b, 0) || 1;
   const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
   const grid = document.getElementById('provider-grid');
-  if(!sorted.length) { grid.innerHTML = '<div class="empty-state">Aucune donnÃ©e</div>'; return; }
+  if(!sorted.length) { grid.innerHTML = '<div class="empty-state">Aucune donnée</div>'; return; }
   grid.innerHTML = sorted.map(([name, count]) => `
     <div class="prov-card">
       <div class="prov-name">${name}</div>
@@ -519,7 +519,7 @@ function renderProviderGrid(convs) {
   `).join('');
 }
 
-// â”€â”€â”€ CHART QUOTIDIEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CHART QUOTIDIEN ────────────────────────────
 async function loadDailyChart(from) {
   try {
     const { data, error } = await supa.from('conversations')
@@ -573,7 +573,7 @@ async function loadDailyChart(from) {
   } catch(e) { console.error("Chart timeline:",e); const c=document.getElementById("chart-timeline"); if(c)c.parentElement.innerHTML="<div class="empty-state">Erreur graphique: "+(e.message||"table introuvable")+"</div>"; }
 }
 
-// â”€â”€â”€ CHART PROVIDERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── CHART PROVIDERS ────────────────────────────
 async function loadProviderChart(from) {
   try {
     const { data, error } = await supa.from('conversations')
@@ -612,7 +612,7 @@ async function loadProviderChart(from) {
   } catch(e) { console.error("Chart providers:",e); const c=document.getElementById("chart-providers"); if(c)c.parentElement.innerHTML="<div class="empty-state">Erreur graphique: "+(e.message||"table introuvable")+"</div>"; }
 }
 
-// â”€â”€â”€ LIVE FEED â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── LIVE FEED ──────────────────────────────────
 async function loadLiveFeed() {
   try {
     const { data, error } = await supa.from('conversations')
@@ -625,27 +625,27 @@ async function loadLiveFeed() {
 }
 
 const PROV_EMOJI = {
-  groq:'âš¡', gemini:'âœ¨', mistral:'ðŸŒŠ', deepseek:'ðŸ”®', together:'ðŸ¤',
-  cohere:'ðŸ§ ', openrouter:'ðŸ›£ï¸', fireworks:'ðŸŽ†', perplexity:'ðŸ”', huggingface:'ðŸ¤—', auto:'ðŸ¤–'
+  groq:'⚡', gemini:'✨', mistral:'🌊', deepseek:'🔮', together:'🤝',
+  cohere:'🧠', openrouter:'🛣️', fireworks:'🎆', perplexity:'🔍', huggingface:'🤗', auto:'🤖'
 };
 
 function renderFeed(rows) {
   const list = document.getElementById('feed-list');
-  if(!rows.length) { list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Aucune activitÃ©</div></div>'; return; }
+  if(!rows.length) { list.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Aucune activité</div></div>'; return; }
   list.innerHTML = rows.map(r => {
     const msgs = Array.isArray(r.messages) ? r.messages.length : 0;
     const prov = r.provider || 'auto';
-    const emoji = PROV_EMOJI[prov] || 'ðŸ¤–';
+    const emoji = PROV_EMOJI[prov] || '🤖';
     const vis = r.visitor_id ? r.visitor_id.substring(0,8) : 'Inconnu';
     const dt = timeSince(new Date(r.created_at));
     const preview = Array.isArray(r.messages) && r.messages.length
-      ? (r.messages[0]?.content || r.messages[0]?.text || 'Message').substring(0,60)+'â€¦'
-      : 'Conversation dÃ©marrÃ©e';
+      ? (r.messages[0]?.content || r.messages[0]?.text || 'Message').substring(0,60)+'…'
+      : 'Conversation démarrée';
     return `<div class="feed-item">
       <div class="feed-icon" style="background:rgba(124,58,237,.12)">${emoji}</div>
       <div class="feed-content">
         <div class="feed-msg">${preview}</div>
-        <div class="feed-time">Visiteur ${vis} Â· ${dt}</div>
+        <div class="feed-time">Visiteur ${vis} · ${dt}</div>
       </div>
       <div class="feed-provider" style="text-align:right">
         <div style="font-weight:700;font-size:12px;color:var(--t1)">${prov}</div>
@@ -663,36 +663,36 @@ function timeSince(date) {
   return `${Math.floor(secs/86400)}j`;
 }
 
-// â”€â”€â”€ INIT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── INIT ───────────────────────────────────────
 (function init() {
   const badge = document.getElementById('conn-badge');
   const connText = document.getElementById('conn-text');
   const ok = initSupa();
   if(ok) {
     badge.className = 'conn-ok';
-    badge.innerHTML = '<div class="conn-dot"></div><span id="conn-text">Supabase connectÃ©</span>';
+    badge.innerHTML = '<div class="conn-dot"></div><span id="conn-text">Supabase connecté</span>';
     loadAllData();
     // Auto-refresh toutes les 30s
     setInterval(loadLiveFeed, 30000);
   } else {
     badge.className = 'conn-err';
-    badge.innerHTML = '<div class="conn-dot"></div><span>Supabase non configurÃ©</span>';
+    badge.innerHTML = '<div class="conn-dot"></div><span>Supabase non configuré</span>';
     showToast('Configurez Supabase dans le panneau admin du site principal', 'warn');
-    // Afficher des donnÃ©es de dÃ©mo
+    // Afficher des données de démo
     loadDemoData();
   }
 })();
 
 function loadDemoData() {
-  document.getElementById('kpi-visits').textContent = 'â€”';
-  document.getElementById('kpi-convs').textContent = 'â€”';
-  document.getElementById('kpi-msgs').textContent = 'â€”';
-  document.getElementById('kpi-signups').textContent = 'â€”';
-  document.getElementById('stats-subtitle').textContent = 'Mode dÃ©mo â€” Connectez Supabase pour les vraies donnÃ©es';
-  document.getElementById('tbody-convs').innerHTML = '<tr><td colspan="5"><div class="empty-state">Configurez Supabase pour voir les donnÃ©es</div></td></tr>';
+  document.getElementById('kpi-visits').textContent = '—';
+  document.getElementById('kpi-convs').textContent = '—';
+  document.getElementById('kpi-msgs').textContent = '—';
+  document.getElementById('kpi-signups').textContent = '—';
+  document.getElementById('stats-subtitle').textContent = 'Mode démo — Connectez Supabase pour les vraies données';
+  document.getElementById('tbody-convs').innerHTML = '<tr><td colspan="5"><div class="empty-state">Configurez Supabase pour voir les données</div></td></tr>';
   document.getElementById('tbody-signups').innerHTML = '<tr><td colspan="3"><div class="empty-state">Configurez Supabase</div></td></tr>';
-  document.getElementById('provider-grid').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>Supabase non configurÃ©</div></div>';
-  document.getElementById('feed-list').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Aucune donnÃ©e disponible</div></div>';
+  document.getElementById('provider-grid').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div>Supabase non configuré</div></div>';
+  document.getElementById('feed-list').innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg><div>Aucune donnée disponible</div></div>';
 }
 </script>
 </body>
