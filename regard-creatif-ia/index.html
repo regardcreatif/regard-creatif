@@ -313,9 +313,9 @@ img{max-width:100%;display:block}
 .msg-avatar.ai-av svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
 .msg-avatar.user-av{background:linear-gradient(135deg,#4f46e5,var(--p))}
 .msg-avatar.user-av svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round}
-.bubble{padding:13px 17px;border-radius:16px;font-size:14px;line-height:1.65;max-width:calc(100% - 50px);word-break:break-word;white-space:pre-wrap;display:inline-block}
+.bubble{padding:13px 17px;border-radius:16px;font-size:14px;line-height:1.65;max-width:calc(100% - 50px);word-break:break-word;display:block}
 .bubble.ai{background:var(--card);border:1px solid var(--brd);border-bottom-left-radius:4px;color:var(--t1)}
-.bubble.user{background:linear-gradient(135deg,var(--p),#5b21b6);border-bottom-right-radius:4px;color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3);min-width:0;width:fit-content;max-width:100%}
+.bubble.user{background:linear-gradient(135deg,var(--p),#5b21b6);border-bottom-right-radius:4px;color:#fff;box-shadow:0 4px 16px rgba(124,58,237,.3);min-width:0;width:fit-content;max-width:100%;white-space:pre-wrap}
 .bubble code{background:rgba(0,0,0,.4);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:13px}
 .bubble pre{background:rgba(0,0,0,.5);padding:12px;border-radius:8px;overflow-x:auto;margin:8px 0;border:1px solid rgba(255,255,255,.07)}
 .bubble pre code{background:none;padding:0}
@@ -1242,6 +1242,10 @@ img{max-width:100%;display:block}
         <span>HuggingFace ↗</span>
       </div>
 
+      <div class="nav-item" onclick="showAdmTab('robot')" data-tab="robot">
+        <svg class="nav-icon" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><line x1="12" y1="7" x2="12" y2="11"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+        <span>Robot Santé</span>
+      </div>
       <div class="nav-item" onclick="showAdmTab('supa')" data-tab="supa">
         <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
         <span>Supabase</span>
@@ -1433,6 +1437,39 @@ img{max-width:100%;display:block}
           <input class="form-input" id="ic-default-negative" placeholder="blurry, deformed, watermark, low quality">
         </div>
         <button class="btn btn-primary" onclick="saveImgConfig()">Sauvegarder</button>
+      </div>
+    </section>
+
+    <!-- ========== ROBOT SANTÉ ========== -->
+    <section class="adm-section" id="adm-robot">
+      <div class="adm-section-title grad-text">🤖 Robot Santé</div>
+      <div class="adm-section-sub">Analyse automatique de votre site, Supabase et Edge Functions.</div>
+
+      <!-- Statut global -->
+      <div id="robot-status-bar" style="display:flex;align-items:center;gap:12px;padding:14px 18px;background:var(--card);border:1px solid var(--brd);border-radius:12px;margin-bottom:16px;">
+        <div id="robot-global-dot" style="width:12px;height:12px;border-radius:50%;background:#6b7280;flex-shrink:0;"></div>
+        <div>
+          <div id="robot-global-label" style="font-weight:700;font-size:14px;color:var(--t1);">En attente d'analyse...</div>
+          <div id="robot-global-sub" style="font-size:12px;color:var(--t2);">Cliquez sur Lancer l'analyse</div>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-primary btn-sm" onclick="runRobotAnalysis()">▶ Lancer l'analyse</button>
+          <button class="btn btn-secondary btn-sm" onclick="toggleRobotAuto()">
+            <span id="robot-auto-label">⏱ Auto OFF</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Résultats -->
+      <div id="robot-results" style="display:flex;flex-direction:column;gap:10px;"></div>
+
+      <!-- Rapport -->
+      <div id="robot-report-wrap" style="display:none;margin-top:16px;">
+        <div class="adm-card">
+          <div style="font-weight:700;font-size:14px;margin-bottom:10px;">📋 Rapport complet</div>
+          <pre id="robot-report-text" style="font-size:12px;color:var(--t2);white-space:pre-wrap;line-height:1.6;background:rgba(0,0,0,.2);padding:12px;border-radius:8px;overflow-x:auto;max-height:300px;overflow-y:auto;"></pre>
+          <button class="btn btn-secondary btn-sm" style="margin-top:10px;" onclick="copyRobotReport()">📋 Copier le rapport</button>
+        </div>
       </div>
     </section>
 
@@ -1840,6 +1877,80 @@ const PROVIDERS = {
   huggingface:{ name:'HuggingFace', model:'mistralai/Mistral-7B-Instruct-v0.2',          fmt:'hf' },
 };
 
+
+// ─── PRO PLAN SYSTEM ───────────────────────────
+const PRO_MODELS = ['openrouter','perplexity','fireworks']; // modèles verrouillés Free
+const FREE_IMG_LIMIT = 5; // images/jour max en Free
+
+function getUserPlan(){
+  return safeStorage.getItem('rc_user_plan') || 'free';
+}
+function isPro(){
+  return getUserPlan() === 'pro';
+}
+function getImgUsedToday(){
+  const key = 'rc_img_' + new Date().toISOString().slice(0,10);
+  return parseInt(safeStorage.getItem(key)||'0');
+}
+function incImgUsed(){
+  const key = 'rc_img_' + new Date().toISOString().slice(0,10);
+  safeStorage.setItem(key, String(getImgUsedToday()+1));
+}
+function canGenerateImage(){
+  if(isPro()) return true;
+  return getImgUsedToday() < FREE_IMG_LIMIT;
+}
+function isModelLocked(provId){
+  if(isPro()) return false;
+  return PRO_MODELS.includes(provId);
+}
+function applyProBadge(){
+  const badge = document.getElementById('pro-badge');
+  if(!badge) return;
+  if(isPro()){
+    badge.style.display='flex';
+    badge.textContent='⭐ Pro';
+    badge.style.background='linear-gradient(135deg,#f59e0b,#d97706)';
+    badge.style.color='#fff';
+  } else {
+    badge.style.display='flex';
+    badge.textContent='Free';
+    badge.style.background='rgba(124,58,237,.12)';
+    badge.style.color='var(--p)';
+  }
+}
+function applyModelLocks(){
+  const sel = document.getElementById('model-selector');
+  if(!sel) return;
+  Array.from(sel.options).forEach(opt=>{
+    if(isModelLocked(opt.value)){
+      opt.text = opt.text.replace(' 🔒','') + ' 🔒';
+      opt.disabled = true;
+    } else {
+      opt.text = opt.text.replace(' 🔒','');
+      opt.disabled = false;
+    }
+  });
+}
+function showProWall(reason){
+  let ov = document.getElementById('pro-wall');
+  if(!ov){
+    ov = document.createElement('div');
+    ov.id = 'pro-wall';
+    ov.style.cssText='position:fixed;inset:0;z-index:9995;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px;';
+    ov.innerHTML=`<div style="background:var(--card);border:1px solid var(--brd);border-radius:20px;max-width:420px;width:100%;padding:32px;text-align:center;">
+      <div style="font-size:36px;margin-bottom:12px;">⭐</div>
+      <div style="font-size:20px;font-weight:800;color:var(--t1);margin-bottom:8px;">Passez à Pro</div>
+      <div id="pro-wall-reason" style="font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:20px;"></div>
+      <div style="font-size:28px;font-weight:900;color:var(--p);margin-bottom:4px;">7$ <span style="font-size:14px;font-weight:400;color:var(--t2);">/mois</span></div>
+      <div style="font-size:12px;color:var(--t2);margin-bottom:24px;">Images illimitées · Tous les modèles · Priorité</div>
+      <button onclick="window.open('${window.PRO_PAYMENT_URL||'#'}','_blank')" style="width:100%;padding:14px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;font-size:15px;border:none;border-radius:12px;cursor:pointer;margin-bottom:10px;">Passer Pro maintenant</button>
+      <button onclick="document.getElementById('pro-wall').remove()" style="width:100%;padding:12px;background:none;border:1px solid var(--brd);color:var(--t2);border-radius:12px;cursor:pointer;font-size:13px;">Continuer en Free</button>
+    </div>`;
+    document.body.appendChild(ov);
+  }
+  document.getElementById('pro-wall-reason').textContent = reason;
+}
 // ─── STATE ─────────────────────────────────────
 let apiKeys = [];
 let keyIdx = 0;
@@ -1979,6 +2090,20 @@ const DEFAULT_DATA = {
       description:'Rejoignez des milliers d\'utilisateurs qui utilisent Regard Créatif IA chaque jour.',
       cta_text:'Commencer gratuitement maintenant',
       background:'gradient'
+    },
+    {
+      id:'pricing', type:'pricing', enabled:true, order:8,
+      title:'Simple et transparent',
+      description:'Commencez gratuitement, passez Pro quand vous êtes prêt.',
+      free_features:['5 images IA par jour','Accès aux modèles de base','Chat illimité','Sans inscription'],
+      pro_features:['Images illimitées','Tous les modèles premium','Priorité de réponse','Support dédié'],
+      pro_price:'7',
+      pro_cta:'Passer Pro maintenant'
+    },
+    {
+      id:'special-bricks', type:'special-bricks', enabled:true, order:9,
+      title:'Allez plus loin avec Lia',
+      description:'Générez des images et analysez vos données directement depuis la plateforme.'
     }
   ],
   chat_config: {
@@ -2059,20 +2184,52 @@ function renderLanding(data) {
   applyBrand(brand);
   applyPubConfig(data.pub_config);
   const sectionsHtml = sections.filter(s=>s.enabled).map(renderSection).join('');
-  const specialBricks = renderSpecialBricks();
-  document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml + specialBricks;
+  document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml;
   initFAQ();
   initScrollReveal();
+  initProSystem();
 }
 
-function renderSpecialBricks() {
+
+function renderPricing(s){
+  const freeF = (s.free_features||[]).map(f=>`<li style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px;color:var(--t2);"><span style="color:#22c55e;font-size:16px;">✓</span>${f}</li>`).join('');
+  const proF = (s.pro_features||[]).map(f=>`<li style="display:flex;align-items:center;gap:8px;padding:6px 0;font-size:14px;color:var(--t1);"><span style="color:#f59e0b;font-size:16px;">★</span>${f}</li>`).join('');
+  const price = s.pro_price||'7';
+  const cta = s.pro_cta||'Passer Pro';
+  return `<section class="landing-section" id="pricing-section">
+    <div class="container">
+      ${sectionHeader(s.title||'Tarifs', s.description||'')}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:700px;margin:0 auto;">
+        <div style="background:var(--card);border:1px solid var(--brd);border-radius:20px;padding:32px;" class="reveal">
+          <div style="font-size:13px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Gratuit</div>
+          <div style="font-size:36px;font-weight:900;color:var(--t1);margin-bottom:4px;">0$</div>
+          <div style="font-size:13px;color:var(--t2);margin-bottom:24px;">Pour toujours</div>
+          <ul style="list-style:none;padding:0;margin:0 0 28px;">${freeF}</ul>
+          <button onclick="document.getElementById('chat-overlay')?.classList.add('open');document.body.classList.add('chat-open')" style="width:100%;padding:13px;background:none;border:1px solid var(--brd);color:var(--t1);border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;">Commencer gratuitement</button>
+        </div>
+        <div style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(168,85,247,.1));border:1px solid rgba(124,58,237,.4);border-radius:20px;padding:32px;position:relative;" class="reveal">
+          <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:11px;font-weight:800;padding:4px 16px;border-radius:20px;white-space:nowrap;">⭐ RECOMMANDÉ</div>
+          <div style="font-size:13px;font-weight:700;color:var(--p);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;">Pro</div>
+          <div style="font-size:36px;font-weight:900;color:var(--t1);margin-bottom:4px;">${price}$ <span style="font-size:14px;font-weight:400;color:var(--t2);">/mois</span></div>
+          <div style="font-size:13px;color:var(--t2);margin-bottom:24px;">Annulable à tout moment</div>
+          <ul style="list-style:none;padding:0;margin:0 0 28px;">${proF}</ul>
+          <button onclick="showProWall('Accédez à toutes les fonctionnalités premium de Regard Créatif IA.')" style="width:100%;padding:13px;background:linear-gradient(135deg,var(--p),var(--s));color:#fff;border:none;border-radius:12px;cursor:pointer;font-weight:700;font-size:14px;box-shadow:0 4px 20px rgba(124,58,237,.4);">${cta}</button>
+        </div>
+      </div>
+    </div>
+  </section>`;
+}
+
+function renderSpecialBricks(s) {
+  const title = s?.title || 'Allez plus loin avec Lia';
+  const desc = s?.description || 'Générez des images et analysez vos données directement depuis la plateforme.';
   return `
   <section class="landing-section section-bg-dark" id="special-section">
     <div class="container">
       <div class="single text-center mb-6 reveal">
         <div class="label mb-3">Outils avancés</div>
-        <h2 class="heading-lg mb-3">Allez plus loin avec Lia</h2>
-        <p class="body-lg">Générez des images et analysez vos données directement depuis la plateforme.</p>
+        <h2 class="heading-lg mb-3">${title}</h2>
+        <p class="body-lg">${desc}</p>
       </div>
       <div class="special-bricks reveal">
         <!-- Brique Statistiques -->
@@ -2130,6 +2287,8 @@ function renderSection(s) {
     case 'text': return renderTextBlock(s);
     case 'image': return renderImageBlock(s);
     case 'gallery': return renderGalleryBlock(s);
+    case 'special-bricks': return renderSpecialBricks(s);
+    case 'pricing': return renderPricing(s);
     default: return '';
   }
 }
@@ -2646,6 +2805,10 @@ function initImageStudio() {
 }
 
 async function generateImages() {
+  if(!canGenerateImage()){
+    showProWall(`Vous avez atteint la limite de ${FREE_IMG_LIMIT} images par jour en version gratuite. Passez Pro pour des images illimitées.`);
+    return;
+  }
   const promptEl = document.getElementById('img-prompt');
   const negEl = document.getElementById('img-negative');
   // Pre-fill defaults
@@ -2996,10 +3159,12 @@ function fmtMsg(t){
     }).join('');
     return `<div style="overflow-x:auto;margin:10px 0;border-radius:8px;border:1px solid var(--brd);"><table style="width:100%;border-collapse:collapse;"><thead><tr>${ths}</tr></thead><tbody>${trs}</tbody></table></div>`;
   });
-  // 10. Retours à la ligne
+  // 10. Retours à la ligne — protect block elements
+  // Replace newlines adjacent to block elements without adding <br>
+  t = t.replace(/\n?(<\/?(?:h[1-6]|ul|ol|li|pre|blockquote|hr|div|table|thead|tbody|tr|th|td)[^>]*>)\n?/g, '$1');
   t = t.replace(/\n\n/g,'</p><p style="margin:8px 0;">');
   t = t.replace(/\n/g,'<br>');
-  return `<p style="margin:0;">${t}</p>`;
+  return `<div style="margin:0;">${t}</div>`;
 }
 // Helper: build AI avatar HTML (image or default star SVG)
 function aiAvatarHTML() {
@@ -3212,6 +3377,189 @@ function saveImgConfig(){
   saveData();
   showToast('Config images sauvegardée !','success');
 }
+
+// ─── ROBOT SANTÉ ───────────────────────────────
+let robotAutoInterval = null;
+let robotAutoOn = false;
+
+const ROBOT_CHECKS = [
+  { id:'site-load',    label:'Chargement du site',       fn: checkSiteLoad },
+  { id:'supa-conn',    label:'Connexion Supabase',        fn: checkSupaConn },
+  { id:'supa-tables',  label:'Tables Supabase',           fn: checkSupaTables },
+  { id:'edge-fn',      label:'Edge Function image-gen',   fn: checkEdgeFn },
+  { id:'img-gen',      label:'Génération d'images',      fn: checkImgGen },
+  { id:'js-errors',    label:'Erreurs JavaScript',        fn: checkJSErrors },
+  { id:'storage',      label:'LocalStorage',              fn: checkStorage },
+  { id:'pro-wall',     label:'Système Pro',               fn: checkProSystem },
+];
+
+let robotLog = [];
+
+async function runRobotAnalysis(){
+  robotLog = [];
+  const resultsEl = document.getElementById('robot-results');
+  resultsEl.innerHTML = '';
+  document.getElementById('robot-global-dot').style.background = '#f59e0b';
+  document.getElementById('robot-global-label').textContent = 'Analyse en cours...';
+  document.getElementById('robot-global-sub').textContent = new Date().toLocaleTimeString('fr-FR');
+  document.getElementById('robot-report-wrap').style.display = 'none';
+
+  let errors = 0, warnings = 0;
+
+  for(const check of ROBOT_CHECKS){
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--card);border:1px solid var(--brd);border-radius:10px;';
+    row.innerHTML = `<div style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;" id="dot-${check.id}"></div>
+      <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:var(--t1);">${check.label}</div>
+      <div style="font-size:11px;color:var(--t2);" id="msg-${check.id}">Vérification...</div></div>
+      <div style="font-size:11px;color:var(--t2);" id="time-${check.id}"></div>`;
+    resultsEl.appendChild(row);
+
+    const t0 = Date.now();
+    try {
+      const result = await check.fn();
+      const ms = Date.now()-t0;
+      const dot = document.getElementById('dot-'+check.id);
+      const msg = document.getElementById('msg-'+check.id);
+      const tim = document.getElementById('time-'+check.id);
+      tim.textContent = ms+'ms';
+      if(result.ok){
+        dot.style.background = '#22c55e';
+        msg.textContent = result.msg;
+        robotLog.push(`✅ ${check.label}: ${result.msg} (${ms}ms)`);
+      } else if(result.warn){
+        dot.style.background = '#f59e0b';
+        msg.textContent = result.msg;
+        msg.style.color = '#f59e0b';
+        warnings++;
+        robotLog.push(`⚠️ ${check.label}: ${result.msg} (${ms}ms)`);
+      } else {
+        dot.style.background = '#ef4444';
+        msg.textContent = result.msg;
+        msg.style.color = '#ef4444';
+        errors++;
+        robotLog.push(`❌ ${check.label}: ${result.msg} (${ms}ms)`);
+      }
+    } catch(e){
+      document.getElementById('dot-'+check.id).style.background = '#ef4444';
+      document.getElementById('msg-'+check.id).textContent = e.message||'Erreur inattendue';
+      errors++;
+      robotLog.push(`❌ ${check.label}: ${e.message} (erreur)`);
+    }
+  }
+
+  // Global status
+  const dot = document.getElementById('robot-global-dot');
+  const label = document.getElementById('robot-global-label');
+  const sub = document.getElementById('robot-global-sub');
+  if(errors>0){ dot.style.background='#ef4444'; label.textContent=`${errors} problème(s) détecté(s)`; label.style.color='#ef4444'; }
+  else if(warnings>0){ dot.style.background='#f59e0b'; label.textContent=`${warnings} avertissement(s)`; label.style.color='#f59e0b'; }
+  else { dot.style.background='#22c55e'; label.textContent='Tout fonctionne correctement'; label.style.color='#22c55e'; }
+  sub.textContent = 'Dernière analyse : '+new Date().toLocaleTimeString('fr-FR');
+
+  // Report
+  const report = `RAPPORT DE SANTÉ — ${new Date().toLocaleString('fr-FR')}\n${'─'.repeat(50)}\n${robotLog.join('\n')}\n${'─'.repeat(50)}\nRésumé: ${errors} erreur(s), ${warnings} avertissement(s)`;
+  document.getElementById('robot-report-text').textContent = report;
+  document.getElementById('robot-report-wrap').style.display = 'block';
+}
+
+function toggleRobotAuto(){
+  robotAutoOn = !robotAutoOn;
+  document.getElementById('robot-auto-label').textContent = robotAutoOn ? '⏱ Auto ON (5min)' : '⏱ Auto OFF';
+  if(robotAutoOn){
+    robotAutoInterval = setInterval(runRobotAnalysis, 5*60*1000);
+    showToast('Analyse automatique activée (toutes les 5 min)','success');
+  } else {
+    clearInterval(robotAutoInterval);
+    showToast('Analyse automatique désactivée','info');
+  }
+}
+
+function copyRobotReport(){
+  const text = document.getElementById('robot-report-text').textContent;
+  navigator.clipboard?.writeText(text).then(()=>showToast('Rapport copié !','success'));
+}
+
+// ─── CHECK FUNCTIONS ───────────────────────────
+async function checkSiteLoad(){
+  const t = performance.now();
+  const loaded = document.readyState === 'complete';
+  const entries = performance.getEntriesByType('navigation');
+  const loadTime = entries[0]?.loadEventEnd || t;
+  if(loadTime > 5000) return {ok:false, msg:`Lent: ${Math.round(loadTime)}ms`};
+  if(loadTime > 2000) return {warn:true, msg:`Correct: ${Math.round(loadTime)}ms (recommandé <2s)`};
+  return {ok:true, msg:`Rapide: ${Math.round(loadTime)}ms`};
+}
+
+async function checkSupaConn(){
+  if(!supa) return {ok:false, msg:'Client Supabase non initialisé'};
+  try {
+    const {error} = await supa.from('visits').select('id').limit(1);
+    if(error) return {ok:false, msg:'Erreur: '+error.message};
+    return {ok:true, msg:'Connecté'};
+  } catch(e){ return {ok:false, msg:e.message}; }
+}
+
+async function checkSupaTables(){
+  if(!supa) return {ok:false, msg:'Supabase non connecté'};
+  const tables = ['visits','conversations','signups'];
+  const missing = [];
+  for(const t of tables){
+    try {
+      const {error} = await supa.from(t).select('id').limit(1);
+      if(error) missing.push(t);
+    } catch(e){ missing.push(t); }
+  }
+  if(missing.length) return {ok:false, msg:'Tables manquantes: '+missing.join(', ')};
+  return {ok:true, msg:'Toutes les tables OK ('+tables.join(', ')+')'};
+}
+
+async function checkEdgeFn(){
+  try {
+    const res = await fetch('https://fybmykunipimvpysutwf.supabase.co/functions/v1/image-gen', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({prompt:'test',count:0,width:64,height:64})
+    });
+    if(res.ok||res.status===400) return {ok:true, msg:'Accessible (status '+res.status+')'};
+    if(res.status===401) return {ok:false, msg:'JWT requis — désactiver dans Supabase'};
+    return {warn:true, msg:'Status inattendu: '+res.status};
+  } catch(e){ return {ok:false, msg:'Inaccessible: '+e.message}; }
+}
+
+async function checkImgGen(){
+  const limit = FREE_IMG_LIMIT;
+  const used = getImgUsedToday();
+  const plan = getUserPlan();
+  if(plan==='pro') return {ok:true, msg:'Pro — images illimitées'};
+  if(used>=limit) return {warn:true, msg:`Limite atteinte: ${used}/${limit} images aujourd'hui`};
+  return {ok:true, msg:`${used}/${limit} images utilisées aujourd'hui`};
+}
+
+async function checkJSErrors(){
+  // Check if key functions exist
+  const fns = ['sendMessage','generateImages','renderLanding','saveData','isPro'];
+  const missing = fns.filter(f=>typeof window[f]!=='function');
+  if(missing.length) return {ok:false, msg:'Fonctions manquantes: '+missing.join(', ')};
+  return {ok:true, msg:'Toutes les fonctions critiques présentes'};
+}
+
+async function checkStorage(){
+  try {
+    localStorage.setItem('rc_test','1');
+    localStorage.removeItem('rc_test');
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith('rc_'));
+    return {ok:true, msg:`LocalStorage OK — ${keys.length} clé(s) rc_*`};
+  } catch(e){ return {ok:false, msg:'LocalStorage inaccessible: '+e.message}; }
+}
+
+async function checkProSystem(){
+  const plan = getUserPlan();
+  const proWallFn = typeof showProWall === 'function';
+  const imgCheckFn = typeof canGenerateImage === 'function';
+  if(!proWallFn||!imgCheckFn) return {ok:false, msg:'Fonctions Pro manquantes'};
+  return {ok:true, msg:`Plan actuel: ${plan} — Système Pro opérationnel`};
+}
 // --- PUB & BANNIERES ---
 function loadPubConfig(){
   const p=siteData.pub_config||{};
@@ -3363,6 +3711,7 @@ function showAdmTab(name){
   if(name==='signups') loadSignups();
   if(name==='keys') loadKeys();
   if(name==='pub') loadPubConfig();
+  if(name==='robot') setTimeout(runRobotAnalysis,300);
   if(name==='img-cfg') loadImgConfig();
 }
 
@@ -3428,7 +3777,7 @@ function loadSections(){
   const ss=(siteData.landing_sections||DEFAULT_DATA.landing_sections).slice().sort((a,b)=>a.order-b.order);
   const wrap=document.getElementById('sections-list');
   if(!wrap) return;
-  const STYPES={'hero':'Hero','text':'Texte','image':'Image','gallery':'Galerie','stats':'Statistiques','usecases':'Cas d\'usage','features':'Fonctionnalités','providers':'Fournisseurs','testimonials':'Témoignages','faq':'FAQ','cta':'Appel à l\'action','demo':'Démo'};
+  const STYPES={'hero':'Hero','text':'Texte','image':'Image','gallery':'Galerie','stats':'Statistiques','usecases':'Cas d\'usage','features':'Fonctionnalités','providers':'Fournisseurs','testimonials':'Témoignages','faq':'FAQ','cta':'Appel à l\'action','demo':'Démo','special-bricks':'Outils IA (Stats + Images)','pricing':'Tarifs Free/Pro'};
   wrap.innerHTML=ss.map((s,i)=>`
     <div class="section-row" id="srow-${s.id}">
       <div class="section-order-badge">${s.order}</div>
