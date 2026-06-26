@@ -570,7 +570,7 @@ async function loadDailyChart(from) {
         }
       }
     });
-  } catch(e) {}
+  } catch(e) { console.error("Chart timeline:",e); const c=document.getElementById("chart-timeline"); if(c)c.parentElement.innerHTML="<div class="empty-state">Erreur graphique: "+(e.message||"table introuvable")+"</div>"; }
 }
 
 // ─── CHART PROVIDERS ────────────────────────────
@@ -609,7 +609,7 @@ async function loadProviderChart(from) {
         }
       }
     });
-  } catch(e) {}
+  } catch(e) { console.error("Chart providers:",e); const c=document.getElementById("chart-providers"); if(c)c.parentElement.innerHTML="<div class="empty-state">Erreur graphique: "+(e.message||"table introuvable")+"</div>"; }
 }
 
 // ─── LIVE FEED ──────────────────────────────────
@@ -621,7 +621,7 @@ async function loadLiveFeed() {
       .limit(15);
     if(error) throw error;
     renderFeed(data || []);
-  } catch(e) {}
+  } catch(e) { console.error("LiveFeed:",e); const f=document.getElementById("live-feed"); if(f)f.innerHTML="<div class="empty-state">Erreur live feed: "+(e.message||"table introuvable")+"</div>"; }
 }
 
 const PROV_EMOJI = {
