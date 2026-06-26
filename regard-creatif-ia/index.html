@@ -946,6 +946,9 @@ img{max-width:100%;display:block}
     <button class="history-btn" id="history-toggle-btn" onclick="toggleHistory()" title="Conversations" style="display:none;">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
     </button>
+    <button class="history-btn" id="account-toggle-btn" onclick="openVisitorAuthModal()" title="Mon compte" style="display:none;">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
     <div class="chat-header-right">
       <button class="back-btn" onclick="goHome()">
         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
@@ -953,16 +956,18 @@ img{max-width:100%;display:block}
       </button>
       <select id="model-selector">
         <option value="auto">Auto</option>
-        <option value="groq">Groq</option>
-        <option value="gemini">Gemini</option>
-        <option value="mistral">Mistral</option>
-        <option value="deepseek">DeepSeek</option>
-        <option value="together">Together</option>
-        <option value="cohere">Cohere</option>
-        <option value="openrouter">OpenRouter</option>
-        <option value="fireworks">Fireworks</option>
-        <option value="perplexity">Perplexity</option>
-        <option value="huggingface">HuggingFace</option>
+        <option value="groq1">Groq</option>
+        <option value="gemini1">Gemini</option>
+        <option value="mistral1">Mistral</option>
+        <option value="deepseek1">DeepSeek</option>
+        <option value="together1">Together</option>
+        <option value="cohere1">Cohere</option>
+        <option value="openrouter1">OpenRouter</option>
+        <option value="fireworks1">Fireworks</option>
+        <option value="perplexity1">Perplexity</option>
+        <option value="huggingface1">HuggingFace</option>
+        <option value="lumenfall1">Lumenfall</option>
+        <option value="agnes1">Agnes AI</option>
       </select>
     </div>
   </div>
@@ -971,6 +976,52 @@ img{max-width:100%;display:block}
     <div id="stats-mode-badge" onclick="toggleAnalyseMode()">
       <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Mode Analyse & Stats actif — Cliquer pour désactiver
+    </div>
+  </div>
+
+  <!-- =================== PANNEAU HISTORIQUE =================== -->
+  <div id="history-panel">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--brd);">
+      <span style="font-weight:700;font-size:15px;">Vos conversations</span>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-secondary btn-sm" onclick="startNewConversation()">+ Nouvelle</button>
+        <button class="btn-icon-only" onclick="toggleHistory()" title="Fermer">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="history-list" id="history-list"></div>
+  </div>
+
+  <!-- =================== MODAL COMPTE VISITEUR =================== -->
+  <div id="visitor-auth-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
+    <div class="modal-box">
+      <button class="modal-close" onclick="document.getElementById('visitor-auth-modal').style.display='none'">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="modal-title grad-text" id="visitor-auth-title">Connexion</div>
+      <div class="modal-sub" id="visitor-auth-sub">Connectez-vous pour retrouver vos conversations sur tous vos appareils.</div>
+      <div id="visitor-auth-loggedout">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" type="email" id="visitor-auth-email" placeholder="votre@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mot de passe</label>
+          <input class="form-input" type="password" id="visitor-auth-pass" placeholder="••••••••">
+        </div>
+        <div id="visitor-auth-err" style="display:none;color:#ef4444;font-size:13px;margin-bottom:12px;"></div>
+        <button class="btn btn-primary btn-full" id="visitor-auth-submit-btn" onclick="submitVisitorAuth()">Se connecter</button>
+        <div style="text-align:center;margin-top:14px;font-size:13px;color:var(--t2);">
+          <span id="visitor-auth-switch-label">Pas encore de compte ?</span>
+          <a href="#" onclick="toggleVisitorAuthMode();return false;" style="color:var(--s);font-weight:600;" id="visitor-auth-switch-link">Créer un compte</a>
+        </div>
+      </div>
+      <div id="visitor-auth-loggedin" style="display:none;text-align:center;">
+        <div style="font-size:14px;color:var(--t2);margin-bottom:6px;">Connecté en tant que</div>
+        <div style="font-weight:700;margin-bottom:24px;" id="visitor-auth-current-email"></div>
+        <button class="btn btn-danger btn-full" onclick="doVisitorLogout()">Se déconnecter</button>
+      </div>
     </div>
   </div>
 
@@ -1149,6 +1200,7 @@ img{max-width:100%;display:block}
 <div id="toast-c"></div>
 
 <!-- =================== LOGIN MODAL =================== -->
+<!-- =================== ADMIN LOGIN MODAL =================== -->
 <div id="login-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('login-modal').style.display='none'">
@@ -1176,8 +1228,6 @@ img{max-width:100%;display:block}
     <div style="font-size:12px;color:var(--t2);line-height:1.5;margin-top:14px;">La configuration Supabase se trouve dans l'onglet Supabase du panneau d'administration.</div>
   </div>
 </div>
-
-<!-- =================== PUBLIC SIGNUP / CONTACT MODAL =================== -->
 <div id="signup-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)this.style.display='none'">
   <div class="modal-box">
     <button class="modal-close" onclick="document.getElementById('signup-modal').style.display='none'">
@@ -1752,11 +1802,14 @@ img{max-width:100%;display:block}
         <label class="form-label">Fournisseur</label>
         <select class="form-select" id="kf-prov" onchange="kfPrefill()">
           <option value="">Sélectionner...</option>
-          <option value="groq">Groq</option><option value="gemini">Gemini</option>
-          <option value="mistral">Mistral</option><option value="deepseek">DeepSeek</option>
-          <option value="together">Together AI</option><option value="cohere">Cohere</option>
-          <option value="openrouter">OpenRouter</option><option value="fireworks">Fireworks AI</option>
-          <option value="perplexity">Perplexity</option><option value="huggingface">Hugging Face</option>
+          <option value="groq1">Groq (clé 1)</option><option value="groq2">Groq (clé 2)</option>
+          <option value="groq3">Groq (clé 3)</option><option value="groq4">Groq (clé 4)</option>
+          <option value="gemini1">Gemini</option><option value="mistral1">Mistral</option>
+          <option value="deepseek1">DeepSeek</option><option value="together1">Together AI</option>
+          <option value="cohere1">Cohere</option><option value="openrouter1">OpenRouter</option>
+          <option value="fireworks1">Fireworks AI</option><option value="perplexity1">Perplexity</option>
+          <option value="huggingface1">Hugging Face</option><option value="lumenfall1">Lumenfall</option>
+          <option value="agnes1">Agnes AI</option>
         </select>
       </div>
       <div class="form-group">
@@ -1828,14 +1881,21 @@ alter table signups enable row level security;
 create policy "signups_insert_public" on signups for insert with check (true);
 create policy "signups_read_admin" on signups for select using (auth.uid() is not null);
 
-create table conversations (
+create table user_conversations (
   id uuid primary key default gen_random_uuid(),
-  visitor_id text, provider text, messages jsonb,
-  created_at timestamptz default now()
+  conv_id text not null,
+  user_id uuid references auth.users(id) on delete cascade not null,
+  title text, messages jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(conv_id)
 );
-alter table conversations enable row level security;
-create policy "conv_insert_public" on conversations for insert with check (true);
-create policy "conv_read_admin" on conversations for select using (auth.uid() is not null);
+alter table user_conversations enable row level security;
+create policy "uconv_select_own" on user_conversations for select using (auth.uid() = user_id);
+create policy "uconv_insert_own" on user_conversations for insert with check (auth.uid() = user_id);
+create policy "uconv_update_own" on user_conversations for update using (auth.uid() = user_id);
+create policy "uconv_delete_own" on user_conversations for delete using (auth.uid() = user_id);
+create index user_conversations_user_id_idx on user_conversations(user_id);
 ===================================================
 -->
 
@@ -1891,21 +1951,26 @@ const hasSupa = () => !!supa && !!SUPA_URL;
 
 // ─── PROVIDER CONFIGS ──────────────────────────
 const PROVIDERS = {
-  groq:       { name:'Groq',        model:'llama3-8b-8192',                              fmt:'openai', ep:'https://api.groq.com/openai/v1/chat/completions' },
-  gemini:     { name:'Gemini',      model:'gemini-1.5-flash',                            fmt:'gemini' },
-  mistral:    { name:'Mistral',     model:'mistral-small-latest',                         fmt:'openai', ep:'https://api.mistral.ai/v1/chat/completions' },
-  deepseek:   { name:'DeepSeek',    model:'deepseek-chat',                               fmt:'openai', ep:'https://api.deepseek.com/v1/chat/completions' },
-  together:   { name:'Together AI', model:'meta-llama/Llama-3-8b-chat-hf',              fmt:'openai', ep:'https://api.together.xyz/v1/chat/completions' },
-  cohere:     { name:'Cohere',      model:'command-r',                                    fmt:'cohere' },
-  openrouter: { name:'OpenRouter',  model:'openai/gpt-3.5-turbo',                        fmt:'openai', ep:'https://openrouter.ai/api/v1/chat/completions' },
-  fireworks:  { name:'Fireworks',   model:'accounts/fireworks/models/llama-v3-8b-instruct',fmt:'openai',ep:'https://api.fireworks.ai/inference/v1/chat/completions' },
-  perplexity: { name:'Perplexity',  model:'sonar-small-chat',                            fmt:'openai', ep:'https://api.perplexity.ai/chat/completions' },
-  huggingface:{ name:'HuggingFace', model:'mistralai/Mistral-7B-Instruct-v0.2',          fmt:'hf' },
+  groq1:       { name:'Groq',        model:'llama-3.3-70b-versatile',                              fmt:'openai', ep:'https://api.groq.com/openai/v1/chat/completions' },
+  groq2:       { name:'Groq',        model:'llama-3.3-70b-versatile',                              fmt:'openai', ep:'https://api.groq.com/openai/v1/chat/completions' },
+  groq3:       { name:'Groq',        model:'llama-3.3-70b-versatile',                              fmt:'openai', ep:'https://api.groq.com/openai/v1/chat/completions' },
+  groq4:       { name:'Groq',        model:'llama-3.3-70b-versatile',                              fmt:'openai', ep:'https://api.groq.com/openai/v1/chat/completions' },
+  together1:   { name:'Together AI', model:'meta-llama/Llama-3-70b-chat-hf',                      fmt:'openai', ep:'https://api.together.xyz/v1/chat/completions' },
+  openrouter1: { name:'OpenRouter',  model:'meta-llama/llama-3.3-70b-instruct:free',              fmt:'openai', ep:'https://openrouter.ai/api/v1/chat/completions' },
+  mistral1:    { name:'Mistral',     model:'mistral-large-latest',                                 fmt:'openai', ep:'https://api.mistral.ai/v1/chat/completions' },
+  deepseek1:   { name:'DeepSeek',    model:'deepseek-chat',                                        fmt:'openai', ep:'https://api.deepseek.com/chat/completions' },
+  gemini1:     { name:'Gemini',      model:'gemini-2.0-flash',                                     fmt:'gemini' },
+  fireworks1:  { name:'Fireworks',   model:'accounts/fireworks/models/llama-v3p3-70b-instruct',   fmt:'openai', ep:'https://api.fireworks.ai/inference/v1/chat/completions' },
+  cohere1:     { name:'Cohere',      model:'command-r-plus',                                       fmt:'cohere' },
+  perplexity1: { name:'Perplexity',  model:'llama-3.1-sonar-large-128k-online',                   fmt:'openai', ep:'https://api.perplexity.ai/chat/completions' },
+  huggingface1:{ name:'HuggingFace', model:'mistralai/Mixtral-8x7B-Instruct-v0.1',               fmt:'hf' },
+  lumenfall1:  { name:'Lumenfall',   model:'meta-llama/llama-3.3-70b-instruct',                   fmt:'openai', ep:'https://api.lumenfall.ai/openai/v1/chat/completions' },
+  agnes1:      { name:'Agnes AI',    model:'claude-3-5-sonnet',                                    fmt:'openai', ep:'https://apihub.agnes-ai.com/v1/chat/completions' },
 };
 
 
 // ─── PRO PLAN SYSTEM ───────────────────────────
-const PRO_MODELS = ['openrouter','perplexity','fireworks']; // modèles verrouillés Free
+const PRO_MODELS = ['openrouter1','perplexity1','fireworks1']; // modèles verrouillés Free
 const FREE_IMG_LIMIT = 5; // images/jour max en Free
 
 function getUserPlan(){
@@ -2137,7 +2202,7 @@ const DEFAULT_DATA = {
     welcome_subtitle: 'Posez-moi n\'importe quelle question. Je suis là pour vous aider.',
     welcome_image: '',
     placeholder: 'Écrivez votre question...',
-    system_message: 'Tu es un assistant IA créatif, serviable et précis. Réponds en français si le message est en français.',
+    system_message: 'Tu es Lia, une assistante IA créative, serviable et experte en codage (toutes les langues de programmation), rédaction, analyse et création visuelle. Tu réponds en français si le message est en français, sinon dans la langue de l\'utilisateur.',
     model_selector_visible: true,
     suggestions: [
       'Écris une histoire courte sur l\'espace',
@@ -2231,7 +2296,7 @@ function renderPricing(s){
           <div style="font-size:36px;font-weight:900;color:var(--t1);margin-bottom:4px;">0$</div>
           <div style="font-size:13px;color:var(--t2);margin-bottom:24px;">Pour toujours</div>
           <ul style="list-style:none;padding:0;margin:0 0 28px;">${freeF}</ul>
-          <button onclick="document.getElementById('chat-overlay')?.classList.add('open');document.body.classList.add('chat-open')" style="width:100%;padding:13px;background:none;border:1px solid var(--brd);color:var(--t1);border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;">Commencer gratuitement</button>
+          <button onclick="openChat()" style="width:100%;padding:13px;background:none;border:1px solid var(--brd);color:var(--t1);border-radius:12px;cursor:pointer;font-weight:600;font-size:14px;">Commencer gratuitement</button>
         </div>
         <div style="background:linear-gradient(135deg,rgba(124,58,237,.15),rgba(168,85,247,.1));border:1px solid rgba(124,58,237,.4);border-radius:20px;padding:32px;position:relative;" class="reveal">
           <div style="position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-size:11px;font-weight:800;padding:4px 16px;border-radius:20px;white-space:nowrap;">⭐ RECOMMANDÉ</div>
@@ -2259,7 +2324,7 @@ function renderSpecialBricks(s) {
       </div>
       <div class="special-bricks reveal">
         <!-- Brique Statistiques -->
-        <div class="special-brick special-brick-stats" onclick="openChatWithAnalyse()">
+        <div class="special-brick special-brick-stats" onclick="openChatWithAnalyse()" ${s.bg_stats?`style="background-image:url(${s.bg_stats});background-size:cover;background-position:center;"`:''} >
           <div class="special-brick-bg" style="color:#7c3aed;">
             <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="3" y1="20" x2="21" y2="20"/></svg>
           </div>
@@ -2277,7 +2342,7 @@ function renderSpecialBricks(s) {
           </div>
         </div>
         <!-- Brique Images -->
-        <div class="special-brick special-brick-img" onclick="openImagePage()">
+        <div class="special-brick special-brick-img" onclick="openImagePage()" ${s.bg_img?`style="background-image:url(${s.bg_img});background-size:cover;background-position:center;"`:''} >
           <div class="special-brick-bg" style="color:#a855f7;">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           </div>
@@ -2286,10 +2351,10 @@ function renderSpecialBricks(s) {
           </div>
           <div class="special-brick-content">
             <div class="special-brick-label">Créativité sans limite</div>
-            <div class="special-brick-title">Génération d'Images IA</div>
-            <div class="special-brick-desc">Transformez vos idées en images époustouflantes. Choisissez votre style, décrivez votre vision, et laissez l'IA créer.</div>
+            <div class="special-brick-title">${s.title_img||"Génération d'Images IA"}</div>
+            <div class="special-brick-desc">${s.description_img||"Transformez vos idées en images époustouflantes. Choisissez votre style, décrivez votre vision, et laissez l'IA créer."}</div>
             <button class="special-brick-cta">
-              Commencer à générer
+              ${s.cta_text_img||'Commencer à générer'}
               <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </button>
           </div>
@@ -2639,6 +2704,7 @@ function openChat() {
   // Fix iOS Safari: save scroll position before position:fixed locks the body
   document.body.style.top = `-${window.scrollY}px`;
   document.body.classList.add('chat-open');
+  initHistory();
   setTimeout(()=>{
     document.getElementById('user-input')?.focus();
     showFab();
@@ -2976,22 +3042,25 @@ async function generateHmacToken() {
   return btoa(`${timestamp}.${sigB64}`);
 }
 
-// Révélation progressive du texte façon Claude
+// Révélation progressive du texte — rythme naturel avec pauses aux ponctuations
 async function streamText(text, bubbleEl, isStopped) {
   const total = text.length;
   if (total === 0) { bubbleEl.innerHTML = fmtMsg(''); return ''; }
-  const targetTicks = Math.min(120, Math.max(30, Math.ceil(total / 5)));
-  const chunkSize = Math.max(1, Math.ceil(total / targetTicks));
+  // ~180 ticks pour un texte quelconque → fluidité maximale
+  const chunkSize = Math.max(2, Math.ceil(total / 180));
   let shown = '';
   for (let i = 0; i < total; i += chunkSize) {
     if (isStopped && isStopped()) break;
     shown = text.slice(0, Math.min(i + chunkSize, total));
     bubbleEl.innerHTML = fmtMsg(shown + (shown.length < total ? '▋' : ''));
-    scrollBottom();
-    await new Promise(r => setTimeout(r, 10));
+    scrollBottomIfNeeded();
+    // Pause variable : respiration naturelle sur la ponctuation
+    const lc = shown[shown.length - 1];
+    const pause = /[.!?…]/.test(lc) ? 65 : /[,;:]/.test(lc) ? 38 : 22;
+    await new Promise(r => setTimeout(r, pause));
   }
   bubbleEl.innerHTML = fmtMsg(shown);
-  scrollBottom();
+  scrollBottomIfNeeded();
   return shown;
 }
 
@@ -3044,9 +3113,7 @@ async function sendWithRotation(msg, files = [], signal) {
 }
 
 function showSignupPrompt() {
-  document.getElementById('login-modal').style.display = 'flex';
-  const err = document.getElementById('login-err');
-  if (err) { err.textContent = 'Limite gratuite atteinte. Inscrivez-vous pour continuer !'; err.style.display = 'block'; }
+  openSignupModal();
 }
 
 // ─── CHAT UI ───────────────────────────────────
@@ -3351,23 +3418,32 @@ function buildFilesHTML(files) {
   }).join('') + '</div>';
 }
 
-// ─── CONVERSATION HISTORY ───────────────────────
+// ─── CONVERSATION HISTORY (compte visiteur + Supabase) ──
 const HISTORY_KEY_PREFIX = 'rc_conv_';
 const MAX_CONVS = 30;
 let currentConvId = null;
+let visitorUser = null; // { id, email } si connecté, sinon null
 
 function isUserLoggedIn(){
-  return !!localStorage.getItem('rc_auth_session') || !!localStorage.getItem('rc_user_email');
+  return !!visitorUser;
 }
 
+// Récupère l'utilisateur visiteur connecté (compte créé via le modal "Mon compte",
+// distinct du compte admin qui utilise les mêmes tables Supabase Auth mais un autre flux UI).
 async function getLoggedUser(){
-  try { return (await supa?.auth?.getUser())?.data?.user || null; } catch(e){ return null; }
+  if(!hasSupa()) return null;
+  try {
+    const { data } = await supa.auth.getUser();
+    return data?.user || null;
+  } catch(e){ return null; }
 }
 
 async function initHistory(){
-  const user = await getLoggedUser();
-  const btn = document.getElementById('history-toggle-btn');
-  if(user && btn) btn.style.display = 'flex';
+  visitorUser = await getLoggedUser();
+  const histBtn = document.getElementById('history-toggle-btn');
+  const accBtn = document.getElementById('account-toggle-btn');
+  if(accBtn) accBtn.style.display = 'flex'; // toujours visible : permet de se connecter/s'inscrire
+  if(histBtn) histBtn.style.display = visitorUser ? 'flex' : 'none';
   currentConvId = 'conv_' + Date.now();
 }
 
@@ -3383,20 +3459,32 @@ function toggleHistory(){
   }
 }
 
-function saveCurrentConversation(){
+async function saveCurrentConversation(){
   if(!currentConvId || history.length === 0) return;
-  const user = localStorage.getItem('rc_user_email');
-  if(!user) return; // seuls les inscrits
-  const key = HISTORY_KEY_PREFIX + user + '_' + currentConvId;
   const firstMsg = history.find(m=>m.role==='user')?.content || 'Conversation';
   const title = firstMsg.slice(0,50) + (firstMsg.length>50?'…':'');
   const conv = { id: currentConvId, title, date: new Date().toISOString(), messages: history };
+
+  if(visitorUser && hasSupa()){
+    try{
+      await supa.from('user_conversations').upsert({
+        conv_id: currentConvId,
+        user_id: visitorUser.id,
+        title,
+        messages: history,
+        updated_at: conv.date
+      }, { onConflict: 'conv_id' });
+      return;
+    }catch(e){ console.warn('Sauvegarde Supabase impossible, repli local:', e.message); }
+  }
+  // Repli local (pas de compte connecté, ou Supabase indisponible) : conversation gardée sur cet appareil uniquement.
+  const key = HISTORY_KEY_PREFIX + (visitorUser?.id || 'guest') + '_' + currentConvId;
   try { localStorage.setItem(key, JSON.stringify(conv)); } catch(e){}
-  pruneOldConversations(user);
+  pruneOldConversations(visitorUser?.id || 'guest');
 }
 
-function pruneOldConversations(user){
-  const prefix = HISTORY_KEY_PREFIX + user + '_';
+function pruneOldConversations(userKey){
+  const prefix = HISTORY_KEY_PREFIX + userKey + '_';
   const keys = Object.keys(localStorage).filter(k=>k.startsWith(prefix))
     .sort((a,b)=>{
       const da = JSON.parse(localStorage.getItem(a)||'{}').date||'';
@@ -3406,39 +3494,64 @@ function pruneOldConversations(user){
   keys.slice(MAX_CONVS).forEach(k=>localStorage.removeItem(k));
 }
 
-function renderHistoryList(){
-  const user = localStorage.getItem('rc_user_email');
+async function renderHistoryList(){
   const list = document.getElementById('history-list');
   if(!list) return;
-  if(!user){ list.innerHTML='<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Connectez-vous pour voir vos conversations.</div>'; return; }
-  const prefix = HISTORY_KEY_PREFIX + user + '_';
-  const convs = Object.keys(localStorage)
-    .filter(k=>k.startsWith(prefix))
-    .map(k=>{ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } })
-    .filter(Boolean)
-    .sort((a,b)=>b.date.localeCompare(a.date));
+  if(!visitorUser){ list.innerHTML='<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Connectez-vous pour voir vos conversations sur tous vos appareils.</div>'; return; }
+  list.innerHTML = '<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Chargement…</div>';
+
+  let convs = [];
+  if(hasSupa()){
+    try{
+      const { data, error } = await supa.from('user_conversations')
+        .select('conv_id,title,updated_at')
+        .eq('user_id', visitorUser.id)
+        .order('updated_at', { ascending:false })
+        .limit(MAX_CONVS);
+      if(!error && data) convs = data.map(c=>({ id:c.conv_id, title:c.title, date:c.updated_at }));
+    }catch(e){ console.warn('Lecture historique Supabase impossible:', e.message); }
+  }
+  if(!convs.length){
+    // Repli : conversations locales sauvegardées sur cet appareil pour cet utilisateur
+    const prefix = HISTORY_KEY_PREFIX + visitorUser.id + '_';
+    convs = Object.keys(localStorage)
+      .filter(k=>k.startsWith(prefix))
+      .map(k=>{ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } })
+      .filter(Boolean)
+      .sort((a,b)=>b.date.localeCompare(a.date));
+  }
   if(convs.length===0){ list.innerHTML='<div style="text-align:center;color:var(--t2);font-size:13px;padding:40px 20px;">Aucune conversation sauvegardée.</div>'; return; }
   list.innerHTML = convs.map(c=>`
     <div class="history-item" onclick="loadConversation('${c.id}')">
-      <div class="history-item-title">${c.title}</div>
+      <div class="history-item-title">${esc(c.title)}</div>
       <div class="history-item-meta">${new Date(c.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
     </div>
   `).join('');
 }
 
-function loadConversation(convId){
-  const user = safeStorage.getItem('rc_user_email');
-  if(!user) return;
-  const prefix = HISTORY_KEY_PREFIX + user + '_';
-  const key = Object.keys(localStorage).find(k=>k.startsWith(prefix) && k.includes(convId));
-  if(!key) return;
+async function loadConversation(convId){
+  if(!visitorUser) return;
+  let conv = null;
+  if(hasSupa()){
+    try{
+      const { data, error } = await supa.from('user_conversations')
+        .select('conv_id,title,messages,updated_at')
+        .eq('user_id', visitorUser.id)
+        .eq('conv_id', convId)
+        .single();
+      if(!error && data) conv = { id:data.conv_id, title:data.title, date:data.updated_at, messages:data.messages };
+    }catch(e){}
+  }
+  if(!conv){
+    const prefix = HISTORY_KEY_PREFIX + visitorUser.id + '_';
+    const key = Object.keys(localStorage).find(k=>k.startsWith(prefix) && k.includes(convId));
+    if(key){ try{ conv = JSON.parse(localStorage.getItem(key)); }catch(e){} }
+  }
+  if(!conv) return;
   try {
-    const conv = JSON.parse(safeStorage.getItem(key) || localStorage.getItem(key));
     history = conv.messages || [];
     currentConvId = conv.id;
-    // Hide welcome screen, show messages list
     document.getElementById('chat-welcome').style.display = 'none';
-    // Render messages
     const list = document.getElementById('messages-list');
     list.innerHTML = '';
     conv.messages.forEach(m=>{
@@ -3450,8 +3563,8 @@ function loadConversation(convId){
   } catch(e){ console.error('loadConversation error', e); }
 }
 
-function startNewConversation(){
-  saveCurrentConversation();
+async function startNewConversation(){
+  await saveCurrentConversation();
   currentConvId = 'conv_' + Date.now();
   history = [];
   document.getElementById('messages-list').innerHTML = '';
@@ -3474,11 +3587,111 @@ function appendAIMessage(text){
   div.innerHTML=`${aiAvatarHTML()}<div class="msg-wrap"><div class="bubble ai">${fmtMsg(text)}</div></div>`;
   list.appendChild(div);
 }
-function scrollBottom(){const c=document.getElementById('chat-messages');if(c)c.scrollTop=c.scrollHeight;}
+
+// ─── COMPTE VISITEUR (inscription / connexion) ──────────
+let visitorAuthMode = 'login'; // 'login' | 'signup'
+
+function toggleVisitorAuthMode(){
+  visitorAuthMode = visitorAuthMode === 'login' ? 'signup' : 'login';
+  const title = document.getElementById('visitor-auth-title');
+  const submitBtn = document.getElementById('visitor-auth-submit-btn');
+  const switchLabel = document.getElementById('visitor-auth-switch-label');
+  const switchLink = document.getElementById('visitor-auth-switch-link');
+  const err = document.getElementById('visitor-auth-err');
+  if(err) err.style.display = 'none';
+  if(visitorAuthMode === 'signup'){
+    title.textContent = 'Créer un compte';
+    submitBtn.textContent = "S'inscrire";
+    switchLabel.textContent = 'Déjà un compte ?';
+    switchLink.textContent = 'Se connecter';
+  } else {
+    title.textContent = 'Connexion';
+    submitBtn.textContent = 'Se connecter';
+    switchLabel.textContent = 'Pas encore de compte ?';
+    switchLink.textContent = 'Créer un compte';
+  }
+}
+
+async function openVisitorAuthModal(){
+  const modal = document.getElementById('visitor-auth-modal');
+  const loggedOutView = document.getElementById('visitor-auth-loggedout');
+  const loggedInView = document.getElementById('visitor-auth-loggedin');
+  visitorUser = await getLoggedUser();
+  if(visitorUser){
+    loggedOutView.style.display = 'none';
+    loggedInView.style.display = 'block';
+    document.getElementById('visitor-auth-current-email').textContent = visitorUser.email || '';
+  } else {
+    loggedOutView.style.display = 'block';
+    loggedInView.style.display = 'none';
+  }
+  modal.style.display = 'flex';
+}
+
+async function submitVisitorAuth(){
+  if(!hasSupa()){
+    showToast('Les comptes nécessitent Supabase, indisponible pour le moment.', 'error');
+    return;
+  }
+  const email = getVal('visitor-auth-email').trim();
+  const pass = getVal('visitor-auth-pass');
+  const errEl = document.getElementById('visitor-auth-err');
+  const btn = document.getElementById('visitor-auth-submit-btn');
+  if(!email || !pass){ errEl.textContent='Remplissez tous les champs.'; errEl.style.display='block'; return; }
+  if(pass.length < 6){ errEl.textContent='Le mot de passe doit contenir au moins 6 caractères.'; errEl.style.display='block'; return; }
+  errEl.style.display='none';
+  const originalLabel = btn.textContent;
+  btn.textContent = '...'; btn.disabled = true;
+  try{
+    if(visitorAuthMode === 'signup'){
+      const { data, error } = await supa.auth.signUp({ email, password: pass });
+      if(error) throw error;
+      if(data?.user && !data?.session){
+        // Confirmation email requise par la config Supabase
+        showToast('Compte créé. Vérifiez votre email pour confirmer votre inscription.', 'success');
+        document.getElementById('visitor-auth-modal').style.display = 'none';
+        return;
+      }
+      showToast('Compte créé avec succès', 'success');
+    } else {
+      const { error } = await supa.auth.signInWithPassword({ email, password: pass });
+      if(error) throw error;
+      showToast('Connecté avec succès', 'success');
+    }
+    document.getElementById('visitor-auth-modal').style.display = 'none';
+    setVal('visitor-auth-email','');
+    setVal('visitor-auth-pass','');
+    await initHistory();
+  }catch(e){
+    errEl.textContent = e.message || 'Une erreur est survenue.';
+    errEl.style.display = 'block';
+  }finally{
+    btn.textContent = originalLabel; btn.disabled = false;
+  }
+}
+
+async function doVisitorLogout(){
+  if(hasSupa()) await supa.auth.signOut().catch(()=>{});
+  visitorUser = null;
+  document.getElementById('visitor-auth-modal').style.display = 'none';
+  document.getElementById('history-toggle-btn').style.display = 'none';
+  document.getElementById('history-panel').classList.remove('open');
+  // Vide l'écran de chat affiché : sur un appareil partagé, on ne laisse pas la conversation
+  // de l'utilisateur précédent visible une fois déconnecté.
+  history = [];
+  currentConvId = 'conv_' + Date.now();
+  document.getElementById('messages-list').innerHTML = '';
+  document.getElementById('chat-welcome').style.display = 'flex';
+  showToast('Déconnecté', 'info');
+}
+let _chatUserScrolled=false;
+function scrollBottom(){const c=document.getElementById('chat-messages');if(c){c.scrollTop=c.scrollHeight;_chatUserScrolled=false;}}
+function scrollBottomIfNeeded(){const c=document.getElementById('chat-messages');if(!c||_chatUserScrolled)return;if(c.scrollHeight-c.scrollTop-c.clientHeight<120)c.scrollTop=c.scrollHeight;}
 
 document.getElementById('user-input')?.addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,120)+'px';});
 document.getElementById('user-input')?.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}});
 document.getElementById('model-selector')?.addEventListener('change',function(){selectedProv=this.value;keyIdx=0;});
+document.getElementById('chat-messages')?.addEventListener('scroll',function(){_chatUserScrolled=(this.scrollHeight-this.scrollTop-this.clientHeight)>120;});
 
 // ─── ADMIN ─────────────────────────────────────
 function openAdminLogin(){document.getElementById('login-modal').style.display='flex';setTimeout(()=>document.getElementById('login-email')?.focus(),100);}
@@ -3551,7 +3764,7 @@ function saveImgConfig(){
     default_style: getVal('ic-default-style'),
     default_negative: getVal('ic-default-negative'),
   };
-  saveData();
+  saveSiteData();
   showToast('Config images sauvegardée !','success');
 }
 
@@ -3776,7 +3989,7 @@ function savePubConfig(){
     popup_anim:getVal('popup-anim')||'fadeIn',
   };
   siteData.pub_config=pub;
-  saveData();
+  saveSiteData();
   applyPubConfig(pub);
   showToast('Pub & Bannières sauvegardées !','success');
 }
@@ -3848,11 +4061,25 @@ function editSpecialBrick(type){
     (s.items||[]).forEach((item,i)=>{
       html+='<div class="form-grid-2" style="margin-bottom:10px;"><div class="form-group"><label class="form-label">Valeur '+(i+1)+'</label><input class="form-input" id="sb-stat-num-'+i+'" value="'+(item.num||'')+'"></div><div class="form-group"><label class="form-label">Label '+(i+1)+'</label><input class="form-input" id="sb-stat-lbl-'+i+'" value="'+(item.label||'')+'"></div></div>';
     });
+    const sbSec=(siteData.landing_sections||[]).find(x=>x.id==='special-bricks')||{};
+    html+='<div class="form-group"><label class="form-label">Image de fond (brique statistiques)</label>'
+      +'<div class="img-field-row">'
+      +'<img class="img-thumb" id="sb-bg-stats-thumb" src="'+(sbSec.bg_stats||'')+'" alt="" style="display:'+(sbSec.bg_stats?'block':'none')+'">'
+      +'<input class="form-input" id="sb-bg-stats" value="'+(sbSec.bg_stats||'')+'" placeholder="https://..." oninput="updateThumb(\'sb-bg-stats\',\'sb-bg-stats-thumb\')"></div></div>';
     body.innerHTML=html;
   } else if(type==='imagegen'){
     title.textContent='Générateur d\'Images';
-    const s=(siteData.landing_sections||[]).find(x=>x.id==='special-img')||{};
-    body.innerHTML='<div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="sb-img-title" value="'+(s.title||"Génération d'images IA")+'"></div><div class="form-group"><label class="form-label">Description</label><textarea class="form-input form-textarea" id="sb-img-desc" rows="3">'+(s.description||"Créez des images uniques grâce à l'IA.")+'</textarea></div><div class="form-group"><label class="form-label">Texte du bouton</label><input class="form-input" id="sb-img-cta" value="'+(s.cta_text||"Générer une image")+'"></div>';
+    const s=(siteData.landing_sections||[]).find(x=>x.id==='special-bricks')||(DEFAULT_DATA.landing_sections||[]).find(x=>x.id==='special-bricks')||{};
+    body.innerHTML='<div class="form-group"><label class="form-label">Titre</label>'
+      +'<input class="form-input" id="sb-img-title" value="'+(s.title_img||"Génération d'images IA")+'"></div>'
+      +'<div class="form-group"><label class="form-label">Description</label>'
+      +'<textarea class="form-input form-textarea" id="sb-img-desc" rows="3">'+(s.description_img||"Transformez vos idées en images époustouflantes.")+'</textarea></div>'
+      +'<div class="form-group"><label class="form-label">Texte du bouton</label>'
+      +'<input class="form-input" id="sb-img-cta" value="'+(s.cta_text_img||"Commencer à générer")+'"></div>'
+      +'<div class="form-group"><label class="form-label">Image de fond (brique images IA)</label>'
+      +'<div class="img-field-row">'
+      +'<img class="img-thumb" id="sb-bg-img-thumb" src="'+(s.bg_img||'')+'" alt="" style="display:'+(s.bg_img?'block':'none')+'">'
+      +'<input class="form-input" id="sb-bg-img" value="'+(s.bg_img||'')+'" placeholder="https://..." oninput="updateThumb(\'sb-bg-img\',\'sb-bg-img-thumb\')"></div></div>';
   }
   modal.style.display='flex';
 }
@@ -3864,16 +4091,24 @@ function saveSpecialBrick(){
     if(!s){s={id:'stats',type:'stats',enabled:true,order:2,items:[]};siteData.landing_sections.push(s);}
     s.items=(s.items||[]).map((item,i)=>({num:getVal('sb-stat-num-'+i)||item.num,label:getVal('sb-stat-lbl-'+i)||item.label}));
     document.querySelectorAll('.stat-num').forEach((el,i)=>{if(s.items[i])el.textContent=s.items[i].num;});
-    document.querySelectorAll('.stat-label').forEach((el,i)=>{if(s.items[i])el.textContent=s.items[i].label;});
+    document.querySelectorAll('.stat-lbl').forEach((el,i)=>{if(s.items[i])el.textContent=s.items[i].label;});
   } else if(type==='imagegen'){
-    let s=siteData.landing_sections.find(x=>x.id==='special-img');
-    if(!s){s={id:'special-img',type:'special-img',enabled:true,order:99};siteData.landing_sections.push(s);}
-    s.title=getVal('sb-img-title');s.description=getVal('sb-img-desc');s.cta_text=getVal('sb-img-cta');
-    const t=document.querySelector('.special-brick-img .special-brick-title');if(t)t.textContent=s.title;
-    const d=document.querySelector('.special-brick-img .special-brick-desc');if(d)d.textContent=s.description;
-    const c=document.querySelector('.special-brick-img .special-brick-cta');if(c&&c.childNodes[0])c.childNodes[0].textContent=s.cta_text+' ';
+    let s=siteData.landing_sections.find(x=>x.id==='special-bricks');
+    if(!s){s=JSON.parse(JSON.stringify(DEFAULT_DATA.landing_sections.find(x=>x.id==='special-bricks')||{id:'special-bricks',type:'special-bricks',enabled:true,order:10}));siteData.landing_sections.push(s);}
+    s.title_img=getVal('sb-img-title');s.description_img=getVal('sb-img-desc');s.cta_text_img=getVal('sb-img-cta');s.bg_img=getVal('sb-bg-img');
+    const t=document.querySelector('.special-brick-img .special-brick-title');if(t)t.textContent=s.title_img;
+    const d=document.querySelector('.special-brick-img .special-brick-desc');if(d)d.textContent=s.description_img;
+    const c=document.querySelector('.special-brick-img .special-brick-cta');if(c&&c.childNodes[0])c.childNodes[0].textContent=(s.cta_text_img||'Commencer à générer')+' ';
+    const bg=document.querySelector('.special-brick-img');if(bg)bg.style.backgroundImage=s.bg_img?('url('+s.bg_img+')'):'none';
   }
-  saveData();
+  // Sauvegarder aussi bg_stats si édité depuis le modal stats
+  if(type==='stats'){
+    let sb=siteData.landing_sections.find(x=>x.id==='special-bricks');
+    if(!sb){sb=JSON.parse(JSON.stringify(DEFAULT_DATA.landing_sections.find(x=>x.id==='special-bricks')||{id:'special-bricks',type:'special-bricks',enabled:true,order:10}));siteData.landing_sections.push(sb);}
+    sb.bg_stats=getVal('sb-bg-stats');
+    const bgEl=document.querySelector('.special-brick-stats');if(bgEl)bgEl.style.backgroundImage=sb.bg_stats?('url('+sb.bg_stats+')'):'none';
+  }
+  saveSiteData();
   document.getElementById('special-brick-modal').style.display='none';
   showToast('Brique mise à jour !','success');
 }
@@ -4219,6 +4454,10 @@ function buildSectionForm(s){
       <div class="form-group"><label class="form-label">Background</label>
         <select class="form-select" id="sf-bg"><option value="gradient" ${s.background==='gradient'?'selected':''}>Dégradé</option><option value="solid" ${s.background==='solid'?'selected':''}>Uni</option></select>
       </div>`;
+  } else if(s.type==='special-bricks'){
+    extra=`
+      <div class="form-group"><label class="form-label">Image de fond — Brique Statistiques</label>${imageFieldHTML('sf-bg-stats','sf-bg-stats-thumb',s.bg_stats||'')}</div>
+      <div class="form-group"><label class="form-label">Image de fond — Brique Images IA</label>${imageFieldHTML('sf-bg-img','sf-bg-img-thumb',s.bg_img||'')}</div>`;
   }
   return `
     <div class="modal-title grad-text" style="margin-bottom:6px;">Éditer — ${s.title||s.id}</div>
@@ -4320,7 +4559,7 @@ function saveSectionEdit(){
   const id=getVal('sf-section-id');
   const ss=siteData.landing_sections||(siteData.landing_sections=[]);
   const idx=ss.findIndex(x=>x.id===id);
-  if(idx<0) return;
+  if(idx<0){showToast('Section introuvable, veuillez réessayer.','error');return;}
   const s=ss[idx];
   s.title=getVal('sf-title');
   s.description=getVal('sf-desc');
@@ -4420,6 +4659,10 @@ function saveSectionEdit(){
   if(s.type==='cta'){
     s.cta_text=getVal('sf-cta-text');
     s.background=getVal('sf-bg');
+  }
+  if(s.type==='special-bricks'){
+    s.bg_stats=getVal('sf-bg-stats');
+    s.bg_img=getVal('sf-bg-img');
   }
   ss[idx]=s;
   saveSiteData().then(()=>{ closeModal(); loadSections(); renderLanding(siteData); showToast('Section sauvegardée','success'); });
@@ -4590,7 +4833,7 @@ function renderProviderKeySlots(){
     const count=apiKeys.filter(k=>k.provider===id).length;
     const active=apiKeys.filter(k=>k.provider===id&&k.active&&!k.quota_exceeded).length;
     const nextPriority=(apiKeys.reduce((m,k)=>Math.max(m,k.priority||0),0)||0)+1;
-    const endpoint=p.ep||(id==='gemini'?'https://generativelanguage.googleapis.com/v1beta/models/':id==='cohere'?'https://api.cohere.ai/v1/chat':'https://api-inference.huggingface.co/models/');
+    const endpoint=p.ep||(id==='gemini1'?'https://generativelanguage.googleapis.com/v1beta/models/':id==='cohere1'?'https://api.cohere.ai/v1/chat':'https://api-inference.huggingface.co/models/');
     return `<div class="provider-key-card">
       <div class="provider-key-head">
         <div class="provider-key-name">${p.name}</div>
@@ -4954,11 +5197,14 @@ alter table signups enable row level security;
 create policy "signups_insert_public" on signups for insert with check (true);
 create policy "signups_read_admin" on signups for select using (auth.uid() is not null);
 
--- conversations
-create table conversations (id uuid primary key default gen_random_uuid(), visitor_id text, provider text, messages jsonb, created_at timestamptz default now());
-alter table conversations enable row level security;
-create policy "conv_insert_public" on conversations for insert with check (true);
-create policy "conv_read_admin" on conversations for select using (auth.uid() is not null);`;
+-- user_conversations
+create table user_conversations (id uuid primary key default gen_random_uuid(), conv_id text not null, user_id uuid references auth.users(id) on delete cascade not null, title text, messages jsonb, created_at timestamptz default now(), updated_at timestamptz default now(), unique(conv_id));
+alter table user_conversations enable row level security;
+create policy "uconv_select_own" on user_conversations for select using (auth.uid() = user_id);
+create policy "uconv_insert_own" on user_conversations for insert with check (auth.uid() = user_id);
+create policy "uconv_update_own" on user_conversations for update using (auth.uid() = user_id);
+create policy "uconv_delete_own" on user_conversations for delete using (auth.uid() = user_id);
+create index user_conversations_user_id_idx on user_conversations(user_id);`;
   navigator.clipboard.writeText(sql).then(()=>showToast('SQL copié !','success'));
 }
 
@@ -5002,15 +5248,26 @@ async function saveSiteData(){
   return true;
 }
 
+// Garantit que special-bricks est toujours présent, quelle que soit l'origine des données
+function ensureSpecialBricks(sd){
+  if(!sd||!sd.landing_sections) return;
+  if(!sd.landing_sections.find(x=>x.id==='special-bricks')){
+    const def=DEFAULT_DATA.landing_sections.find(x=>x.id==='special-bricks');
+    if(def) sd.landing_sections.push(JSON.parse(JSON.stringify(def)));
+  }
+}
+
 async function loadSiteData(){
   const loc=safeStorage.getItem('rc_site');
   if(loc){try{siteData=JSON.parse(loc);}catch(e){siteData={};}}
   if(!siteData||!Object.keys(siteData).length) siteData=JSON.parse(JSON.stringify(DEFAULT_DATA));
+  ensureSpecialBricks(siteData);
   if(hasSupa()){
     try{
       const{data}=await supa.from('site_settings').select('data').eq('id',1).single();
       if(data?.data&&Object.keys(data.data).length){
         siteData=data.data;
+        ensureSpecialBricks(siteData);
         safeStorage.setItem('rc_site',JSON.stringify(siteData));
       }
     }catch(e){}
@@ -5063,6 +5320,7 @@ async function init(){
   const cached = safeStorage.getItem('rc_site');
   if(cached){ try{ siteData=JSON.parse(cached); }catch(e){ siteData={}; } }
   if(!siteData||!Object.keys(siteData).length) siteData=JSON.parse(JSON.stringify(DEFAULT_DATA));
+  ensureSpecialBricks(siteData);
   if(!siteData.brand) siteData.brand=DEFAULT_DATA.brand;
   if(!siteData.landing_sections) siteData.landing_sections=DEFAULT_DATA.landing_sections;
   if(!siteData.chat_config) siteData.chat_config=DEFAULT_DATA.chat_config;
@@ -5075,6 +5333,7 @@ async function init(){
       const{data}=await supa.from('site_settings').select('data').eq('id',1).single();
       if(data?.data&&Object.keys(data.data).length){
         siteData=data.data;
+        ensureSpecialBricks(siteData);
         if(!siteData.brand) siteData.brand=DEFAULT_DATA.brand;
         if(!siteData.landing_sections) siteData.landing_sections=DEFAULT_DATA.landing_sections;
         if(!siteData.chat_config) siteData.chat_config=DEFAULT_DATA.chat_config;
@@ -5085,13 +5344,14 @@ async function init(){
       }
     }catch(e){}
 
-    // 3) Realtime subscription — any admin save triggers instant re-render for ALL users
+    // 3) Realtime subscription — any admin save triggers instant re-render pour TOUS
     try{
       supa.channel('site-settings-live')
         .on('postgres_changes',{event:'UPDATE',schema:'public',table:'site_settings',filter:'id=eq.1'},
           payload=>{
             if(payload.new?.data){
               siteData=payload.new.data;
+              ensureSpecialBricks(siteData);
               if(!siteData.brand) siteData.brand=DEFAULT_DATA.brand;
               if(!siteData.landing_sections) siteData.landing_sections=DEFAULT_DATA.landing_sections;
               if(!siteData.chat_config) siteData.chat_config=DEFAULT_DATA.chat_config;
