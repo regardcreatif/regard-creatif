@@ -71,6 +71,8 @@ img{max-width:100%;display:block}
 @keyframes lineGrow{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes dotPulse{0%,60%,100%{transform:scale(1);opacity:.5}30%{transform:scale(1.3);opacity:1}}
 @keyframes msgIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.msg-copy-btn{display:inline-flex;align-items:center;justify-content:center;margin-top:6px;padding:4px 8px;border-radius:6px;border:1px solid var(--brd);background:rgba(255,255,255,.04);color:var(--t2);cursor:pointer;transition:all .2s;font-size:11px;gap:4px;}
+.msg-copy-btn:hover{border-color:var(--p);color:var(--p);background:rgba(124,58,237,.08);}
 @keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes toastOut{from{opacity:1}to{opacity:0;transform:translateX(20px)}}
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
@@ -870,6 +872,8 @@ img{max-width:100%;display:block}
 .special-brick-stats .special-brick-icon{background:linear-gradient(135deg,var(--p),var(--a));box-shadow:0 0 24px rgba(124,58,237,.4)}
 .special-brick-img .special-brick-icon{background:linear-gradient(135deg,#a855f7,var(--s));box-shadow:0 0 24px rgba(168,85,247,.4)}
 .special-brick-icon svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round}
+.special-brick-logo{position:relative;z-index:1;margin-bottom:12px;}
+.special-brick-logo img{max-height:44px;max-width:110px;object-fit:contain;border-radius:8px;}
 .special-brick-content{position:relative;z-index:1}
 .special-brick-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;opacity:.7}
 .special-brick-stats .special-brick-label{color:#c4b5fd}
@@ -933,7 +937,6 @@ img{max-width:100%;display:block}
   <!-- Bottom-of-page actions: admin access lives here, in normal page flow (not floating) -->
   <div class="site-footer-actions">
     <button id="admin-btn" onclick="openAdminLogin()" title="Administration">🧭</button>
-    <button class="footer-link-btn" onclick="openSignupModal()" title="Nous contacter">Nous contacter</button>
     <span class="footer-copy" id="site-footer-copy">Regard Créatif IA — © 2025</span>
   </div>
 </div>
@@ -950,8 +953,10 @@ img{max-width:100%;display:block}
     <button class="history-btn" id="history-toggle-btn" onclick="toggleHistory()" title="Conversations" style="display:none;">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="15" y2="18"/></svg>
     </button>
-    <button class="history-btn" id="account-toggle-btn" onclick="openVisitorAuthModal()" title="Mon compte" style="display:none;">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    <button class="history-btn" id="account-toggle-btn" onclick="openVisitorAuthModal()" title="Mon compte" style="display:none;position:relative;">
+      <span id="account-initials" style="display:none;font-size:11px;font-weight:800;color:#fff;letter-spacing:.5px;"></span>
+      <svg id="account-icon-svg" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span id="account-dot" style="display:none;position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:#22c55e;border:1.5px solid var(--bg);"></span>
     </button>
     <div class="chat-header-right">
       <button class="back-btn" onclick="goHome()">
@@ -1112,7 +1117,7 @@ img{max-width:100%;display:block}
 <!-- =================== PAGE GÉNÉRATION D'IMAGES =================== -->
 <div id="image-page">
   <div class="img-page-header">
-    <div class="img-page-title">
+    <div class="img-page-title" id="studio-title">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
       Studio Génération d'Images
     </div>
@@ -1570,6 +1575,22 @@ img{max-width:100%;display:block}
         </div>
       </div>
 
+      <div class="adm-card" style="margin-top:16px;">
+        <div style="font-weight:700;font-size:13px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;">Apparence du Studio</div>
+        <div class="form-group">
+          <label class="form-label">Titre du studio</label>
+          <input class="form-input" id="ic-studio-title" placeholder="Studio Génération d'Images">
+          <div style="font-size:11px;color:var(--t2);margin-top:4px;">Texte affiché dans le header du studio.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Logo du studio (URL image)</label>
+          <div class="img-field-row">
+            <img class="img-thumb" id="ic-studio-logo-thumb" src="" alt="" style="display:none;">
+            <input class="form-input" id="ic-studio-logo" placeholder="https://... (laisser vide = icône par défaut)" oninput="updateThumb('ic-studio-logo','ic-studio-logo-thumb')">
+          </div>
+          <div style="font-size:11px;color:var(--t2);margin-top:4px;">Remplace l'icône dans le header. Logo + titre apparaissent ensemble.</div>
+        </div>
+      </div>
       <button class="btn btn-primary" style="margin-top:16px;" onclick="saveImgConfig()">Sauvegarder la configuration</button>
     </section>
 
@@ -2390,13 +2411,10 @@ function renderSpecialBricks(s) {
           </div>
           ${s.logo_stats?`<div class="special-brick-logo"><img src="${s.logo_stats}" alt="logo" style="max-height:48px;max-width:120px;object-fit:contain;margin-bottom:10px;"></div>`:''}
           <div class="special-brick-content">
-            <div class="special-brick-label">Analyse intelligente</div>
-            <div class="special-brick-title">Analyse & Statistiques</div>
-            <div class="special-brick-desc">Soumettez vos données à Lia : tableaux, chiffres, rapports. Elle analyse, interprète et génère des insights en langage naturel.</div>
-            <button class="special-brick-cta">
-              Analyser mes données
-              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
+            ${(s.label_stats||'Analyse intelligente')?`<div class="special-brick-label">${s.label_stats||'Analyse intelligente'}</div>`:''}
+            ${(s.title_stats||'Analyse & Statistiques')?`<div class="special-brick-title">${s.title_stats||'Analyse & Statistiques'}</div>`:''}
+            ${(s.desc_stats!==undefined?s.desc_stats:'Soumettez vos données à Lia : tableaux, chiffres, rapports. Elle analyse, interprète et génère des insights en langage naturel.')?`<div class="special-brick-desc">${s.desc_stats!==undefined?s.desc_stats:'Soumettez vos données à Lia : tableaux, chiffres, rapports. Elle analyse, interprète et génère des insights en langage naturel.'}</div>`:''}
+            ${(s.cta_stats||'Analyser mes données')?`<button class="special-brick-cta">${s.cta_stats||'Analyser mes données'}<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>`:''}
           </div>
         </div>
         <!-- Brique Images -->
@@ -2404,18 +2422,15 @@ function renderSpecialBricks(s) {
           <div class="special-brick-bg" style="color:#a855f7;">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           </div>
-          <div class="special-brick-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-          </div>
-          ${s.logo_img?`<div class="special-brick-logo"><img src="${s.logo_img}" alt="logo" style="max-height:48px;max-width:120px;object-fit:contain;margin-bottom:10px;"></div>`:''}
+          ${s.logo_img
+            ? `<div class="special-brick-logo"><img src="${s.logo_img}" alt="logo"></div>`
+            : `<div class="special-brick-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>`
+          }
           <div class="special-brick-content">
-            <div class="special-brick-label">Créativité sans limite</div>
-            <div class="special-brick-title">${s.title_img||"Génération d'Images IA"}</div>
-            <div class="special-brick-desc">${s.description_img||"Transformez vos idées en images époustouflantes. Choisissez votre style, décrivez votre vision, et laissez l'IA créer."}</div>
-            <button class="special-brick-cta">
-              ${s.cta_text_img||'Commencer à générer'}
-              <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
+            ${(s.label_img!==undefined?s.label_img:'Créativité sans limite')?`<div class="special-brick-label">${s.label_img!==undefined?s.label_img:'Créativité sans limite'}</div>`:''}
+            ${(s.title_img!==undefined?s.title_img:"Génération d'Images IA")?`<div class="special-brick-title">${s.title_img!==undefined?s.title_img:"Génération d'Images IA"}</div>`:''}
+            ${(s.description_img!==undefined?s.description_img:"Transformez vos idées en images époustouflantes.")?`<div class="special-brick-desc">${s.description_img!==undefined?s.description_img:"Transformez vos idées en images époustouflantes."}</div>`:''}
+            ${(s.cta_text_img!==undefined?s.cta_text_img:'Commencer à générer')?`<button class="special-brick-cta">${s.cta_text_img!==undefined?s.cta_text_img:'Commencer à générer'}<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></button>`:''}
           </div>
         </div>
       </div>
@@ -2784,6 +2799,17 @@ function goHome() {
 
 // ─── NAVIGATION IMAGE PAGE ──────────────────────
 function openImagePage() {
+  // Mettre à jour le logo du studio si configuré
+  const studioLogo = siteData?.img_config?.studio_logo;
+  const titleEl = document.getElementById('studio-title');
+  if(titleEl){
+    const studioTitle = siteData?.img_config?.studio_title || "Studio Génération d'Images";
+    if(studioLogo){
+      titleEl.innerHTML = `<img src="${studioLogo}" alt="logo" style="height:32px;object-fit:contain;margin-right:8px;"> <span style="font-size:15px;font-weight:700;">${studioTitle}</span>`;
+    } else {
+      titleEl.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" stroke="var(--p)" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg> ${studioTitle}`;
+    }
+  }
   document.getElementById('landing-page').style.display = 'none';
   document.getElementById('site-header').style.display = 'none';
   document.getElementById('image-page').classList.add('open');
@@ -3144,17 +3170,38 @@ async function sendWithRotation(msg, files = [], signal) {
 
   // Construction du contenu utilisateur (texte + fichiers)
   let lastUserContent = msg || '';
-  if (files && files.length > 0) {
-    const pdfFiles = files.filter(f => f.type === 'pdf');
-    if (pdfFiles.length > 0) {
-      lastUserContent = (msg ? msg + '\n\n' : '') + `[Fichier(s) PDF : ${pdfFiles.map(f => f.name).join(', ')}]`;
-    }
+  const imageFiles = (files||[]).filter(f => f.type === 'image');
+  const pdfFiles = (files||[]).filter(f => f.type === 'pdf');
+
+  if(pdfFiles.length > 0){
+    lastUserContent = (msg ? msg + '\n\n' : '') + `[Fichier(s) PDF : ${pdfFiles.map(f => f.name).join(', ')}]`;
+  }
+
+  // Si des images sont jointes, construire un contenu multimodal
+  let userMessageContent;
+  if(imageFiles.length > 0){
+    userMessageContent = [
+      ...(lastUserContent ? [{ type:'text', text: lastUserContent }] : []),
+      ...imageFiles.map(f => ({
+        type: 'image_url',
+        image_url: { url: f.dataUrl }
+      }))
+    ];
+  } else {
+    userMessageContent = lastUserContent;
+  }
+
+  // Auto-basculer vers Gemini si image jointe et provider non-vision
+  const VISION_PROVIDERS = ['gemini1'];
+  let effectiveProvider = provider;
+  if(imageFiles.length > 0 && !VISION_PROVIDERS.includes(provider)){
+    effectiveProvider = 'gemini1'; // seul provider vision disponible
   }
 
   const messages = [
     { role: 'system', content: sysmsg },
     ...history.slice(-20).map(m => ({ role: m.role, content: m.content })),
-    { role: 'user', content: lastUserContent }
+    { role: 'user', content: userMessageContent }
   ];
 
   const rc_token = await generateHmacToken();
@@ -3163,7 +3210,7 @@ async function sendWithRotation(msg, files = [], signal) {
   const res = await fetch(PROXY_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages, provider, visitor_id: visitorId, user_id, rc_token }),
+    body: JSON.stringify({ messages, provider: effectiveProvider, visitor_id: visitorId, user_id, rc_token, has_images: imageFiles.length > 0 }),
     signal
   });
 
@@ -3271,6 +3318,20 @@ async function sendMessage() {
     scrollBottom();
 
     const shown = await streamText(r.text, document.getElementById(bubbleId), () => generationStopped);
+
+    // Ajouter bouton copier après la réponse
+    const copyBtn = document.createElement('button');
+    copyBtn.className = 'msg-copy-btn';
+    copyBtn.title = 'Copier la réponse';
+    copyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    copyBtn.onclick = () => {
+      navigator.clipboard.writeText(shown).then(()=>{
+        copyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>';
+        setTimeout(()=>{ copyBtn.innerHTML = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'; }, 2000);
+      }).catch(()=>{ showToast('Copie non supportée sur ce navigateur','warn'); });
+    };
+    const msgWrap = div.querySelector('.msg-wrap');
+    if(msgWrap) msgWrap.appendChild(copyBtn);
 
     setThinking(false);
     saveCurrentConversation();
@@ -3511,12 +3572,34 @@ async function getLoggedUser(){
   } catch(e){ return null; }
 }
 
+function updateAccountBtn(user){
+  const btn = document.getElementById('account-toggle-btn');
+  const initEl = document.getElementById('account-initials');
+  const svgEl = document.getElementById('account-icon-svg');
+  const dot = document.getElementById('account-dot');
+  if(!btn) return;
+  btn.style.display = 'flex';
+  if(user && user.email){
+    const initials = user.email.slice(0,2).toUpperCase();
+    if(initEl){ initEl.textContent = initials; initEl.style.display = 'block'; }
+    if(svgEl) svgEl.style.display = 'none';
+    if(dot) dot.style.display = 'block';
+    btn.style.background = 'linear-gradient(135deg,var(--p),var(--s))';
+    btn.style.borderColor = 'transparent';
+  } else {
+    if(initEl) initEl.style.display = 'none';
+    if(svgEl) svgEl.style.display = 'block';
+    if(dot) dot.style.display = 'none';
+    btn.style.background = '';
+    btn.style.borderColor = '';
+  }
+}
+
 async function initHistory(){
   visitorUser = await getLoggedUser();
   const histBtn = document.getElementById('history-toggle-btn');
-  const accBtn = document.getElementById('account-toggle-btn');
-  if(accBtn) accBtn.style.display = 'flex'; // toujours visible : permet de se connecter/s'inscrire
   if(histBtn) histBtn.style.display = visitorUser ? 'flex' : 'none';
+  updateAccountBtn(visitorUser);
   currentConvId = 'conv_' + Date.now();
 }
 
@@ -3687,18 +3770,22 @@ function toggleVisitorAuthMode(){
 
 async function openVisitorAuthModal(){
   const modal = document.getElementById('visitor-auth-modal');
+  if(!modal){ showToast('Inscription non disponible pour le moment','warn'); return; }
   const loggedOutView = document.getElementById('visitor-auth-loggedout');
   const loggedInView = document.getElementById('visitor-auth-loggedin');
   // Ouvrir immédiatement sans bloquer sur getLoggedUser
-  loggedOutView.style.display = 'block';
-  loggedInView.style.display = 'none';
+  if(loggedOutView) loggedOutView.style.display = 'block';
+  if(loggedInView) loggedInView.style.display = 'none';
   modal.style.display = 'flex';
   // Vérifier auth en arrière-plan et mettre à jour si connecté
   visitorUser = await getLoggedUser();
   if(visitorUser){
     loggedOutView.style.display = 'none';
     loggedInView.style.display = 'block';
-    document.getElementById('visitor-auth-current-email').textContent = visitorUser.email || '';
+    const rawEmail = visitorUser.email || '';
+    const [localPart, domain] = rawEmail.split('@');
+    const maskedEmail = localPart.slice(0,2) + '***@' + (domain||'');
+    document.getElementById('visitor-auth-current-email').textContent = maskedEmail;
   }
 }
 
@@ -3736,6 +3823,7 @@ async function submitVisitorAuth(){
     setVal('visitor-auth-email','');
     setVal('visitor-auth-pass','');
     await initHistory();
+    updateAccountBtn(visitorUser);
   }catch(e){
     errEl.textContent = e.message || 'Une erreur est survenue.';
     errEl.style.display = 'block';
@@ -3747,6 +3835,7 @@ async function submitVisitorAuth(){
 async function doVisitorLogout(){
   if(hasSupa()) await supa.auth.signOut().catch(()=>{});
   visitorUser = null;
+  updateAccountBtn(null);
   document.getElementById('visitor-auth-modal').style.display = 'none';
   document.getElementById('history-toggle-btn').style.display = 'none';
   document.getElementById('history-panel').classList.remove('open');
@@ -3840,6 +3929,9 @@ function loadImgConfig(){
   if(enhEl) enhEl.value = ic.enhance ? 'true' : 'false';
   setVal('ic-free-limit', ic.free_limit || 5);
   setVal('ic-seed', ic.seed || '');
+  setVal('ic-studio-title', ic.studio_title || '');
+  setVal('ic-studio-logo', ic.studio_logo || '');
+  updateThumb('ic-studio-logo','ic-studio-logo-thumb');
 }
 function saveImgConfig(){
   siteData.img_config = {
@@ -3851,6 +3943,8 @@ function saveImgConfig(){
     enhance:         getVal('ic-enhance') === 'true',
     free_limit:      parseInt(getVal('ic-free-limit')) || 5,
     seed:            getVal('ic-seed') ? parseInt(getVal('ic-seed')) : null,
+    studio_logo:     getVal('ic-studio-logo'),
+    studio_title:    getVal('ic-studio-title') || "Studio Génération d'Images",
   };
   saveSiteData();
   showToast('Config images sauvegardée !','success');
@@ -4544,10 +4638,20 @@ function buildSectionForm(s){
       </div>`;
   } else if(s.type==='special-bricks'){
     extra=`
-      <div class="form-group"><label class="form-label">Image de fond — Brique Statistiques</label>${imageFieldHTML('sf-bg-stats','sf-bg-stats-thumb',s.bg_stats||'')}</div>
-      <div class="form-group"><label class="form-label">Logo — Brique Statistiques</label>${imageFieldHTML('sf-logo-stats','sf-logo-stats-thumb',s.logo_stats||'')}</div>
-      <div class="form-group"><label class="form-label">Image de fond — Brique Images IA</label>${imageFieldHTML('sf-bg-img','sf-bg-img-thumb',s.bg_img||'')}</div>
-      <div class="form-group"><label class="form-label">Logo — Brique Images IA</label>${imageFieldHTML('sf-logo-img','sf-logo-img-thumb',s.logo_img||'')}</div>`;
+      <div style="font-weight:700;font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin:12px 0 8px;">— Brique Statistiques —</div>
+      <div class="form-group"><label class="form-label">Label (petit texte au-dessus du titre)</label><input class="form-input" id="sf-label-stats" value="${esc(s.label_stats||'Analyse intelligente')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="sf-title-stats" value="${esc(s.title_stats||'Analyse & Statistiques')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="sf-desc-stats" rows="2" placeholder="Laisser vide pour masquer">${esc(s.desc_stats!==undefined?s.desc_stats:'Soumettez vos données à Lia : tableaux, chiffres, rapports.')}</textarea></div>
+      <div class="form-group"><label class="form-label">Texte du bouton CTA</label><input class="form-input" id="sf-cta-stats" value="${esc(s.cta_stats||'Analyser mes données')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Image de fond</label>${imageFieldHTML('sf-bg-stats','sf-bg-stats-thumb',s.bg_stats||'')}</div>
+      <div class="form-group"><label class="form-label">Logo (remplace l'icône)</label>${imageFieldHTML('sf-logo-stats','sf-logo-stats-thumb',s.logo_stats||'')}</div>
+      <div style="font-weight:700;font-size:12px;color:var(--t2);text-transform:uppercase;letter-spacing:1px;margin:16px 0 8px;">— Brique Images IA —</div>
+      <div class="form-group"><label class="form-label">Label</label><input class="form-input" id="sf-label-img" value="${esc(s.label_img!==undefined?s.label_img:'Créativité sans limite')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Titre</label><input class="form-input" id="sf-title-img-brick" value="${esc(s.title_img!==undefined?s.title_img:'Génération d\'Images IA')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Description</label><textarea class="form-input" id="sf-desc-img" rows="2" placeholder="Laisser vide pour masquer">${esc(s.description_img!==undefined?s.description_img:'Transformez vos idées en images époustouflantes.')}</textarea></div>
+      <div class="form-group"><label class="form-label">Texte du bouton CTA</label><input class="form-input" id="sf-cta-img" value="${esc(s.cta_text_img!==undefined?s.cta_text_img:'Commencer à générer')}" placeholder="Laisser vide pour masquer"></div>
+      <div class="form-group"><label class="form-label">Image de fond</label>${imageFieldHTML('sf-bg-img','sf-bg-img-thumb',s.bg_img||'')}</div>
+      <div class="form-group"><label class="form-label">Logo (remplace l'icône)</label>${imageFieldHTML('sf-logo-img','sf-logo-img-thumb',s.logo_img||'')}</div>`;
   }
   return `
     <div class="modal-title grad-text" style="margin-bottom:6px;">Éditer — ${s.title||s.id}</div>
@@ -4751,8 +4855,16 @@ function saveSectionEdit(){
     s.background=getVal('sf-bg');
   }
   if(s.type==='special-bricks'){
+    s.label_stats=getVal('sf-label-stats');
+    s.title_stats=getVal('sf-title-stats');
+    s.desc_stats=getVal('sf-desc-stats');
+    s.cta_stats=getVal('sf-cta-stats');
     s.bg_stats=getVal('sf-bg-stats');
     s.logo_stats=getVal('sf-logo-stats');
+    s.label_img=getVal('sf-label-img');
+    s.title_img=getVal('sf-title-img-brick');
+    s.description_img=getVal('sf-desc-img');
+    s.cta_text_img=getVal('sf-cta-img');
     s.bg_img=getVal('sf-bg-img');
     s.logo_img=getVal('sf-logo-img');
   }
