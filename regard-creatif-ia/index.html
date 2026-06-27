@@ -619,6 +619,9 @@ img{max-width:100%;display:block}
 #admin-btn{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;background:transparent;border:1px solid transparent;border-radius:50%;cursor:pointer;transition:all .2s;font-size:15px;line-height:1;color:var(--t2);opacity:.4}
 #admin-btn:hover{opacity:1;border-color:var(--brd);background:rgba(124,58,237,.12);color:var(--t1)}
 
+.footer-link-btn{display:inline-flex;align-items:center;background:transparent;border:none;cursor:pointer;font-size:12px;color:var(--t2);text-decoration:underline;text-decoration-color:transparent;transition:all .2s;font-family:var(--font);padding:0;}
+.footer-link-btn:hover{color:var(--t1);text-decoration-color:var(--t2);}
+
 #signup-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:rgba(6,182,212,.1);border:1px solid rgba(6,182,212,.3);border-radius:9px;cursor:pointer;transition:all .2s;font-size:13px;font-weight:600;color:#7dd3e0}
 #signup-btn:hover{border-color:var(--s);background:rgba(6,182,212,.18);color:#fff}
 #signup-btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -914,7 +917,7 @@ img{max-width:100%;display:block}
   </div>
   <nav class="hdr-nav" id="hdr-nav"></nav>
   <div class="hdr-cta" id="hdr-cta">
-    <button id="signup-btn" onclick="openSignupModal()" title="Inscription et contact">
+    <button id="signup-btn" onclick="openVisitorAuthModal()" title="Créer un compte ou se connecter">
       <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
       Inscription
     </button>
@@ -930,6 +933,7 @@ img{max-width:100%;display:block}
   <!-- Bottom-of-page actions: admin access lives here, in normal page flow (not floating) -->
   <div class="site-footer-actions">
     <button id="admin-btn" onclick="openAdminLogin()" title="Administration">🧭</button>
+    <button class="footer-link-btn" onclick="openSignupModal()" title="Nous contacter">Nous contacter</button>
     <span class="footer-copy" id="site-footer-copy">Regard Créatif IA — © 2025</span>
   </div>
 </div>
@@ -1233,15 +1237,15 @@ img{max-width:100%;display:block}
     <button class="modal-close" onclick="document.getElementById('signup-modal').style.display='none'">
       <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
-    <div class="modal-title grad-text">Inscription et contact</div>
+    <div class="modal-title grad-text">Nous contacter</div>
     <div class="modal-sub">Laissez vos coordonnées, une demande ou un message pour Regard Créatif IA.</div>
     <div class="form-group">
       <label class="form-label">Nom</label>
-      <input class="form-input" id="signup-name" placeholder="Votre nom">
+      <input class="form-input" id="signup-name" placeholder="Votre nom" autocomplete="name">
     </div>
     <div class="form-group">
       <label class="form-label">Email</label>
-      <input class="form-input" type="email" id="signup-email" placeholder="votre@email.com">
+      <input class="form-input" type="email" id="signup-email" placeholder="votre@email.com" autocomplete="email">
     </div>
     <div class="form-group">
       <label class="form-label">Message</label>
@@ -5251,10 +5255,16 @@ async function saveSiteData(){
 // Garantit que special-bricks est toujours présent, quelle que soit l'origine des données
 function ensureSpecialBricks(sd){
   if(!sd||!sd.landing_sections) return;
-  if(!sd.landing_sections.find(x=>x.id==='special-bricks')){
-    const def=DEFAULT_DATA.landing_sections.find(x=>x.id==='special-bricks');
-    if(def) sd.landing_sections.push(JSON.parse(JSON.stringify(def)));
-  }
+  // Réinjecte toute section par défaut absente de la sauvegarde Supabase (ex: site_settings
+  // sauvegardé avant l'ajout d'une section comme "pricing" ou "special-bricks" dans le code).
+  // Sans ça, une section nouvellement ajoutée au code ne réapparaît jamais sur un site déjà
+  // configuré, car les données Supabase sont prioritaires sur DEFAULT_DATA et ne sont jamais
+  // fusionnées avec lui.
+  DEFAULT_DATA.landing_sections.forEach(defSection=>{
+    if(!sd.landing_sections.find(x=>x.id===defSection.id)){
+      sd.landing_sections.push(JSON.parse(JSON.stringify(defSection)));
+    }
+  });
 }
 
 async function loadSiteData(){
