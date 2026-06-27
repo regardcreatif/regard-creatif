@@ -2277,7 +2277,7 @@ function renderLanding(data) {
   const brand = data.brand || DEFAULT_DATA.brand;
   const sections = [...(data.landing_sections || DEFAULT_DATA.landing_sections)].sort((a,b)=>a.order-b.order);
   applyBrand(brand);
-  applyPubConfig(data.pub_config || siteData.pub_config);
+  applyPubConfig(data.pub_config || siteData.pub_config, !window._siteFullyLoaded);
   const sectionsHtml = sections.filter(s=>s.enabled).map(renderSection).join('');
   document.getElementById('landing-sections-wrap').innerHTML = sectionsHtml;
   initFAQ();
@@ -2335,6 +2335,7 @@ function renderSpecialBricks(s) {
           <div class="special-brick-icon">
             <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
           </div>
+          ${s.logo_stats?`<div class="special-brick-logo"><img src="${s.logo_stats}" alt="logo" style="max-height:48px;max-width:120px;object-fit:contain;margin-bottom:10px;"></div>`:''}
           <div class="special-brick-content">
             <div class="special-brick-label">Analyse intelligente</div>
             <div class="special-brick-title">Analyse & Statistiques</div>
@@ -2353,6 +2354,7 @@ function renderSpecialBricks(s) {
           <div class="special-brick-icon">
             <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
           </div>
+          ${s.logo_img?`<div class="special-brick-logo"><img src="${s.logo_img}" alt="logo" style="max-height:48px;max-width:120px;object-fit:contain;margin-bottom:10px;"></div>`:''}
           <div class="special-brick-content">
             <div class="special-brick-label">Créativité sans limite</div>
             <div class="special-brick-title">${s.title_img||"Génération d'Images IA"}</div>
@@ -3620,16 +3622,17 @@ async function openVisitorAuthModal(){
   const modal = document.getElementById('visitor-auth-modal');
   const loggedOutView = document.getElementById('visitor-auth-loggedout');
   const loggedInView = document.getElementById('visitor-auth-loggedin');
+  // Ouvrir immédiatement sans bloquer sur getLoggedUser
+  loggedOutView.style.display = 'block';
+  loggedInView.style.display = 'none';
+  modal.style.display = 'flex';
+  // Vérifier auth en arrière-plan et mettre à jour si connecté
   visitorUser = await getLoggedUser();
   if(visitorUser){
     loggedOutView.style.display = 'none';
     loggedInView.style.display = 'block';
     document.getElementById('visitor-auth-current-email').textContent = visitorUser.email || '';
-  } else {
-    loggedOutView.style.display = 'block';
-    loggedInView.style.display = 'none';
   }
-  modal.style.display = 'flex';
 }
 
 async function submitVisitorAuth(){
@@ -3997,7 +4000,7 @@ function savePubConfig(){
   applyPubConfig(pub);
   showToast('Pub & Bannières sauvegardées !','success');
 }
-function applyPubConfig(p){
+function applyPubConfig(p, skipPopup){
   if(!p) return;
   let bar=document.getElementById('site-pub-banner');
   if(p.banner_enabled&&p.banner_text){
@@ -4011,7 +4014,7 @@ function applyPubConfig(p){
   } else {
     if(bar) bar.remove();
   }
-  if(p.popup_enabled){
+  if(p.popup_enabled && !skipPopup){
     const last=localStorage.getItem('rc_popup_shown');
     const rep=(p.popup_repeat||0)*3600000;
     const can=!last||(rep>0&&Date.now()-parseInt(last)>rep);
@@ -4461,7 +4464,9 @@ function buildSectionForm(s){
   } else if(s.type==='special-bricks'){
     extra=`
       <div class="form-group"><label class="form-label">Image de fond — Brique Statistiques</label>${imageFieldHTML('sf-bg-stats','sf-bg-stats-thumb',s.bg_stats||'')}</div>
-      <div class="form-group"><label class="form-label">Image de fond — Brique Images IA</label>${imageFieldHTML('sf-bg-img','sf-bg-img-thumb',s.bg_img||'')}</div>`;
+      <div class="form-group"><label class="form-label">Logo — Brique Statistiques</label>${imageFieldHTML('sf-logo-stats','sf-logo-stats-thumb',s.logo_stats||'')}</div>
+      <div class="form-group"><label class="form-label">Image de fond — Brique Images IA</label>${imageFieldHTML('sf-bg-img','sf-bg-img-thumb',s.bg_img||'')}</div>
+      <div class="form-group"><label class="form-label">Logo — Brique Images IA</label>${imageFieldHTML('sf-logo-img','sf-logo-img-thumb',s.logo_img||'')}</div>`;
   }
   return `
     <div class="modal-title grad-text" style="margin-bottom:6px;">Éditer — ${s.title||s.id}</div>
@@ -4666,7 +4671,9 @@ function saveSectionEdit(){
   }
   if(s.type==='special-bricks'){
     s.bg_stats=getVal('sf-bg-stats');
+    s.logo_stats=getVal('sf-logo-stats');
     s.bg_img=getVal('sf-bg-img');
+    s.logo_img=getVal('sf-logo-img');
   }
   ss[idx]=s;
   saveSiteData().then(()=>{ closeModal(); loadSections(); renderLanding(siteData); showToast('Section sauvegardée','success'); });
@@ -5228,6 +5235,7 @@ function updateSyncBadge(state){
   else{label.textContent='Local uniquement';}
 }
 
+function saveData(){ return saveSiteData(); }
 async function saveSiteData(){
   safeStorage.setItem('rc_site',JSON.stringify(siteData));
   if(hasSupa()){
@@ -5387,6 +5395,7 @@ async function init(){
   const td=JSON.parse(safeStorage.getItem('rc_today')||'{"d":"","c":0}');
   todayMsgs=td.d===new Date().toDateString()?td.c:0;
   trackVisit();
+  setTimeout(()=>{ window._siteFullyLoaded=true; }, 3000);
 }
 
 // Si Supabase était déjà en cache navigateur, window.supabase existe immédiatement
