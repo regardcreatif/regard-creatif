@@ -2900,11 +2900,13 @@ function stfScore(tpl, query) {
 // ══════════════════════════════════════════════
 //  ANTI PULL-TO-REFRESH (WebView / APK)
 // ══════════════════════════════════════════════
-// Voir index.html pour le détail : on bloque le rebond/refresh natif quand
-// on est en haut/bas d'une zone scrollable (panneaux, liste de calques...),
-// sans toucher au canvas (déjà géré par touch-action:none + pointer events).
+// Voir index.html pour le détail : on bloque le rebond UNIQUEMENT quand on
+// est à la limite haute/basse d'une zone à défilement vertical (panneaux,
+// liste de calques...). Le scroll horizontal de la barre d'outils, le canvas
+// (déjà géré par touch-action:none + pointer events) et tout le reste ne
+// sont jamais touchés.
 (function () {
-    function findScrollable(el) {
+    function findVerticalScrollable(el) {
         while (el && el !== document.body && el !== document.documentElement) {
             const oy = window.getComputedStyle(el).overflowY;
             if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) return el;
@@ -2912,17 +2914,15 @@ function stfScore(tpl, query) {
         }
         return null;
     }
-    let startY = 0, scrollTarget = null, skip = false;
+    let startY = 0, scrollTarget = null;
     document.addEventListener('touchstart', function (e) {
         if (e.touches.length !== 1) return;
         startY = e.touches[0].clientY;
-        skip = !!e.target.closest('#canvas-area, #main-canvas, canvas, input, textarea, select');
-        scrollTarget = skip ? null : findScrollable(e.target);
+        scrollTarget = findVerticalScrollable(e.target);
     }, { passive: true });
     document.addEventListener('touchmove', function (e) {
-        if (skip || e.touches.length !== 1) return;
+        if (!scrollTarget || e.touches.length !== 1) return;
         const dy = e.touches[0].clientY - startY;
-        if (!scrollTarget) { e.preventDefault(); return; }
         const atTop = scrollTarget.scrollTop <= 0;
         const atBottom = scrollTarget.scrollHeight - scrollTarget.scrollTop <= scrollTarget.clientHeight + 1;
         if ((atTop && dy > 0) || (atBottom && dy < 0)) e.preventDefault();
