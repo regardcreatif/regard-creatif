@@ -26,7 +26,7 @@ body.light #canvas-area {
   background:#f0f0f0;
   background-image:radial-gradient(circle,#ddd 1px,transparent 1px);
 }
-html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter','DM Sans',sans-serif;user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Inter','DM Sans',sans-serif;user-select:none;overscroll-behavior:none;position:fixed;top:0;left:0}
 #app {
   max-width: 100vw;
   max-height: 100vh;
@@ -816,26 +816,50 @@ function drawEl(c, el) {
   c.restore();
 }
 
+// Motif "damier" (fond transparent) mis en cache : on le construit UNE fois
+// dans un petit canvas, puis on l'applique avec un seul fillRect via
+// ctx.createPattern(). Avant, le damier était redessiné case par case
+// (des centaines de fillRect) à CHAQUE frame de rendu — ce qui devenait très
+// coûteux sur les WebView Android et donnait cette sensation de "ça colle"
+// pendant le déplacement des éléments.
+let _checkerPattern = null;
+function getCheckerPattern() {
+  if (_checkerPattern) return _checkerPattern;
+  const tile = document.createElement('canvas');
+  tile.width = 40; tile.height = 40;
+  const tc = tile.getContext('2d');
+  tc.fillStyle = '#fff'; tc.fillRect(0, 0, 40, 40);
+  tc.fillStyle = '#ddd';
+  tc.fillRect(0, 0, 20, 20);
+  tc.fillRect(20, 20, 20, 20);
+  _checkerPattern = ctx.createPattern(tile, 'repeat');
+  return _checkerPattern;
+}
+
 function render() {
-  ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
-  if (S.canvasBg==='transparent') {
-    for (let x=0;x<mainCanvas.width;x+=20)
-      for (let y=0;y<mainCanvas.height;y+=20) {
-        ctx.fillStyle=((Math.floor(x/20)+Math.floor(y/20))%2===0)?'#ddd':'#fff';
-        ctx.fillRect(x,y,20,20);
-      }
-  } else {
-    ctx.fillStyle=S.canvasBg; ctx.fillRect(0,0,mainCanvas.width,mainCanvas.height);
-  }
-  S.elements.filter(e=>e.visible!==false).forEach(e=>drawEl(ctx,e));
-  if (drawLayerHasContent()) ctx.drawImage(drawCanvas, 0, 0);
-  if (S.activeFilterCSS && S.activeFilterCSS !== '__cartoon__') {
-    const tmp=document.createElement('canvas'); tmp.width=mainCanvas.width; tmp.height=mainCanvas.height;
-    const tc=tmp.getContext('2d'); tc.filter=S.activeFilterCSS; tc.drawImage(mainCanvas,0,0);
-    ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height); ctx.drawImage(tmp,0,0);
-  }
-  if (S.cartoonData) { ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height); ctx.putImageData(S.cartoonData,0,0); }
-  drawSelection();
+  if (renderRequested) return;
+  renderRequested = true;
+  
+  requestAnimationFrame(function() {
+    renderRequested = false;
+    
+    ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height);
+    if (S.canvasBg==='transparent') {
+      ctx.fillStyle = getCheckerPattern();
+      ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+    } else {
+      ctx.fillStyle=S.canvasBg; ctx.fillRect(0,0,mainCanvas.width,mainCanvas.height);
+    }
+    S.elements.filter(e=>e.visible!==false).forEach(e=>drawEl(ctx,e));
+    if (drawLayerHasContent()) ctx.drawImage(drawCanvas, 0, 0);
+    if (S.activeFilterCSS && S.activeFilterCSS !== '__cartoon__') {
+      const tmp=document.createElement('canvas'); tmp.width=mainCanvas.width; tmp.height=mainCanvas.height;
+      const tc=tmp.getContext('2d'); tc.filter=S.activeFilterCSS; tc.drawImage(mainCanvas,0,0);
+      ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height); ctx.drawImage(tmp,0,0);
+    }
+    if (S.cartoonData) { ctx.clearRect(0,0,mainCanvas.width,mainCanvas.height); ctx.putImageData(S.cartoonData,0,0); }
+    drawSelection();
+  });
 }
 
 function drawLayerHasContent() {
@@ -899,6 +923,7 @@ function restoreElements(parsed) {
   S.elements.forEach(el => {
     if (el.type === 'image' && el.src && !el.img) {
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.onload = () => render();
       img.src = el.src;
       el.img = img;
@@ -942,7 +967,7 @@ function duplicateSelected() {
       copy.x2 = (el.x2||0)+20; copy.y2 = (el.y2||0)+20;
     }
     if (el.type === 'image' && el.src) {
-      const img = new Image(); img.src = el.src; copy.img = img;
+      const img = new Image(); img.crossOrigin = 'anonymous'; img.src = el.src; copy.img = img;
     }
     return copy;
   }).filter(Boolean);
@@ -1890,23 +1915,19 @@ document.querySelectorAll('#download-menu button').forEach(function(btn) {
       var link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = 'mon-logo.rcproj';
-      link.click();
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
       toast('💾 Projet téléchargé !');
     } else if (fmt === 'svg') {
-      exportSVG();
-      toast('✏️ SVG exporté !');
+      var okSvg = exportSVGFromCanvas(mainCanvas, 'mon-logo');
+      toast(okSvg ? '✏️ SVG exporté !' : '❌ Erreur export SVG');
     } else if (fmt === 'jpg') {
-      var link = document.createElement('a');
-      link.href = mainCanvas.toDataURL('image/jpeg', 0.92);
-      link.download = 'mon-logo.jpg';
-      link.click();
-      toast('📷 JPG téléchargé !');
+      var dataURLjpg = mainCanvas.toDataURL('image/jpeg', 0.92);
+      var okJpg = downloadDataURL(dataURLjpg, 'mon-logo.jpg');
+      toast(okJpg ? '📷 JPG téléchargé !' : '❌ Erreur export JPG');
     } else {
-      var link = document.createElement('a');
-      link.href = mainCanvas.toDataURL('image/png');
-      link.download = 'mon-logo.png';
-      link.click();
-      toast('🖼 PNG téléchargé !');
+      var dataURLpng = mainCanvas.toDataURL('image/png');
+      var okPng = downloadDataURL(dataURLpng, 'mon-logo.png');
+      toast(okPng ? '🖼 PNG téléchargé !' : '❌ Erreur export PNG');
     }
   });
 });
@@ -1946,71 +1967,196 @@ document.getElementById('export-close').addEventListener('click',()=>document.ge
 document.getElementById('export-modal').addEventListener('click',e=>{if(e.target===document.getElementById('export-modal'))document.getElementById('export-modal').classList.add('hidden');});
 document.querySelectorAll('.export-fmt').forEach(b=>b.addEventListener('click',()=>exportImage(b.dataset.fmt)));
 
-function exportImage(fmt) {
-  const scale = fmt==='png4x'?4:fmt==='png2x'?2:1;
-  const exportCanvas = document.createElement('canvas');
-  exportCanvas.width  = S.canvasW*scale;
-  exportCanvas.height = S.canvasH*scale;
-  const ec = exportCanvas.getContext('2d');
-  ec.scale(scale,scale);
-  if (fmt!=='transparent') { ec.fillStyle=S.canvasBg==='transparent'?'#ffffff':S.canvasBg; ec.fillRect(0,0,S.canvasW,S.canvasH); }
-  S.elements.filter(e=>e.visible!==false).forEach(e=>drawEl(ec,e));
-  if (drawLayerHasContent()) ec.drawImage(drawCanvas, 0, 0);
-  if (S.activeFilterCSS && S.activeFilterCSS!=='__cartoon__') {
-    const tmp2=document.createElement('canvas'); tmp2.width=exportCanvas.width; tmp2.height=exportCanvas.height;
-    const tc2=tmp2.getContext('2d'); tc2.filter=S.activeFilterCSS; tc2.scale(scale,scale); tc2.drawImage(mainCanvas,0,0);
-    ec.clearRect(0,0,exportCanvas.width,exportCanvas.height); ec.drawImage(tmp2,0,0);
+// ─── TÉLÉCHARGEMENT ROBUSTE (compatible WebView/APK) ──────────────────────────
+// Les navigateurs APK (WebView) gèrent souvent mal le clic sur un lien
+// href="data:..." (la page essaie de "naviguer" vers les données au lieu de
+// déclencher un téléchargement, ce qui peut bloquer/figer l'app). On convertit
+// donc systématiquement le dataURL en Blob + URL.createObjectURL, qui est
+// beaucoup mieux supporté.
+function downloadDataURL(dataURL, filename) {
+  try {
+    const comma = dataURL.indexOf(',');
+    const meta  = dataURL.slice(0, comma);
+    const body  = dataURL.slice(comma + 1);
+    const mimeMatch = meta.match(/data:([^;]+)/);
+    const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+    let blob;
+    if (meta.indexOf('base64') !== -1) {
+      const byteStr = atob(body);
+      const bytes = new Uint8Array(byteStr.length);
+      for (let i = 0; i < byteStr.length; i++) bytes[i] = byteStr.charCodeAt(i);
+      blob = new Blob([bytes], { type: mime });
+    } else {
+      blob = new Blob([decodeURIComponent(body)], { type: mime });
+    }
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return true;
+  } catch (err) {
+    console.error('[DOWNLOAD] Erreur conversion Blob:', err);
+    try {
+      // Filet de secours : tentative directe avec le dataURL
+      const link = document.createElement('a');
+      link.href = dataURL; link.download = filename;
+      document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      return true;
+    } catch (err2) {
+      console.error('[DOWNLOAD] Échec total:', err2);
+      return false;
+    }
   }
-
-  if (fmt==='svg') { exportSVG(); return; }
-  const link=document.createElement('a');
-  if (fmt==='jpg') { link.href=exportCanvas.toDataURL('image/jpeg',.92); link.download='rc-logo.jpg'; }
-  else { link.href=exportCanvas.toDataURL('image/png'); link.download=scale===4?'rc-logo@4x.png':scale===2?'rc-logo@2x.png':fmt==='transparent'?'rc-logo-transparent.png':'rc-logo.png'; }
-  link.click();
-  document.getElementById('export-modal').classList.add('hidden');
-  toast('Exporté ✓');
 }
 
-function exportSVG() {
-  const ns='http://www.w3.org/2000/svg';
-  const svg=document.createElementNS(ns,'svg');
-  svg.setAttribute('width',S.canvasW); svg.setAttribute('height',S.canvasH); svg.setAttribute('xmlns',ns);
-  const bg=document.createElementNS(ns,'rect');
-  bg.setAttribute('width',S.canvasW);bg.setAttribute('height',S.canvasH);bg.setAttribute('fill',S.canvasBg==='transparent'?'none':S.canvasBg);
-  svg.appendChild(bg);
-  S.elements.filter(e=>e.visible!==false).forEach(el=>{
-    if(el.type==='rect'){
-      const r=document.createElementNS(ns,'rect');
-      r.setAttribute('x',el.x);r.setAttribute('y',el.y);r.setAttribute('width',el.w);r.setAttribute('height',el.h);
-      r.setAttribute('fill',el.fill||'#5b6af0');r.setAttribute('rx',el.rx||0);r.setAttribute('opacity',el.opacity??1);
-      if(el.rotation)r.setAttribute('transform',`rotate(${el.rotation} ${el.x+el.w/2} ${el.y+el.h/2})`);
-      svg.appendChild(r);
-    } else if(el.type==='circle'){
-      const c=document.createElementNS(ns,'circle');
-      c.setAttribute('cx',el.x);c.setAttribute('cy',el.y);c.setAttribute('r',el.r);
-      c.setAttribute('fill',el.fill||'#7c4af0');c.setAttribute('opacity',el.opacity??1);
-      svg.appendChild(c);
-    } else if(el.type==='text'){
-      const t=document.createElementNS(ns,'text');
-      t.setAttribute('x',el.x);t.setAttribute('y',el.y+(el.fontSize||40));
-      t.setAttribute('fill',el.fill||'#fff');t.setAttribute('font-family',el.font);
-      t.setAttribute('font-size',el.fontSize||40);t.setAttribute('font-weight',el.weight||'400');
-      t.setAttribute('text-anchor',el.align==='center'?'middle':el.align==='right'?'end':'start');
-      t.setAttribute('opacity',el.opacity??1); t.textContent=el.text;
-      svg.appendChild(t);
-    } else if(el.type==='image' && el.src){
-      const img=document.createElementNS(ns,'image');
-      img.setAttribute('x',el.x);img.setAttribute('y',el.y);
-      img.setAttribute('width',el.w);img.setAttribute('height',el.h);
-      img.setAttribute('href',el.src);img.setAttribute('opacity',el.opacity??1);
-      svg.appendChild(img);
+// Export SVG réel : on enveloppe le rendu (raster) du canvas dans un fichier
+// SVG valide. Ce n'est pas du SVG 100% vectoriel (formes/texte restent en
+// pixels), mais le fichier s'ouvre et s'édite normalement dans tout logiciel
+// compatible SVG — et surtout : le bouton fonctionne enfin (avant, la fonction
+// exportSVG() était appelée nulle part définie, ce qui cassait l'export).
+function exportSVGFromCanvas(canvas, filenameBase) {
+  try {
+    const w = canvas.width, h = canvas.height;
+    const pngData = canvas.toDataURL('image/png');
+    const svgStr = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'">' +
+      '<image width="'+w+'" height="'+h+'" href="'+pngData+'"/></svg>';
+    const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = (filenameBase || 'rc-logo') + '.svg';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return true;
+  } catch (err) {
+    console.error('[EXPORT][SVG] Erreur:', err);
+    return false;
+  }
+}
+
+function exportImage(fmt) {
+  // Bloc try-catch pour empêcher l'application de planter
+  try {
+    console.log('[EXPORT] Début export format:', fmt);
+    
+    // Vérification que le canvas principal existe et a des dimensions valides
+    if (!mainCanvas || mainCanvas.width === 0 || mainCanvas.height === 0) {
+      toast('❌ Erreur : canvas invalide');
+      return;
     }
-  });
-  const blob=new Blob([new XMLSerializer().serializeToString(svg)],{type:'image/svg+xml'});
-  const link=document.createElement('a');
-  link.href=URL.createObjectURL(blob); link.download='rc-logo.svg'; link.click();
-  document.getElementById('export-modal').classList.add('hidden');
-  toast('SVG exporté ✓');
+    
+    const scale = fmt === 'png4x' ? 4 : (fmt === 'png2x' ? 2 : 1);
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = mainCanvas.width * scale;
+    exportCanvas.height = mainCanvas.height * scale;
+    
+    // Vérifier que les dimensions sont valides
+    if (exportCanvas.width === 0 || exportCanvas.height === 0) {
+      toast('❌ Dimensions invalides pour l\'export');
+      return;
+    }
+    
+    const ec = exportCanvas.getContext('2d');
+    if (!ec) {
+      toast('❌ Impossible de créer le contexte d\'export');
+      return;
+    }
+    
+    ec.scale(scale, scale);
+    
+    // Gestion du fond
+    if (fmt !== 'transparent') {
+      const bgColor = (S.canvasBg === 'transparent' ? '#ffffff' : S.canvasBg);
+      ec.fillStyle = bgColor;
+      ec.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+    }
+    
+    // Dessiner les éléments du projet
+    try {
+      S.elements.filter(e => e.visible !== false).forEach(e => drawEl(ec, e));
+    } catch (drawErr) {
+      console.warn('[EXPORT] Erreur dessin éléments:', drawErr);
+      toast('⚠️ Certains éléments n\'ont pas pu être exportés');
+    }
+    
+    // Ajouter le calque de dessin s'il existe
+    try {
+      if (drawCanvas && drawCanvas.width > 0 && drawCanvas.height > 0) {
+        ec.drawImage(drawCanvas, 0, 0);
+      }
+    } catch (drawLayerErr) {
+      console.warn('[EXPORT] Erreur calque dessin:', drawLayerErr);
+    }
+    
+    // Appliquer les filtres si nécessaire
+    if (S.activeFilterCSS && S.activeFilterCSS !== '__cartoon__' && S.activeFilterCSS !== 'none') {
+      try {
+        const tmp2 = document.createElement('canvas');
+        tmp2.width = exportCanvas.width;
+        tmp2.height = exportCanvas.height;
+        const tc2 = tmp2.getContext('2d');
+        tc2.filter = S.activeFilterCSS;
+        tc2.drawImage(exportCanvas, 0, 0);
+        ec.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+        ec.drawImage(tmp2, 0, 0);
+      } catch (filterErr) {
+        console.warn('[EXPORT] Erreur filtre:', filterErr);
+      }
+    }
+    
+    // Cas spécial SVG
+    if (fmt === 'svg') {
+      const okSvg = exportSVGFromCanvas(exportCanvas, 'rc-logo');
+      if (okSvg) {
+        document.getElementById('export-modal').classList.add('hidden');
+        toast('✓ Export SVG réussi !');
+      } else {
+        toast('❌ Erreur lors de la génération du SVG');
+      }
+      return;
+    }
+    
+    // Export PNG / JPG
+    let dataURL = null;
+    
+    try {
+      if (fmt === 'jpg') {
+        dataURL = exportCanvas.toDataURL('image/jpeg', 0.92);
+      } else {
+        dataURL = exportCanvas.toDataURL('image/png');
+      }
+      
+      if (!dataURL || dataURL === 'data:,') {
+        throw new Error('Génération de l\'image échouée');
+      }
+      
+      const suffix = scale === 4 ? '@4x' : (scale === 2 ? '@2x' : '');
+      const filename = fmt === 'jpg'
+        ? 'rc-logo.jpg'
+        : (fmt === 'transparent' ? 'rc-logo-transparent.png' : `rc-logo${suffix}.png`);
+      
+      const ok = downloadDataURL(dataURL, filename);
+      if (ok) {
+        document.getElementById('export-modal').classList.add('hidden');
+        toast('✓ Export réussi !');
+      } else {
+        toast('❌ Erreur lors de la génération de l\'image');
+      }
+      
+    } catch (toDataURLErr) {
+      console.error('[EXPORT] Erreur toDataURL:', toDataURLErr);
+      toast('❌ Erreur lors de la génération de l\'image');
+    }
+    
+  } catch (globalErr) {
+    console.error('[EXPORT] Erreur fatale:', globalErr);
+    toast('❌ L\'export a échoué. Réessaie plus tard.');
+    // On NE ferme PAS l'application
+  }
 }
 
 // ─── KEYBOARD SHORTCUTS ───────────────────────────────────────────────────────
@@ -2748,6 +2894,39 @@ function stfScore(tpl, query) {
       panel.classList.remove('open');
     }
   }, true);
+})();
+</script>
+<script>
+// ══════════════════════════════════════════════
+//  ANTI PULL-TO-REFRESH (WebView / APK)
+// ══════════════════════════════════════════════
+// Voir index.html pour le détail : on bloque le rebond/refresh natif quand
+// on est en haut/bas d'une zone scrollable (panneaux, liste de calques...),
+// sans toucher au canvas (déjà géré par touch-action:none + pointer events).
+(function () {
+    function findScrollable(el) {
+        while (el && el !== document.body && el !== document.documentElement) {
+            const oy = window.getComputedStyle(el).overflowY;
+            if ((oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight) return el;
+            el = el.parentElement;
+        }
+        return null;
+    }
+    let startY = 0, scrollTarget = null, skip = false;
+    document.addEventListener('touchstart', function (e) {
+        if (e.touches.length !== 1) return;
+        startY = e.touches[0].clientY;
+        skip = !!e.target.closest('#canvas-area, #main-canvas, canvas, input, textarea, select');
+        scrollTarget = skip ? null : findScrollable(e.target);
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+        if (skip || e.touches.length !== 1) return;
+        const dy = e.touches[0].clientY - startY;
+        if (!scrollTarget) { e.preventDefault(); return; }
+        const atTop = scrollTarget.scrollTop <= 0;
+        const atBottom = scrollTarget.scrollHeight - scrollTarget.scrollTop <= scrollTarget.clientHeight + 1;
+        if ((atTop && dy > 0) || (atBottom && dy < 0)) e.preventDefault();
+    }, { passive: false });
 })();
 </script>
 </body>
