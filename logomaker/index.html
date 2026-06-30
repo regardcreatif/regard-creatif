@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>RC Logo Maker – Regard Créatif</title>
+<link rel="preload" as="image" href="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <meta name="description" content="Créez des logos professionnels gratuitement avec RC Logo Maker.">
 <meta property="og:title" content="RC Logo Maker – Regard Créatif">
 <meta property="og:image" content="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png">
@@ -145,14 +147,14 @@ html, body {
 }
 #header-user-avatar.visible { display:flex; }
 
-#download-apk {
+#open-ai-gen {
   display:flex; align-items:center; justify-content:center; gap:8px;
   background:linear-gradient(135deg,#5b6af0,#7c4af0); border:none; margin:9px 16px 4px;
   padding:10px 18px; border-radius:30px; color:#fff; font-weight:800; font-size:.74rem;
   cursor:pointer; text-decoration:none; flex-shrink:0;
   box-shadow:0 4px 16px rgba(91,106,240,.32); letter-spacing:.2px; position:relative; overflow:hidden;
 }
-#download-apk::after {
+#open-ai-gen::after {
   content:''; position:absolute; top:0; left:-100%; width:60%; height:100%;
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
   animation:shimmer 2.5s infinite;
@@ -207,7 +209,9 @@ html, body {
 }
 .tpl-card:active { border-color:var(--accent); transform:scale(1.04); box-shadow:var(--shadow-lg); z-index:1; }
 .tpl-card .preview { flex:1; display:flex; align-items:center; justify-content:center; padding:6px; overflow:visible; }
-.tpl-card .preview svg { transform:scale(1.7); transform-origin:center; }
+.tpl-card .preview svg { width:100%; height:100%; display:block; }
+.tpl-picker-card .tpl-prev svg { width:100%; height:100%; display:block; }
+.e-stf-card-thumb svg { width:100%; height:100%; display:block; }
 .tpl-card .tpl-name {
   padding:5px 3px; font-size:.57rem; font-weight:800; color:var(--text2);
   text-align:center; background:var(--panel2); border-top:1px solid var(--border);
@@ -634,6 +638,41 @@ html, body {
 .e-stf-cat-luxe{background:#3d2c0a;color:#f5d48b;} .e-stf-cat-tech{background:#001a3a;color:#00e5ff;} .e-stf-cat-nature{background:#0d2e0e;color:#a8e063;} .e-stf-cat-sport{background:#2d0a00;color:#ff8c00;} .e-stf-cat-minimal{background:#222;color:#eee;} .e-stf-cat-vintage{background:#2e1f0a;color:#d4a843;}
 .e-stf-hint { font-size:10px; color:var(--e-text2); text-align:center; }
 .e-ai-status { font-size:11px; color:var(--e-text2); text-align:center; padding:6px 0; }
+/* ══════ PANNEAU ADMIN ══════ */
+#admin-panel{position:fixed;inset:0;z-index:9000;display:none;background:var(--bg);}
+#admin-panel.open{display:flex;}
+#admin-sidebar{width:210px;background:var(--panel2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto;}
+.adm-logo{padding:18px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+.adm-logo-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;flex-shrink:0;}
+.adm-logo-text{font-size:.78rem;font-weight:800;color:var(--text);}
+.adm-nav{padding:10px 8px;flex:1;}
+.adm-nav .nav-item,.adm-bottom .nav-item{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;cursor:pointer;font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:2px;border-left:3px solid transparent;}
+.adm-nav .nav-item:hover,.adm-bottom .nav-item:hover{background:rgba(91,106,240,.08);color:var(--text);}
+.adm-nav .nav-item.active{background:rgba(91,106,240,.13);color:var(--accent);border-left-color:var(--accent);}
+.adm-nav .nav-icon{width:14px;text-align:center;flex-shrink:0;}
+.adm-bottom{padding:10px 8px;border-top:1px solid var(--border);}
+#admin-content{flex:1;overflow-y:auto;padding:24px 22px 60px;}
+.adm-section{display:none;}
+.adm-section.active{display:block;}
+.adm-section-title{font-size:1.15rem;font-weight:800;color:var(--text);margin-bottom:4px;}
+.adm-section-sub{font-size:.74rem;color:var(--text2);margin-bottom:18px;line-height:1.5;}
+.adm-card{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;}
+.adm-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px;}
+.adm-stat{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:14px 10px;text-align:center;}
+.adm-stat-val{font-size:1.4rem;font-weight:900;color:var(--accent);line-height:1;margin-bottom:4px;}
+.adm-stat-lbl{font-size:.66rem;color:var(--text2);font-weight:600;}
+.adm-table-wrap{overflow-x:auto;border-radius:12px;border:1px solid var(--border);}
+.adm-table{width:100%;border-collapse:collapse;font-size:.72rem;}
+.adm-table th{text-align:left;padding:9px 11px;background:var(--panel3);color:var(--text2);font-weight:700;font-size:.62rem;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--border);}
+.adm-table td{padding:9px 11px;border-bottom:1px solid var(--border);color:var(--text);}
+.adm-table tr:last-child td{border-bottom:none;}
+.actions-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.adm-badge{font-size:.68rem;font-weight:700;padding:5px 11px;border-radius:20px;background:rgba(91,106,240,.1);color:var(--accent);border:1px solid rgba(91,106,240,.25);}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:9px;font-size:.72rem;font-weight:700;cursor:pointer;border:none;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
+.btn-secondary{background:var(--panel3);color:var(--text2);border:1px solid var(--border);}
+.btn-sm{padding:7px 13px;font-size:.68rem;}
+@media(max-width:640px){#admin-sidebar{width:54px;}.adm-logo-text,.adm-nav span,.adm-bottom span{display:none;}.adm-logo{justify-content:center;}#admin-content{padding:18px 12px 60px;}}
 </style>
 </head>
 <body>
@@ -671,9 +710,9 @@ html, body {
       <i class="fa-solid fa-crown" style="font-size:.6rem"></i> PRO
     </div>
   </div>
-  <a id="download-apk" href="#" role="button">
-    <i class="fa-solid fa-download"></i>
-    Télécharger l'application (APK)
+  <a id="open-ai-gen" href="#" role="button">
+    <i class="fa-solid fa-wand-magic-sparkles"></i>
+    Générateur d'images IA
     <i class="fa-solid fa-arrow-right" style="font-size:.7rem;opacity:.7"></i>
   </a>
   <div id="home-search">
@@ -689,6 +728,16 @@ html, body {
     <div class="cat-chip" data-cat="vintage"><i class="fa-solid fa-clock-rotate-left"></i> Vintage</div>
     <div class="cat-chip" data-cat="sport"><i class="fa-solid fa-bolt"></i> Sport</div>
     <div class="cat-chip" data-cat="minimal"><i class="fa-solid fa-minus"></i> Minimal</div>
+    <div class="cat-chip" data-cat="artdeco"><i class="fa-solid fa-sun"></i> Art Déco</div>
+    <div class="cat-chip" data-cat="cyberpunk"><i class="fa-solid fa-bolt-lightning"></i> Cyberpunk</div>
+    <div class="cat-chip" data-cat="botanical"><i class="fa-solid fa-seedling"></i> Botanique</div>
+    <div class="cat-chip" data-cat="brutalist"><i class="fa-solid fa-square"></i> Brutaliste</div>
+    <div class="cat-chip" data-cat="calligraphy"><i class="fa-solid fa-feather"></i> Calligraphie</div>
+    <div class="cat-chip" data-cat="tropical"><i class="fa-solid fa-umbrella-beach"></i> Tropical</div>
+    <div class="cat-chip" data-cat="streetwear"><i class="fa-solid fa-spray-can"></i> Streetwear</div>
+    <div class="cat-chip" data-cat="celestial"><i class="fa-solid fa-moon"></i> Céleste</div>
+    <div class="cat-chip" data-cat="industrial"><i class="fa-solid fa-gear"></i> Industriel</div>
+    <div class="cat-chip" data-cat="watercolor"><i class="fa-solid fa-droplet"></i> Aquarelle</div>
     <div class="cat-chip" data-cat="user"><i class="fa-solid fa-user"></i> Publiés</div>
   </div>
   <div id="home-content">
@@ -982,7 +1031,191 @@ html, body {
     <button class="action-btn outline-btn" onclick="closeLoginPopup();openInscriptionPopup()"><i class="fa-solid fa-user-plus"></i> &nbsp;Créer un compte</button>
   </div>
 </div>
+<!-- ══════════════ GÉNÉRATEUR D'IMAGES IA ══════════════ -->
+<div class="popup-overlay" id="ai-gen-popup" onclick="if(event.target.id==='ai-gen-popup')closeAiGenModal()">
+  <div class="popup">
+    <div class="popup-handle"></div>
+    <button class="close-btn" onclick="closeAiGenModal()"><i class="fa-solid fa-xmark"></i></button>
+    <h3><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent)"></i> &nbsp;Générateur de logo IA</h3>
+    <input type="text" class="form-input" id="ai-gen-prompt" placeholder="Ex : un renard minimaliste pour une marque de café" autocomplete="off">
+
+    <div class="form-group" style="margin-top:10px">
+      <label class="form-label">Style</label>
+      <select class="form-input" id="ai-gen-style">
+        <option value="minimalist flat vector">Minimaliste / flat</option>
+        <option value="modern geometric">Géométrique moderne</option>
+        <option value="luxury emblem, gold detailing">Luxe / emblème</option>
+        <option value="mascot cartoon">Mascotte / cartoon</option>
+        <option value="badge vintage retro">Badge vintage</option>
+        <option value="3d glossy">3D glossy</option>
+        <option value="hand-drawn line art">Trait dessiné à la main</option>
+        <option value="tech futuristic neon">Tech / futuriste</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Palette de couleurs</label>
+      <select class="form-input" id="ai-gen-colors">
+        <option value="">Laisser l'IA choisir</option>
+        <option value="black and white, monochrome">Noir &amp; blanc</option>
+        <option value="blue and white corporate colors">Bleu &amp; blanc (corporate)</option>
+        <option value="gold and black colors">Or &amp; noir</option>
+        <option value="pastel colors">Pastel</option>
+        <option value="vibrant gradient colors">Dégradé vif</option>
+        <option value="green and earth tones">Vert &amp; tons naturels</option>
+      </select>
+    </div>
+
+    <button class="action-btn" id="ai-gen-go-btn" onclick="runAiGen()"><i class="fa-solid fa-sparkles"></i> &nbsp;Générer le logo</button>
+    <div id="ai-gen-result" style="margin-top:12px;display:none;text-align:center;">
+      <img id="ai-gen-img" style="width:100%;border-radius:14px;box-shadow:var(--shadow);" alt="Image générée">
+      <button class="action-btn" style="margin-top:10px;" onclick="insertAiGenIntoEditor()"><i class="fa-solid fa-layer-group"></i> &nbsp;Insérer dans l'éditeur</button>
+    </div>
+  </div>
+</div>
+<!-- ══════════════ ADMIN — GATE DE CAMOUFLAGE ══════════════ -->
+<div class="popup-overlay" id="admin-gate-popup" onclick="if(event.target.id==='admin-gate-popup')closeAdminGate()">
+  <div class="popup">
+    <div class="popup-handle"></div>
+    <button class="close-btn" onclick="closeAdminGate()"><i class="fa-solid fa-xmark"></i></button>
+    <h3><i class="fa-solid fa-gear" style="color:var(--accent)"></i> &nbsp;Paramètres avancés</h3>
+    <input type="password" class="form-input" id="admin-gate-pass" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdminGate()">
+    <div id="admin-gate-err" style="color:#ef4444;font-size:13px;margin:6px 2px 12px;display:none;">Mot de passe incorrect.</div>
+    <button class="action-btn" onclick="submitAdminGate()"><i class="fa-solid fa-unlock"></i> &nbsp;Valider</button>
+  </div>
+</div>
+<!-- ══════════════ ADMIN — CONNEXION SUPABASE (réelle) ══════════════ -->
+<div class="popup-overlay" id="admin-login-popup" onclick="if(event.target.id==='admin-login-popup')closeAdminLogin()">
+  <div class="popup">
+    <div class="popup-handle"></div>
+    <button class="close-btn" onclick="closeAdminLogin()"><i class="fa-solid fa-xmark"></i></button>
+    <h3><i class="fa-solid fa-user-shield" style="color:var(--accent)"></i> &nbsp;Administration</h3>
+    <input type="email" class="form-input" id="admin-login-email" placeholder="admin@exemple.com" autocomplete="off">
+    <input type="password" class="form-input" id="admin-login-pass" placeholder="Mot de passe" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdminLogin()">
+    <div id="admin-login-err" style="color:#ef4444;font-size:13px;margin:6px 2px 12px;display:none;"></div>
+    <button class="action-btn" id="admin-login-btn" onclick="submitAdminLogin()"><i class="fa-solid fa-right-to-bracket"></i> &nbsp;Se connecter</button>
+  </div>
+</div>
+<!-- ══════════════ PANNEAU ADMIN ══════════════ -->
+<!-- ══════════════ PANNEAU ADMIN — PLEIN ÉCRAN, À ONGLETS ══════════════ -->
+<div id="admin-panel">
+  <aside id="admin-sidebar">
+    <div class="adm-logo">
+      <div class="adm-logo-icon"><i class="fa-solid fa-shield-halved"></i></div>
+      <span class="adm-logo-text">Admin RC</span>
+    </div>
+    <nav class="adm-nav">
+      <div class="nav-item active" data-tab="templates" onclick="showAdmTab('templates')"><i class="fa-solid fa-layer-group nav-icon"></i><span>Templates</span></div>
+      <div class="nav-item" data-tab="imggen" onclick="showAdmTab('imggen')"><i class="fa-solid fa-wand-magic-sparkles nav-icon"></i><span>Génération IA</span></div>
+      <div class="nav-item" data-tab="keys" onclick="showAdmTab('keys')"><i class="fa-solid fa-key nav-icon"></i><span>Clés API</span></div>
+      <div class="nav-item" data-tab="stats" onclick="showAdmTab('stats')"><i class="fa-solid fa-chart-column nav-icon"></i><span>Statistiques</span></div>
+      <div class="nav-item" data-tab="users" onclick="showAdmTab('users')"><i class="fa-solid fa-users nav-icon"></i><span>Utilisateurs</span></div>
+      <div class="nav-item" data-tab="supa" onclick="showAdmTab('supa')"><i class="fa-solid fa-database nav-icon"></i><span>Supabase</span></div>
+    </nav>
+    <div class="adm-bottom">
+      <div class="nav-item" onclick="closeAdminPanel()"><i class="fa-solid fa-xmark nav-icon"></i><span>Fermer</span></div>
+      <div class="nav-item" onclick="adminLogout()"><i class="fa-solid fa-right-from-bracket nav-icon"></i><span>Déconnexion</span></div>
+    </div>
+  </aside>
+
+  <div id="admin-content">
+
+    <!-- TEMPLATES -->
+    <section class="adm-section active" id="adm-templates">
+      <div class="adm-section-title">Templates</div>
+      <div class="adm-section-sub">Modèles de logos disponibles sur la page d'accueil.</div>
+      <div class="adm-stat-grid">
+        <div class="adm-stat"><div class="adm-stat-val" id="adm-tpl-count">—</div><div class="adm-stat-lbl">Templates actifs</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="adm-cat-count">—</div><div class="adm-stat-lbl">Catégories</div></div>
+      </div>
+      <div class="adm-card">
+        <p style="color:var(--text2);font-size:.8rem;line-height:1.6;">La gestion fine (ajout/édition/suppression d'un template, upload d'aperçu, structure JSON des calques) se fait directement dans les tables Supabase <code>templates</code> et <code>categories</code> via le Table Editor — pour l'instant aucune interface graphique n'est branchée ici.</p>
+      </div>
+    </section>
+
+    <!-- GÉNÉRATION IA -->
+    <section class="adm-section" id="adm-imggen">
+      <div class="adm-section-title">Génération d'images IA</div>
+      <div class="adm-section-sub">Quota gratuit et ordre de rotation des fournisseurs (configurés côté Edge Function).</div>
+      <div class="adm-card">
+        <div class="form-group">
+          <label class="form-label">Générations gratuites avant abonnement Pro</label>
+          <input class="form-input" id="adm-free-limit" type="number" value="2" disabled>
+          <div style="font-size:.68rem;color:var(--text2);margin-top:4px;">Suivi par adresse IP (table <code>rate_limits</code>). Modifiable dans <code>image-gen-edge-function.ts</code> (<code>FREE_GEN_LIMIT</code>) puis redéployer.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ordre de rotation des fournisseurs</label>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="adm-badge">1. Lumenfall</span>
+            <span class="adm-badge">2. Agnes AI</span>
+            <span class="adm-badge">3. Pollinations (secours, sans clé)</span>
+          </div>
+          <div style="font-size:.68rem;color:var(--text2);margin-top:8px;">Si Lumenfall échoue, l'Edge Function bascule automatiquement sur Agnes AI, puis sur Pollinations.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLÉS API -->
+    <section class="adm-section" id="adm-keys">
+      <div class="adm-section-title">Clés API</div>
+      <div class="adm-section-sub">Les clés elles-mêmes vivent uniquement dans Supabase (Project Settings → Edge Functions → Secrets) — elles ne sont jamais visibles ici. Ce panneau affiche juste si chaque fournisseur répond.</div>
+      <div class="actions-row">
+        <button class="btn btn-primary btn-sm" onclick="testAllProviderKeys()"><i class="fa-solid fa-rotate"></i> &nbsp;Tester les clés</button>
+      </div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Fournisseur</th><th>Secret attendu</th><th>Statut</th></tr></thead>
+          <tbody id="keys-tbody">
+            <tr><td>Lumenfall</td><td><code>LUMENFALL_API_KEY</code></td><td id="key-status-lumenfall">—</td></tr>
+            <tr><td>Agnes AI</td><td><code>AGNES_AI_API_KEY</code></td><td id="key-status-agnes_ai">—</td></tr>
+            <tr><td>Pollinations</td><td><span style="color:var(--text2)">aucun (gratuit)</span></td><td id="key-status-pollinations">✅ Toujours disponible</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- STATISTIQUES -->
+    <section class="adm-section" id="adm-stats">
+      <div class="adm-section-title">Statistiques</div>
+      <div class="adm-section-sub">Données issues de Supabase.</div>
+      <div class="adm-stat-grid">
+        <div class="adm-stat"><div class="adm-stat-val" id="s-visits">—</div><div class="adm-stat-lbl">Visites</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="s-signups">—</div><div class="adm-stat-lbl">Inscriptions</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="s-logos">—</div><div class="adm-stat-lbl">Logos créés</div></div>
+        <div class="adm-stat"><div class="adm-stat-val" id="s-pro">—</div><div class="adm-stat-lbl">Abonnés Pro</div></div>
+      </div>
+      <div class="actions-row"><button class="btn btn-secondary btn-sm" onclick="loadAdminStats()"><i class="fa-solid fa-rotate"></i> &nbsp;Actualiser</button></div>
+    </section>
+
+    <!-- UTILISATEURS -->
+    <section class="adm-section" id="adm-users">
+      <div class="adm-section-title">Utilisateurs &amp; Abonnements</div>
+      <div class="adm-section-sub">Derniers comptes inscrits.</div>
+      <div class="actions-row"><button class="btn btn-secondary btn-sm" onclick="loadAdminUsers()"><i class="fa-solid fa-rotate"></i> &nbsp;Actualiser</button></div>
+      <div class="adm-table-wrap">
+        <table class="adm-table">
+          <thead><tr><th>Date</th><th>Email</th><th>Plan</th></tr></thead>
+          <tbody id="users-tbody"><tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text2);">Chargement…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- SUPABASE -->
+    <section class="adm-section" id="adm-supa">
+      <div class="adm-section-title">Connexion Supabase</div>
+      <div class="adm-section-sub">Projet connecté en dur dans le code (front public) — l'URL et la clé anon ne sont pas des secrets, elles peuvent être visibles côté client sans risque, contrairement aux clés des fournisseurs IA.</div>
+      <div class="adm-card">
+        <div class="form-group"><label class="form-label">URL projet</label><input class="form-input" id="adm-supa-url" disabled></div>
+        <div class="form-group"><label class="form-label">Statut connexion</label><div id="adm-supa-status" style="font-size:.85rem;">—</div></div>
+        <button class="btn btn-secondary btn-sm" onclick="testSupaConnection()"><i class="fa-solid fa-plug"></i> &nbsp;Tester la connexion</button>
+      </div>
+    </section>
+
+  </div>
+</div>
+
 <div class="popup-overlay" id="profile-popup" onclick="if(event.target.id==='profile-popup')closeProfilePopup()">
+
   <div class="popup">
     <div class="popup-handle"></div>
     <button class="close-btn" onclick="closeProfilePopup()"><i class="fa-solid fa-xmark"></i></button>
@@ -1041,6 +1274,41 @@ html, body {
 <div id="home-toast"></div>
 <script>
 'use strict';
+
+const _TPL_PAL_MAP={
+  luxe:     {accs:['#e8b84b','#ffcf5b','#d8a63b','#f4d287'], acc2s:['#fff0a8','#ffd36e'], font:'Playfair Display'},
+  tech:     {accs:['#54f2ff','#7c4af0','#2de2e6','#60a5fa'], acc2s:['#7c4af0','#5b6af0'],  font:'Righteous'},
+  nature:   {accs:['#7ee787','#9be15d','#43c463','#b7f58e'], acc2s:['#d6f7a3','#8df0c3'],  font:'Playfair Display'},
+  sport:    {accs:['#ff5a2f','#ffd166','#ff8c42','#ef4444'], acc2s:['#ffd166','#fff0a3'],  font:'League Spartan'},
+  vintage:  {accs:['#f4c46b','#d8a15b','#c58b45','#e6b067'], acc2s:['#f4c46b','#e8b07a'],  font:'Abril Fatface'},
+  minimal:  {accs:['#111111'], acc2s:['#6b7280'], font:'Inter', light:true},
+  artdeco:  {accs:['#d4af37','#c9a227','#e3c567','#b8902a'], acc2s:['#1a1a1a','#f5e6c8'], font:'Cinzel'},
+  cyberpunk:{accs:['#ff00aa','#00fff0','#ff2ec4','#39ff14'], acc2s:['#00fff0','#7000ff'], font:'Orbitron'},
+  botanical:{accs:['#5c8a5c','#8fae6e','#a8c896','#6e9b6e'], acc2s:['#e8dcc0','#cfe3b4'], font:'Caveat'},
+  brutalist:{accs:['#000000','#ff2d00','#000000','#ff2d00'], acc2s:['#ffffff','#e8e8e8'], font:'Alfa Slab One', light:true},
+  calligraphy:{accs:['#c9a063','#b88a52','#d8b97a','#a87b42'], acc2s:['#f6e9d8','#e7c8a0'], font:'Pacifico'},
+  tropical: {accs:['#ff7e45','#ff5e7e','#ffb347','#ff8c69'], acc2s:['#2ec4b6','#1fb6a6'], font:'Lobster'},
+  streetwear:{accs:['#f7ff00','#ff003c','#00e5ff','#ff7a00'], acc2s:['#ffffff','#cccccc'], font:'Fjalla One'},
+  celestial:{accs:['#c9b8ff','#9d8cff','#e0d4ff','#b39ddb'], acc2s:['#ffe9a8','#fff3c4'], font:'Cinzel'},
+  industrial:{accs:['#ff8c00','#d97706','#ffa733','#e08c2b'], acc2s:['#9ca3af','#cbd5e1'], font:'Oswald'},
+  watercolor:{accs:['#f3a6c1','#a6c8f3','#c8f3a6','#f3d9a6'], acc2s:['#e8c9e8','#cfe8e0'], font:'Caveat'},
+};
+function _tplPalette(t){
+  const seed=t.name.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+  const conf=_TPL_PAL_MAP[t.cat]||_TPL_PAL_MAP.luxe;
+  const light=!!conf.light;
+  const acc=light&&conf.accs.length===1?conf.accs[0]:conf.accs[seed%conf.accs.length];
+  const acc2=conf.acc2s[seed%2%conf.acc2s.length];
+  const font=conf.font;
+  return{fg:light?'#171717':'#ffffff',muted:light?'#5f5f5f':'rgba(255,255,255,.72)',acc,acc2,font,seed,light};
+}
+function _mkEl(type,props){const id=typeof eMkId==='function'?eMkId():String(Math.random().toString(36).slice(2,10));return Object.assign({id,type,opacity:1,rotation:0,visible:true,locked:false},props);}
+function _mkLine(x1,y1,x2,y2,stroke,strokeW,opacity,customName){return _mkEl('line',{x:x1,y:y1,x1,y1,x2,y2,stroke,strokeW:strokeW||4,opacity:opacity||1,customName:customName||'Ligne'});}
+function _mkGlow(color,blur){return{color:color,blur:blur};}
+function _mkShadow(color,blur,x,y){return{color,blur,x:x||0,y:y||0};}
+
+
+
 /* ═══════════════════════════════════════════════════════════════
    TEMPLATES DATA
 ═══════════════════════════════════════════════════════════════ */
@@ -1065,6 +1333,30 @@ const TEMPLATES = [
   { name:"Quantum",      cat:"tech",    badge:"new", bg:"linear-gradient(135deg,#020b18,#041830)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g22a" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00f5d4"/><stop offset="100%" stop-color="#0070f3"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#020b18"/><polygon points="40,8 56,18 56,38 40,48 24,38 24,18" fill="none" stroke="url(#g22a)" stroke-width="1.2"/><circle cx="40" cy="28" r="4" fill="url(#g22a)" opacity="0.95"/><text x="40" y="63" text-anchor="middle" font-family="Orbitron,sans-serif" font-size="7.5" font-weight="700" fill="url(#g22a)" letter-spacing="1">QUANTUM</text></svg>` },
   { name:"Verdant",      cat:"nature",  badge:"",    bg:"linear-gradient(135deg,#071a0a,#0e2e12)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g23a" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#2a7a44"/><stop offset="100%" stop-color="#7edb72"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#071a0a"/><path d="M40,11 Q65,15 63,40 Q61,56 40,60 Q40,36 14,27 Q22,9 40,11 Z" fill="url(#g23a)" opacity="0.9"/><text x="40" y="72.5" text-anchor="middle" font-family="Playfair Display,serif" font-size="6.5" font-weight="700" fill="url(#g23a)" letter-spacing="3">VERDANT</text></svg>` },
   { name:"APEX",         cat:"sport",   badge:"hot", bg:"linear-gradient(135deg,#0d0d0d,#1a0808)", svg:`<svg viewBox="0 0 80 80" width="62" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="g24a" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#e01020"/><stop offset="100%" stop-color="#ff4444"/></linearGradient><linearGradient id="g24b" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ffffff"/><stop offset="100%" stop-color="#cccccc"/></linearGradient></defs><rect x="0" y="0" width="80" height="80" fill="#0d0d0d"/><polygon points="30,10 44,10 36,34 50,34 24,70 32,46 18,46" fill="url(#g24a)" opacity="0.92"/><text x="56" y="58" text-anchor="middle" font-family="Bebas Neue,sans-serif" font-size="13" fill="url(#g24b)" letter-spacing="2">APEX</text></svg>` },
+
+  /* ── 10 nouveaux templates — designs distincts, jamais recyclés (variantes b/c) ── */
+  { name:"Sunburst Régence", cat:"luxe",    badge:"new", variant:"b", bg:"linear-gradient(135deg,#1c1006,#3a2410)" },
+  { name:"Baroque Crown",    cat:"luxe",    badge:"",    variant:"c", bg:"linear-gradient(135deg,#140a1e,#2b1640)" },
+  { name:"CircuitPulse",     cat:"tech",    badge:"hot", variant:"b", bg:"linear-gradient(135deg,#04140c,#062c1a)" },
+  { name:"Orbital Nine",     cat:"tech",    badge:"new", variant:"c", bg:"linear-gradient(135deg,#070314,#160a30)" },
+  { name:"Alpine Echo",      cat:"nature",  badge:"",    variant:"b", bg:"linear-gradient(135deg,#031018,#0a2030)" },
+  { name:"Wreath & Bloom",   cat:"nature",  badge:"",    variant:"c", bg:"linear-gradient(135deg,#16110a,#2c2010)" },
+  { name:"Iron Shield 7",    cat:"sport",   badge:"hot", variant:"b", bg:"linear-gradient(135deg,#0a0a0a,#260808)" },
+  { name:"Chevron Velocity", cat:"sport",   badge:"new", variant:"c", bg:"linear-gradient(135deg,#02060f,#0a142c)" },
+  { name:"Dual Form",        cat:"minimal", badge:"",    variant:"b", bg:"linear-gradient(135deg,#fafafa,#e4e4e4)" },
+  { name:"Heritage Ribbon",  cat:"vintage", badge:"",    variant:"b", bg:"linear-gradient(135deg,#1b1006,#2e1c08)" },
+
+  /* ── 10 NOUVEAUX styles inédits — jamais vus dans la collection ── */
+  { name:"Gatsby Gold",   cat:"artdeco",    badge:"new", bg:"linear-gradient(135deg,#0b0905,#1c1408)" },
+  { name:"Neon Reverie",  cat:"cyberpunk",  badge:"hot", bg:"linear-gradient(135deg,#05010a,#10021c)" },
+  { name:"Fern & Co.",    cat:"botanical",  badge:"",    bg:"linear-gradient(135deg,#f4f0e4,#e7e6cf)" },
+  { name:"Concrete Mass", cat:"brutalist",  badge:"new", bg:"linear-gradient(135deg,#ffffff,#e3e3e3)" },
+  { name:"Belle Plume",   cat:"calligraphy",badge:"",    bg:"linear-gradient(135deg,#1c140a,#2e1f10)" },
+  { name:"Mango Coast",   cat:"tropical",   badge:"hot", bg:"linear-gradient(135deg,#3a0b1c,#5c1430)" },
+  { name:"Riot Crew",     cat:"streetwear", badge:"new", bg:"linear-gradient(135deg,#0a0a0a,#161616)" },
+  { name:"Lunaria",       cat:"celestial",  badge:"",    bg:"linear-gradient(135deg,#0a0a1e,#171034)" },
+  { name:"Forgewerk",     cat:"industrial", badge:"",    bg:"linear-gradient(135deg,#15171a,#23262b)" },
+  { name:"Bloom Wash",    cat:"watercolor", badge:"new", bg:"linear-gradient(135deg,#fdf8f3,#f3e9ec)" },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1079,20 +1371,32 @@ function showScreen(id) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
+   SUPABASE — projet RC Logo Maker
+═══════════════════════════════════════════════════════════════ */
+const SUPABASE_URL = 'https://mlwiihdmfbjzwzguvyxz.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_LGQ2ukiMSnDu71TFDcUJaA_eUBP8EUy';
+let supa = null;
+try{
+  if(window.supabase && SUPABASE_URL && SUPABASE_ANON_KEY){
+    supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }
+}catch(e){ console.warn('Supabase non initialisé', e); }
+
+/* ═══════════════════════════════════════════════════════════════
    SPLASH — image PNG simple, pas de GIF
 ═══════════════════════════════════════════════════════════════ */
 (function() {
   const splash = document.getElementById('splash');
   const loaderBar = document.getElementById('splash-loader-bar');
-  const MIN_SPLASH = 1800;
+  const MIN_SPLASH = 500;
   const startTime = Date.now();
 
   let progress = 0;
   const progressTimer = setInterval(() => {
-    progress += Math.random() * 10;
+    progress += Math.random() * 22;
     if (progress > 92) progress = 92;
     loaderBar.style.width = progress + '%';
-  }, 90);
+  }, 60);
 
   let ended = false;
   function endSplash() {
@@ -1103,7 +1407,7 @@ function showScreen(id) {
     setTimeout(() => {
       splash.classList.add('fade-out');
       showScreen('home');
-      setTimeout(() => { splash.classList.add('hidden'); }, 420);
+      setTimeout(() => { splash.classList.add('hidden'); }, 250);
       // Restore dark mode
       if (localStorage.getItem('rc_dark') === '1') {
         document.body.classList.add('dark');
@@ -1112,17 +1416,19 @@ function showScreen(id) {
       }
       updateHeaderForUser();
       setTimeout(renderHomeTemplates, 60);
-    }, 180);
+    }, 60);
   }
 
   const logo = document.getElementById('splash-logo');
   let imgReady = logo.complete;
   logo.onload = () => { imgReady = true; };
+  // Sécurité : si l'image traîne à charger (réseau lent), on ne bloque pas l'app plus de 1.2s
+  setTimeout(() => { imgReady = true; }, 1200);
 
   function checkEnd() {
     const elapsed = Date.now() - startTime;
     if (elapsed >= MIN_SPLASH && imgReady) endSplash();
-    else setTimeout(checkEnd, 50);
+    else setTimeout(checkEnd, 30);
   }
   checkEnd();
 })();
@@ -1165,9 +1471,13 @@ function renderHomeTemplates() {
     const card = document.createElement('div');
     card.className = 'tpl-card';
     const badgeHtml = tpl.badge ? `<span class="tpl-badge ${tpl.badge}">${tpl.badge === 'user' ? '⭐' : tpl.badge.toUpperCase()}</span>` : '';
+    const tplBgColor = (()=>{if(!tpl.bg||!tpl.bg.includes('gradient'))return tpl.bg||'#0f0f1a';const c=(tpl.bg.match(/#[0-9a-fA-F]{3,6}/g)||[]);return c[0]||'#0f0f1a';})();
+    const previewContent = tpl._published
+      ? (tpl._published.preview ? `<img src="${tpl._published.preview}" style="width:100%;height:100%;object-fit:cover">` : '<i class="fa-solid fa-image" style="font-size:1.6rem;color:rgba(255,255,255,.3)"></i>')
+      : tplPreviewThumb(tpl);
     card.innerHTML = `
-      <div class="preview" style="background:${tpl.bg}">
-        ${tpl.svg || '<i class="fa-solid fa-image" style="font-size:1.6rem;color:rgba(255,255,255,.3)"></i>'}
+      <div class="preview" style="background:${tplBgColor}">
+        ${previewContent}
       </div>
       <div class="tpl-name">${escHtml(tpl.name)}</div>
       ${badgeHtml}
@@ -1269,7 +1579,7 @@ function openTemplatesPicker() {
   TEMPLATES.forEach((tpl, i) => {
     const card = document.createElement('div');
     card.className = 'tpl-picker-card';
-    card.innerHTML = `<div class="tpl-prev" style="background:${tpl.bg}">${tpl.svg}</div><div class="tpl-lbl">${tpl.name}</div>`;
+    card.innerHTML = `<div class="tpl-prev" style="background:${(()=>{if(!tpl.bg||!tpl.bg.includes('gradient'))return tpl.bg||'#0f0f1a';const c=(tpl.bg.match(/#[0-9a-fA-F]{3,6}/g)||[]);return c[0]||'#0f0f1a';})()}">${tplPreviewThumb(tpl)}</div><div class="tpl-lbl">${tpl.name}</div>`;
     card.addEventListener('click', () => { closeTemplatesPicker(); loadTemplate(i); });
     grid.appendChild(card);
   });
@@ -1409,8 +1719,261 @@ function openCreation(item) {
 }
 function deleteCreation(e, idx) { e.stopPropagation(); const c=getCreations(); c.splice(idx,1); saveCreations(c); renderCreationsList(); homeToast('🗑️ Supprimé.'); }
 
-// Bouton APK
-document.getElementById('download-apk').addEventListener('click', e => { e.preventDefault(); homeToast('📱 Application APK bientôt disponible !'); });
+// Bouton Générateur IA
+document.getElementById('open-ai-gen').addEventListener('click', e => { e.preventDefault(); openAiGenModal(); });
+
+// ══════════════ GÉNÉRATEUR D'IMAGES IA (via Edge Function Supabase "image-gen") ══════════════
+// FREE_GEN_LIMIT = nb de générations gratuites par utilisateur non-abonné (suivi par IP côté serveur).
+// Au-delà, l'Edge Function renvoie {error:'limit_reached'} et on invite à l'abonnement Pro.
+const FREE_GEN_LIMIT = 2;
+let _aiGenLastImg = null;
+function openAiGenModal(){ document.getElementById('ai-gen-prompt').value=''; document.getElementById('ai-gen-style').selectedIndex=0; document.getElementById('ai-gen-colors').selectedIndex=0; document.getElementById('ai-gen-result').style.display='none'; document.getElementById('ai-gen-popup').classList.add('active'); }
+function closeAiGenModal(){ document.getElementById('ai-gen-popup').classList.remove('active'); }
+
+async function runAiGen(){
+  const prompt = document.getElementById('ai-gen-prompt').value.trim();
+  const style = document.getElementById('ai-gen-style').value;
+  const colors = document.getElementById('ai-gen-colors').value;
+  if(!prompt){ homeToast('✏️ Décrivez d\'abord le logo souhaité'); return; }
+  const btn = document.getElementById('ai-gen-go-btn');
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> &nbsp;Génération…';
+  try{
+    if(!hasSupa()){
+      // Mode local de secours (Supabase non configuré) : appel direct Pollinations, sans quota ni rotation.
+      const fallbackPrompt = [prompt, style, colors, 'professional logo design, vector style, clean background'].filter(Boolean).join(', ');
+      const url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(fallbackPrompt) + '?width=600&height=600&nologo=true&seed=' + Date.now();
+      await aiGenShowResult(url);
+      return;
+    }
+    const user = (await supa.auth.getUser()).data.user;
+    const { data, error } = await supa.functions.invoke('image-gen', {
+      body: { prompt, style, colors, user_id: user ? user.id : null }
+    });
+    if(error) throw error;
+    if(data && data.error === 'limit_reached'){
+      homeToast('🚀 Limite gratuite atteinte (' + FREE_GEN_LIMIT + ' générations). Passez Pro pour continuer !');
+      closeAiGenModal(); openPremiumPopup();
+      return;
+    }
+    if(data && data.error === 'content_blocked'){
+      homeToast('🚫 Cette description n\'est pas autorisée, reformulez votre demande');
+      return;
+    }
+    if(!data || !data.url) throw new Error('Réponse invalide du générateur');
+    await aiGenShowResult(data.url);
+  } catch(e){
+    homeToast('❌ La génération a échoué, réessayez');
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-sparkles"></i> &nbsp;Générer le logo';
+  }
+}
+function aiGenShowResult(url){
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      _aiGenLastImg = img;
+      document.getElementById('ai-gen-img').src = url;
+      document.getElementById('ai-gen-result').style.display = 'block';
+      resolve();
+    };
+    img.onerror = () => { homeToast('❌ Image inaccessible'); resolve(); };
+    img.src = url;
+  });
+}
+function insertAiGenIntoEditor(){
+  if(!_aiGenLastImg){ return; }
+  closeAiGenModal();
+  if(!document.getElementById('editor-screen').classList.contains('active')) openEditor('blank');
+  const ratio = _aiGenLastImg.height / _aiGenLastImg.width;
+  const maxW = Math.min(220, (S.canvasW||500) * .45);
+  const el = { id:eMkId(), type:'image', x:eCx()-maxW/2, y:eCy()-(maxW*ratio)/2, w:maxW, h:maxW*ratio, src:document.getElementById('ai-gen-img').src, img:_aiGenLastImg, opacity:1, rotation:0, visible:true };
+  eAddElement(el);
+  homeToast('🖼️ Image IA insérée dans l\'éditeur');
+}
+
+// ══════════════ ADMIN — CAMOUFLAGE PAR LE LOGO (haut-gauche) ══════════════
+// Un seul clic sur le logo ouvre le rituel. 1er mot de passe entré (même correct) :
+// refusé systématiquement. Au 2e essai, si le mot de passe correspond, le logo se
+// transforme en boussole 🧭 — cliquer sur la boussole ouvre alors le vrai écran de
+// connexion Supabase (email + mot de passe). Le rituel se réinitialise à la fermeture.
+const ADMIN_GATE_PASSWORD = 'regardcreatif4'; // mot de passe du rituel (1er essai toujours refusé, 2e essai vérifié)
+const ADMIN_UID = 'a4757203-a191-4b1c-9d93-3e977c01413a'; // UID Supabase du compte admin autorisé
+let adminGateRevealed = false;
+
+document.querySelectorAll('#home-header .app-logo').forEach(logoEl => {
+  logoEl.style.cursor = 'pointer';
+  logoEl.addEventListener('click', onAdminGateClick);
+});
+
+function onAdminGateClick(){
+  if(adminGateRevealed){
+    openAdminLogin();
+  } else {
+    document.getElementById('admin-gate-pass').value = '';
+    document.getElementById('admin-gate-err').style.display = 'none';
+    document.getElementById('admin-gate-popup').classList.add('active');
+  }
+}
+function closeAdminGate(){ document.getElementById('admin-gate-popup').classList.remove('active'); }
+function submitAdminGate(){
+  const pass = document.getElementById('admin-gate-pass').value;
+  const errEl = document.getElementById('admin-gate-err');
+  if(!adminGateRevealed){
+    // Premier essai : toujours refusé, même si c'est le bon mot de passe — c'est le rituel.
+    errEl.style.display = 'block';
+    document.getElementById('admin-gate-pass').value = '';
+    adminGateRevealed = true; // le PROCHAIN essai sera, lui, vérifié pour de vrai
+    return;
+  }
+  // Second essai (et suivants) : vérification réelle.
+  if(pass === ADMIN_GATE_PASSWORD){
+    closeAdminGate();
+    document.querySelectorAll('#home-header .app-logo').forEach(logoEl => {
+      logoEl.dataset.origSrc = logoEl.dataset.origSrc || logoEl.src;
+      logoEl.style.display = 'none';
+    });
+    const wrap = document.querySelector('#home-header');
+    let compass = document.getElementById('admin-compass-btn');
+    if(!compass){
+      compass = document.createElement('span');
+      compass.id = 'admin-compass-btn';
+      compass.textContent = '🧭';
+      compass.style.cssText = 'font-size:30px;cursor:pointer;flex-shrink:0;width:42px;height:42px;display:flex;align-items:center;justify-content:center;';
+      compass.addEventListener('click', openAdminLogin);
+      wrap.insertBefore(compass, wrap.firstChild);
+    } else { compass.style.display='flex'; }
+  } else {
+    errEl.style.display = 'block';
+    document.getElementById('admin-gate-pass').value = '';
+  }
+}
+function resetAdminGate(){
+  adminGateRevealed = false;
+  document.querySelectorAll('#home-header .app-logo').forEach(logoEl => { logoEl.style.display = ''; });
+  const compass = document.getElementById('admin-compass-btn');
+  if(compass) compass.style.display = 'none';
+}
+function openAdminLogin(){
+  document.getElementById('admin-login-email').value = '';
+  document.getElementById('admin-login-pass').value = '';
+  document.getElementById('admin-login-err').style.display = 'none';
+  document.getElementById('admin-login-popup').classList.add('active');
+}
+function closeAdminLogin(){ document.getElementById('admin-login-popup').classList.remove('active'); }
+async function submitAdminLogin(){
+  const email = document.getElementById('admin-login-email').value.trim();
+  const pass = document.getElementById('admin-login-pass').value;
+  const errEl = document.getElementById('admin-login-err');
+  const btn = document.getElementById('admin-login-btn');
+  if(!email || !pass){ errEl.textContent='Remplissez tous les champs.'; errEl.style.display='block'; return; }
+  if(!hasSupa()){ errEl.textContent='Supabase non configuré.'; errEl.style.display='block'; return; }
+  btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> &nbsp;Connexion…';
+  try{
+    const { data, error } = await supa.auth.signInWithPassword({ email, password: pass });
+    if(error) throw error;
+    if(data.user.id !== ADMIN_UID){
+      await supa.auth.signOut();
+      throw new Error('Ce compte n\'est pas autorisé comme administrateur.');
+    }
+    closeAdminLogin();
+    openAdminPanel();
+  } catch(e){
+    errEl.textContent = e.message; errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> &nbsp;Se connecter';
+  }
+}
+async function adminLogout(){
+  if(hasSupa()) await supa.auth.signOut().catch(()=>{});
+  document.getElementById('admin-panel').classList.remove('open');
+  resetAdminGate();
+}
+function closeAdminPanel(){ document.getElementById('admin-panel').classList.remove('open'); resetAdminGate(); }
+function hasSupa(){ return typeof supa !== 'undefined' && !!supa; }
+
+function openAdminPanel(){
+  document.getElementById('admin-panel').classList.add('open');
+  showAdmTab('templates');
+  loadAdminStats();
+  loadAdminUsers();
+  const urlEl = document.getElementById('adm-supa-url');
+  if(urlEl) urlEl.value = (typeof SUPABASE_URL !== 'undefined') ? SUPABASE_URL : '—';
+  const tplEl = document.getElementById('adm-tpl-count');
+  if(tplEl && typeof TEMPLATES !== 'undefined') tplEl.textContent = TEMPLATES.length;
+  const catEl = document.getElementById('adm-cat-count');
+  if(catEl && typeof CATEGORIES !== 'undefined') catEl.textContent = CATEGORIES.length;
+}
+function showAdmTab(tab){
+  document.querySelectorAll('.adm-nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.tab === tab));
+  document.querySelectorAll('.adm-section').forEach(s => s.classList.remove('active'));
+  const sec = document.getElementById('adm-' + tab);
+  if(sec) sec.classList.add('active');
+}
+
+// ── Test des clés API (Lumenfall / Agnes AI) via l'Edge Function, sans jamais voir les clés ──
+async function testAllProviderKeys(){
+  ['lumenfall','agnes_ai'].forEach(p => { const el = document.getElementById('key-status-'+p); if(el) el.textContent = '⏳ Test…'; });
+  if(!hasSupa()){ homeToast('Supabase non configuré'); return; }
+  try{
+    const user = (await supa.auth.getUser()).data.user;
+    const { data, error } = await supa.functions.invoke('image-gen', { body: { prompt: 'test', user_id: user ? user.id : null, _admin_key_check: true } });
+    if(error) throw error;
+    // L'Edge Function renvoie quel provider a servi pour cette génération de test.
+    const used = data && data.provider_used;
+    ['lumenfall','agnes_ai','pollinations'].forEach(p => {
+      const el = document.getElementById('key-status-'+p);
+      if(!el || p === 'pollinations') return;
+      if(used === p) el.innerHTML = '✅ Fonctionne';
+      else if(used) el.innerHTML = '⚠️ Non utilisé (échec ou non atteint dans la rotation)';
+      else el.innerHTML = '❓ Indéterminé';
+    });
+  }catch(e){
+    homeToast('❌ Test impossible : ' + e.message);
+  }
+}
+
+async function loadAdminStats(){
+  if(!hasSupa()) return;
+  try{
+    const [{count:visits}, {count:signups}, {count:logos}, {count:pro}] = await Promise.all([
+      supa.from('visits').select('id',{count:'exact',head:true}),
+      supa.from('signups').select('id',{count:'exact',head:true}),
+      supa.from('user_logos').select('id',{count:'exact',head:true}),
+      supa.from('subscriptions').select('user_id',{count:'exact',head:true}).eq('plan','pro'),
+    ]);
+    if(document.getElementById('s-visits')) document.getElementById('s-visits').textContent = visits ?? '—';
+    if(document.getElementById('s-signups')) document.getElementById('s-signups').textContent = signups ?? '—';
+    if(document.getElementById('s-logos')) document.getElementById('s-logos').textContent = logos ?? '—';
+    if(document.getElementById('s-pro')) document.getElementById('s-pro').textContent = pro ?? '—';
+  }catch(e){ /* tables pas encore peuplées, on ignore */ }
+}
+
+async function loadAdminUsers(){
+  const tbody = document.getElementById('users-tbody');
+  if(!tbody) return;
+  if(!hasSupa()){ tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text2);">Supabase non configuré</td></tr>'; return; }
+  try{
+    const { data, error } = await supa.from('signups').select('email, created_at').order('created_at',{ascending:false}).limit(20);
+    if(error) throw error;
+    if(!data || !data.length){ tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text2);">Aucun utilisateur</td></tr>'; return; }
+    tbody.innerHTML = data.map(u => `<tr><td>${new Date(u.created_at).toLocaleDateString('fr-FR')}</td><td>${u.email||'—'}</td><td>Free</td></tr>`).join('');
+  }catch(e){
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text2);">Erreur de chargement</td></tr>';
+  }
+}
+
+async function testSupaConnection(){
+  const statusEl = document.getElementById('adm-supa-status');
+  if(!hasSupa()){ statusEl.innerHTML = '❌ Client Supabase non initialisé'; return; }
+  statusEl.innerHTML = '⏳ Test en cours…';
+  try{
+    const { error } = await supa.from('site_settings').select('key').limit(1);
+    if(error) throw error;
+    statusEl.innerHTML = '✅ Connecté';
+  }catch(e){
+    statusEl.innerHTML = '⚠️ Connexion établie mais erreur de requête (table absente ?) : ' + e.message;
+  }
+}
 
 // SW
 if ('serviceWorker' in navigator) {
@@ -1703,10 +2266,10 @@ function eDrawEl(c,el){
   switch(el.type){
     case 'rect':c.fillStyle=el.fill||'#5b6af0';if(el.rx>0){eRoundRect(c,el.x,el.y,el.w,el.h,el.rx);c.fill();}else c.fillRect(el.x,el.y,el.w,el.h);if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW;if(el.rx>0){eRoundRect(c,el.x,el.y,el.w,el.h,el.rx);c.stroke();}else c.strokeRect(el.x,el.y,el.w,el.h);}break;
     case 'circle':c.beginPath();c.arc(el.x,el.y,el.r,0,Math.PI*2);c.fillStyle=el.fill||'#7c4af0';c.fill();if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW;c.stroke();}break;
-    case 'triangle':{const s=el.size;c.beginPath();c.moveTo(el.x,el.y-s/2);c.lineTo(el.x+s/2,el.y+s/2);c.lineTo(el.x-s/2,el.y+s/2);c.closePath();c.fillStyle=el.fill||'#43e97b';c.fill();break;}
-    case 'star':c.beginPath();for(let i=0;i<el.points*2;i++){const a=(i/(el.points*2))*Math.PI*2-Math.PI/2;const r=i%2===0?el.outerR:el.innerR;i===0?c.moveTo(el.x+r*Math.cos(a),el.y+r*Math.sin(a)):c.lineTo(el.x+r*Math.cos(a),el.y+r*Math.sin(a));}c.closePath();c.fillStyle=el.fill||'#f59e0b';c.fill();break;
-    case 'polygon':c.beginPath();for(let i=0;i<el.sides;i++){const a=(i/el.sides)*Math.PI*2-Math.PI/2;i===0?c.moveTo(el.x+el.size*Math.cos(a),el.y+el.size*Math.sin(a)):c.lineTo(el.x+el.size*Math.cos(a),el.y+el.size*Math.sin(a));}c.closePath();c.fillStyle=el.fill||'#06b6d4';c.fill();break;
-    case 'heart':c.save();c.translate(el.x,el.y);c.scale(el.size/180,el.size/180);c.fillStyle=el.fill||'#ef4444';c.beginPath();c.moveTo(0,-30);c.bezierCurveTo(-50,-80,-80,-20,0,50);c.bezierCurveTo(80,-20,50,-80,0,-30);c.fill();c.restore();break;
+    case 'triangle':{const s=el.size;c.beginPath();c.moveTo(el.x,el.y-s/2);c.lineTo(el.x+s/2,el.y+s/2);c.lineTo(el.x-s/2,el.y+s/2);c.closePath();c.fillStyle=el.fill||'#43e97b';if(el.fill!=='transparent')c.fill();if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW;c.stroke();}break;}
+    case 'star':c.beginPath();for(let i=0;i<el.points*2;i++){const a=(i/(el.points*2))*Math.PI*2-Math.PI/2;const r=i%2===0?el.outerR:el.innerR;i===0?c.moveTo(el.x+r*Math.cos(a),el.y+r*Math.sin(a)):c.lineTo(el.x+r*Math.cos(a),el.y+r*Math.sin(a));}c.closePath();c.fillStyle=el.fill||'#f59e0b';if(el.fill!=='transparent')c.fill();if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW;c.stroke();}break;
+    case 'polygon':c.beginPath();for(let i=0;i<(el.sides||6);i++){const a=(i/(el.sides||6))*Math.PI*2-Math.PI/2;i===0?c.moveTo(el.x+el.size*Math.cos(a),el.y+el.size*Math.sin(a)):c.lineTo(el.x+el.size*Math.cos(a),el.y+el.size*Math.sin(a));}c.closePath();c.fillStyle=el.fill||'#06b6d4';if(el.fill!=='transparent')c.fill();if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW;c.stroke();}break;
+    case 'heart':c.save();c.translate(el.x,el.y);c.scale(el.size/180,el.size/180);c.fillStyle=el.fill||'#ef4444';c.beginPath();c.moveTo(0,-30);c.bezierCurveTo(-50,-80,-80,-20,0,50);c.bezierCurveTo(80,-20,50,-80,0,-30);if(el.fill!=='transparent')c.fill();if(el.stroke&&el.stroke!=='none'&&el.strokeW>0){c.strokeStyle=el.stroke;c.lineWidth=el.strokeW*(180/el.size);c.stroke();}c.restore();break;
     case 'line':c.beginPath();c.moveTo(el.x1,el.y1);c.lineTo(el.x2,el.y2);c.strokeStyle=el.stroke||el.fill||'#ffffff';c.lineWidth=el.strokeW||3;c.stroke();break;
     case 'text':{c.font=`${el.style||'normal'} ${el.weight||'400'} ${el.fontSize||40}px "${el.font}"`;c.textAlign=el.align||'center';c.textBaseline='top';if(el.letterSpacing)c.letterSpacing=el.letterSpacing+'px';c.fillStyle=el.fill||'#ffffff';(el.text||'').split('\n').forEach((l,i)=>c.fillText(l,el.x,el.y+i*(el.fontSize||40)*(el.lineHeight||1.2)));c.letterSpacing='0px';break;}
     case 'icon':c.font=`${el.size}px serif`;c.textAlign='center';c.textBaseline='middle';c.fillStyle=el.fill||'#ffffff';c.fillText(el.char,el.x,el.y);break;
@@ -1926,9 +2489,9 @@ function eUpdateFlyout(){
   const fc=document.getElementById('e-fly-content');
 
   if(S.flyout==='shapes'){
-    const sh=[{l:'Rect',type:'rect',icon:'⬛'},{l:'Cercle',type:'circle',icon:'⭕'},{l:'Triang',type:'triangle',icon:'🔺'},{l:'Étoile',type:'star',icon:'⭐'},{l:'Hexag',type:'polygon',icon:'⬡'},{l:'Cœur',type:'heart',icon:'❤'},{l:'Ligne',type:'line',icon:'➖'}];
+    const sh=[{l:'Rect',type:'rect',icon:'⬛'},{l:'Cercle',type:'circle',icon:'⭕'},{l:'Triang',type:'triangle',icon:'🔺'},{l:'Étoile',type:'star',icon:'⭐'},{l:'Hexag',type:'polygon',icon:'⬡'},{l:'Cœur',type:'heart',icon:'❤'},{l:'Ligne',type:'line',icon:'➖'},{l:'Losange',type:'diamond',icon:'◆'},{l:'Pilule',type:'pill',icon:'💊'},{l:'Anneau',type:'ring',icon:'⭕'},{l:'Éclat',type:'burst',icon:'✦'},{l:'Badge Luxe',type:'luxebadge',icon:'♛'},{l:'Cadre Tech',type:'techframe',icon:'⬡'},{l:'Feuille',type:'leafmark',icon:'🌿'},{l:'Slash Sport',type:'sportslash',icon:'⚡'},{l:'Sceau Vintage',type:'vintageseal',icon:'⚙'}];
     fc.innerHTML=`<div class="e-shape-grid">${sh.map(s=>`<button class="e-shape-btn" data-type="${s.type}">${s.icon}<span>${s.l}</span></button>`).join('')}</div>`;
-    fc.querySelectorAll('.e-shape-btn').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.type;if(t==='rect')eAddElement(eMkRect());else if(t==='circle')eAddElement(eMkCircle());else if(t==='triangle')eAddElement(eMkTriangle());else if(t==='star')eAddElement(eMkStar());else if(t==='polygon')eAddElement(eMkPolygon());else if(t==='heart')eAddElement(eMkHeart());else if(t==='line')eAddElement(eMkLine());}));
+    fc.querySelectorAll('.e-shape-btn').forEach(b=>b.addEventListener('click',()=>{const t=b.dataset.type;if(t==='rect')eAddElement(eMkRect());else if(t==='circle')eAddElement(eMkCircle());else if(t==='triangle')eAddElement(eMkTriangle());else if(t==='star')eAddElement(eMkStar());else if(t==='polygon')eAddElement(eMkPolygon());else if(t==='heart')eAddElement(eMkHeart());else if(t==='line')eAddElement(eMkLine());else if(t==='diamond'){const e={...eMkPolygon(),rotation:45,customName:'Losange'};eAddElement(e);}else if(t==='pill'){const e={...eMkRect(),w:210,h:86,rx:999,customName:'Pilule'};eAddElement(e);}else if(t==='ring'){const e={...eMkCircle(),fill:'transparent',stroke:'#5b6af0',strokeW:14,customName:'Anneau'};eAddElement(e);}else if(t==='burst'){const e={...eMkStar(),outerR:92,innerR:56,points:12,customName:'Éclat'};eAddElement(e);}else if(t==='luxebadge'){const e={...eMkCircle(),r:86,fill:'transparent',stroke:'#e8b84b',strokeW:7,glow:{color:'#e8b84b',blur:16},customName:'Badge Luxe'};eAddElement(e);}else if(t==='techframe'){const e={...eMkPolygon(),sides:6,size:110,fill:'transparent',stroke:'#54f2ff',strokeW:5,glow:{color:'#54f2ff',blur:18},customName:'Cadre Tech'};eAddElement(e);}else if(t==='leafmark'){const e={...eMkHeart(),fill:'#7ee787',rotation:-28,opacity:0.28,customName:'Feuille'};eAddElement(e);}else if(t==='sportslash'){const e={...eMkRect(),w:34,h:220,rx:8,fill:'#ff5a2f',rotation:25,customName:'Slash Sport'};eAddElement(e);}else if(t==='vintageseal'){const e={...eMkStar(),outerR:86,innerR:42,points:12,fill:'transparent',stroke:'#f4c46b',strokeW:3,customName:'Sceau Vintage'};eAddElement(e);};}));
   }
   else if(S.flyout==='text'){
     const pre=[{t:'TITRE',s:42,w:'900'},{t:'Sous-titre',s:24,w:'700'},{t:'Corps',s:16,w:'400'},{t:'Slogan',s:13,w:'400'}];
@@ -2182,8 +2745,23 @@ const E_STF_EXTRA={
   'WildWave':['vague','mer','bleu','surf'],'Iron Fist':['métal','rouge','combat'],
   'Maison Noir':['noir','or','paris','élégance'],'Quantum':['cyan','hexagone','circuit'],
   'Verdant':['feuille','vert','organic'],'APEX':['rouge','performance','sport'],
+  'Sunburst Régence':['soleil','rayons','art déco','or'],'Baroque Crown':['couronne','étoile','violet','royal'],
+  'CircuitPulse':['circuit','grille','vert','digital'],'Orbital Nine':['orbite','planète','espace','indigo'],
+  'Alpine Echo':['montagne','soleil','rivière','bleu'],'Wreath & Bloom':['fleur','couronne','pétale','bio'],
+  'Iron Shield 7':['bouclier','blason','rouge','combat'],'Chevron Velocity':['chevron','flèche','rapide','électrique'],
+  'Dual Form':['cercle','dualité','noir','épuré'],'Heritage Ribbon':['ruban','octogone','héritage','marron'],
+  'Gatsby Gold':['art déco','or','années folles','géométrique','luxe'],
+  'Neon Reverie':['cyberpunk','neon','glitch','futuriste','violet'],
+  'Fern & Co.':['botanique','feuille','délicat','crème','organique'],
+  'Concrete Mass':['brutaliste','béton','brut','noir','blanc'],
+  'Belle Plume':['calligraphie','manuscrit','élégant','flourish'],
+  'Mango Coast':['tropical','plage','soleil','été','palmier'],
+  'Riot Crew':['streetwear','urbain','graffiti','spray','rue'],
+  'Lunaria':['céleste','lune','étoiles','cosmique','nuit'],
+  'Forgewerk':['industriel','métal','engrenage','usine','rouille'],
+  'Bloom Wash':['aquarelle','pastel','doux','peinture','délicat'],
 };
-const E_CAT_KW={luxe:['luxe','luxury','premium','or','gold'],tech:['tech','digital','cyber','app'],nature:['nature','eco','vert','green'],sport:['sport','fitness','vitesse'],minimal:['minimal','simple','clean'],vintage:['vintage','retro','classique']};
+const E_CAT_KW={luxe:['luxe','luxury','premium','or','gold'],tech:['tech','digital','cyber','app'],nature:['nature','eco','vert','green'],sport:['sport','fitness','vitesse'],minimal:['minimal','simple','clean'],vintage:['vintage','retro','classique'],artdeco:['art déco','géométrique','années folles','symétrie'],cyberpunk:['cyberpunk','neon','glitch','futuriste'],botanical:['botanique','feuille','délicat','organique'],brutalist:['brutaliste','béton','brut','contraste'],calligraphy:['calligraphie','manuscrit','élégant','script'],tropical:['tropical','plage','été','exotique'],streetwear:['streetwear','urbain','graffiti','rue'],celestial:['céleste','cosmique','étoiles','lune'],industrial:['industriel','métal','usine','mécanique'],watercolor:['aquarelle','pastel','peinture','doux']};
 
 function eStfScore(tpl,query){
   const q=query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split(/[\s,;|]+/).filter(Boolean);
@@ -2201,52 +2779,332 @@ function eStfRefresh(){
   if(!filtered.length){results.innerHTML='<div class="e-ai-status" style="grid-column:1/-1">Aucun résultat</div>';return;}
   filtered.slice(0,18).forEach(tpl=>{
     const card=document.createElement('div');card.className='e-stf-card';
-    card.innerHTML=`<div class="e-stf-card-thumb"><img src="data:image/svg+xml;charset=utf-8,${encodeURIComponent(tpl.svg)}" loading="lazy" alt="${tpl.name}"></div><div class="e-stf-card-info"><span class="e-stf-cat e-stf-cat-${tpl.cat}">${tpl.cat}</span><br>${tpl.name}</div>`;
+    card.innerHTML=`<div class="e-stf-card-thumb">${tplPreviewThumb(tpl)}</div><div class="e-stf-card-info"><span class="e-stf-cat e-stf-cat-${tpl.cat}">${tpl.cat}</span><br>${tpl.name}</div>`;
     card.addEventListener('click',()=>{if(S.elements.length&&!confirm('Charger "'+tpl.name+'" ?'))return;document.getElementById('e-ai-panel').classList.remove('open');eApplyTemplateData(tpl);});
     results.appendChild(card);
   });
 }
 
-/* ── applyTemplateData ── */
+/* ── _buildTemplateElements — génère les VRAIS calques d'un template
+     (source unique de vérité, utilisée à la fois par l'éditeur ET par
+     les aperçus, pour garantir une fidélité à 100%) ── */
+function _buildTemplateElements(tpl, W, H){
+  W=W||500; H=H||500;
+  const p=_tplPalette(tpl);
+  const CX=W/2, CY=H/2;
+  const bgColor=(()=>{if(!tpl.bg)return'#0f0f1a';if(!tpl.bg.includes('gradient'))return tpl.bg;const cols=(tpl.bg.match(/#[0-9a-fA-F]{3,6}/g)||[]);return cols[0]||'#0f0f1a';})();
+  const bgColor2=(()=>{if(!tpl.bg||!tpl.bg.includes('gradient'))return bgColor;const cols=(tpl.bg.match(/#[0-9a-fA-F]{3,6}/g)||[]);return cols[1]||bgColor;})();
+  const mark=String(tpl.text||tpl.name||'★').charAt(0);
+  const name=(tpl.name||'').toUpperCase().replace(/&/g,'AND');
+  const soft=p.light?'#d8d8d8':'rgba(255,255,255,.15)';
+  const els=[];
+
+  // Fond + halos décoratifs
+  els.push(_mkEl('rect',{x:0,y:0,w:W,h:H,rx:0,fill:bgColor2||bgColor,locked:true,customName:'Fond premium'}));
+  els.push(_mkEl('circle',{x:CX*0.42,y:CY*0.32,r:150,fill:p.acc,opacity:p.light?0.05:0.09,glow:_mkGlow(p.acc,35),locked:true,customName:'Halo artistique'}));
+  els.push(_mkEl('circle',{x:CX*1.7,y:CY*1.82,r:185,fill:p.acc2,opacity:p.light?0.08:0.1,locked:true,customName:'Profondeur'}));
+  els.push(_mkEl('rect',{x:0,y:CY*1.44,w:W*1.24,h:110,rx:0,fill:p.acc,opacity:p.light?0.06:0.08,rotation:-8,locked:true,customName:'Plan diagonal'}));
+
+  // Repères
+  [CX*0.28,CX*0.44,CX*1.56,CX*1.72].forEach(x=>els.push(_mkLine(x,CY*0.104,x,CY*1.792,soft,1,p.light?0.28:0.18,'Repère')));
+  [CY*0.28,CY*1.72].forEach(y=>els.push(_mkLine(CX*0.104,y,CX*1.792,y,soft,1,p.light?0.28:0.18,'Repère')));
+
+  // Motifs par catégorie (+ variantes pour des designs réellement distincts)
+  if(tpl.cat==='luxe'){
+    if(tpl.variant==='b'){ // Sunburst Régence
+      const burstN=16, burstR1=70, burstR2=140;
+      for(let i=0;i<burstN;i++){
+        const a=(i/burstN)*Math.PI*2;
+        els.push(_mkLine(CX+Math.cos(a)*burstR1,CY*0.752+Math.sin(a)*burstR1,CX+Math.cos(a)*burstR2,CY*0.752+Math.sin(a)*burstR2,p.acc,3,0.55,'Rayon'));
+      }
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.752,size:62,sides:4,fill:'rgba(0,0,0,.18)',stroke:p.acc2,strokeW:3,customName:'Médaillon losange'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.752,r:78,fill:'transparent',stroke:p.acc,strokeW:2,opacity:0.5,customName:'Cerne'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.772,char:mark,size:80,fill:p.acc,glow:_mkGlow(p.acc,14),customName:'Initiale régence'}));
+      els.push(_mkLine(CX*0.4,CY*1.21,CX*1.6,CY*1.21,p.acc2,3,0.85,'Filet bas'));
+      els.push(_mkEl('icon',{x:CX*0.46,y:CY*1.214,char:'❖',size:18,fill:p.acc,customName:'Fleuron g'}));
+      els.push(_mkEl('icon',{x:CX*1.54,y:CY*1.214,char:'❖',size:18,fill:p.acc,customName:'Fleuron d'}));
+    } else if(tpl.variant==='c'){ // Baroque Crown
+      els.push(_mkEl('star',{x:CX,y:CY*0.7,outerR:100,innerR:40,points:6,fill:'transparent',stroke:p.acc,strokeW:3,opacity:0.5,customName:'Étoile baroque ext'}));
+      els.push(_mkEl('star',{x:CX,y:CY*0.7,outerR:62,innerR:26,points:6,fill:'rgba(0,0,0,.15)',stroke:p.acc2,strokeW:2,rotation:30,customName:'Étoile baroque int'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.518,r:14,fill:p.acc2,glow:_mkGlow(p.acc2,10),customName:'Joyau couronne'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.724,char:mark,size:92,fill:p.fg,glow:_mkGlow(p.acc,12),customName:'Chiffre royal'}));
+      els.push(_mkLine(CX*0.36,CY*1.18,CX*1.64,CY*1.18,p.acc,3,0.8,'Bandeau'));
+      els.push(_mkEl('icon',{x:CX*0.42,y:CY*1.184,char:'♛',size:20,fill:p.acc2,customName:'Symbole g'}));
+      els.push(_mkEl('icon',{x:CX*1.58,y:CY*1.184,char:'♛',size:20,fill:p.acc2,customName:'Symbole d'}));
+    } else {
+      els.push(_mkEl('circle',{x:CX,y:CY*0.752,r:108,fill:'transparent',stroke:p.acc,strokeW:7,shadow:_mkShadow('rgba(232,184,75,.32)',18),customName:'Anneau doré'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.752,r:82,fill:'rgba(0,0,0,.12)',stroke:p.acc2,strokeW:2,customName:'Médaillon intérieur'}));
+      els.push(_mkEl('star',{x:CX,y:CY*0.752,outerR:88,innerR:38,points:8,fill:'transparent',stroke:p.acc,strokeW:2,opacity:0.38,rotation:22,customName:'Étoile joaillerie'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.776,char:mark,size:112,fill:p.acc,glow:_mkGlow(p.acc,16),customName:'Symbole royal'}));
+      els.push(_mkLine(CX*0.384,CY*1.22,CX*1.616,CY*1.22,p.acc2,3,0.92,'Filet bijou'));
+      els.push(_mkLine(CX*0.552,CY*1.304,CX*1.448,CY*1.304,p.acc,2,0.7,'Filet fin'));
+      els.push(_mkEl('icon',{x:CX*0.472,y:CY*1.224,char:'◆',size:22,fill:p.acc,customName:'Ornement g'}));
+      els.push(_mkEl('icon',{x:CX*1.528,y:CY*1.224,char:'◆',size:22,fill:p.acc,customName:'Ornement d'}));
+    }
+  } else if(tpl.cat==='tech'){
+    if(tpl.variant==='b'){ // CircuitPulse
+      const gx=[CX*0.6,CX*0.86,CX*1.14,CX*1.4], gy=[CY*0.52,CY*0.7,CY*0.88];
+      gx.forEach((x,ix)=>gy.forEach((y,iy)=>{
+        els.push(_mkEl('rect',{x:x-6,y:y-6,w:12,h:12,rx:3,fill:(ix+iy)%2===0?p.acc:p.acc2,opacity:0.85,customName:'Nœud circuit'}));
+      }));
+      els.push(_mkLine(gx[0],gy[0],gx[3],gy[0],p.acc,2,0.5,'Bus 1'));
+      els.push(_mkLine(gx[0],gy[2],gx[3],gy[2],p.acc2,2,0.5,'Bus 2'));
+      els.push(_mkLine(gx[0],gy[0],gx[0],gy[2],p.acc,2,0.4,'Lien g'));
+      els.push(_mkLine(gx[3],gy[0],gx[3],gy[2],p.acc2,2,0.4,'Lien d'));
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.7,size:36,sides:6,fill:bgColor,stroke:p.acc,strokeW:3,glow:_mkGlow(p.acc,14),customName:'Cœur hex'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.72,char:mark,size:46,fill:p.fg,customName:'Code central'}));
+    } else if(tpl.variant==='c'){ // Orbital Nine
+      els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:96,fill:'transparent',stroke:p.acc,strokeW:2,opacity:0.5,customName:'Orbite 1'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:64,fill:'transparent',stroke:p.acc2,strokeW:2,opacity:0.6,rotation:20,customName:'Orbite 2'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:32,fill:p.acc,opacity:0.9,glow:_mkGlow(p.acc,16),customName:'Noyau'}));
+      els.push(_mkEl('circle',{x:CX+96,y:CY*0.74,r:8,fill:p.acc2,customName:'Satellite 1'}));
+      els.push(_mkEl('circle',{x:CX-60,y:CY*0.74-30,r:6,fill:p.acc,customName:'Satellite 2'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.94,char:mark,size:40,fill:p.fg,customName:'Symbole'}));
+    } else {
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.74,size:115,sides:6,fill:'transparent',stroke:p.acc,strokeW:5,glow:_mkGlow(p.acc,18),customName:'Hexagone néon'}));
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.74,size:77,sides:6,fill:'rgba(84,242,255,.08)',stroke:p.acc2,strokeW:2,rotation:30,customName:'Noyau tech'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:44,fill:'transparent',stroke:p.acc,strokeW:3,customName:'Circuit central'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.776,char:mark,size:90,fill:p.fg,glow:_mkGlow(p.acc,12),customName:'Monogramme digital'}));
+      els.push(_mkLine(CX*0.26,CY*0.472,CX*0.664,CY*0.472,p.acc,3,0.8,'Circuit g'));
+      els.push(_mkLine(CX*1.336,CY*0.472,CX*1.74,CY*0.472,p.acc,3,0.8,'Circuit d'));
+      els.push(_mkLine(CX*0.376,CY*1.02,CX*0.74,CY*1.272,p.acc2,2,0.7,'Signal bg'));
+      els.push(_mkLine(CX*1.26,CY*1.272,CX*1.624,CY*1.02,p.acc2,2,0.7,'Signal bd'));
+    }
+  } else if(tpl.cat==='nature'){
+    if(tpl.variant==='b'){ // Alpine Echo
+      els.push(_mkEl('triangle',{x:CX*0.78,y:CY*0.82,size:140,fill:p.acc2,opacity:0.5,customName:'Pic 1'}));
+      els.push(_mkEl('triangle',{x:CX,y:CY*0.74,size:190,fill:p.acc,opacity:0.75,customName:'Pic central'}));
+      els.push(_mkEl('triangle',{x:CX*1.22,y:CY*0.82,size:140,fill:p.acc2,opacity:0.5,customName:'Pic 2'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.5,r:30,fill:p.fg,opacity:0.85,glow:_mkGlow(p.fg,12),customName:'Soleil'}));
+      els.push(_mkLine(CX*0.32,CY*1.18,CX*1.68,CY*1.18,p.acc,4,0.7,'Rivière'));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.97,char:mark,size:46,fill:p.fg,customName:'Initiale alpine'}));
+    } else if(tpl.variant==='c'){ // Wreath & Bloom
+      const petR=72;
+      for(let i=0;i<6;i++){
+        const a=(i/6)*Math.PI*2-Math.PI/2;
+        els.push(_mkEl('heart',{x:CX+Math.cos(a)*petR,y:CY*0.76+Math.sin(a)*petR,size:70,fill:i%2===0?p.acc:p.acc2,opacity:0.7,rotation:(a*180/Math.PI)+180,customName:'Pétale '+(i+1)}));
+      }
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:34,fill:bgColor,stroke:p.acc,strokeW:2,customName:'Cœur fleur'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.78,char:mark,size:40,fill:p.fg,customName:'Initiale fleur'}));
+    } else {
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:118,fill:'transparent',stroke:p.acc,strokeW:5,opacity:0.85,customName:'Cycle naturel'}));
+      els.push(_mkEl('heart',{x:CX*0.82,y:CY*0.68,size:155,fill:p.acc,opacity:0.23,rotation:-26,customName:'Feuille 1'}));
+      els.push(_mkEl('heart',{x:CX*1.176,y:CY*0.684,size:155,fill:p.acc2,opacity:0.19,rotation:26,customName:'Feuille 2'}));
+      els.push(_mkEl('triangle',{x:CX,y:CY*0.904,size:160,fill:'transparent',stroke:p.acc2,strokeW:4,rotation:0,customName:'Sommet'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.752,char:mark,size:86,fill:p.fg,glow:_mkGlow(p.acc,10),customName:'Signe vivant'}));
+      els.push(_mkLine(CX*0.368,CY*1.24,CX*0.82,CY*1.148,p.acc,4,0.65,'Courbe'));
+      els.push(_mkLine(CX*0.82,CY*1.148,CX*1.168,CY*1.236,p.acc,4,0.65,'Courbe'));
+      els.push(_mkLine(CX*1.168,CY*1.236,CX*1.632,CY*1.128,p.acc,4,0.65,'Courbe'));
+    }
+  } else if(tpl.cat==='sport'){
+    if(tpl.variant==='b'){ // Iron Shield 7
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.76,size:118,sides:5,fill:'rgba(0,0,0,.2)',stroke:p.fg,strokeW:5,shadow:_mkShadow('rgba(0,0,0,.4)',14),customName:'Bouclier'}));
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.76,size:90,sides:5,fill:'transparent',stroke:p.acc,strokeW:3,customName:'Liseré'}));
+      els.push(_mkEl('rect',{x:CX-70,y:CY*0.95,w:140,h:36,rx:4,fill:p.acc,opacity:0.9,customName:'Bande numéro'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.72,char:mark,size:100,fill:p.fg,glow:_mkGlow(p.acc,12),customName:'Emblème'}));
+      els.push(_mkEl('star',{x:CX*1.42,y:CY*0.5,outerR:18,innerR:8,points:5,fill:p.acc2,customName:'Étoile accent'}));
+    } else if(tpl.variant==='c'){ // Chevron Velocity
+      [0,1,2].forEach(i=>{
+        els.push(_mkEl('triangle',{x:CX,y:CY*0.6+i*46,size:120-i*14,fill:i%2===0?p.acc:p.acc2,opacity:0.85-i*0.12,rotation:180,customName:'Chevron '+(i+1)}));
+      });
+      els.push(_mkLine(CX*0.3,CY*1.3,CX*1.7,CY*1.3,p.fg,3,0.5,'Trait vitesse 1'));
+      els.push(_mkLine(CX*0.42,CY*1.38,CX*1.58,CY*1.38,p.fg,2,0.35,'Trait vitesse 2'));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.86,char:mark,size:70,fill:p.fg,glow:_mkGlow(p.acc,12),customName:'Initiale vitesse'}));
+    } else {
+      els.push(_mkEl('rect',{x:CX*0.468,y:CY*0.44,w:38,h:220,rx:8,fill:p.acc,rotation:25,opacity:0.9,shadow:_mkShadow('rgba(0,0,0,.4)',16),customName:'Slash 1'}));
+      els.push(_mkEl('rect',{x:CX*0.812,y:CY*0.444,w:44,h:250,rx:8,fill:p.acc2,rotation:25,opacity:0.9,customName:'Slash 2'}));
+      els.push(_mkEl('rect',{x:CX*1.156,y:CY*0.448,w:30,h:205,rx:8,fill:p.fg,rotation:25,opacity:0.35,customName:'Slash 3'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:105,fill:'transparent',stroke:p.fg,strokeW:3,opacity:0.55,customName:'Arène'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.808,char:mark,size:122,fill:p.fg,glow:_mkGlow(p.acc,14),customName:'Impact central'}));
+      els.push(_mkLine(CX*0.288,CY*1.304,CX*1.712,CY*1.304,p.acc2,6,0.9,'Ligne arrivée'));
+      els.push(_mkLine(CX*0.448,CY*1.384,CX*1.552,CY*1.384,p.fg,2,0.45,'Trait dynamique'));
+    }
+  } else if(tpl.cat==='minimal'){
+    if(tpl.variant==='b'){ // Dual Form
+      els.push(_mkEl('circle',{x:CX-36,y:CY*0.76,r:70,fill:'#151515',opacity:0.92,customName:'Forme pleine'}));
+      els.push(_mkEl('circle',{x:CX+36,y:CY*0.76,r:70,fill:'transparent',stroke:'#151515',strokeW:4,customName:'Forme creuse'}));
+      els.push(_mkEl('icon',{x:CX+36,y:CY*0.76,char:mark,size:46,fill:'#151515',customName:'Marque'}));
+      els.push(_mkLine(CX*0.5,CY*1.1,CX*1.5,CY*1.1,'#151515',1.5,0.5,'Ligne base'));
+    } else {
+      els.push(_mkEl('rect',{x:CX-105,y:CY*0.38,w:210,h:210,rx:42,fill:'transparent',stroke:'#151515',strokeW:5,customName:'Cadre'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:62,fill:'transparent',stroke:'#151515',strokeW:3,customName:'Espace négatif'}));
+      els.push(_mkEl('rect',{x:CX-4,y:CY*0.28,w:8,h:250,rx:4,fill:'#151515',opacity:0.72,customName:'Axe visuel'}));
+      els.push(_mkLine(CX*0.504,CY*0.508,CX*1.496,CY*0.508,'#151515',2,0.65,'Ligne pure'));
+      els.push(_mkLine(CX*0.504,CY*1.016,CX*1.496,CY*1.016,'#151515',2,0.65,'Ligne pure'));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.8,char:mark,size:82,fill:'#151515',customName:'Marque minimaliste'}));
+    }
+  } else if(tpl.cat==='vintage'){
+    if(tpl.variant==='b'){ // Heritage Ribbon
+      els.push(_mkEl('polygon',{x:CX,y:CY*0.74,size:104,sides:8,fill:'rgba(0,0,0,.14)',stroke:p.acc,strokeW:4,customName:'Cadre octogonal'}));
+      els.push(_mkEl('rect',{x:CX-110,y:CY*1.06,w:220,h:42,rx:2,fill:p.acc2,opacity:0.92,shadow:_mkShadow('rgba(0,0,0,.3)',10),customName:'Ruban'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.76,char:mark,size:90,fill:p.acc,customName:'Initiale héritage'}));
+      els.push(_mkEl('icon',{x:CX*0.74,y:CY*1.08,char:'★',size:16,fill:bgColor,customName:'Étoile ruban g'}));
+      els.push(_mkEl('icon',{x:CX*1.26,y:CY*1.08,char:'★',size:16,fill:bgColor,customName:'Étoile ruban d'}));
+    } else {
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:124,fill:'rgba(0,0,0,.12)',stroke:p.acc,strokeW:8,shadow:_mkShadow('rgba(0,0,0,.3)',16),customName:'Sceau principal'}));
+      els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:94,fill:'transparent',stroke:p.acc2,strokeW:3,opacity:0.92,customName:'Bord intérieur'}));
+      els.push(_mkEl('star',{x:CX,y:CY*0.76,outerR:86,innerR:42,points:12,fill:'transparent',stroke:p.acc,strokeW:2,opacity:0.42,customName:'Rosace gravée'}));
+      els.push(_mkEl('icon',{x:CX,y:CY*0.796,char:mark,size:100,fill:p.acc,customName:'Lettre pressée'}));
+      els.push(_mkLine(CX*0.384,CY*1.208,CX*1.616,CY*1.208,p.acc2,5,0.86,'Ruban'));
+      els.push(_mkLine(CX*0.504,CY*1.324,CX*1.496,CY*1.324,p.acc,2,0.76,'Filet'));
+      els.push(_mkEl('icon',{x:CX*0.46,y:CY*1.216,char:'★',size:20,fill:p.acc,customName:'Étoile g'}));
+      els.push(_mkEl('icon',{x:CX*1.54,y:CY*1.216,char:'★',size:20,fill:p.acc,customName:'Étoile d'}));
+    }
+  } else if(tpl.cat==='artdeco'){
+    // Art Déco — symétrie radiale, éventail de rayons fins, octogone gravé
+    for(let i=0;i<16;i++){
+      const ang=i*(360/16);
+      els.push(_mkEl('rect',{x:CX-2.5,y:CY*0.752,w:5,h:118,rx:2,fill:p.acc,opacity:i%2?0.85:0.4,rotation:ang,customName:'Rayon '+i}));
+    }
+    els.push(_mkEl('polygon',{x:CX,y:CY*0.752,size:96,sides:8,fill:bgColor,stroke:p.acc,strokeW:3,customName:'Octogone gravé'}));
+    els.push(_mkEl('polygon',{x:CX,y:CY*0.752,size:72,sides:8,fill:'transparent',stroke:p.acc2,strokeW:1.5,rotation:22.5,opacity:0.7,customName:'Octogone interne'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.776,char:mark,size:84,fill:p.acc,customName:'Monogramme déco'}));
+    els.push(_mkLine(CX*0.42,CY*1.24,CX*1.58,CY*1.24,p.acc,2,0.85,'Filet supérieur'));
+    els.push(_mkLine(CX*0.5,CY*1.3,CX*1.5,CY*1.3,p.acc2,1,0.55,'Filet fin'));
+    els.push(_mkEl('icon',{x:CX*0.46,y:CY*1.26,char:'◆',size:14,fill:p.acc2,customName:'Losange g'}));
+    els.push(_mkEl('icon',{x:CX*1.54,y:CY*1.26,char:'◆',size:14,fill:p.acc2,customName:'Losange d'}));
+  } else if(tpl.cat==='cyberpunk'){
+    // Cyberpunk — décalage RVB façon glitch, scanlines, hexagone néon
+    els.push(_mkEl('polygon',{x:CX,y:CY*0.72,size:112,sides:6,fill:'transparent',stroke:p.acc,strokeW:4,glow:_mkGlow(p.acc,22),customName:'Hexagone néon'}));
+    els.push(_mkEl('polygon',{x:CX-6,y:CY*0.72,size:112,sides:6,fill:'transparent',stroke:p.acc2,strokeW:1.5,opacity:0.55,customName:'Décalage RVB'}));
+    for(let i=0;i<6;i++){
+      els.push(_mkEl('rect',{x:CX*0.32+i*(W*0.072),y:CY*1.18+((i%2)*10),w:W*0.05,h:6,fill:i%2?p.acc:p.acc2,opacity:0.8,customName:'Scanline '+i}));
+    }
+    els.push(_mkEl('icon',{x:CX,y:CY*0.748,char:mark,size:96,fill:p.fg,glow:_mkGlow(p.acc,16),customName:'Glyphe digital'}));
+    els.push(_mkLine(CX*0.22,CY*0.42,CX*0.6,CY*0.42,p.acc,3,0.85,'Circuit g'));
+    els.push(_mkLine(CX*1.4,CY*0.42,CX*1.78,CY*0.42,p.acc2,3,0.85,'Circuit d'));
+    els.push(_mkEl('circle',{x:CX*0.6,y:CY*0.42,r:5,fill:p.acc,glow:_mkGlow(p.acc,10),customName:'Noeud g'}));
+    els.push(_mkEl('circle',{x:CX*1.4,y:CY*0.42,r:5,fill:p.acc2,glow:_mkGlow(p.acc2,10),customName:'Noeud d'}));
+  } else if(tpl.cat==='botanical'){
+    // Botanique — couronne de feuilles fines en arc, trait délicat
+    const leafCount=10;
+    for(let i=0;i<leafCount;i++){
+      const ang=-130+i*(260/(leafCount-1));
+      const rad=ang*Math.PI/180;
+      const lx=CX+Math.cos(rad)*98, ly=CY*0.76+Math.sin(rad)*98;
+      els.push(_mkEl('heart',{x:lx,y:ly,size:34,fill:p.acc,opacity:0.55,rotation:ang+90,customName:'Feuille '+i}));
+    }
+    els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:70,fill:'transparent',stroke:p.acc2,strokeW:1.2,opacity:0.6,customName:'Cercle de vie'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.78,char:mark,size:74,fill:p.fg,customName:'Signe botanique'}));
+    els.push(_mkLine(CX*0.4,CY*1.22,CX*0.8,CY*1.16,p.acc,1.5,0.6,'Tige g'));
+    els.push(_mkLine(CX*1.2,CY*1.16,CX*1.6,CY*1.22,p.acc,1.5,0.6,'Tige d'));
+    els.push(_mkEl('heart',{x:CX*0.4,y:CY*1.22,size:16,fill:p.acc2,opacity:0.7,rotation:-30,customName:'Petite feuille g'}));
+    els.push(_mkEl('heart',{x:CX*1.6,y:CY*1.22,size:16,fill:p.acc2,opacity:0.7,rotation:30,customName:'Petite feuille d'}));
+  } else if(tpl.cat==='brutalist'){
+    // Brutaliste — blocs bruts asymétriques, contraste maximal, zéro fioriture
+    els.push(_mkEl('rect',{x:CX*0.34,y:CY*0.32,w:W*0.42,h:H*0.42,rx:0,fill:p.fg,opacity:1,customName:'Bloc principal'}));
+    els.push(_mkEl('rect',{x:CX*0.7,y:CY*0.62,w:W*0.34,h:H*0.3,rx:0,fill:'transparent',stroke:p.fg,strokeW:7,customName:'Bloc creux'}));
+    els.push(_mkEl('rect',{x:CX*0.34,y:CY*0.32,w:W*0.42,h:14,rx:0,fill:bgColor,opacity:1,customName:'Encoche'}));
+    els.push(_mkEl('icon',{x:CX*0.55,y:CY*0.6,char:mark,size:120,fill:bgColor,customName:'Lettre brute'}));
+    els.push(_mkLine(CX*0.2,CY*1.5,CX*1.8,CY*1.5,p.fg,10,1,'Barre épaisse'));
+  } else if(tpl.cat==='calligraphy'){
+    // Calligraphie — flourish elliptique, monogramme manuscrit
+    els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:88,fill:'transparent',stroke:p.acc,strokeW:1.4,opacity:0.55,customName:'Flourish externe'}));
+    els.push(_mkEl('circle',{x:CX+14,y:CY*0.72,r:62,fill:'transparent',stroke:p.acc2,strokeW:1,opacity:0.5,rotation:18,customName:'Flourish interne'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.78,char:mark,size:108,fill:p.acc,customName:'Initiale manuscrite'}));
+    els.push(_mkLine(CX*0.32,CY*1.18,CX*0.78,CY*1.06,p.acc,1.6,0.7,'Trait plume g'));
+    els.push(_mkLine(CX*1.22,CY*1.06,CX*1.68,CY*1.18,p.acc,1.6,0.7,'Trait plume d'));
+    els.push(_mkEl('icon',{x:CX,y:CY*1.3,char:'❧',size:26,fill:p.acc2,customName:'Ornement floral'}));
+  } else if(tpl.cat==='tropical'){
+    // Tropical — soleil couchant, feuilles de palmier en éventail
+    els.push(_mkEl('circle',{x:CX,y:CY*0.7,r:76,fill:p.acc,opacity:0.92,shadow:_mkShadow('rgba(255,120,50,.4)',24),customName:'Soleil'}));
+    for(let i=-2;i<=2;i++){
+      els.push(_mkEl('triangle',{x:CX+i*30,y:CY*0.5,size:120,fill:p.acc2,opacity:0.85,rotation:i*22,customName:'Palme '+i}));
+    }
+    els.push(_mkEl('circle',{x:CX,y:CY*0.7,r:76,fill:'transparent',stroke:bgColor,strokeW:3,customName:'Contour soleil'}));
+    [0.92,1.0,1.08].forEach((m,i)=>els.push(_mkLine(CX*0.3,CY*1.1*m,CX*1.7,CY*1.1*m,bgColor,3,0.5,'Horizon '+i)));
+    els.push(_mkEl('icon',{x:CX,y:CY*1.42,char:mark,size:64,fill:p.fg,customName:'Lettre tropicale'}));
+  } else if(tpl.cat==='streetwear'){
+    // Streetwear — éclaboussures spray, cadre pochoir incliné
+    const seedR=p.seed;
+    for(let i=0;i<14;i++){
+      const sx=CX*(0.3+((seedR*(i+3))%140)/140*1.4);
+      const sy=CY*(0.3+((seedR*(i+7))%140)/140*1.4);
+      els.push(_mkEl('circle',{x:sx,y:sy,r:3+((seedR*i)%5),fill:i%2?p.acc:p.acc2,opacity:0.5,customName:'Splatter '+i}));
+    }
+    els.push(_mkEl('rect',{x:CX-104,y:CY*0.52,w:208,h:208,rx:0,fill:'transparent',stroke:p.fg,strokeW:6,rotation:-6,customName:'Cadre pochoir'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.76,char:mark,size:118,fill:p.fg,rotation:-6,customName:'Lettre stencil'}));
+    els.push(_mkEl('rect',{x:CX*0.3,y:CY*1.36,w:W*0.78,h:30,rx:0,fill:p.acc,opacity:0.9,rotation:-3,customName:'Bande tag'}));
+  } else if(tpl.cat==='celestial'){
+    // Céleste — croissant de lune, constellation, halo orbital
+    els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:82,fill:'transparent',stroke:p.acc2,strokeW:1,opacity:0.4,customName:'Orbite externe'}));
+    els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:58,fill:'transparent',stroke:p.acc,strokeW:1,opacity:0.5,customName:'Orbite interne'}));
+    els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:54,fill:p.acc,opacity:0.95,glow:_mkGlow(p.acc,20),customName:'Lune pleine'}));
+    els.push(_mkEl('circle',{x:CX+26,y:CY*0.7,r:50,fill:bgColor2||bgColor,opacity:1,customName:'Masque croissant'}));
+    const starPos=[[0.34,0.32],[1.66,0.36],[0.28,1.2],[1.7,1.18],[0.5,1.42],[1.5,0.5]];
+    starPos.forEach((sp,i)=>els.push(_mkEl('icon',{x:CX*sp[0],y:CY*sp[1],char:'✦',size:10+((p.seed+i*3)%10),fill:p.acc2,opacity:0.85,customName:'Étoile '+i})));
+    els.push(_mkEl('icon',{x:CX,y:CY*1.5,char:mark,size:60,fill:p.fg,customName:'Symbole céleste'}));
+  } else if(tpl.cat==='industrial'){
+    // Industriel — engrenage robuste, rivets, poutres
+    els.push(_mkEl('polygon',{x:CX,y:CY*0.74,size:100,sides:10,fill:'transparent',stroke:p.acc2,strokeW:8,customName:'Engrenage'}));
+    els.push(_mkEl('circle',{x:CX,y:CY*0.74,r:62,fill:bgColor,stroke:p.acc,strokeW:4,customName:'Moyeu'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.764,char:mark,size:80,fill:p.acc,customName:'Marque industrielle'}));
+    [[0.3,0.36],[1.7,0.36],[0.3,1.12],[1.7,1.12]].forEach((rp,i)=>els.push(_mkEl('circle',{x:CX*rp[0],y:CY*rp[1],r:7,fill:p.acc2,stroke:'#222',strokeW:1.5,customName:'Rivet '+i})));
+    els.push(_mkEl('rect',{x:CX*0.22,y:CY*1.32,w:W*0.56,h:16,rx:2,fill:p.acc,opacity:0.9,customName:'Poutre g'}));
+    els.push(_mkEl('rect',{x:CX*0.78,y:CY*1.32,w:W*0.56,h:16,rx:2,fill:p.acc2,opacity:0.9,customName:'Poutre d'}));
+  } else if(tpl.cat==='watercolor'){
+    // Aquarelle — fusion de taches pastel translucides
+    const blobs=[[0.86,0.62,64,0],[1.14,0.7,58,1],[1.0,0.86,70,2],[0.92,0.92,46,3]];
+    blobs.forEach((b,i)=>els.push(_mkEl('circle',{x:CX*b[0],y:CY*b[1],r:b[2],fill:[p.acc,p.acc2,p.acc,p.acc2][b[3]],opacity:0.4,customName:'Tache '+i})));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.8,char:mark,size:80,fill:p.fg,opacity:0.92,customName:'Trait pinceau'}));
+    els.push(_mkLine(CX*0.46,CY*1.28,CX*1.54,CY*1.28,p.acc,1,0.5,'Filet aquarelle'));
+  } else {
+    // Fallback générique (catégorie inconnue)
+    els.push(_mkEl('circle',{x:CX,y:CY*0.76,r:96,fill:'transparent',stroke:p.acc,strokeW:5,customName:'Cercle'}));
+    els.push(_mkEl('icon',{x:CX,y:CY*0.78,char:mark,size:90,fill:p.acc,customName:'Symbole'}));
+  }
+
+  // Texte nom de marque
+  const brandFontSize=name.length>11?Math.round(W*0.072):Math.round(W*0.092);
+  els.push(_mkEl('text',{x:CX,y:CY*1.464,text:name,font:p.font,fontSize:brandFontSize,weight:'900',align:'center',letterSpacing:tpl.cat==='minimal'?5:3,lineHeight:1.05,fill:p.fg,shadow:!p.light?_mkShadow('rgba(0,0,0,.45)',10):null,customName:'Nom de marque'}));
+  els.push(_mkEl('text',{x:CX,y:CY*1.628,text:'PREMIUM BRAND KIT',font:'Inter',fontSize:Math.round(W*0.028),weight:'700',align:'center',letterSpacing:5,lineHeight:1,fill:p.muted,customName:'Signature'}));
+
+  return{els,bgColor,bgColor2};
+}
+
+/* ── templateToProject — calques décortiquables ── */
 function eApplyTemplateData(tpl){
   eNewProject();
-  function _fallback(t){
-    S.canvasBg=(t.bg&&t.bg.includes('linear-gradient'))?'#1a1a2e':(t.bg||'#1a1a2e');
-    const bgR=eMkRect();bgR.x=40;bgR.y=40;bgR.w=S.canvasW-80;bgR.h=S.canvasH-80;bgR.fill=t.color||'#5b6af0';bgR.rx=16;S.elements.push(bgR);
-    const txt=eMkText(t.text||(t.name||'').toUpperCase());txt.fontSize=48;txt.weight=t.weight||'900';txt.font=t.font||'Montserrat';txt.fill='#ffffff';S.elements.push(txt);
-    S.selectedIds=[bgR.id];eSaveHistory();eRender();eUpdateRightPanel();eUpdateContextBar();eToast('📐 "'+t.name+'" chargé !');
-  }
-  if(!tpl.svg){_fallback(tpl);return;}
+  const W=S.canvasW, H=S.canvasH;
+  const{els,bgColor}=_buildTemplateElements(tpl,W,H);
+  S.canvasBg=bgColor;
+  els.forEach(e=>S.elements.push(e));
+  S.selectedIds=[];
+  eSaveHistory();
+  eRender();
+  eUpdateRightPanel();
+  eUpdateContextBar();
+  eToast('📐 "'+tpl.name+'" — '+S.elements.length+' calques décortiquables !');
+}
+
+/* ── tplThumbDataURL — miniature 100% fidèle à l'éditeur :
+     on dessine les VRAIS calques (eDrawEl) sur un mini-canvas,
+     mis en cache sur l'objet template ── */
+const _TPL_THUMB_SIZE=240;
+function tplThumbDataURL(tpl){
+  if(tpl._thumbCache)return tpl._thumbCache;
   try{
-    const parser=new DOMParser();const svgDoc=parser.parseFromString(tpl.svg,'image/svg+xml');const svgEl=svgDoc.documentElement;const scale=S.canvasW/80;
-    function resolveColor(f){if(!f||!f.startsWith('url(#'))return f||'#ffffff';const gid=(f.match(/url\(#([^)]+)\)/)||[])[1];if(!gid)return '#ffffff';const grad=svgDoc.getElementById(gid);if(!grad)return '#ffffff';const stop=grad.querySelector('stop');return stop?(stop.getAttribute('stop-color')||'#ffffff'):'#ffffff';}
-    const textNodes=Array.from(svgEl.querySelectorAll('text'));
-    const textData=textNodes.map(tn=>({content:(tn.textContent||'').trim(),x:parseFloat(tn.getAttribute('x')||'40'),y:parseFloat(tn.getAttribute('y')||'40'),fontSize:parseFloat(tn.getAttribute('font-size')||'8'),fill:resolveColor(tn.getAttribute('fill')),fontFamily:tn.getAttribute('font-family')||'sans-serif',letterSpacing:parseFloat(tn.getAttribute('letter-spacing')||'0'),fontWeight:tn.getAttribute('font-weight')||'700',textAnchor:tn.getAttribute('text-anchor')||'start',opacity:parseFloat(tn.getAttribute('opacity')||'1')})).filter(td=>td.content.length>0);
-    textNodes.forEach(tn=>{if(tn.parentNode)tn.parentNode.removeChild(tn);});
-    let extractedBg=null;
-    const bgR=Array.from(svgEl.querySelectorAll('rect')).find(r=>parseFloat(r.getAttribute('x')||'0')<=2&&parseFloat(r.getAttribute('y')||'0')<=2&&parseFloat(r.getAttribute('width')||'0')>=76&&parseFloat(r.getAttribute('height')||'0')>=76);
-    if(bgR){const f=bgR.getAttribute('fill')||'';extractedBg=f.startsWith('url(#')?resolveColor(f):(f||null);bgR.parentNode.removeChild(bgR);}
-    const GS=Math.round(S.canvasW*.88),GO=Math.round((S.canvasW-GS)/2);
-    svgEl.setAttribute('width',String(GS));svgEl.setAttribute('height',String(GS));
-    const svgStr=new XMLSerializer().serializeToString(svgEl);
-    const svgBlob=new Blob([svgStr],{type:'image/svg+xml'});
-    const svgUrl=URL.createObjectURL(svgBlob);
-    const tmpImg=new Image();
-    tmpImg.onload=function(){
-      const tmpCv=document.createElement('canvas');tmpCv.width=GS;tmpCv.height=GS;tmpCv.getContext('2d').drawImage(tmpImg,0,0,GS,GS);URL.revokeObjectURL(svgUrl);
-      const dataUrl=tmpCv.toDataURL('image/png');
-      const finalImg=new Image();
-      finalImg.onload=function(){
-        S.canvasBg=extractedBg||((tpl.bg&&tpl.bg.includes('linear-gradient'))?'#1a1a2e':(tpl.bg||'#1a1a2e'));
-        S.elements.push({id:eMkId(),type:'image',x:GO,y:GO,w:GS,h:GS,src:dataUrl,img:finalImg,opacity:1,rotation:0,visible:true});
-        textData.forEach(td=>{const el=eMkText(td.content);el.x=td.x*scale;el.y=td.y*scale;el.fontSize=Math.max(8,Math.round(td.fontSize*scale));el.fill=td.fill||'#ffffff';el.align=td.textAnchor==='middle'?'center':td.textAnchor==='end'?'right':'left';const ff=(td.fontFamily||'').toLowerCase();el.font=ff.includes('orbitron')?'Orbitron':ff.includes('cinzel')?'Cinzel':ff.includes('playfair')?'Playfair Display':ff.includes('bebas')?'Bebas Neue':'Montserrat';el.weight=td.fontWeight||'700';el.letterSpacing=Math.round(td.letterSpacing*scale);el.opacity=td.opacity;S.elements.push(el);});
-        S.selectedIds=[];eSaveHistory();eRender();eUpdateRightPanel();eUpdateContextBar();eToast('📐 "'+tpl.name+'" — '+textData.length+' texte(s)');
-      };
-      finalImg.src=dataUrl;
-    };
-    tmpImg.onerror=()=>{URL.revokeObjectURL(svgUrl);_fallback(tpl);};
-    tmpImg.src=svgUrl;
-  }catch(e){console.warn(e);_fallback(tpl);}
+    const SIZE=500; // doit correspondre à la taille de canvas par défaut de l'éditeur (eNewProject)
+    const{els,bgColor2,bgColor}=_buildTemplateElements(tpl,SIZE,SIZE);
+    const cv=document.createElement('canvas');
+    cv.width=_TPL_THUMB_SIZE; cv.height=_TPL_THUMB_SIZE;
+    const ctx=cv.getContext('2d');
+    const scale=_TPL_THUMB_SIZE/SIZE;
+    ctx.scale(scale,scale);
+    ctx.fillStyle=bgColor2||bgColor||'#0f0f1a';
+    ctx.fillRect(0,0,SIZE,SIZE);
+    els.forEach(e=>eDrawEl(ctx,e));
+    const url=cv.toDataURL('image/png');
+    tpl._thumbCache=url;
+    return url;
+  }catch(e){
+    return '';
+  }
+}
+function tplPreviewThumb(tpl){
+  const url=tplThumbDataURL(tpl);
+  if(!url)return '';
+  return `<img src="${url}" alt="${escHtml(tpl.name)}" style="width:100%;height:100%;object-fit:cover;display:block">`;
 }
 
 /* ── Service Worker ── */
