@@ -1,69 +1,73 @@
-const CACHE_NAME = 'logomaker-v6';
+const CACHE_NAME = 'rc-logo-maker-v1';
+
+// Fichiers à mettre en cache (editor.html retiré — tout est dans index.html)
 const STATIC_URLS = [
-    './index.html',
-    './editor.html',
-    './manifest.json',
-    'https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png',
-    'https://i.postimg.cc/XvTXWs4T/ezgif-com-video-to-gif-converter.gif',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,700;0,9..40,900;1,9..40,300&display=swap',
-    'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Playfair+Display:wght@700;900&family=Poppins:wght@400;700;900&family=Bebas+Neue&family=Righteous&family=Oswald:wght@500;700&family=Roboto:wght@400;900&family=League+Spartan:wght@700;900&family=Caveat:wght@700&family=Inter:wght@400;600;700;900&family=Pacifico&family=Abril+Fatface&family=Alfa+Slab+One&family=Lobster&family=Fjalla+One&family=DM+Sans:wght@400;500;700&display=swap',
-    'https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Cinzel:wght@400;700&family=Rajdhani:wght@400;700&display=swap'
+  './index.html',
+  './manifest.json',
+  'https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
 ];
 
+// Installation
 self.addEventListener('install', e => {
-    self.skipWaiting();
-    e.waitUntil(
-        caches.open(CACHE_NAME).then(cache =>
-            cache.addAll(STATIC_URLS).catch(err => console.warn('[SW] Pre-cache partiel:', err))
-        )
-    );
+  self.skipWaiting();
+  e.waitUntil(
+    caches.open(CACHE_NAME).then(cache =>
+      cache.addAll(STATIC_URLS).catch(err => console.warn('[SW] Cache partiel:', err))
+    )
+  );
 });
 
+// Activation — supprime les anciens caches
 self.addEventListener('activate', e => {
-    e.waitUntil(
-        caches.keys().then(keys =>
-            Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
-        ).then(() => self.clients.claim())
-    );
+  e.waitUntil(
+    caches.keys().then(keys =>
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+    ).then(() => self.clients.claim())
+  );
 });
 
+// Message skipWaiting
 self.addEventListener('message', e => {
-    if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
+// Stratégie : Cache d'abord, réseau en fallback
 self.addEventListener('fetch', e => {
-    const url = new URL(e.request.url);
-    const isHTML = e.request.destination === 'document' || url.pathname.endsWith('.html');
-    const isSameOrigin = url.origin === self.location.origin;
+  const url = new URL(e.request.url);
 
-    if (isHTML && isSameOrigin) {
-        // Network-first pour les pages HTML (toujours fraîches si possible)
-        e.respondWith(
-            fetch(e.request).then(res => {
-                const clone = res.clone();
-                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                return res;
-            }).catch(() => caches.match(e.request).then(r => r || caches.match('./index.html')))
-        );
-        return;
-    }
+  // Ne pas intercepter les requêtes non-GET
+  if (e.request.method !== 'GET') return;
 
-    // Cache-first pour tous les autres assets (fontes, icônes, FA)
+  // Pour les fichiers HTML locaux → toujours servir index.html depuis le cache
+  if (e.request.destination === 'document') {
     e.respondWith(
-        caches.match(e.request).then(cached => {
-            if (cached) return cached;
-            return fetch(e.request).then(res => {
-                // Ne cache que les réponses valides (évite les réponses opaques corrompues)
-                if (res && res.status === 200 && (res.type === 'basic' || res.type === 'cors')) {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                }
-                return res;
-            }).catch(() => {
-                if (e.request.destination === 'document') return caches.match('./index.html');
-                return new Response('', { status: 503 });
-            });
-        })
+      caches.match('./index.html').then(cached => {
+        if (cached) return cached;
+        return fetch(e.request).catch(() => caches.match('./index.html'));
+      })
     );
+    return;
+  }
+
+  // Pour tout le reste → cache d'abord, réseau ensuite
+  e.respondWith(
+    caches.match(e.request).then(cached => {
+      if (cached) return cached;
+      return fetch(e.request).then(res => {
+        // Mettre en cache les ressources valides
+        if (res && res.status === 200) {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() => {
+        // Image manquante → réponse vide propre
+        if (e.request.destination === 'image') {
+          return new Response('', { status: 200 });
+        }
+        return new Response('Hors ligne', { status: 503 });
+      });
+    })
+  );
 });
