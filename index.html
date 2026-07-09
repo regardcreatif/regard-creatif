@@ -20,12 +20,35 @@
     <meta property="og:image" content="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
     <meta property="og:locale" content="fr_HT">
     <link rel="icon" type="image/webp" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
+    <link rel="icon" type="image/webp" sizes="32x32" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
+    <link rel="icon" type="image/webp" sizes="16x16" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp">
+    <meta name="theme-color" content="#080808">
+    <!-- Connexions établies à l'avance pour que les images et Supabase démarrent plus vite -->
+    <link rel="preconnect" href="https://i.postimg.cc" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="preconnect" href="https://jpyopiislvvfgwwcorza.supabase.co" crossorigin>
+    <!-- Images visibles dès l'ouverture : on les précharge pour éviter tout délai d'apparition -->
+    <link rel="preload" as="image" href="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" fetchpriority="high">
+    <link rel="preload" as="image" href="https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg" fetchpriority="high">
+    <script>
+    // Charge Supabase de façon non-bloquante : si le CDN est lent/bloqué, le site
+    // s'affiche quand même avec le contenu par défaut. init() est appelé dès que possible.
+    (function loadSupabase(){
+      var s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      s.async = true;
+      s.onload  = function(){ if(typeof initSite==='function') initSite(); };
+      s.onerror = function(){ console.warn('Supabase CDN indisponible — mode local activé'); if(typeof initSite==='function') initSite(); };
+      document.head.appendChild(s);
+    })();
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         body {
             background: #080808;
             color: #f5f5f5;
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             line-height: 1.6;
             overflow-x: hidden;
         }
@@ -37,37 +60,6 @@
         @keyframes float {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-10px); }
-        }
-        @keyframes waveArmNew {
-            0%, 100% { transform: rotate(15deg); }
-            50% { transform: rotate(-25deg); }
-        }
-        @keyframes robotBounceNew {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-12px); }
-        }
-        .robot-float {
-            position: fixed; bottom: 240px; right: 12px;
-            width: 85px; height: 85px; z-index: 200;
-            cursor: pointer; animation: robotBounceNew 3s ease-in-out infinite;
-            transition: transform 0.3s, filter 0.3s;
-            filter: drop-shadow(0 0 12px rgba(163,255,59,0.5));
-        }
-        .robot-float:hover {
-            transform: scale(1.1);
-            filter: drop-shadow(0 0 25px rgba(163,255,59,0.9));
-        }
-        .robot-arm-group-new {
-            animation: waveArmNew 1s ease-in-out infinite;
-            transform-origin: 90px 100px;
-        }
-        .robot-eye {
-            animation: eyeBlink 3s ease-in-out infinite;
-            transform-origin: center;
-        }
-        @keyframes eyeBlink {
-            0%, 90%, 100% { transform: scaleY(1); }
-            95% { transform: scaleY(0.1); }
         }
         header {
             display: flex;
@@ -81,14 +73,48 @@
             backdrop-filter: blur(10px);
             z-index: 100;
         }
-        .logo-img { height: 40px; width: auto; }
-        nav { display: flex; align-items: center; gap: 25px; }
-        nav a {
-            color: #aaa; text-decoration: none; font-size: 0.85rem;
-            text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
-            transition: color 0.3s;
+        .logo-img { height: 40px; width: auto; max-width: 160px; }
+        .header-right { display: flex; align-items: center; gap: 14px; }
+
+        /* Bouton hamburger : déclenche le menu déroulant */
+        #nav-toggle {
+            width: 42px; height: 42px; border-radius: 10px;
+            background: transparent; border: 1px solid #2a2a2a;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; transition: border-color .2s, background .2s;
         }
-        nav a:hover { color: #a3ff3b; }
+        #nav-toggle:hover { border-color: #a3ff3b55; background: rgba(163,255,59,.06); }
+        #nav-toggle .bar { width: 20px; height: 2px; background: #eee; position: relative; transition: background .2s; }
+        #nav-toggle .bar::before, #nav-toggle .bar::after {
+            content: ''; position: absolute; left: 0; width: 20px; height: 2px; background: #eee;
+            transition: transform .25s ease, top .25s ease, opacity .2s ease;
+        }
+        #nav-toggle .bar::before { top: -6px; }
+        #nav-toggle .bar::after { top: 6px; }
+        #nav-toggle.open .bar { background: transparent; }
+        #nav-toggle.open .bar::before { top: 0; transform: rotate(45deg); }
+        #nav-toggle.open .bar::after { top: 0; transform: rotate(-45deg); }
+
+        /* Menu déroulant : masqué par défaut, apparaît ancré sous le header */
+        nav {
+            position: absolute; top: calc(100% + 8px); right: 40px;
+            display: flex; flex-direction: column; gap: 2px;
+            background: #0e0e0e; border: 1px solid #262626; border-radius: 12px;
+            padding: 10px; min-width: 220px;
+            box-shadow: 0 18px 40px rgba(0,0,0,.5);
+            opacity: 0; visibility: hidden; transform: translateY(-8px);
+            transition: opacity .2s ease, transform .2s ease, visibility .2s;
+            z-index: 150;
+        }
+        nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
+        nav a {
+            color: #aaa; text-decoration: none; font-size: 0.82rem;
+            text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
+            transition: color .2s, background .2s;
+            padding: 11px 14px; border-radius: 8px;
+        }
+        nav a:hover { color: #a3ff3b; background: rgba(163,255,59,.07); }
+        nav a.btn-devis { text-align: center; margin-top: 4px; }
         .btn-devis {
             background: #a3ff3b; color: #000; padding: 10px 20px;
             font-weight: 700; text-decoration: none; text-transform: uppercase;
@@ -133,7 +159,7 @@
             animation: pulse 2.5s infinite;
         }
         .hero .cta:hover { background: #fff; transform: scale(1.05); }
-        section { padding: 80px 40px; position: relative; z-index: 1; }
+        section { padding: 80px 40px; position: relative; z-index: 1; scroll-margin-top: 90px; }
         section h2 {
             font-size: clamp(2rem, 5vw, 4rem); font-weight: 900;
             text-transform: uppercase; margin-bottom: 30px;
@@ -256,29 +282,9 @@
             text-transform: uppercase; letter-spacing: 2px; color: #999; font-weight: 600;
         }
         .modele-label span { color: #a3ff3b; }
-        .flip-container-popup { width: 300px; height: 300px; perspective: 1000px; }
-        .flip-card-popup {
-            width: 100%; height: 100%; position: relative;
-            transform-style: preserve-3d; animation: flipCardPopup 4s infinite;
-        }
-        .flip-face-popup {
-            position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; border-radius: 12px;
-            overflow: hidden; border: 2px solid #a3ff3b;
-        }
-        .flip-face-popup img { width: 100%; height: 100%; object-fit: cover; }
-        .flip-front-popup { transform: rotateY(0deg); }
-        .flip-back-popup { transform: rotateY(180deg); }
-        @keyframes flipCardPopup {
-            0%   { transform: rotateY(0deg); }
-            40%  { transform: rotateY(0deg); }
-            50%  { transform: rotateY(180deg); }
-            90%  { transform: rotateY(180deg); }
-            100% { transform: rotateY(360deg); }
-        }
         .galerie-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; margin-top: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 380px));
+            gap: 30px; margin-top: 30px; justify-content: center;
         }
         .galerie-card {
             background: rgba(255,255,255,0.02); backdrop-filter: blur(10px);
@@ -296,11 +302,24 @@
             letter-spacing: 2px; margin-bottom: 5px;
         }
         .galerie-card .card-title {
-            color: #fff; font-weight: 700; font-size: 1.2rem; margin-bottom: 5px;
+            color: #fff; font-weight: 700; font-size: 1.05rem; margin-bottom: 5px;
         }
         .galerie-card .card-subtitle {
-            color: #999; font-size: 0.9rem; font-style: italic; margin-bottom: 15px;
+            color: #999; font-size: 0.85rem; font-style: italic; margin-bottom: 15px;
         }
+        .galerie-extra-item { display: none; }
+        .galerie-extra-item.show { display: block; }
+        .galerie-more-wrap { text-align: center; margin-top: 40px; }
+        .galerie-more-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent; color: #a3ff3b; border: 1px solid #a3ff3b55;
+            padding: 13px 32px; border-radius: 30px; font-size: 0.85rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+            cursor: pointer; transition: background 0.3s, border-color 0.3s, transform 0.3s;
+        }
+        .galerie-more-btn:hover { background: rgba(163,255,59,0.08); border-color: #a3ff3b; transform: translateY(-2px); }
+        .galerie-more-btn .arrow { transition: transform 0.3s; }
+        .galerie-more-btn.expanded .arrow { transform: rotate(180deg); }
         .share-btns { display: flex; gap: 10px; flex-wrap: wrap; }
         .share-btn {
             padding: 6px 12px; border-radius: 20px; text-decoration: none;
@@ -332,6 +351,11 @@
             background: #0d0d0d; border: 1px solid #1a1a1a; padding: 30px;
             text-align: center; transition: transform 0.4s, border-color 0.4s;
         }
+        .avis-avatar {
+            width: 64px; height: 64px; border-radius: 50%; object-fit: cover;
+            margin: 0 auto 16px; display: block; border: 2px solid #222;
+            background: #161616;
+        }
         .avis-card:hover {
             transform: translateY(-8px) scale(1.02);
             border-color: #FFD700;
@@ -362,7 +386,6 @@
         .contact-info {
             display: flex; flex-direction: column; gap: 25px; align-items: center;
         }
-        .contact-logo { width: 100px; height: auto; margin-bottom: 15px; }
         .contact-item {
             display: flex; align-items: center; gap: 15px; padding: 20px;
             background: #0d0d0d; border: 1px solid #1a1a1a; text-decoration: none;
@@ -407,36 +430,14 @@
             animation: float 4s ease-in-out infinite;
         }
         .whatsapp-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(37,211,102,0.4); }
-        .galerie-float {
-            position: fixed; bottom: 100px; right: 25px; background: #a3ff3b;
-            color: #000; width: 60px; height: 60px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
-            animation: float 4s ease-in-out 0.5s infinite;
-        }
-        .galerie-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(163,255,59,0.4); }
-        .flip-float {
-            position: fixed; bottom: 175px; right: 25px; background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: #000; width: 60px; height: 60px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-            z-index: 200; transition: transform 0.3s, box-shadow 0.3s;
-            animation: float 4s ease-in-out 1s infinite;
-        }
-        .flip-float:hover { transform: scale(1.2); box-shadow: 0 8px 25px rgba(255,215,0,0.6); }
-        #flip-toggle { display: none; }
-        #flip-popup {
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 300; display: none;
-            align-items: center; justify-content: center;
-        }
-        #flip-toggle:checked ~ #flip-popup { display: flex; }
         footer {
             border-top: 1px solid #222; padding: 40px; text-align: center;
             color: #555; font-size: 0.9rem; position: relative; z-index: 1;
         }
         footer .footer-logo { width: 60px; height: auto; margin-bottom: 15px; opacity: 0.7; }
+        .footer-legal-links { margin-top: 14px; display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; }
+        .footer-legal-links a { color: #777; text-decoration: none; font-size: 0.82rem; transition: color .2s; }
+        .footer-legal-links a:hover { color: #a3ff3b; }
 
         /* ═══════════ ASSISTANT ═══════════ */
         .assistant-section {
@@ -540,7 +541,7 @@
         @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-8px); opacity: 1; } }
         @media (max-width: 768px) {
             header { padding: 15px 20px; }
-            nav { gap: 12px; }
+            nav { right: 20px; min-width: 200px; }
             nav a { font-size: 0.7rem; letter-spacing: 1px; }
             .hero { padding: 40px 20px; min-height: 70vh; }
             section { padding: 50px 20px; }
@@ -549,51 +550,176 @@
             .contact-grid { grid-template-columns: 1fr; }
             .modeles-scroll { padding: 10px 20px 20px; }
             .modele-card { width: 280px; }
-            .flip-container-popup { width: 250px; height: 250px; }
             .whatsapp-float { width: 50px; height: 50px; bottom: 15px; right: 15px; }
-            .galerie-float { width: 50px; height: 50px; font-size: 1.4rem; bottom: 80px; right: 15px; }
-            .flip-float { width: 50px; height: 50px; bottom: 145px; right: 15px; }
-            .robot-float { width: 65px; height: 65px; bottom: 205px; right: 8px; }
             .assistant-section { padding: 40px 20px; }
             .assistant-chat-msgs { height: 300px; }
         }
+
+        /* ═══════════════════════════════════════════════════
+           ADMIN PANEL — ported architecture from Regard Créatif IA v51
+           (auth gate, sidebar nav, Supabase sync) minus image-generation
+           ═══════════════════════════════════════════════════ */
+        /* Camouflage : un simple rond avec "∞", sans indice visuel — voir logique JS
+           onAdminGateClick / submitAdminGate plus bas (même rituel que v51). */
+        #admin-trigger{
+            position:fixed; bottom:15px; left:15px; z-index:500;
+            width:34px; height:34px; border-radius:50%;
+            background:transparent; border:1px solid transparent;
+            display:flex; align-items:center; justify-content:center;
+            cursor:pointer; opacity:.28; transition:all .2s; font-size:1rem; color:#888;
+        }
+        #admin-trigger:hover{opacity:.6; border-color:#333; background:rgba(163,255,59,.06);}
+        #admin-trigger.revealed{opacity:.45; font-size:.9rem;}
+        #admin-trigger.revealed:hover{opacity:1;}
+        @media (max-width: 768px){ #admin-trigger{ width:30px; height:30px; bottom:12px; left:12px; } }
+
+        .adm-overlay{position:fixed; inset:0; z-index:900; display:none; background:rgba(0,0,0,.75); align-items:center; justify-content:center; padding:20px;}
+        .adm-overlay.open{display:flex;}
+        .adm-modal{background:#111; border:1px solid #a3ff3b44; border-radius:14px; padding:28px; width:100%; max-width:380px;}
+        .adm-modal h3{color:#a3ff3b; margin-bottom:6px; font-size:1.2rem;}
+        .adm-modal p{color:#999; font-size:.85rem; margin-bottom:18px;}
+        .adm-input{width:100%; background:#1a1a1a; border:1px solid #333; color:#eee; padding:11px 14px; border-radius:8px; margin-bottom:12px; font-size:.9rem; font-family:inherit;}
+        .adm-input:focus{outline:none; border-color:#a3ff3b;}
+        .adm-btn{width:100%; background:#a3ff3b; color:#000; border:none; padding:12px; border-radius:8px; font-weight:700; cursor:pointer; text-transform:uppercase; letter-spacing:1px; font-size:.85rem;}
+        .adm-btn:hover{background:#fff;}
+        .adm-btn-secondary{background:transparent; color:#999; border:1px solid #333;}
+        .adm-btn-danger{background:rgba(239,68,68,.15); color:#ef4444; border:1px solid #ef444455;}
+        .adm-err{color:#ef4444; font-size:.8rem; margin:-6px 0 12px; display:none;}
+        .adm-close{position:absolute; top:16px; right:20px; color:#999; font-size:1.4rem; cursor:pointer; background:none; border:none;}
+
+        #admin-panel{position:fixed; inset:0; z-index:950; display:none; background:#080808;}
+        #admin-panel.open{display:flex;}
+        #adm-sidebar{width:230px; flex-shrink:0; background:#0c0c0c; border-right:1px solid #222; display:flex; flex-direction:column; overflow-y:auto;}
+        #adm-sidebar-head{padding:22px 18px; border-bottom:1px solid #222;}
+        #adm-sidebar-head b{color:#a3ff3b; font-size:1rem;}
+        #adm-sidebar-head span{display:block; color:#666; font-size:.7rem; margin-top:3px;}
+        .adm-nav-item{padding:13px 18px; color:#999; cursor:pointer; font-size:.85rem; border-left:3px solid transparent; display:flex; align-items:center; gap:10px; transition:.2s;}
+        .adm-nav-item:hover{background:#141414; color:#ccc;}
+        .adm-nav-item.active{background:#141414; color:#a3ff3b; border-left-color:#a3ff3b;}
+        #adm-content{flex:1; overflow-y:auto; padding:30px 36px;}
+        .adm-tab{display:none;}
+        .adm-tab.active{display:block; animation:fadeIn .2s ease;}
+        .adm-tab h2{color:#fff; font-size:1.4rem; margin-bottom:4px;}
+        .adm-tab-sub{color:#777; font-size:.85rem; margin-bottom:24px;}
+        .adm-card{background:#111; border:1px solid #222; border-radius:12px; padding:20px; margin-bottom:18px;}
+        .adm-label{display:block; font-size:.72rem; text-transform:uppercase; letter-spacing:.6px; color:#888; margin-bottom:6px; font-weight:700;}
+        .adm-row{display:grid; grid-template-columns:1fr 1fr; gap:14px;}
+        @media(max-width:720px){.adm-row{grid-template-columns:1fr;} #adm-sidebar{width:60px;} #adm-sidebar-head span,.adm-nav-item span.adm-nav-label{display:none;} #adm-content{padding:20px 16px;}}
+        .adm-list-item{background:#161616; border:1px solid #262626; border-radius:10px; padding:14px; margin-bottom:10px; display:flex; gap:12px; align-items:flex-start;}
+        .adm-list-item .adm-list-fields{flex:1; display:flex; flex-direction:column; gap:8px;}
+        .adm-list-item .adm-list-actions{display:flex; flex-direction:column; gap:6px;}
+        .adm-icon-btn{background:#1e1e1e; border:1px solid #333; color:#999; width:30px; height:30px; border-radius:7px; cursor:pointer; font-size:.85rem;}
+        .adm-icon-btn:hover{border-color:#a3ff3b; color:#a3ff3b;}
+        .adm-icon-btn.del:hover{border-color:#ef4444; color:#ef4444;}
+        .adm-add-btn{background:transparent; border:1px dashed #444; color:#888; padding:12px; width:100%; border-radius:10px; cursor:pointer; font-size:.85rem;}
+        .adm-add-btn:hover{border-color:#a3ff3b; color:#a3ff3b;}
+        .adm-toast{position:fixed; bottom:24px; right:24px; background:#1a1a1a; border:1px solid #a3ff3b; color:#a3ff3b; padding:12px 20px; border-radius:10px; font-size:.85rem; z-index:1200; display:none;}
+        .adm-status-row{display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #1e1e1e; font-size:.85rem; color:#bbb;}
+        .adm-status-row:last-child{border:none;}
+        .adm-dot{width:9px; height:9px; border-radius:50%; background:#555; flex-shrink:0;}
+        .adm-dot.ok{background:#22c55e;} .adm-dot.bad{background:#ef4444;} .adm-dot.warn{background:#f59e0b;}
+        .adm-stat{display:inline-block; background:#111; border:1px solid #222; border-radius:12px; padding:18px 24px; margin:0 12px 12px 0; min-width:130px;}
+        .adm-stat b{display:block; font-size:1.8rem; color:#a3ff3b;}
+        .adm-stat span{color:#888; font-size:.75rem; text-transform:uppercase; letter-spacing:.5px;}
+        .adm-textarea{width:100%; background:#1a1a1a; border:1px solid #333; color:#eee; padding:11px 14px; border-radius:8px; font-family:inherit; font-size:.88rem; min-height:90px; resize:vertical;}
+        .adm-select{width:100%; background:#1a1a1a; border:1px solid #333; color:#eee; padding:11px 14px; border-radius:8px; font-family:inherit; font-size:.9rem;}
+        .adm-code{background:#0a0a0a; border:1px solid #262626; border-radius:8px; padding:14px; font-family:monospace; font-size:.75rem; color:#8fd77d; white-space:pre-wrap; word-break:break-all; max-height:220px; overflow:auto;}
+        #adm-messages-list .adm-list-item{cursor:default;}
+
+        /* ═══════════ PUBLICITÉS ═══════════ */
+        .ad-banner{position:relative; z-index:500; display:flex; align-items:center; gap:14px; background:#111; border-bottom:1px solid #a3ff3b33; padding:10px 20px; color:#eee; font-size:.85rem;}
+        #ad-mount-banner-bottom .ad-banner{border-bottom:none; border-top:1px solid #a3ff3b33;}
+        .ad-banner img{height:36px; width:auto; border-radius:4px; flex-shrink:0;}
+        .ad-banner .ad-text{flex:1; min-width:0;}
+        .ad-banner .ad-title{font-weight:700; color:#a3ff3b;}
+        .ad-banner a.ad-cta{background:#a3ff3b; color:#000; padding:6px 14px; border-radius:6px; text-decoration:none; font-weight:700; font-size:.78rem; white-space:nowrap; flex-shrink:0;}
+        .ad-banner .ad-close{background:none; border:none; color:#777; font-size:1.1rem; cursor:pointer; flex-shrink:0; padding:0 4px;}
+        .ad-popup-overlay{position:fixed; inset:0; z-index:1100; background:rgba(0,0,0,.75); display:flex; align-items:center; justify-content:center; padding:20px; animation:fadeIn .25s ease;}
+        .ad-popup-box{background:#111; border:1px solid #a3ff3b44; border-radius:14px; max-width:380px; width:100%; padding:0; position:relative; overflow:hidden;}
+        .ad-popup-box img{width:100%; height:auto; display:block;}
+        .ad-popup-box .ad-body{padding:20px;}
+        .ad-popup-box .ad-title{color:#a3ff3b; font-size:1.1rem; font-weight:700; margin-bottom:8px;}
+        .ad-popup-box .ad-text{color:#bbb; font-size:.88rem; margin-bottom:16px; line-height:1.5;}
+        .ad-popup-box a.ad-cta{display:inline-block; background:#a3ff3b; color:#000; padding:10px 22px; border-radius:8px; text-decoration:none; font-weight:700; font-size:.85rem;}
+        .ad-popup-box .ad-close{position:absolute; top:10px; right:14px; background:rgba(0,0,0,.5); border:none; color:#fff; font-size:1.2rem; cursor:pointer; width:30px; height:30px; border-radius:50%; z-index:2;}
+        .ad-floating-box{position:fixed; bottom:20px; left:20px; z-index:400; background:#111; border:1px solid #a3ff3b44; border-radius:12px; max-width:280px; width:calc(100vw - 40px); box-shadow:0 8px 30px rgba(0,0,0,.5); animation:fadeIn .3s ease; overflow:hidden;}
+        .ad-floating-box img{width:100%; height:auto; display:block; max-height:120px; object-fit:cover;}
+        .ad-floating-box .ad-body{padding:14px;}
+        .ad-floating-box .ad-title{color:#a3ff3b; font-size:.9rem; font-weight:700; margin-bottom:5px;}
+        .ad-floating-box .ad-text{color:#aaa; font-size:.78rem; margin-bottom:10px; line-height:1.4;}
+        .ad-floating-box a.ad-cta{display:inline-block; background:#a3ff3b; color:#000; padding:7px 14px; border-radius:6px; text-decoration:none; font-weight:700; font-size:.78rem;}
+        .ad-floating-box .ad-close{position:absolute; top:6px; right:8px; background:rgba(0,0,0,.5); border:none; color:#fff; font-size:1rem; cursor:pointer; width:24px; height:24px; border-radius:50%;}
+        @media(max-width:600px){ .ad-banner{font-size:.78rem; padding:8px 14px;} .ad-banner img{height:28px;} }
     </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "Regard Créatif",
+  "image": "https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp",
+  "url": "https://regardcreatif.github.io/regard-creatif/",
+  "description": "Studio de design graphique en Haïti. Création de logo, flyer, identité visuelle et branding pour entrepreneurs, artistes et commerçants. Livraison en 72h.",
+  "email": "regardcreatif@proton.me",
+  "telephone": "+509 4787 3144",
+  "areaServed": {
+    "@type": "Country",
+    "name": "Haïti"
+  },
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "HT"
+  },
+  "priceRange": "$$",
+  "sameAs": []
+}
+</script>
 </head>
 <body>
+
+<!-- ═══════════ EMPLACEMENTS PUBLICITÉS ═══════════ -->
+<div id="ad-mount-banner-top"></div>
+<div id="ad-mount-floating"></div>
+<div id="ad-mount-popup"></div>
 
 <div style="position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; display:flex; align-items:center; justify-content:center;">
     <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" style="width:225%; max-width:2700px; opacity:0.19; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);">
 </div>
 
-<header>
+<header id="site-header">
     <a href="#" style="display:flex; align-items:center; text-decoration:none;">
-        <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="logo-img">
+        <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="logo-img" id="brand-logo-header" fetchpriority="high">
     </a>
-    <nav>
-        <a href="#services">Services</a>
-        <a href="#promo">RC Logo Maker</a>
-        <a href="#modeles">Modèles</a>
-        <a href="#galerie">Galerie</a>
-        <a href="#avis">Avis</a>
-        <a href="#about">À propos</a>
-        <a href="#assistant">Assistant</a>
-        <a href="#contact" class="btn-devis pulse">Devis</a>
+    <div class="header-right">
+        <button id="nav-toggle" onclick="toggleNavMenu()" aria-label="Ouvrir le menu" aria-expanded="false" title="Menu">
+            <span class="bar"></span>
+        </button>
+    </div>
+    <nav id="site-nav">
+        <a href="#services" onclick="closeNavMenu()">Services</a>
+        <a href="#modeles" onclick="closeNavMenu()">Modèles</a>
+        <a href="#galerie" onclick="closeNavMenu()">Galerie</a>
+        <a href="#avis" onclick="closeNavMenu()">Avis</a>
+        <a href="#about" onclick="closeNavMenu()">À propos</a>
+        <a href="#assistant" onclick="closeNavMenu()">Assistant</a>
+        <a href="#contact" class="btn-devis pulse" onclick="closeNavMenu()">Devis</a>
     </nav>
 </header>
 
-<section class="hero">
+<div id="site-sections">
+
+<section class="hero" id="hero" data-core-section="hero">
     <div class="tag"><span class="line"></span> Studio de Création</div>
-    <h1>L'image<br><span class="outline">qui frappe.</span></h1>
+    <h1 id="hero-title">L'image<br><span class="outline">qui frappe.</span></h1>
     <div class="hero-banner">
-        <img src="https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg" alt="Flyer Regard Créatif Officiel">
+        <img src="https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg" alt="Flyer Regard Créatif Officiel" fetchpriority="high" id="hero-banner-img">
     </div>
-    <p>Branding visuel rapide pour entrepreneurs, artistes et commerçants. <strong>Logo, flyer, identité visuelle livrés en 72h.</strong></p>
+    <p id="hero-subtitle">Branding visuel rapide pour entrepreneurs, artistes et commerçants. <strong>Logo, flyer, identité visuelle livrés en 72h.</strong></p>
     <a href="#contact" class="cta pulse">Demander un devis gratuit →</a>
 </section>
 
-<section id="services">
-    <h2>Ce que nous <span>créons</span> pour vous</h2>
-    <div class="services-grid">
+<section id="services" data-core-section="services">
+    <h2 id="services-title">Ce que nous <span>créons</span> pour vous</h2>
+    <div class="services-grid" id="services-grid">
         <div class="service-card"><div class="icon">✏️</div><h3>Logo professionnel</h3><p>La première empreinte de votre marque. Sobre, mémorable, unique.</p></div>
         <div class="service-card"><div class="icon">🖼️</div><h3>Flyer & affiche</h3><p>Votre message en une image. Print ou digital, prêt à marquer les esprits.</p></div>
         <div class="service-card"><div class="icon">📐</div><h3>Identité visuelle complète</h3><p>Logo, couleurs, typographie, charte graphique. Tout pour exister avec cohérence.</p></div>
@@ -601,71 +727,66 @@
         <div class="service-card highlight-card"><div class="icon">⚡</div><h3>Branding accéléré</h3><p>Pack complet livré en 72h pour les entrepreneurs pressés qui veulent du pro, tout de suite.</p></div>
     </div>
     <div class="services-illustration">
-        <img src="https://i.postimg.cc/MpH9pLwJ/vector-man-working-computer-graphic-designing-with-pen-tool-1272652-757.jpg" alt="Design graphique illustration" loading="lazy">
+        <img src="https://i.postimg.cc/MpH9pLwJ/vector-man-working-computer-graphic-designing-with-pen-tool-1272652-757.jpg" alt="Design graphique illustration" loading="lazy" id="services-illustration-img">
     </div>
 </section>
 
-<section id="promo" class="promo-section">
-    <img src="https://i.postimg.cc/25xvJ3yg/ezgif-5a59033461dfd07d.png" class="promo-icon" alt="RC Logo Maker">
-    <h3>RC Logo Maker</h3>
-    <p>Créez des logos professionnels en quelques minutes avec notre application gratuite. Simple, puissante, et accessible à tous.</p>
-    <a href="https://regardcreatif.github.io/regard-creatif/logomaker/editor.html" class="promo-dl-btn">🚀 Accéder à l'application</a>
-</section>
-
-<section id="modeles" class="modeles-section">
-    <h2>Nos <span>Modèles</span></h2>
-    <p class="modeles-subtitle">Quelques créations pour vous inspirer. Faites défiler →</p>
-    <div class="modeles-scroll">
+<section id="modeles" class="modeles-section" data-core-section="modeles">
+    <h2 id="modeles-title">Nos <span>Modèles</span></h2>
+    <p class="modeles-subtitle" id="modeles-subtitle">Quelques créations pour vous inspirer. Faites défiler →</p>
+    <div class="modeles-scroll" id="modeles-scroll">
         <div class="modele-card"><img src="https://i.postimg.cc/hjhL8nHf/1-20250813-070918-0000.png" alt="Modèle Flyer 1" loading="lazy"><div class="modele-label">Modèle <span>Flyer Premium</span></div></div>
         <div class="modele-card"><img src="https://i.postimg.cc/rp2yCN31/behance-project-1729211612297.jpg" alt="Modèle Flyer 2" loading="lazy"><div class="modele-label">Modèle <span>Behance Project</span></div></div>
         <div class="modele-card"><img src="https://i.postimg.cc/xCrFXPf3/Haute-Tension-Vol-2-20250703-091711-0000.png" alt="Modèle Party" loading="lazy"><div class="modele-label">Modèle <span>Haute Tension Party</span></div></div>
     </div>
 </section>
 
-<section id="galerie" style="background:#080808; padding:80px 40px; position:relative; z-index:1; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
+<section id="galerie" data-core-section="galerie" style="background:#080808; padding:80px 40px; position:relative; z-index:1; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
     <div style="position:relative; z-index:1; max-width:1200px; margin:0 auto;">
-        <h2 style="font-size:clamp(2rem,5vw,4rem); font-weight:900; text-transform:uppercase; text-align:center; margin-bottom:10px; color:#fff;">Galerie <span style="color:#fff;">d'Art</span></h2>
-        <p style="text-align:center; color:#777; font-size:1rem; margin-bottom:15px; font-style:italic;">"Deux regards, une signature."</p>
-        <div style="margin:30px 0; border-radius:8px; overflow:hidden; border:1px solid #222;"><img src="https://i.postimg.cc/d0yCMyfp/JB_EXPO.jpg" alt="JB EXPO" style="width:100%; height:auto; display:block;"></div>
-        <p style="text-align:center; color:#999; font-size:1rem; max-width:700px; margin:25px auto 40px; line-height:1.8;">Jennika & Kervens Jean Baptiste — L'art de transformer l'invisible en visible. Chaque toile est une brèche ouverte sur un monde intérieur.<br><strong style="color:#a3ff3b;">Pièces uniques • Sur commande</strong></p>
-        <div style="text-align:center; margin-bottom:40px;"><a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:10px 25px; border-radius:25px; text-decoration:none; font-size:0.9rem; font-weight:600;">📰 L'univers pictural de Jennika Jean-Baptiste — Le Nouvelliste</a></div>
-        <div class="galerie-grid">
+        <h2 id="galerie-title" style="font-size:clamp(1.7rem,4vw,2.8rem); font-weight:900; text-transform:uppercase; text-align:center; margin-bottom:10px; color:#fff;">Galerie <span style="color:#fff;">d'Art</span></h2>
+        <p style="text-align:center; color:#777; font-size:0.9rem; margin-bottom:15px; font-style:italic;">"Deux regards, une signature."</p>
+        <div style="margin:30px 0; border-radius:8px; overflow:hidden; border:1px solid #222;"><img src="https://i.postimg.cc/d0yCMyfp/JB_EXPO.jpg" alt="JB EXPO" style="width:100%; height:auto; display:block;" id="galerie-header-img"></div>
+        <p style="text-align:center; color:#999; font-size:0.9rem; max-width:700px; margin:25px auto 40px; line-height:1.65;">Jennika & Kervens Jean Baptiste — L'art de transformer l'invisible en visible. Chaque toile est une brèche ouverte sur un monde intérieur.<br><strong style="color:#a3ff3b;">Pièces uniques • Sur commande</strong></p>
+        <div style="text-align:center; margin-bottom:40px;"><a href="https://lenouvelliste.com/article/252288/lunivers-pictural-de-jennika-jean-baptiste" target="_blank" style="display:inline-block; background:rgba(255,255,255,0.03); color:#ccc; border:1px solid #333; padding:10px 25px; border-radius:25px; text-decoration:none; font-size:0.82rem; font-weight:600;">📰 L'univers pictural de Jennika Jean-Baptiste — Le Nouvelliste</a></div>
+        <div class="galerie-grid" id="galerie-grid">
             <div class="galerie-card"><img src="https://i.postimg.cc/ZY114t00/1000158894-(1).jpg" alt="La Citadelle et ses Entraves" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"La Citadelle et ses Entraves"</p><p class="card-subtitle">L'histoire enchaînée, la pierre qui résiste.</p></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/9FrvjXWP/IMG-20260114-WA0000-080006.jpg" alt="Là où la pierre rêve" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"Là où la pierre rêve."</p><p class="card-subtitle">Une œuvre sans titre, une histoire sans fin.</p></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/v8LWH5my/Picsart-26-05-28-16-37-59-620.jpg" alt="Jennika EXPO" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Elle fait parler les couleurs."</p><p class="card-subtitle">Portrait d'une artiste devant ses œuvres — JB EXPO.</p></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/T3bFpkLC/PXL-20241213-211822586-2-080007.jpg" alt="L'éclat du dedans" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"L'éclat du dedans."</p><p class="card-subtitle">La lumière intérieure capturée sur la toile.</p></div></div>
-            <div class="galerie-card"><img src="https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg" alt="Un silence qui crie" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Un silence qui crie."</p><p class="card-subtitle">Quand les émotions traversent la toile.</p></div></div>
+            <div class="galerie-card galerie-extra-item"><img src="https://i.postimg.cc/9FrvjXWP/IMG-20260114-WA0000-080006.jpg" alt="Là où la pierre rêve" loading="lazy"><div class="card-body"><p class="card-artist">Kervens Jean Baptiste</p><p class="card-title">"Là où la pierre rêve."</p><p class="card-subtitle">Une œuvre sans titre, une histoire sans fin.</p></div></div>
+            <div class="galerie-card galerie-extra-item"><img src="https://i.postimg.cc/v8LWH5my/Picsart-26-05-28-16-37-59-620.jpg" alt="Jennika EXPO" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Elle fait parler les couleurs."</p><p class="card-subtitle">Portrait d'une artiste devant ses œuvres — JB EXPO.</p></div></div>
+            <div class="galerie-card galerie-extra-item"><img src="https://i.postimg.cc/T3bFpkLC/PXL-20241213-211822586-2-080007.jpg" alt="L'éclat du dedans" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"L'éclat du dedans."</p><p class="card-subtitle">La lumière intérieure capturée sur la toile.</p></div></div>
+            <div class="galerie-card galerie-extra-item"><img src="https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg" alt="Un silence qui crie" loading="lazy"><div class="card-body"><p class="card-artist">Jennika Jean Baptiste</p><p class="card-title">"Un silence qui crie."</p><p class="card-subtitle">Quand les émotions traversent la toile.</p></div></div>
+        </div>
+        <div class="galerie-more-wrap" id="galerie-more-wrap">
+            <button class="galerie-more-btn" id="galerie-more-btn" onclick="toggleGalerieMore()">Voir plus d'œuvres <span class="arrow">↓</span></button>
         </div>
     </div>
 </section>
 
-<section id="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
-    <h2 style="text-align:center;">Ce que <span>nos clients</span> disent</h2>
+<section id="avis" data-core-section="avis" style="background:#0a0a0a; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;">
+    <h2 id="avis-title" style="text-align:center;">Ce que <span>nos clients</span> disent</h2>
     <p style="text-align:center; color:#777; margin-bottom:50px;">Votre satisfaction est notre meilleure récompense.</p>
-    <div class="avis-grid">
-        <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-text">"Regard Créatif a créé mon logo en un temps record. Professionnel, créatif, à l'écoute. Je recommande à 100%."</p><span class="avis-author">— Jean R., Entrepreneur</span></div>
-        <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-text">"Mon flyer a fait sensation. Livraison rapide, design percutant. C'est exactement ce que je voulais."</p><span class="avis-author">— Marie L., Commerçante</span></div>
-        <div class="avis-card"><div class="avis-stars">★★★★★</div><p class="avis-text">"Une identité visuelle complète qui a transformé mon entreprise. Du grand art. Merci Regard Créatif."</p><span class="avis-author">— Pierre K., Start-up</span></div>
+    <div class="avis-grid" id="avis-grid">
+        <div class="avis-card"><img class="avis-avatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=JeanR&skinColor=614335&backgroundColor=1a1a1a" alt="Jean R." loading="lazy"><div class="avis-stars">★★★★★</div><p class="avis-text">"Regard Créatif a créé mon logo en un temps record. Professionnel, créatif, à l'écoute. Je recommande à 100%."</p><span class="avis-author">— Jean R., Entrepreneur</span></div>
+        <div class="avis-card"><img class="avis-avatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=MarieL&skinColor=ae5d29&backgroundColor=1a1a1a" alt="Marie L." loading="lazy"><div class="avis-stars">★★★★★</div><p class="avis-text">"Mon flyer a fait sensation. Livraison rapide, design percutant. C'est exactement ce que je voulais."</p><span class="avis-author">— Marie L., Commerçante</span></div>
+        <div class="avis-card"><img class="avis-avatar" src="https://api.dicebear.com/9.x/avataaars/svg?seed=PierreK&skinColor=8d5524&backgroundColor=1a1a1a" alt="Pierre K." loading="lazy"><div class="avis-stars">★★★★★</div><p class="avis-text">"Une identité visuelle complète qui a transformé mon entreprise. Du grand art. Merci Regard Créatif."</p><span class="avis-author">— Pierre K., Start-up</span></div>
     </div>
     <div style="text-align:center; margin-top:40px;"><p style="color:#999; margin-bottom:15px;">Vous avez travaillé avec nous ?</p><a href="https://wa.me/50947873144?text=Bonjour%20Regard%20Créatif,%20je%20veux%20laisser%20un%20avis%20!" target="_blank" class="btn-avis">Laisser un avis ⭐</a></div>
 </section>
 
-<section id="about">
-    <h2>Derrières <span>Regard Créatif</span></h2>
+<section id="about" data-core-section="about">
+    <h2 id="about-title">Derrières <span>Regard Créatif</span></h2>
     <div class="about-grid">
-        <div class="about-img"><img src="https://i.postimg.cc/J0HF0dJ2/flat-isometric-illustration-graphic-designer-workspace-1058698-1428.jpg" alt="Graphic designer workspace" loading="lazy"></div>
-        <div class="about-text"><p>Je suis créatif, graphiste et passionné par la puissance des images.</p><p>Regard Créatif est né d'un constat simple : les petits entrepreneurs, les artistes, les indépendants n'ont pas accès à un design de qualité sans se ruiner.</p><p>Mon objectif : leur offrir une identité visuelle qui frappe, rapidement, sans compromis.</p><p><strong>Ici, on ne vend pas des logos. On crée des mémoires.</strong></p></div>
+        <div class="about-img"><img src="https://i.postimg.cc/J0HF0dJ2/flat-isometric-illustration-graphic-designer-workspace-1058698-1428.jpg" alt="Graphic designer workspace" loading="lazy" id="about-img"></div>
+        <div class="about-text" id="about-text"><p>Je suis créatif, graphiste et passionné par la puissance des images.</p><p>Regard Créatif est né d'un constat simple : les petits entrepreneurs, les artistes, les indépendants n'ont pas accès à un design de qualité sans se ruiner.</p><p>Mon objectif : leur offrir une identité visuelle qui frappe, rapidement, sans compromis.</p><p><strong>Ici, on ne vend pas des logos. On crée des mémoires.</strong></p></div>
     </div>
 </section>
 
-<section id="contact">
-    <h2>Prêt à faire naître votre <span>image</span> ?</h2>
+<section id="contact" data-core-section="contact">
+    <h2 id="contact-title">Prêt à faire naître votre <span>image</span> ?</h2>
     <p style="color:#999; margin-bottom:30px; max-width:500px;">Contactez-moi directement ou remplissez le formulaire. Je vous réponds sous 24h.</p>
     <div class="contact-grid">
         <div class="contact-info">
-            <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="contact-logo">
-            <a href="https://wa.me/50947873144" target="_blank" class="contact-item"><div class="contact-icon">💬</div><div><div class="contact-label">WhatsApp</div><div class="contact-value">+509 4787 3144</div></div></a>
-            <a href="mailto:regardcreatif@proton.me" class="contact-item"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value">regardcreatif@proton.me</div></div></a>
+            <a href="https://wa.me/50947873144" target="_blank" class="contact-item" id="contact-whatsapp-link"><div class="contact-icon">💬</div><div><div class="contact-label">WhatsApp</div><div class="contact-value" id="contact-whatsapp-value">+509 4787 3144</div></div></a>
+            <a href="mailto:regardcreatif@proton.me" class="contact-item" id="contact-email-link"><div class="contact-icon">✉️</div><div><div class="contact-label">Email</div><div class="contact-value" id="contact-email-value">regardcreatif@proton.me</div></div></a>
         </div>
         <form class="contact-form" action="https://formspree.io/f/mbdbpkoy" method="POST">
             <input type="text" name="name" placeholder="Votre nom" required>
@@ -678,186 +799,1516 @@
 </section>
 
 <!-- ═══════════ ASSISTANT REGARD CRÉATIF ═══════════ -->
-<section id="assistant" class="assistant-section">
+<section id="assistant" class="assistant-section" data-core-section="assistant">
     <span class="assistant-badge">✨ Assistant Intelligent</span>
-    <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif Assistant" class="assistant-logo">
-    <h2>Regard Créatif <span>Assistant</span></h2>
-    <p class="assistant-subtitle">Besoin d'aide ? Choisissez une option ou écrivez votre question.</p>
+    <img src="https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp" alt="Regard Créatif Assistant" class="assistant-logo" id="assistant-logo-img">
+    <h2 id="assistant-title">Regard Créatif <span>Assistant</span></h2>
+    <p class="assistant-subtitle" id="assistant-subtitle-text">Besoin d'aide ? Choisissez une option ou écrivez votre question.</p>
     
     <div class="assistant-chat-box">
         <div class="assistant-chat-msgs" id="assistant-messages">
-            <div class="msg agent">👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services, nos délais, et vous mettre en contact avec le créateur.<br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em></div>
+            <div class="msg agent" id="assistant-welcome-msg">👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services, nos délais, et vous mettre en contact avec le créateur.<br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em></div>
         </div>
         <div class="assistant-choices" id="assistant-choices">
             <button onclick="askAssistant('Quels sont vos services ?')">🎨 Services</button>
             <button onclick="askAssistant('Quels sont vos délais ?')">⏱️ Délais</button>
-            <button onclick="askAssistant('Comment créer mon logo ?')">🔧 RC Logo Maker</button>
             <button onclick="askAssistant('Quel est le prix ?')">💰 Tarifs</button>
             <button onclick="askAssistant('Comment vous contacter ?')">📱 Contact</button>
             <button onclick="askAssistant('Qui êtes-vous ?')">ℹ️ À propos</button>
         </div>
         <div class="assistant-input-row">
             <input type="text" id="assistant-input" placeholder="Écrivez votre question..." onkeydown="if(event.key==='Enter')askAssistant(document.getElementById('assistant-input').value)">
-            <button onclick="askAssistant(document.getElementById('assistant-input').value)">Envoyer</button>
+            <button onclick="askAssistant(document.getElementById('assistant-input').value)" id="assistant-send-btn">Envoyer</button>
         </div>
     </div>
 </section>
+
+</div><!-- /#site-sections -->
 
 <!-- Boutons flottants -->
 <a href="https://wa.me/50947873144" target="_blank" class="whatsapp-float" title="Discutons sur WhatsApp">
     <svg viewBox="0 0 24 24" width="32" height="32" fill="#fff"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
 </a>
-<a href="#galerie" class="galerie-float" title="Voir la Galerie d'Art">🎨</a>
-<input type="checkbox" id="flip-toggle">
-<label for="flip-toggle" class="flip-float" title="Voir l'animation">
-    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="2" y="4" width="20" height="16" rx="2" />
-        <line x1="2" y1="10" x2="22" y2="10" />
-        <line x1="8" y1="2" x2="8" y2="6" />
-        <line x1="16" y1="2" x2="16" y2="6" />
-        <circle cx="12" cy="16" r="2" fill="#FFD700" stroke="none"/>
-    </svg>
-</label>
-<div id="flip-popup">
-    <label for="flip-toggle" style="position:absolute; top:20px; right:30px; color:#fff; font-size:2rem; cursor:pointer; z-index:301;">✕</label>
-    <div class="flip-container-popup">
-        <div class="flip-card-popup">
-            <div class="flip-face-popup flip-front-popup">
-                <img src="https://i.postimg.cc/tRzpYVNW/Picsart-26-05-29-10-42-56-796.jpg" alt="Face 1">
-            </div>
-            <div class="flip-face-popup flip-back-popup">
-                <img src="https://i.postimg.cc/PxsT8W7g/Picsart-26-05-29-10-43-43-796.jpg" alt="Face 2">
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Robot flottant -->
-<div class="robot-float" onclick="document.getElementById('assistant').scrollIntoView({behavior:'smooth'}); setTimeout(()=>document.getElementById('assistant-input').focus(),500);" title="Parler à Regard Créatif Assistant">
-    <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-            <filter id="glowR"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-            <radialGradient id="bodyGradR" cx="40%" cy="30%" r="70%"><stop offset="0%" stop-color="#e0ff80"/><stop offset="60%" stop-color="#a3ff3b"/><stop offset="100%" stop-color="#4a7a00"/></radialGradient>
-            <radialGradient id="headGradR" cx="40%" cy="30%" r="70%"><stop offset="0%" stop-color="#f0ffb0"/><stop offset="100%" stop-color="#a3ff3b"/></radialGradient>
-            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FFD700"/><stop offset="50%" stop-color="#FFA500"/><stop offset="100%" stop-color="#FF8C00"/></linearGradient>
-            <linearGradient id="redGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#FF4444"/><stop offset="100%" stop-color="#CC0000"/></linearGradient>
-        </defs>
-        <ellipse cx="150" cy="145" rx="130" ry="35" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.3" transform="rotate(-15 150 145)" filter="url(#glowR)"/>
-        <ellipse cx="150" cy="145" rx="135" ry="20" fill="none" stroke="#FF4444" stroke-width="1" opacity="0.2" transform="rotate(-30 150 145)" stroke-dasharray="6 4"/>
-        <line x1="150" y1="35" x2="150" y2="10" stroke="#FFD700" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
-        <circle cx="150" cy="6" r="8" fill="url(#goldGrad)" filter="url(#glowR)"/>
-        <rect x="65" y="110" width="170" height="130" rx="45" fill="url(#bodyGradR)" filter="url(#glowR)"/>
-        <path d="M 85 140 Q 150 135 215 140" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
-        <path d="M 85 180 Q 150 185 215 180" fill="none" stroke="url(#goldGrad)" stroke-width="3" stroke-linecap="round" filter="url(#glowR)"/>
-        <path d="M 85 210 Q 150 215 215 210" fill="none" stroke="url(#redGrad)" stroke-width="4" stroke-linecap="round" filter="url(#glowR)"/>
-        <rect x="110" y="150" width="80" height="50" rx="15" fill="#111" opacity="0.8"/>
-        <rect x="115" y="155" width="70" height="40" rx="10" fill="none" stroke="#FFD700" stroke-width="1.5" opacity="0.8"/>
-        <circle cx="150" cy="175" r="10" fill="url(#redGrad)" filter="url(#glowR)"><animate attributeName="r" values="8;12;8" dur="1.2s" repeatCount="indefinite"/></circle>
-        <rect x="75" y="40" width="150" height="85" rx="40" fill="url(#headGradR)" filter="url(#glowR)"/>
-        <rect x="55" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
-        <rect x="225" y="65" width="20" height="30" rx="8" fill="url(#bodyGradR)"/>
-        <circle cx="65" cy="75" r="4" fill="url(#goldGrad)"/>
-        <circle cx="235" cy="75" r="4" fill="url(#goldGrad)"/>
-        <rect x="90" y="55" width="120" height="55" rx="25" fill="#0a0a1a"/>
-        <rect x="95" y="60" width="110" height="45" rx="20" fill="none" stroke="#FFD700" stroke-width="1" opacity="0.6"/>
-        <g class="robot-eye"><circle cx="125" cy="80" r="14" fill="#a3ff3b" filter="url(#glowR)"/><circle cx="125" cy="80" r="7" fill="#fff" opacity="0.9"/><circle cx="127" cy="77" r="3" fill="#fff"/></g>
-        <g class="robot-eye"><circle cx="175" cy="80" r="14" fill="#a3ff3b" filter="url(#glowR)"/><circle cx="175" cy="80" r="7" fill="#fff" opacity="0.9"/><circle cx="177" cy="77" r="3" fill="#fff"/></g>
-        <path d="M125 100 Q150 112 175 100" stroke="#a3ff3b" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glowR)"/>
-        <g class="robot-arm-group-new">
-            <rect x="40" y="125" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
-            <rect x="48" y="85" width="14" height="45" rx="7" fill="url(#headGradR)"/>
-            <circle cx="55" cy="80" r="18" fill="url(#headGradR)" filter="url(#glowR)"/>
-            <circle cx="55" cy="80" r="10" fill="#a3ff3b"/>
-            <circle cx="50" cy="75" r="4" fill="#fff" opacity="0.6"/>
-            <rect x="42" y="62" width="8" height="16" rx="4" fill="url(#headGradR)"/>
-            <rect x="54" y="58" width="8" height="16" rx="4" fill="url(#headGradR)"/>
-            <rect x="66" y="65" width="8" height="16" rx="4" fill="url(#headGradR)"/>
-        </g>
-        <rect x="235" y="135" width="25" height="15" rx="7" fill="url(#bodyGradR)" filter="url(#glowR)"/>
-        <rect x="238" y="100" width="14" height="40" rx="7" fill="url(#headGradR)"/>
-        <circle cx="245" cy="95" r="15" fill="url(#headGradR)" filter="url(#glowR)"/>
-        <rect x="95" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
-        <rect x="165" y="230" width="40" height="45" rx="18" fill="url(#bodyGradR)" filter="url(#glowR)"/>
-        <circle cx="115" cy="245" r="5" fill="url(#goldGrad)"/>
-        <circle cx="185" cy="245" r="5" fill="url(#goldGrad)"/>
-        <rect x="85" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
-        <rect x="160" y="268" width="55" height="20" rx="10" fill="#111" opacity="0.9"/>
-        <rect x="85" y="270" width="55" height="3" rx="1.5" fill="url(#redGrad)" filter="url(#glowR)"/>
-        <rect x="160" y="270" width="55" height="3" rx="1.5" fill="url(#redGrad)" filter="url(#glowR)"/>
-    </svg>
-</div>
-
-<div style="text-align:center; padding:10px 0; position:relative; z-index:1;" id="compteur-section">
-    <button onclick="showCompteur()" style="background:none; border:1px solid #333; color:#555; padding:5px 15px; cursor:pointer; font-size:0.7rem; text-transform:uppercase; letter-spacing:1px;">📊 Stats</button>
-</div>
+<div id="ad-mount-banner-bottom"></div>
 
 <footer>
     <img src="https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp" alt="Regard Créatif" class="footer-logo">
     <p>© Regard Créatif – L'image qui frappe. Tous droits réservés.</p>
+    <div class="footer-legal-links">
+        <a href="mentions-legales.html">Mentions légales</a>
+        <a href="confidentialite.html">Politique de confidentialité</a>
+    </div>
 </footer>
 
-<script src="//code.tidio.co/qe52uuulcolwly3l1f5f8zmjjyo1rud1.js" async></script>
+<!-- Accès admin : camouflé, aucun indice visuel (même rituel que v51) -->
+<div id="admin-trigger" onclick="onAdminGateClick()" title="">∞</div>
+
+<!-- ═══════════ ADMIN GATE MODAL (camouflage) ═══════════ -->
+<div class="adm-overlay" id="admin-gate-overlay" onclick="if(event.target===this)closeAdminGate()">
+  <div class="adm-modal" style="position:relative; max-width:300px;">
+    <button class="adm-close" onclick="closeAdminGate()">✕</button>
+    <h3 style="text-align:center; font-size:1.4rem;">∞</h3>
+    <input class="adm-input" type="password" id="adm-gate-pass" placeholder="••••••••" autocomplete="off" onkeydown="if(event.key==='Enter')submitAdminGate()">
+    <div class="adm-err" id="adm-gate-err">Mot de passe incorrect.</div>
+    <button class="adm-btn" onclick="submitAdminGate()">Valider</button>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN LOGIN MODAL ═══════════ -->
+<div class="adm-overlay" id="admin-login-overlay" onclick="if(event.target===this)closeAdminLoginAndResetGate()">
+  <div class="adm-modal" style="position:relative;">
+    <button class="adm-close" onclick="closeAdminLoginAndResetGate()">✕</button>
+    <h3>Administration</h3>
+
+    <!-- Étape 1 : connexion à Supabase (nécessaire une seule fois par appareil/navigateur) -->
+    <div id="adm-supa-setup">
+      <p>Avant de vous connecter, reliez le site à votre projet Supabase (une seule fois).</p>
+      <input class="adm-input" type="text" id="adm-setup-url" placeholder="URL du projet — https://xxxx.supabase.co">
+      <input class="adm-input" type="text" id="adm-setup-key" placeholder="Clé publique (anon / publishable)">
+      <div class="adm-err" id="adm-setup-err"></div>
+      <button class="adm-btn" onclick="admConnectSupaFromLogin()">🔌 Connecter Supabase</button>
+      <p style="margin-top:14px; font-size:.72rem; color:#555;">L'URL et la clé publique se trouvent dans votre projet Supabase → Project Settings → API.</p>
+    </div>
+
+    <!-- Étape 2 : connexion admin (visible une fois Supabase relié) -->
+    <div id="adm-login-fields" style="display:none;">
+      <p>Connectez-vous à l'espace d'administration.</p>
+      <input class="adm-input" type="email" id="adm-login-email" placeholder="admin@exemple.com" autocomplete="username">
+      <input class="adm-input" type="password" id="adm-login-pass" placeholder="Mot de passe" autocomplete="current-password" onkeydown="if(event.key==='Enter')doAdminLogin()">
+      <div class="adm-err" id="adm-login-err">Identifiants incorrects.</div>
+      <button class="adm-btn" id="adm-login-btn" onclick="doAdminLogin()">Se connecter</button>
+      <p style="margin-top:14px; font-size:.72rem; color:#555;">Le compte admin se crée dans Supabase → Authentication → Users. <a href="#" onclick="event.preventDefault(); admShowSupaSetupAgain();" style="color:#a3ff3b;">Changer de projet Supabase</a>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ ADMIN PANEL ═══════════ -->
+<div id="admin-panel">
+  <aside id="adm-sidebar">
+    <div id="adm-sidebar-head">
+      <b>Regard Créatif</b>
+      <span>Administration</span>
+    </div>
+    <div class="adm-nav-item active" data-tab="dashboard" onclick="admSwitchTab('dashboard')">📊 <span class="adm-nav-label">Tableau de bord</span></div>
+    <div class="adm-nav-item" data-tab="branding" onclick="admSwitchTab('branding')">🎨 <span class="adm-nav-label">Image de marque</span></div>
+    <div class="adm-nav-item" data-tab="sections" onclick="admSwitchTab('sections')">🧩 <span class="adm-nav-label">Sections & Briques</span></div>
+    <div class="adm-nav-item" data-tab="ads" onclick="admSwitchTab('ads')">📢 <span class="adm-nav-label">Publicités</span></div>
+    <div class="adm-nav-item" data-tab="hero" onclick="admSwitchTab('hero')">🏠 <span class="adm-nav-label">Accueil</span></div>
+    <div class="adm-nav-item" data-tab="services" onclick="admSwitchTab('services')">✏️ <span class="adm-nav-label">Services</span></div>
+    <div class="adm-nav-item" data-tab="modeles" onclick="admSwitchTab('modeles')">🖼️ <span class="adm-nav-label">Modèles</span></div>
+    <div class="adm-nav-item" data-tab="galerie" onclick="admSwitchTab('galerie')">🖌️ <span class="adm-nav-label">Galerie d'Art</span></div>
+    <div class="adm-nav-item" data-tab="avis" onclick="admSwitchTab('avis')">⭐ <span class="adm-nav-label">Avis clients</span></div>
+    <div class="adm-nav-item" data-tab="about" onclick="admSwitchTab('about')">ℹ️ <span class="adm-nav-label">À propos</span></div>
+    <div class="adm-nav-item" data-tab="contact" onclick="admSwitchTab('contact')">📱 <span class="adm-nav-label">Contact</span></div>
+    <div class="adm-nav-item" data-tab="assistant" onclick="admSwitchTab('assistant')">🤖 <span class="adm-nav-label">Assistant IA</span></div>
+    <div class="adm-nav-item" data-tab="messages" onclick="admSwitchTab('messages')">✉️ <span class="adm-nav-label">Messages</span></div>
+    <div class="adm-nav-item" data-tab="supabase" onclick="admSwitchTab('supabase')">🗄️ <span class="adm-nav-label">Supabase</span></div>
+    <div class="adm-nav-item" onclick="closeAdminPanel()">↩️ <span class="adm-nav-label">Retour au site</span></div>
+    <div class="adm-nav-item" onclick="doAdminLogout()">🚪 <span class="adm-nav-label">Déconnexion</span></div>
+  </aside>
+  <div id="adm-content">
+
+    <!-- DASHBOARD -->
+    <div class="adm-tab active" id="tab-dashboard">
+      <h2>Tableau de bord</h2>
+      <p class="adm-tab-sub">Vue d'ensemble de votre site.</p>
+      <div id="adm-stats-wrap">
+        <div class="adm-stat"><b id="stat-visits">–</b><span>Visites (30j)</span></div>
+        <div class="adm-stat"><b id="stat-messages">–</b><span>Messages reçus</span></div>
+        <div class="adm-stat"><b id="stat-chat">–</b><span>Conversations Assistant</span></div>
+      </div>
+      <div class="adm-card">
+        <div class="adm-status-row"><span class="adm-dot" id="dot-supa"></span> Connexion Supabase <span id="txt-supa" style="margin-left:auto;color:#666;">vérification…</span></div>
+        <div class="adm-status-row"><span class="adm-dot" id="dot-auth"></span> Session admin <span id="txt-auth" style="margin-left:auto;color:#666;">vérification…</span></div>
+        <div class="adm-status-row"><span class="adm-dot" id="dot-edge"></span> Fonction Assistant (Edge Function) <span id="txt-edge" style="margin-left:auto;color:#666;">vérification…</span></div>
+      </div>
+    </div>
+
+    <!-- BRANDING -->
+    <div class="adm-tab" id="tab-branding">
+      <h2>Image de marque</h2>
+      <p class="adm-tab-sub">Logo et identité affichés sur le site.</p>
+      <div class="adm-card">
+        <label class="adm-label">Nom de la marque</label>
+        <input class="adm-input" id="b-brand-name" placeholder="Regard Créatif">
+        <label class="adm-label">URL du logo</label>
+        <input class="adm-input" id="b-brand-logo" placeholder="https://...">
+      </div>
+      <button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button>
+    </div>
+
+    <!-- SECTIONS & BRIQUES -->
+    <div class="adm-tab" id="tab-sections">
+      <h2>Sections & Briques</h2>
+      <p class="adm-tab-sub">Réordonnez, masquez ou renommez les sections du site. Ajoutez de nouvelles briques n'importe où dans la page.</p>
+      <div id="sections-list"></div>
+      <div class="adm-card" style="margin-top:18px;">
+        <div class="adm-label" style="margin-bottom:10px;">+ Ajouter une nouvelle brique</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="adm-add-btn" style="width:auto;" onclick="admAddBlock('text')">📝 Bloc de texte</button>
+          <button class="adm-add-btn" style="width:auto;" onclick="admAddBlock('image')">🖼️ Bloc image</button>
+          <button class="adm-add-btn" style="width:auto;" onclick="admAddBlock('cta')">📣 Appel à l'action</button>
+        </div>
+      </div>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- PUBLICITÉS -->
+    <div class="adm-tab" id="tab-ads">
+      <h2>Publicités</h2>
+      <p class="adm-tab-sub">Créez des publicités, fixez leur position, leur période de diffusion, leur durée d'affichage et leur délai d'apparition.</p>
+      <div id="ads-list"></div>
+      <button class="adm-add-btn" onclick="admAddAd()">+ Créer une publicité</button>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- HERO -->
+    <div class="adm-tab" id="tab-hero">
+      <h2>Section Accueil</h2>
+      <p class="adm-tab-sub">Le grand titre affiché en haut du site.</p>
+      <div class="adm-card">
+        <label class="adm-label">Titre (HTML autorisé, ex: retour à la ligne avec &lt;br&gt;)</label>
+        <textarea class="adm-textarea" id="h-title"></textarea>
+        <label class="adm-label" style="margin-top:14px;">Sous-titre</label>
+        <textarea class="adm-textarea" id="h-subtitle"></textarea>
+        <label class="adm-label" style="margin-top:14px;">🖼️ URL de l'image sous le titre (bannière)</label>
+        <input class="adm-input" id="h-banner-img" placeholder="https://...">
+      </div>
+      <button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button>
+    </div>
+
+    <!-- SERVICES (generic list) -->
+    <div class="adm-tab" id="tab-services">
+      <h2>Services</h2>
+      <p class="adm-tab-sub">Les cartes affichées dans "Ce que nous créons pour vous".</p>
+      <div class="adm-card">
+        <label class="adm-label">🖼️ URL de l'illustration sous les cartes</label>
+        <input class="adm-input" id="sv-illustration-img" placeholder="https://...">
+      </div>
+      <div id="list-services"></div>
+      <button class="adm-add-btn" onclick="admAddItem('services')">+ Ajouter un service</button>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- MODELES -->
+    <div class="adm-tab" id="tab-modeles">
+      <h2>Modèles</h2>
+      <p class="adm-tab-sub">Le carrousel de créations.</p>
+      <div id="list-modeles"></div>
+      <button class="adm-add-btn" onclick="admAddItem('modeles')">+ Ajouter un modèle</button>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- GALERIE -->
+    <div class="adm-tab" id="tab-galerie">
+      <h2>Galerie d'Art</h2>
+      <p class="adm-tab-sub">Les œuvres présentées dans la galerie.</p>
+      <div class="adm-card">
+        <label class="adm-label">🖼️ URL de l'image d'en-tête (bannière JB EXPO)</label>
+        <input class="adm-input" id="g-header-img" placeholder="https://...">
+      </div>
+      <div id="list-galerie"></div>
+      <button class="adm-add-btn" onclick="admAddItem('galerie')">+ Ajouter une œuvre</button>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- AVIS -->
+    <div class="adm-tab" id="tab-avis">
+      <h2>Avis clients</h2>
+      <p class="adm-tab-sub">Témoignages affichés sur le site.</p>
+      <div id="list-avis"></div>
+      <button class="adm-add-btn" onclick="admAddItem('avis')">+ Ajouter un avis</button>
+      <div style="margin-top:18px;"><button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="adm-tab" id="tab-about">
+      <h2>À propos</h2>
+      <p class="adm-tab-sub">Un paragraphe par ligne.</p>
+      <div class="adm-card">
+        <textarea class="adm-textarea" id="a-about-text" style="min-height:180px;"></textarea>
+        <label class="adm-label" style="margin-top:14px;">🖼️ URL de l'image (à propos)</label>
+        <input class="adm-input" id="a-about-img" placeholder="https://...">
+      </div>
+      <button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="adm-tab" id="tab-contact">
+      <h2>Contact</h2>
+      <div class="adm-card adm-row">
+        <div>
+          <label class="adm-label">Numéro WhatsApp (format international)</label>
+          <input class="adm-input" id="c-whatsapp" placeholder="50947873144">
+        </div>
+        <div>
+          <label class="adm-label">Email</label>
+          <input class="adm-input" id="c-email" placeholder="contact@exemple.com">
+        </div>
+      </div>
+      <button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button>
+    </div>
+
+    <!-- ASSISTANT -->
+    <div class="adm-tab" id="tab-assistant">
+      <h2>Assistant IA</h2>
+      <p class="adm-tab-sub">Configuration de l'assistant du site (pas de génération d'images ici).</p>
+      <div class="adm-card">
+        <label class="adm-label">Message d'accueil</label>
+        <textarea class="adm-textarea" id="ai-welcome"></textarea>
+        <label class="adm-label" style="margin-top:14px;">Sous-titre affiché sous le titre "Assistant"</label>
+        <input class="adm-input" id="ai-subtitle">
+        <label class="adm-label" style="margin-top:14px;">🖼️ URL du logo/avatar de l'assistant</label>
+        <input class="adm-input" id="ai-logo" placeholder="https://...">
+        <label class="adm-label" style="margin-top:14px;">Consigne système (personnalité / ce que l'assistant doit savoir)</label>
+        <textarea class="adm-textarea" id="ai-system" style="min-height:130px;" placeholder="Tu es l'assistant de Regard Créatif, studio de design graphique en Haïti..."></textarea>
+      </div>
+      <div class="adm-card adm-row">
+        <div>
+          <label class="adm-label">Fournisseur IA actif</label>
+          <select class="adm-select" id="ai-provider">
+            <option value="groq">Groq (rapide, Llama)</option>
+            <option value="mistral">Mistral</option>
+          </select>
+        </div>
+        <div>
+          <label class="adm-label">Modèle</label>
+          <input class="adm-input" id="ai-model" placeholder="ex: llama-3.3-70b-versatile">
+        </div>
+      </div>
+      <p style="font-size:.75rem;color:#666;margin:-6px 0 16px;">🔒 Les clés API (GROQ_KEY, MISTRAL_AI) restent stockées comme secrets côté Supabase Edge Function — jamais dans le navigateur ni dans cette page. Voir l'onglet Supabase.</p>
+      <div class="adm-card">
+        <label class="adm-label">Boutons de réponse rapide</label>
+        <div id="list-quickbuttons"></div>
+        <button class="adm-add-btn" onclick="admAddItem('quickButtons')">+ Ajouter un bouton</button>
+      </div>
+      <button class="adm-btn" style="width:auto;padding:12px 28px;" onclick="admSaveAndPersist()">💾 Enregistrer</button>
+    </div>
+
+    <!-- MESSAGES -->
+    <div class="adm-tab" id="tab-messages">
+      <h2>Messages reçus</h2>
+      <p class="adm-tab-sub">Formulaire de contact (également envoyé par email via Formspree).</p>
+      <div id="adm-messages-list"><p style="color:#666;">Connectez Supabase pour voir les messages ici.</p></div>
+    </div>
+
+    <!-- SUPABASE -->
+    <div class="adm-tab" id="tab-supabase">
+      <h2>Configuration Supabase</h2>
+      <p class="adm-tab-sub">Connexion à la base de données du site.</p>
+      <div class="adm-card">
+        <label class="adm-label">URL du projet Supabase</label>
+        <input class="adm-input" id="s-url" placeholder="https://xxxx.supabase.co">
+        <label class="adm-label">Clé publique (anon / publishable)</label>
+        <input class="adm-input" id="s-key" placeholder="sb_publishable_...">
+        <button class="adm-btn" style="width:auto;padding:10px 22px;" onclick="admSaveSupaConn()">🔌 Connecter</button>
+        <span id="s-conn-status" style="margin-left:12px;font-size:.8rem;color:#888;"></span>
+      </div>
+      <div class="adm-card">
+        <div style="font-weight:700;color:#eee;margin-bottom:8px;">Protocole SQL (exécuter une seule fois)</div>
+        <p style="color:#888;font-size:.82rem;margin-bottom:10px;">Collez ce script dans l'éditeur SQL de votre projet Supabase pour créer les tables nécessaires. Le fichier complet est aussi fourni séparément : <code>supabase/schema.sql</code>.</p>
+        <div class="adm-code" id="sql-snippet">Chargement…</div>
+      </div>
+      <div class="adm-card">
+        <div style="font-weight:700;color:#eee;margin-bottom:8px;">Fonction Assistant (Edge Function)</div>
+        <p style="color:#888;font-size:.82rem;">Le code de la fonction se trouve dans <code>supabase/functions/assistant-chat/index.ts</code>. Déployez-la avec la CLI Supabase (<code>supabase functions deploy assistant-chat</code>) après avoir renseigné les secrets <code>GROQ_KEY</code> et/ou <code>MISTRAL_AI</code> dans Supabase → Edge Functions → Secrets.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="adm-toast" id="adm-toast"></div>
+
 <script data-host="https://app.microanalytics.io" data-dnt="false" src="https://app.microanalytics.io/js/script.js" id="ZwSg9rf6GA" async defer></script>
 
-<!-- ═══════════ AGENT AUTOMATIQUE ═══════════ -->
+<!-- ═══════════ CONTENU DYNAMIQUE + ASSISTANT + ADMIN ═══════════ -->
 <script>
-const responses = {
-    'services': "🎨 Voici nos services :<br><br>✏️ <strong>Logo professionnel</strong> — Votre marque, unique.<br>🖼️ <strong>Flyer & Affiche</strong> — Impact garanti.<br>📐 <strong>Identité visuelle</strong> — Charte complète.<br>📱 <strong>Bannière réseaux</strong> — Présence en ligne.<br>⚡ <strong>Branding 72h</strong> — Pour les pressés.<br><br>👉 Utilisez aussi notre app gratuite <strong>RC Logo Maker</strong> !",
-    'delais': "⏱️ Nos délais :<br><br>📌 <strong>Standard</strong> : 72 heures<br>📌 <strong>Urgent</strong> : 24-48 heures (me contacter)<br>📌 <strong>Branding 72h</strong> : pack complet en 3 jours<br><br>Chaque projet est unique, le délai exact dépend de vos besoins.",
-    'logo': "🔧 <strong>RC Logo Maker</strong> est notre application gratuite pour créer des logos facilement !<br><br>👉 <strong>Accédez-y ici :</strong><br>https://regardcreatif.github.io/regard-creatif/logomaker/editor.html<br><br>📱 Ou téléchargez l'APK pour Android.",
-    'prix': "💰 <strong>Je ne communique pas les prix ici.</strong><br><br>Chaque projet est unique ! Le créateur vous fera un devis personnalisé en quelques minutes.<br><br>📱 <strong>Contactez-le sur WhatsApp :</strong><br>👉 <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a>",
-    'contact': "📱 <strong>Contactez Regard Créatif :</strong><br><br>💬 <strong>WhatsApp :</strong> <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a><br>✉️ <strong>Email :</strong> regardcreatif@proton.me<br><br>⏰ Réponse sous 24h garantie.",
-    'a propos': "ℹ️ <strong>Regard Créatif</strong> est un studio de design graphique basé en Haïti.<br><br>Je suis créatif et passionné par la puissance des images. Mon objectif : offrir une identité visuelle qui frappe, rapidement, sans compromis.<br><br><em>Ici, on ne vend pas des logos. On crée des mémoires.</em>",
-    'bonjour': "👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>.<br><br>Je peux vous renseigner sur :<br>🎨 Nos services<br>⏱️ Nos délais<br>🔧 RC Logo Maker<br>💰 Tarifs (devis personnalisé)<br>📱 Contact<br><br>Cliquez sur un bouton ou écrivez votre question !",
-    'salut': "👋 Salut ! Comment puis-je t'aider ? Choisis une option ou écris ta question.",
-    'merci': "Avec plaisir ! 😊 N'hésite pas si tu as d'autres questions. Bonne création ! 🎨",
-    'default': "Je comprends votre question. Pour plus de détails, je vous invite à :<br><br>📱 <strong>Contacter le créateur sur WhatsApp :</strong><br>👉 <a href='https://wa.me/50947873144' style='color:#FFD700'>+509 4787 3144</a><br><br>Il pourra vous répondre avec précision !"
+/* ────────────────────────────────────────────────────────────
+   1) DONNÉES PAR DÉFAUT — reflètent le contenu original du site.
+      Tout ce qui est modifié dans l'admin vient écraser ces valeurs.
+   ──────────────────────────────────────────────────────────── */
+const DEFAULT_DATA = {
+  brand: {
+    name: 'Regard Créatif',
+    logo: 'https://i.postimg.cc/zBKxQ83F/1e7d8c1a-6f24-493d-9470-2d1fc231b98b.webp'
+  },
+  hero: {
+    title: `L'image<br><span class="outline">qui frappe.</span>`,
+    subtitle: `Branding visuel rapide pour entrepreneurs, artistes et commerçants. <strong>Logo, flyer, identité visuelle livrés en 72h.</strong>`,
+    bannerImage: 'https://i.postimg.cc/7YVGjG3Y/Picsart-26-05-29-16-59-28-137.jpg'
+  },
+  services: [
+    { icon:'✏️', title:'Logo professionnel', desc:'La première empreinte de votre marque. Sobre, mémorable, unique.', highlight:false },
+    { icon:'🖼️', title:'Flyer & affiche', desc:'Votre message en une image. Print ou digital, prêt à marquer les esprits.', highlight:false },
+    { icon:'📐', title:'Identité visuelle complète', desc:'Logo, couleurs, typographie, charte graphique. Tout pour exister avec cohérence.', highlight:false },
+    { icon:'📱', title:'Bannière réseaux sociaux', desc:'Facebook, Instagram, LinkedIn. Une présence numérique qui claque.', highlight:false },
+    { icon:'⚡', title:'Branding accéléré', desc:'Pack complet livré en 72h pour les entrepreneurs pressés qui veulent du pro, tout de suite.', highlight:true }
+  ],
+  servicesIllustration: 'https://i.postimg.cc/MpH9pLwJ/vector-man-working-computer-graphic-designing-with-pen-tool-1272652-757.jpg',
+  modeles: [
+    { img:'https://i.postimg.cc/hjhL8nHf/1-20250813-070918-0000.png', label:'Flyer Premium' },
+    { img:'https://i.postimg.cc/rp2yCN31/behance-project-1729211612297.jpg', label:'Behance Project' },
+    { img:'https://i.postimg.cc/xCrFXPf3/Haute-Tension-Vol-2-20250703-091711-0000.png', label:'Haute Tension Party' }
+  ],
+  galerieHeaderImage: 'https://i.postimg.cc/d0yCMyfp/JB_EXPO.jpg',
+  galerie: [
+    { img:'https://i.postimg.cc/ZY114t00/1000158894-(1).jpg', artist:'Kervens Jean Baptiste', title:'"La Citadelle et ses Entraves"', subtitle:"L'histoire enchaînée, la pierre qui résiste." },
+    { img:'https://i.postimg.cc/9FrvjXWP/IMG-20260114-WA0000-080006.jpg', artist:'Kervens Jean Baptiste', title:'"Là où la pierre rêve."', subtitle:'Une œuvre sans titre, une histoire sans fin.' },
+    { img:'https://i.postimg.cc/v8LWH5my/Picsart-26-05-28-16-37-59-620.jpg', artist:'Jennika Jean Baptiste', title:'"Elle fait parler les couleurs."', subtitle:"Portrait d'une artiste devant ses œuvres — JB EXPO." },
+    { img:'https://i.postimg.cc/T3bFpkLC/PXL-20241213-211822586-2-080007.jpg', artist:'Jennika Jean Baptiste', title:"\"L'éclat du dedans.\"", subtitle:'La lumière intérieure capturée sur la toile.' },
+    { img:'https://i.postimg.cc/Jhm6tRWz/IMG-20260114-WA0002-080002.jpg', artist:'Jennika Jean Baptiste', title:'"Un silence qui crie."', subtitle:'Quand les émotions traversent la toile.' }
+  ],
+  avis: [
+    { photo:'https://api.dicebear.com/9.x/avataaars/svg?seed=JeanR&skinColor=614335&backgroundColor=1a1a1a', stars:5, text:"Regard Créatif a créé mon logo en un temps record. Professionnel, créatif, à l'écoute. Je recommande à 100%.", author:'Jean R., Entrepreneur' },
+    { photo:'https://api.dicebear.com/9.x/avataaars/svg?seed=MarieL&skinColor=ae5d29&backgroundColor=1a1a1a', stars:5, text:"Mon flyer a fait sensation. Livraison rapide, design percutant. C'est exactement ce que je voulais.", author:'Marie L., Commerçante' },
+    { photo:'https://api.dicebear.com/9.x/avataaars/svg?seed=PierreK&skinColor=8d5524&backgroundColor=1a1a1a', stars:5, text:'Une identité visuelle complète qui a transformé mon entreprise. Du grand art. Merci Regard Créatif.', author:'Pierre K., Start-up' }
+  ],
+  about: {
+    image: 'https://i.postimg.cc/J0HF0dJ2/flat-isometric-illustration-graphic-designer-workspace-1058698-1428.jpg',
+    paragraphs: [
+      'Je suis créatif, graphiste et passionné par la puissance des images.',
+      "Regard Créatif est né d'un constat simple : les petits entrepreneurs, les artistes, les indépendants n'ont pas accès à un design de qualité sans se ruiner.",
+      'Mon objectif : leur offrir une identité visuelle qui frappe, rapidement, sans compromis.',
+      '<strong>Ici, on ne vend pas des logos. On crée des mémoires.</strong>'
+    ]
+  },
+  contact: {
+    whatsapp: '50947873144',
+    email: 'regardcreatif@proton.me'
+  },
+  // Ordre / visibilité / titres des sections du site. "core:true" = section
+  // native du site (ne peut pas être supprimée, seulement masquée/réordonnée/renommée).
+  sections: [
+    { id:'hero',      core:true, order:1, enabled:true },
+    { id:'services',  core:true, order:2, enabled:true, title:'Ce que nous <span>créons</span> pour vous' },
+    { id:'modeles',   core:true, order:3, enabled:true, title:'Nos <span>Modèles</span>' },
+    { id:'galerie',   core:true, order:4, enabled:true, title:`Galerie <span style="color:#fff;">d'Art</span>` },
+    { id:'avis',      core:true, order:5, enabled:true, title:'Ce que <span>nos clients</span> disent' },
+    { id:'about',     core:true, order:6, enabled:true, title:'Derrières <span>Regard Créatif</span>' },
+    { id:'contact',   core:true, order:7, enabled:true, title:'Prêt à faire naître votre <span>image</span> ?' },
+    { id:'assistant', core:true, order:8, enabled:true, title:'Regard Créatif <span>Assistant</span>' }
+  ],
+  // Briques ajoutées librement depuis l'admin (texte, image, appel à l'action).
+  custom_blocks: [],
+  // Publicités : position, période de diffusion, durée d'affichage, délai d'apparition.
+  ads: [],
+  assistant: {
+    logo: 'https://i.postimg.cc/TPgmbvsy/f50cefec-92f6-4382-8caf-8ea07ea487f4.webp',
+    welcome: `👋 Bonjour ! Je suis <strong>Regard Créatif Assistant</strong>. Je peux vous renseigner sur nos services, nos délais, et vous mettre en contact avec le créateur.<br><br>📌 <em>Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé.</em>`,
+    subtitle: "Besoin d'aide ? Choisissez une option ou écrivez votre question.",
+    systemPrompt: "Tu es l'assistant du site Regard Créatif, un studio de design graphique basé en Haïti (logos, flyers, identité visuelle, bannières réseaux sociaux, branding accéléré en 72h). Tu réponds en français, de façon chaleureuse et concise. Tu ne communiques jamais de prix précis : tu invites toujours à demander un devis personnalisé via WhatsApp (+509 4787 3144) ou email (regardcreatif@proton.me). Réponse sous 24h garantie.",
+    provider: 'groq',
+    model: 'llama-3.3-70b-versatile',
+    quickButtons: [
+      { label:'🎨 Services', question:'Quels sont vos services ?' },
+      { label:'⏱️ Délais', question:'Quels sont vos délais ?' },
+      { label:'💰 Tarifs', question:'Quel est le prix ?' },
+      { label:'📱 Contact', question:'Comment vous contacter ?' },
+      { label:'ℹ️ À propos', question:'Qui êtes-vous ?' }
+    ]
+  }
 };
 
-function findResponse(msg) {
-    const m = msg.toLowerCase().trim();
-    if (m.includes('service') || m.includes('créer') || m.includes('offre') || m.includes('faites')) return responses['services'];
-    if (m.includes('délai') || m.includes('temps') || m.includes('quand') || m.includes('livré') || m.includes('livraison')) return responses['delais'];
-    if (m.includes('logo maker') || m.includes('app') || m.includes('application') || m.includes('créer logo') || m.includes('faire logo')) return responses['logo'];
-    if (m.includes('prix') || m.includes('tarif') || m.includes('coût') || m.includes('coûte') || m.includes('combien') || m.includes('devis')) return responses['prix'];
-    if (m.includes('contact') || m.includes('whatsapp') || m.includes('email') || m.includes('téléphone') || m.includes('joindre') || m.includes('parler')) return responses['contact'];
-    if (m.includes('qui') || m.includes('propos') || m.includes('société') || m.includes('entreprise') || m.includes('histoire')) return responses['a propos'];
-    if (m.includes('bonjour') || m.includes('hello') || m.includes('bjr') || m.includes('slt') && m.length < 15) return responses['bonjour'];
-    if (m.includes('salut') || m.includes('hey') || m.includes('coucou')) return responses['salut'];
-    if (m.includes('merci') || m.includes('thanks') || m.includes('super') || m.includes('génial')) return responses['merci'];
-    return responses['default'];
+let content = JSON.parse(JSON.stringify(DEFAULT_DATA));
+
+/* ────────────────────────────────────────────────────────────
+   2) STOCKAGE LOCAL SÉCURISÉ (fallback si localStorage indisponible)
+   ──────────────────────────────────────────────────────────── */
+const safeStorage = (function(){
+  try { const k='__t'; localStorage.setItem(k,'1'); localStorage.removeItem(k); return localStorage; }
+  catch(e){ const mem={}; return { getItem:k=>mem[k]??null, setItem:(k,v)=>{mem[k]=v;}, removeItem:k=>{delete mem[k];} }; }
+})();
+
+/* ────────────────────────────────────────────────────────────
+   3) SUPABASE
+   ──────────────────────────────────────────────────────────── */
+let supa = null;
+// URL et clé publique du vrai projet Supabase de Regard Créatif, intégrées en dur
+// (comme dans v51) pour que le site fonctionne pour tous les visiteurs sans
+// configuration manuelle. La clé publique/anon n'est pas un secret : la
+// sécurité réelle vient des règles RLS côté base de données.
+let SUPA_URL = safeStorage.getItem('rc_supa_url') || 'https://jpyopiislvvfgwwcorza.supabase.co';
+let SUPA_KEY = safeStorage.getItem('rc_supa_key') || 'sb_publishable_vDoprksTCyQNe7de3Pfy7g_rI80t4Go';
+
+function hasSupa(){ return !!supa; }
+
+function initSupa(){
+  if (!SUPA_URL || !SUPA_KEY || typeof window.supabase === 'undefined') return false;
+  try { supa = window.supabase.createClient(SUPA_URL, SUPA_KEY); return true; }
+  catch(e){ console.warn('Supabase init échoué', e); return false; }
 }
 
-function askAssistant(msg) {
-    const input = document.getElementById('assistant-input');
-    const msgs = document.getElementById('assistant-messages');
-    const q = msg || input.value.trim();
-    if (!q) return;
-    
-    msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
-    if (input.value) input.value = '';
-    msgs.scrollTop = msgs.scrollHeight;
-    
-    const tid = 'ty-' + Date.now();
-    msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
-    msgs.scrollTop = msgs.scrollHeight;
-    
-    setTimeout(() => {
-        document.getElementById(tid)?.remove();
-        const reply = findResponse(q);
-        msgs.innerHTML += `<div class="msg agent">${reply}</div>`;
-        msgs.scrollTop = msgs.scrollHeight;
-    }, 800 + Math.random() * 800);
+const SQL_SNIPPET = `-- ═══════════ SQL SUPABASE — à exécuter une seule fois ═══════════
+create table if not exists site_settings (
+  id int primary key default 1,
+  data jsonb not null,
+  updated_at timestamptz default now()
+);
+alter table site_settings enable row level security;
+create policy "settings_read_public" on site_settings for select using (true);
+create policy "settings_write_admin" on site_settings for all using (auth.uid() is not null);
+
+create table if not exists visits (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  page text
+);
+alter table visits enable row level security;
+create policy "visits_insert_public" on visits for insert with check (true);
+create policy "visits_read_admin" on visits for select using (auth.uid() is not null);
+
+create table if not exists leads (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  name text, email text, message text
+);
+alter table leads enable row level security;
+create policy "leads_insert_public" on leads for insert with check (true);
+create policy "leads_read_admin" on leads for select using (auth.uid() is not null);
+create policy "leads_delete_admin" on leads for delete using (auth.uid() is not null);
+
+create table if not exists assistant_conversations (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz default now(),
+  question text, answer text
+);
+alter table assistant_conversations enable row level security;
+create policy "conv_insert_public" on assistant_conversations for insert with check (true);
+create policy "conv_read_admin" on assistant_conversations for select using (auth.uid() is not null);`;
+
+/* ────────────────────────────────────────────────────────────
+   4) CHARGEMENT / SAUVEGARDE DU CONTENU
+   ──────────────────────────────────────────────────────────── */
+async function loadSiteData(){
+  const local = safeStorage.getItem('rc_site_data');
+  if (local) { try { content = deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), JSON.parse(local)); } catch(e){} }
+  if (hasSupa()){
+    try {
+      const { data } = await supa.from('site_settings').select('data').eq('id',1).single();
+      if (data && data.data) content = deepMerge(JSON.parse(JSON.stringify(DEFAULT_DATA)), data.data);
+    } catch(e){ /* table pas encore créée ou pas connecté — on garde le fallback local */ }
+  }
 }
 
-function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function showCompteur() {
-    var p = prompt("Mot de passe :");
-    if (p === "eclipse2024") {
-        document.getElementById("compteur-section").innerHTML = '<img src="https://visitor-badge.laobi.icu/badge?page_id=regardcreatif.regard-creatif&left_text=Visites&left_color=%23080808&right_color=%23a3ff3b" alt="Compteur" style="height:28px;">';
-    } else { alert("Mot de passe incorrect."); }
+function deepMerge(base, override){
+  if (Array.isArray(override)) return override;
+  if (typeof override !== 'object' || override===null) return override===undefined ? base : override;
+  const out = {...base};
+  for (const k in override) out[k] = deepMerge(base ? base[k] : undefined, override[k]);
+  return out;
 }
+
+async function saveSiteData(){
+  safeStorage.setItem('rc_site_data', JSON.stringify(content));
+  if (hasSupa()){
+    try { await supa.from('site_settings').upsert({ id:1, data:content, updated_at:new Date().toISOString() }); }
+    catch(e){ console.warn('Sauvegarde Supabase échouée (table créée ?)', e); }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   5) RENDU DU SITE À PARTIR DE `content`
+   ──────────────────────────────────────────────────────────── */
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderAll(){
+  // Branding
+  document.querySelectorAll('#brand-logo-header, .footer-logo').forEach(el=>{ if(content.brand.logo) el.src = content.brand.logo; });
+  const asLogo = document.getElementById('assistant-logo-img'); if (asLogo && content.assistant.logo) asLogo.src = content.assistant.logo;
+
+  // Hero
+  const ht = document.getElementById('hero-title'); if (ht) ht.innerHTML = content.hero.title;
+  const hs = document.getElementById('hero-subtitle'); if (hs) hs.innerHTML = content.hero.subtitle;
+  const hb = document.getElementById('hero-banner-img'); if (hb && content.hero.bannerImage) hb.src = content.hero.bannerImage;
+
+  // Services
+  const sg = document.getElementById('services-grid');
+  if (sg) sg.innerHTML = content.services.map(s => `<div class="service-card${s.highlight?' highlight-card':''}"><div class="icon">${s.icon}</div><h3>${esc(s.title)}</h3><p>${esc(s.desc)}</p></div>`).join('');
+  const si = document.getElementById('services-illustration-img'); if (si && content.servicesIllustration) si.src = content.servicesIllustration;
+
+  // Modèles
+  const ms = document.getElementById('modeles-scroll');
+  if (ms) ms.innerHTML = content.modeles.map(m => `<div class="modele-card"><img src="${esc(m.img)}" alt="${esc(m.label)}" loading="lazy"><div class="modele-label">Modèle <span>${esc(m.label)}</span></div></div>`).join('');
+
+  // Galerie
+  const gg = document.getElementById('galerie-grid');
+  const GALERIE_VISIBLE = 1;
+  if (gg) gg.innerHTML = content.galerie.map((g,i) => `<div class="galerie-card${i>=GALERIE_VISIBLE?' galerie-extra-item':''}"><img src="${esc(g.img)}" alt="${esc(g.title)}" loading="lazy"><div class="card-body"><p class="card-artist">${esc(g.artist)}</p><p class="card-title">${g.title}</p><p class="card-subtitle">${esc(g.subtitle)}</p></div></div>`).join('');
+  const gmw = document.getElementById('galerie-more-wrap');
+  if (gmw) gmw.style.display = content.galerie.length > GALERIE_VISIBLE ? 'block' : 'none';
+  const gmb = document.getElementById('galerie-more-btn');
+  if (gmb){ gmb.classList.remove('expanded'); gmb.innerHTML = 'Voir plus d\'œuvres <span class="arrow">↓</span>'; }
+  const ghi = document.getElementById('galerie-header-img'); if (ghi && content.galerieHeaderImage) ghi.src = content.galerieHeaderImage;
+
+  // Avis
+  const ag = document.getElementById('avis-grid');
+  if (ag) ag.innerHTML = content.avis.map(a => `<div class="avis-card">${a.photo?`<img class="avis-avatar" src="${esc(a.photo)}" alt="${esc(a.author)}" loading="lazy">`:''}<div class="avis-stars">${'★'.repeat(Number(a.stars)||5)}</div><p class="avis-text">"${esc(a.text)}"</p><span class="avis-author">— ${esc(a.author)}</span></div>`).join('');
+
+  // À propos
+  const at = document.getElementById('about-text');
+  if (at) at.innerHTML = content.about.paragraphs.map(p => `<p>${p}</p>`).join('');
+  const aimg = document.getElementById('about-img'); if (aimg && content.about.image) aimg.src = content.about.image;
+
+  // Contact
+  const wl = document.getElementById('contact-whatsapp-link'), wv = document.getElementById('contact-whatsapp-value');
+  const el_ = document.getElementById('contact-email-link'), ev = document.getElementById('contact-email-value');
+  if (wl) wl.href = 'https://wa.me/' + content.contact.whatsapp;
+  if (wv) wv.textContent = '+' + content.contact.whatsapp.replace(/(\d{3})(\d{4})(\d{4})/, '$1 $2 $3');
+  if (el_) el_.href = 'mailto:' + content.contact.email;
+  if (ev) ev.textContent = content.contact.email;
+  document.querySelectorAll('a[href^="https://wa.me/"]').forEach(a=>{ if(!a.id) a.href = 'https://wa.me/'+content.contact.whatsapp; });
+
+  // Assistant
+  const aw = document.getElementById('assistant-welcome-msg'); if (aw) aw.innerHTML = content.assistant.welcome;
+  const as_ = document.getElementById('assistant-subtitle-text'); if (as_) as_.textContent = content.assistant.subtitle;
+  const ac = document.getElementById('assistant-choices');
+  if (ac) ac.innerHTML = content.assistant.quickButtons.map(b => `<button onclick="askAssistant(${JSON.stringify(b.question)})">${esc(b.label)}</button>`).join('');
+
+  renderSectionTitles();
+  applySectionOrder();
+  renderAds();
+}
+
+/* ────────────────────────────────────────────────────────────
+   5bis) SECTIONS & BRIQUES — titres éditables, ordre, visibilité,
+   ajout de nouvelles briques (texte / image / appel à l'action)
+   ──────────────────────────────────────────────────────────── */
+const SECTION_TITLE_EL = {
+  services:'services-title', modeles:'modeles-title', galerie:'galerie-title',
+  avis:'avis-title', about:'about-title', contact:'contact-title', assistant:'assistant-title'
+};
+
+function ensureSectionsData(){
+  if (!content.sections) content.sections = JSON.parse(JSON.stringify(DEFAULT_DATA.sections));
+  if (!content.custom_blocks) content.custom_blocks = [];
+  if (!content.ads) content.ads = [];
+}
+
+function renderSectionTitles(){
+  ensureSectionsData();
+  content.sections.forEach(s=>{
+    const elId = SECTION_TITLE_EL[s.id];
+    if (!elId) return;
+    const el = document.getElementById(elId);
+    if (el && s.title) el.innerHTML = s.title;
+  });
+}
+
+// Fusionne sections natives (core) + briques personnalisées en une seule liste
+// triée par ordre, chaque entrée référençant l'objet réel (pour pouvoir le modifier).
+function getAllSectionMetas(){
+  ensureSectionsData();
+  const core = content.sections.map(s => ({ id:s.id, core:true, order:s.order||0, enabled:s.enabled!==false, ref:s }));
+  const customs = content.custom_blocks.map(b => ({ id:'block:'+b.id, core:false, order:b.order||0, enabled:b.enabled!==false, ref:b }));
+  return core.concat(customs).sort((a,b)=>a.order-b.order);
+}
+
+// Applique l'ordre et la visibilité au DOM réel : déplace chaque section/brique
+// dans #site-sections dans l'ordre trié (appendChild déplace, ne clone pas).
+function applySectionOrder(){
+  const wrap = document.getElementById('site-sections');
+  if (!wrap) return;
+  const metas = getAllSectionMetas();
+  metas.forEach(m=>{
+    let el;
+    if (m.core){
+      el = document.querySelector('[data-core-section="'+m.id+'"]');
+    } else {
+      el = document.getElementById('cblock-'+m.ref.id);
+      if (!el){ el = document.createElement('section'); el.id = 'cblock-'+m.ref.id; el.dataset.customBlock = m.ref.id; wrap.appendChild(el); }
+      fillCustomBlockEl(el, m.ref);
+    }
+    if (!el) return;
+    el.style.display = m.enabled ? '' : 'none';
+    wrap.appendChild(el);
+  });
+}
+
+function fillCustomBlockEl(el, cb){
+  el.style.cssText = 'padding:80px 40px; position:relative; z-index:1;';
+  let inner = '';
+  if (cb.type==='text'){
+    inner = `<h2>${esc(cb.title||'')}</h2><div style="color:#999; max-width:750px; line-height:1.8;">${cb.body||''}</div>`;
+  } else if (cb.type==='image'){
+    inner = `<h2 style="text-align:center;">${esc(cb.title||'')}</h2>
+      <div style="max-width:900px; margin:20px auto; border-radius:8px; overflow:hidden; border:1px solid #222;"><img src="${esc(cb.image||'')}" style="width:100%; display:block;" loading="lazy"></div>
+      ${cb.body ? `<p style="text-align:center; color:#999; max-width:700px; margin:15px auto 0;">${cb.body}</p>` : ''}`;
+  } else if (cb.type==='cta'){
+    inner = `<div style="text-align:center; max-width:700px; margin:0 auto;">
+      <h2>${esc(cb.title||'')}</h2>
+      <p style="color:#999; margin-bottom:25px;">${cb.body||''}</p>
+      ${cb.cta_link ? `<a href="${esc(cb.cta_link)}" class="cta pulse" style="display:inline-block;" target="_blank" rel="noopener">${esc(cb.cta_label||'En savoir plus')}</a>` : ''}
+    </div>`;
+  }
+  el.innerHTML = inner;
+}
+
+/* ---- Admin : gestion des sections & briques ---- */
+const SECTION_LABELS = { hero:'Accueil (Hero)', services:'Services', modeles:'Modèles', galerie:'Galerie', avis:'Avis clients', about:'À propos', contact:'Contact', assistant:'Assistant IA' };
+const BLOCK_TYPE_LABELS = { text:'📝 Bloc de texte', image:'🖼️ Bloc image', cta:"📣 Appel à l'action" };
+
+function admRenderSections(){
+  ensureSectionsData();
+  const wrap = document.getElementById('sections-list');
+  if (!wrap) return;
+  const metas = getAllSectionMetas();
+  wrap.innerHTML = metas.map((m,i)=>{
+    const label = m.core ? SECTION_LABELS[m.id] : BLOCK_TYPE_LABELS[m.ref.type];
+    const editId = 'secedit-'+(m.core?m.id:m.ref.id);
+    return `
+    <div class="adm-list-item" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="background:#1e1e1e; border:1px solid #333; border-radius:6px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:.75rem; color:#a3ff3b; flex-shrink:0;">${i+1}</div>
+        <div style="flex:1;">
+          <div style="color:#eee; font-weight:600; font-size:.9rem;">${esc(label)}</div>
+          <div style="color:#666; font-size:.72rem;">${m.core ? 'Section native' : 'Brique personnalisée'}</div>
+        </div>
+        <span class="adm-icon-btn" style="cursor:default; width:auto; padding:0 8px; ${m.enabled?'color:#22c55e;border-color:#22c55e55;':'color:#ef4444;border-color:#ef444455;'}">${m.enabled?'Visible':'Masqué'}</span>
+        <button class="adm-icon-btn" onclick="secMove('${m.core?m.id:'block:'+m.ref.id}',-1)" title="Monter">↑</button>
+        <button class="adm-icon-btn" onclick="secMove('${m.core?m.id:'block:'+m.ref.id}',1)" title="Descendre">↓</button>
+        <button class="adm-icon-btn" onclick="secToggle('${m.core?m.id:'block:'+m.ref.id}')" title="Afficher/Masquer">👁️</button>
+        <button class="adm-icon-btn" onclick="secToggleEdit('${editId}')" title="Éditer">✏️</button>
+        ${m.core ? '' : `<button class="adm-icon-btn del" onclick="blockDelete('${m.ref.id}')" title="Supprimer">✕</button>`}
+      </div>
+      <div id="${editId}" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid #262626;">
+        ${m.core ? secTitleFormHTML(m) : blockFormHTML(m.ref)}
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:#666;">Aucune section.</p>';
+}
+
+function secTitleFormHTML(m){
+  if (m.id==='hero') return `<p style="color:#888; font-size:.82rem;">Le titre de l'accueil se modifie dans l'onglet <b>Accueil</b>.</p>`;
+  return `<label class="adm-label">Titre affiché (HTML autorisé, ex: &lt;span&gt;mot en vert&lt;/span&gt;)</label>
+    <input class="adm-input" value="${esc(m.ref.title||'')}" oninput="m_secTitleInput('${m.id}', this.value)">`;
+}
+function m_secTitleInput(id, val){
+  const s = content.sections.find(x=>x.id===id);
+  if (s) s.title = val;
+}
+
+function blockFormHTML(cb){
+  let fields = `<label class="adm-label">Titre</label><input class="adm-input" value="${esc(cb.title||'')}" oninput="blockField('${cb.id}','title',this.value)">`;
+  if (cb.type==='image'){
+    fields += `<label class="adm-label" style="margin-top:10px;">URL de l'image</label><input class="adm-input" value="${esc(cb.image||'')}" oninput="blockField('${cb.id}','image',this.value)">`;
+  }
+  fields += `<label class="adm-label" style="margin-top:10px;">${cb.type==='cta'?'Texte':'Contenu'} (HTML autorisé)</label><textarea class="adm-textarea" oninput="blockField('${cb.id}','body',this.value)">${esc(cb.body||'')}</textarea>`;
+  if (cb.type==='cta'){
+    fields += `<div class="adm-row" style="margin-top:10px;">
+      <div><label class="adm-label">Texte du bouton</label><input class="adm-input" value="${esc(cb.cta_label||'')}" oninput="blockField('${cb.id}','cta_label',this.value)"></div>
+      <div><label class="adm-label">Lien du bouton</label><input class="adm-input" value="${esc(cb.cta_link||'')}" oninput="blockField('${cb.id}','cta_link',this.value)"></div>
+    </div>`;
+  }
+  return fields;
+}
+function blockField(id, key, val){
+  const b = content.custom_blocks.find(x=>x.id===id);
+  if (b){ b[key] = val; fillCustomBlockEl(document.getElementById('cblock-'+id), b); }
+}
+
+function secToggleEdit(editId){
+  const el = document.getElementById(editId);
+  if (el) el.style.display = el.style.display==='none' ? 'block' : 'none';
+}
+
+// Trouve l'objet (section native ou brique) correspondant à un identifiant combiné
+// ("hero", "services"... ou "block:xxx") et renvoie {list, index, arr}
+function findMetaTarget(id){
+  if (id.startsWith('block:')){
+    const bid = id.slice(6);
+    const idx = content.custom_blocks.findIndex(x=>x.id===bid);
+    return { arr: content.custom_blocks, idx };
+  }
+  const idx = content.sections.findIndex(x=>x.id===id);
+  return { arr: content.sections, idx };
+}
+
+function secToggle(id){
+  ensureSectionsData();
+  const { arr, idx } = findMetaTarget(id);
+  if (idx<0) return;
+  arr[idx].enabled = !(arr[idx].enabled!==false);
+  applySectionOrder(); admRenderSections();
+}
+
+function secMove(id, dir){
+  ensureSectionsData();
+  // Reindexe proprement tous les ordres (core + briques) avant de déplacer,
+  // pour éviter les doublons/trous entre les deux tableaux.
+  const metas = getAllSectionMetas();
+  metas.forEach((m,i)=>{ m.ref.order = i+1; });
+  const combinedId = id;
+  const curIdx = metas.findIndex(m => (m.core?m.id:'block:'+m.ref.id) === combinedId);
+  if (curIdx<0) return;
+  const targetIdx = curIdx + dir;
+  if (targetIdx<0 || targetIdx>=metas.length) return;
+  const tmp = metas[curIdx].ref.order;
+  metas[curIdx].ref.order = metas[targetIdx].ref.order;
+  metas[targetIdx].ref.order = tmp;
+  applySectionOrder(); admRenderSections();
+}
+
+function admAddBlock(type){
+  ensureSectionsData();
+  const maxOrder = Math.max(0, ...getAllSectionMetas().map(m=>m.order));
+  const id = 'brique-' + Date.now();
+  const blanks = {
+    text: { title:'Nouveau titre', body:'Votre texte ici...' },
+    image:{ title:'Nouveau titre', image:'', body:'' },
+    cta:  { title:'Prêt à commencer ?', body:"Un texte d'accroche.", cta_label:'Contactez-nous', cta_link:'#contact' }
+  };
+  const block = Object.assign({ id, type, enabled:true, order:maxOrder+1 }, blanks[type]);
+  content.custom_blocks.push(block);
+  applySectionOrder(); admRenderSections();
+  showAdmToastSafe('Brique ajoutée — pensez à Enregistrer');
+}
+
+function blockDelete(id){
+  if (!confirm('Supprimer cette brique ?')) return;
+  content.custom_blocks = content.custom_blocks.filter(x=>x.id!==id);
+  const el = document.getElementById('cblock-'+id);
+  if (el) el.remove();
+  admRenderSections();
+}
+
+function showAdmToastSafe(msg){ if (typeof admToast==='function') admToast(msg); }
+
+/* ────────────────────────────────────────────────────────────
+   5ter) PUBLICITÉS — position, période de diffusion, durée
+   d'affichage, délai d'apparition, fréquence.
+   ──────────────────────────────────────────────────────────── */
+let _adTimers = [];
+function clearAdTimers(){
+  _adTimers.forEach(t=>clearTimeout(t));
+  _adTimers = [];
+}
+
+function adIsDateActive(ad){
+  const now = new Date();
+  if (ad.start_date){ const s = new Date(ad.start_date+'T00:00:00'); if (now < s) return false; }
+  if (ad.end_date){ const e = new Date(ad.end_date+'T23:59:59'); if (now > e) return false; }
+  return true;
+}
+function adFreqKey(ad){ return 'rc_ad_'+ad.id; }
+function adFrequencyAllows(ad){
+  if (!ad.frequency || ad.frequency==='always') return true;
+  if (ad.frequency==='session') return !sessionStorage.getItem(adFreqKey(ad));
+  if (ad.frequency==='day'){
+    const last = safeStorage.getItem(adFreqKey(ad));
+    return !last || (Date.now()-Number(last)) > 24*3600*1000;
+  }
+  return true;
+}
+function adMarkSeen(ad){
+  try{
+    if (ad.frequency==='session') sessionStorage.setItem(adFreqKey(ad), '1');
+    if (ad.frequency==='day') safeStorage.setItem(adFreqKey(ad), String(Date.now()));
+  }catch(e){}
+}
+
+function eligibleAdsFor(position){
+  return (content.ads||[]).filter(a => a.enabled!==false && a.position===position && adIsDateActive(a) && adFrequencyAllows(a))
+    .sort((a,b)=>(a.priority||99)-(b.priority||99));
+}
+
+function adInnerHTML(ad, variant){
+  const img = ad.image ? `<img src="${esc(ad.image)}" alt="${esc(ad.title||'')}">` : '';
+  const cta = ad.link ? `<a class="ad-cta" href="${esc(ad.link)}" target="_blank" rel="noopener">${esc(ad.cta_label||'En savoir plus')}</a>` : '';
+  if (variant==='banner'){
+    return `${img}<div class="ad-text"><span class="ad-title">${esc(ad.title||'')}</span> ${esc(ad.text||'')}</div>${cta}<button class="ad-close" onclick="adDismiss(this,'${ad.id}')">✕</button>`;
+  }
+  const closeBtn = variant==='inline' ? '' : `<button class="ad-close" onclick="adDismiss(this,'${ad.id}')">✕</button>`;
+  return `${closeBtn}${img}<div class="ad-body"><div class="ad-title">${esc(ad.title||'')}</div><div class="ad-text">${esc(ad.text||'')}</div>${cta}</div>`;
+}
+
+function adDismiss(btn, adId){
+  const ad = (content.ads||[]).find(a=>a.id===adId);
+  if (ad) adMarkSeen(ad);
+  const box = btn.closest('.ad-banner, .ad-popup-overlay, .ad-floating-box');
+  if (box) box.remove();
+}
+
+// Gère l'affichage (et la rotation si plusieurs pubs éligibles) pour un
+// emplacement donné (bannière haut/bas, pop-up, flottant).
+function runAdSlot(position, mountId, variant, cssClass){
+  const ads = eligibleAdsFor(position);
+  if (!ads.length) return;
+  let idx = 0;
+  function showNext(){
+    if (idx>=ads.length) return; // une seule rotation complète par chargement de page
+    const ad = ads[idx];
+    const delayMs = idx===0 ? (Number(ad.delay_seconds)||0)*1000 : 0;
+    const t = setTimeout(()=>{
+      const mount = document.getElementById(mountId);
+      if (!mount) return;
+      mount.innerHTML = '';
+      let box = document.createElement('div');
+      if (variant==='popup'){
+        box.className = 'ad-popup-overlay';
+        box.innerHTML = `<div class="ad-popup-box">${adInnerHTML(ad,'popup')}</div>`;
+        box.addEventListener('click', (e)=>{ if (e.target===box){ adMarkSeen(ad); box.remove(); } });
+      } else {
+        box.className = cssClass;
+        box.innerHTML = adInnerHTML(ad, variant);
+      }
+      mount.appendChild(box);
+      adMarkSeen(ad);
+      const showMs = (Number(ad.display_seconds)>0 ? Number(ad.display_seconds) : (ads.length>1 ? 8 : 0)) * 1000;
+      if (showMs>0){
+        const t2 = setTimeout(()=>{
+          if (mount.contains(box)) box.remove();
+          idx++;
+          showNext();
+        }, showMs);
+        _adTimers.push(t2);
+      }
+    }, delayMs);
+    _adTimers.push(t);
+  }
+  showNext();
+}
+
+// Publicités "insérées entre les sections" : contenu de page normal, pas de
+// minuterie ni de fermeture — juste respect des dates et de l'activation.
+function renderInlineAds(){
+  document.querySelectorAll('[data-inline-ad]').forEach(n=>n.remove());
+  const ads = (content.ads||[]).filter(a=>a.enabled!==false && a.position==='inline' && adIsDateActive(a))
+    .sort((a,b)=>(a.priority||99)-(b.priority||99));
+  ads.forEach(ad=>{
+    const anchorEl = ad.anchor ? document.querySelector('[data-core-section="'+ad.anchor+'"]') : null;
+    const node = document.createElement('div');
+    node.dataset.inlineAd = ad.id;
+    node.style.cssText = 'padding:50px 40px; position:relative; z-index:1; background:#0d0d0d; border-top:1px solid #1a1a1a; border-bottom:1px solid #1a1a1a;';
+    node.innerHTML = `<div style="max-width:700px; margin:0 auto; text-align:center;">${adInnerHTML(ad,'inline')}</div>`;
+    if (anchorEl && anchorEl.parentNode) anchorEl.insertAdjacentElement('afterend', node);
+    else document.getElementById('site-sections')?.appendChild(node);
+  });
+}
+
+function renderAds(){
+  ensureSectionsData();
+  clearAdTimers();
+  ['ad-mount-banner-top','ad-mount-banner-bottom','ad-mount-floating','ad-mount-popup'].forEach(id=>{
+    const m = document.getElementById(id); if (m) m.innerHTML = '';
+  });
+  runAdSlot('banner-top', 'ad-mount-banner-top', 'banner', 'ad-banner');
+  runAdSlot('banner-bottom', 'ad-mount-banner-bottom', 'banner', 'ad-banner');
+  runAdSlot('floating', 'ad-mount-floating', 'floating', 'ad-floating-box');
+  runAdSlot('popup', 'ad-mount-popup', 'popup', 'ad-popup-overlay');
+  renderInlineAds();
+}
+
+/* ---- Admin : gestion des publicités ---- */
+const AD_POSITION_LABELS = {'banner-top':'Bannière (haut)','banner-bottom':'Bannière (bas)','popup':'Pop-up central','floating':'Bloc flottant','inline':'Insérée entre sections'};
+
+function admRenderAds(){
+  ensureSectionsData();
+  const wrap = document.getElementById('ads-list');
+  if (!wrap) return;
+  const ads = content.ads.slice().sort((a,b)=>(a.priority||99)-(b.priority||99));
+  wrap.innerHTML = ads.map(ad=>{
+    const active = adIsDateActive(ad);
+    return `
+    <div class="adm-list-item" style="flex-direction:column; align-items:stretch;">
+      <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:140px;">
+          <div style="color:#eee; font-weight:600; font-size:.9rem;">${esc(ad.label||ad.title||'Sans nom')}</div>
+          <div style="color:#666; font-size:.72rem;">${AD_POSITION_LABELS[ad.position]||ad.position} · priorité ${ad.priority||1}</div>
+        </div>
+        <span class="adm-icon-btn" style="cursor:default; width:auto; padding:0 8px; ${ad.enabled!==false?'color:#22c55e;border-color:#22c55e55;':'color:#ef4444;border-color:#ef444455;'}">${ad.enabled!==false?'Activée':'Désactivée'}</span>
+        <span class="adm-icon-btn" style="cursor:default; width:auto; padding:0 8px; ${active?'color:#a3ff3b;border-color:#a3ff3b55;':'color:#888;'}">${active?'En période':'Hors période'}</span>
+        <button class="adm-icon-btn" onclick="adToggle('${ad.id}')" title="Activer/Désactiver">⏻</button>
+        <button class="adm-icon-btn" onclick="secToggleEdit('adedit-${ad.id}')" title="Éditer">✏️</button>
+        <button class="adm-icon-btn" onclick="adDuplicate('${ad.id}')" title="Dupliquer">⧉</button>
+        <button class="adm-icon-btn del" onclick="adDelete('${ad.id}')" title="Supprimer">✕</button>
+      </div>
+      <div id="adedit-${ad.id}" style="display:none; margin-top:12px; padding-top:12px; border-top:1px solid #262626;">
+        ${adFormHTML(ad)}
+      </div>
+    </div>`;
+  }).join('') || '<p style="color:#666;">Aucune publicité. Cliquez sur "Créer une publicité" ci-dessous.</p>';
+}
+
+function adFormHTML(ad){
+  ensureSectionsData();
+  const coreSections = content.sections.map(s=>`<option value="${s.id}" ${ad.anchor===s.id?'selected':''}>${SECTION_LABELS[s.id]||s.id}</option>`).join('');
+  return `
+  <div class="adm-row">
+    <div><label class="adm-label">Nom (repère admin)</label><input class="adm-input" value="${esc(ad.label||'')}" oninput="adField('${ad.id}','label',this.value)"></div>
+    <div><label class="adm-label">Position</label>
+      <select class="adm-select" onchange="adField('${ad.id}','position',this.value); admRenderAds();">
+        <option value="banner-top" ${ad.position==='banner-top'?'selected':''}>Bannière (haut de page)</option>
+        <option value="banner-bottom" ${ad.position==='banner-bottom'?'selected':''}>Bannière (bas de page)</option>
+        <option value="popup" ${ad.position==='popup'?'selected':''}>Pop-up central</option>
+        <option value="floating" ${ad.position==='floating'?'selected':''}>Bloc flottant (coin)</option>
+        <option value="inline" ${ad.position==='inline'?'selected':''}>Insérée entre les sections</option>
+      </select>
+    </div>
+  </div>
+  ${ad.position==='inline' ? `<label class="adm-label" style="margin-top:10px;">Insérer après la section</label>
+    <select class="adm-select" onchange="adField('${ad.id}','anchor',this.value)">${coreSections}</select>` : ''}
+  <div class="adm-row" style="margin-top:10px;">
+    <div><label class="adm-label">Titre</label><input class="adm-input" value="${esc(ad.title||'')}" oninput="adField('${ad.id}','title',this.value)"></div>
+    <div><label class="adm-label">URL de l'image</label><input class="adm-input" value="${esc(ad.image||'')}" oninput="adField('${ad.id}','image',this.value)"></div>
+  </div>
+  <label class="adm-label" style="margin-top:10px;">Texte</label>
+  <textarea class="adm-textarea" style="min-height:70px;" oninput="adField('${ad.id}','text',this.value)">${esc(ad.text||'')}</textarea>
+  <div class="adm-row" style="margin-top:10px;">
+    <div><label class="adm-label">Texte du bouton</label><input class="adm-input" value="${esc(ad.cta_label||'')}" oninput="adField('${ad.id}','cta_label',this.value)"></div>
+    <div><label class="adm-label">Lien (clic)</label><input class="adm-input" value="${esc(ad.link||'')}" oninput="adField('${ad.id}','link',this.value)"></div>
+  </div>
+  <div class="adm-row" style="margin-top:10px;">
+    <div><label class="adm-label">Début de diffusion</label><input class="adm-input" type="date" value="${esc(ad.start_date||'')}" oninput="adField('${ad.id}','start_date',this.value)"></div>
+    <div><label class="adm-label">Fin de diffusion</label><input class="adm-input" type="date" value="${esc(ad.end_date||'')}" oninput="adField('${ad.id}','end_date',this.value)"></div>
+  </div>
+  <div class="adm-row" style="margin-top:10px;">
+    <div><label class="adm-label">Délai avant apparition (secondes)</label><input class="adm-input" type="number" min="0" value="${ad.delay_seconds||0}" oninput="adField('${ad.id}','delay_seconds',Number(this.value))"></div>
+    <div><label class="adm-label">Durée d'affichage (secondes, 0 = jusqu'à fermeture)</label><input class="adm-input" type="number" min="0" value="${ad.display_seconds||0}" oninput="adField('${ad.id}','display_seconds',Number(this.value))"></div>
+  </div>
+  <div class="adm-row" style="margin-top:10px;">
+    <div><label class="adm-label">Priorité (1 = affichée en premier / en cas de plusieurs pubs)</label><input class="adm-input" type="number" min="1" value="${ad.priority||1}" oninput="adField('${ad.id}','priority',Number(this.value))"></div>
+    <div><label class="adm-label">Fréquence d'affichage</label>
+      <select class="adm-select" onchange="adField('${ad.id}','frequency',this.value)">
+        <option value="always" ${ad.frequency==='always'?'selected':''}>À chaque visite</option>
+        <option value="session" ${(!ad.frequency||ad.frequency==='session')?'selected':''}>Une fois par session</option>
+        <option value="day" ${ad.frequency==='day'?'selected':''}>Une fois par jour</option>
+      </select>
+    </div>
+  </div>
+  <p style="font-size:.75rem;color:#666;margin-top:10px;">💡 Plusieurs publicités actives sur le même emplacement tournent automatiquement (par priorité) à chaque chargement de page. Pour tester délai/durée/fréquence, enregistrez puis ouvrez le site en navigation privée.</p>`;
+}
+
+function adField(id, key, val){
+  const ad = content.ads.find(a=>a.id===id);
+  if (ad) ad[key] = val;
+}
+function adToggle(id){
+  const ad = content.ads.find(a=>a.id===id);
+  if (ad){ ad.enabled = !(ad.enabled!==false); admRenderAds(); }
+}
+function adDuplicate(id){
+  const ad = content.ads.find(a=>a.id===id);
+  if (!ad) return;
+  const clone = JSON.parse(JSON.stringify(ad));
+  clone.id = 'ad_'+Date.now();
+  clone.label = (ad.label||'Publicité')+' (copie)';
+  content.ads.push(clone);
+  admRenderAds();
+  showAdmToastSafe('Publicité dupliquée — pensez à Enregistrer');
+}
+function adDelete(id){
+  if (!confirm('Supprimer cette publicité ?')) return;
+  content.ads = content.ads.filter(a=>a.id!==id);
+  admRenderAds();
+}
+function admAddAd(){
+  ensureSectionsData();
+  const id = 'ad_'+Date.now();
+  content.ads.push({
+    id, enabled:true, label:'Nouvelle publicité', position:'floating', anchor:'',
+    image:'', link:'', title:'Titre de la publicité', text:'Votre message publicitaire.', cta_label:'En savoir plus',
+    priority: content.ads.length+1, start_date:'', end_date:'', delay_seconds:5, display_seconds:0, frequency:'session'
+  });
+  admRenderAds();
+  showAdmToastSafe('Publicité créée — configurez-la puis Enregistrer');
+}
+
+/* ────────────────────────────────────────────────────────────
+   6) ASSISTANT — appel à l'Edge Function Supabase, avec repli local
+   ──────────────────────────────────────────────────────────── */
+function findLocalResponse(msg){
+  const m = msg.toLowerCase().trim();
+  if (m.includes('service') || m.includes('créer') || m.includes('offre')) return "🎨 Voici nos services : Logo professionnel, Flyer & Affiche, Identité visuelle complète, Bannière réseaux, Branding accéléré 72h.";
+  if (m.includes('délai') || m.includes('temps') || m.includes('livr')) return "⏱️ Standard : 72h. Urgent : 24-48h (contactez-moi). Chaque projet est unique.";
+  if (m.includes('prix') || m.includes('tarif') || m.includes('coût') || m.includes('combien') || m.includes('devis')) return `💰 Je ne communique pas les prix ici — le créateur vous fera un devis personnalisé. 📱 <a href='https://wa.me/${content.contact.whatsapp}' style='color:#FFD700'>Contactez-le sur WhatsApp</a>`;
+  if (m.includes('contact') || m.includes('whatsapp') || m.includes('email') || m.includes('joindre')) return `📱 WhatsApp : <a href='https://wa.me/${content.contact.whatsapp}' style='color:#FFD700'>+${content.contact.whatsapp}</a><br>✉️ Email : ${content.contact.email}`;
+  if (m.includes('qui') || m.includes('propos')) return "ℹ️ Regard Créatif est un studio de design graphique basé en Haïti, passionné par la puissance des images.";
+  if (m.includes('bonjour') || m.includes('salut') || m.includes('hello')) return "👋 Bonjour ! Choisissez un bouton ci-dessous ou écrivez votre question.";
+  if (m.includes('merci')) return "Avec plaisir ! 😊 Bonne création ! 🎨";
+  return `Je vous invite à <a href='https://wa.me/${content.contact.whatsapp}' style='color:#FFD700'>contacter le créateur sur WhatsApp</a> pour une réponse précise !`;
+}
+
+async function askAssistant(msg){
+  const input = document.getElementById('assistant-input');
+  const msgs = document.getElementById('assistant-messages');
+  const sendBtn = document.getElementById('assistant-send-btn');
+  const q = msg || input.value.trim();
+  if (!q) return;
+
+  msgs.innerHTML += `<div class="msg user">${esc(q)}</div>`;
+  if (input.value) input.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+  if (sendBtn) sendBtn.disabled = true;
+
+  const tid = 'ty-' + Date.now();
+  msgs.innerHTML += `<div class="typing-indicator" id="${tid}"><span></span><span></span><span></span></div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  let reply = null;
+
+  if (hasSupa()){
+    try {
+      const { data, error } = await supa.functions.invoke('assistant-chat', {
+        body: {
+          message: q,
+          system: content.assistant.systemPrompt,
+          provider: content.assistant.provider,
+          model: content.assistant.model
+        }
+      });
+      if (!error && data && data.reply) reply = data.reply;
+    } catch(e){ console.warn('Edge Function assistant-chat indisponible, repli local.', e); }
+  }
+
+  if (!reply) reply = findLocalResponse(q);
+
+  document.getElementById(tid)?.remove();
+  msgs.innerHTML += `<div class="msg agent">${reply}</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+  if (sendBtn) sendBtn.disabled = false;
+
+  if (hasSupa()){
+    supa.from('assistant_conversations').insert({ question:q, answer: typeof reply==='string' ? reply.slice(0,2000) : '' }).then(()=>{}).catch(()=>{});
+  }
+}
+
+/* ────────────────────────────────────────────────────────────
+   7) FORMULAIRE DE CONTACT → log Supabase en plus de Formspree
+   ──────────────────────────────────────────────────────────── */
+/* ────────────────────────────────────────────────────────────
+   Menu déroulant (remplace l'ancienne barre horizontale)
+   ──────────────────────────────────────────────────────────── */
+function toggleNavMenu(){
+  const nav = document.getElementById('site-nav');
+  const btn = document.getElementById('nav-toggle');
+  const open = !nav.classList.contains('open');
+  nav.classList.toggle('open', open);
+  btn.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+}
+function closeNavMenu(){
+  document.getElementById('site-nav')?.classList.remove('open');
+  document.getElementById('nav-toggle')?.classList.remove('open');
+  document.getElementById('nav-toggle')?.setAttribute('aria-expanded','false');
+}
+
+/* Galerie : afficher/masquer les œuvres au-delà des 3 premières */
+function toggleGalerieMore(){
+  const btn = document.getElementById('galerie-more-btn');
+  const items = document.querySelectorAll('#galerie-grid .galerie-extra-item');
+  const expanding = !btn.classList.contains('expanded');
+  items.forEach(el => el.classList.toggle('show', expanding));
+  btn.classList.toggle('expanded', expanding);
+  btn.innerHTML = expanding ? 'Voir moins <span class="arrow">↓</span>' : 'Voir plus d\'œuvres <span class="arrow">↓</span>';
+  if (!expanding) document.getElementById('galerie').scrollIntoView({behavior:'smooth', block:'start'});
+}
+document.addEventListener('click', (e)=>{
+  const nav = document.getElementById('site-nav');
+  const btn = document.getElementById('nav-toggle');
+  if (!nav || !nav.classList.contains('open')) return;
+  if (nav.contains(e.target) || btn.contains(e.target)) return;
+  closeNavMenu();
+});
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const form = document.querySelector('.contact-form');
+  if (form) form.addEventListener('submit', ()=>{
+    if (hasSupa()){
+      const fd = new FormData(form);
+      supa.from('leads').insert({ name: fd.get('name'), email: fd.get('email'), message: fd.get('message') }).then(()=>{}).catch(()=>{});
+    }
+  });
+});
+
+/* ────────────────────────────────────────────────────────────
+   8) SUIVI DE VISITES
+   ──────────────────────────────────────────────────────────── */
+function trackVisit(){
+  if (hasSupa()){ supa.from('visits').insert({ page: location.pathname }).then(()=>{}).catch(()=>{}); }
+}
+
+/* ────────────────────────────────────────────────────────────
+   9) ADMIN — accès, session, panneau
+   ──────────────────────────────────────────────────────────── */
+function admRefreshLoginModalStep(){
+  const setup = document.getElementById('adm-supa-setup');
+  const fields = document.getElementById('adm-login-fields');
+  if (hasSupa()){
+    setup.style.display = 'none';
+    fields.style.display = 'block';
+    setTimeout(()=>document.getElementById('adm-login-email')?.focus(),100);
+  } else {
+    setup.style.display = 'block';
+    fields.style.display = 'none';
+    document.getElementById('adm-setup-url').value = SUPA_URL;
+    document.getElementById('adm-setup-key').value = SUPA_KEY;
+    setTimeout(()=>document.getElementById('adm-setup-url')?.focus(),100);
+  }
+}
+
+/* ─── CAMOUFLAGE ACCÈS ADMIN (même rituel que v51) ─────────────────────────
+   Le bouton du bas de page est un simple rond "∞", sans indice visuel.
+   Premier mot de passe entré (même correct) : refus systématique — c'est un
+   rituel, pas une vraie vérification. Au second essai, le rond se révèle en
+   icône 🧭, et seul ce second essai est vérifié pour de vrai contre
+   ADMIN_GATE_PASSWORD. Une fois validé, l'écran de connexion réel (email +
+   mot de passe Supabase) s'ouvre. Le camouflage se réinitialise à chaque
+   fermeture de la modale ou de l'admin : il faut refaire le rituel à chaque
+   visite. */
+const ADMIN_GATE_PASSWORD = 'regardcreatif4';
+let adminGateRevealed = false;
+
+function onAdminGateClick(){
+  if (adminGateRevealed){
+    openAdminLoginReal();
+  } else {
+    document.getElementById('adm-gate-pass').value = '';
+    document.getElementById('adm-gate-err').style.display = 'none';
+    document.getElementById('admin-gate-overlay').classList.add('open');
+    setTimeout(()=>document.getElementById('adm-gate-pass')?.focus(), 100);
+  }
+}
+function closeAdminGate(){
+  document.getElementById('admin-gate-overlay').classList.remove('open');
+}
+function closeAdminLoginAndResetGate(){
+  closeAdminLogin();
+  resetAdminGate();
+}
+function submitAdminGate(){
+  const pass = document.getElementById('adm-gate-pass').value;
+  const errEl = document.getElementById('adm-gate-err');
+  if (!adminGateRevealed){
+    // Premier essai : toujours refusé, quel que soit ce qui est tapé — c'est le rituel.
+    errEl.style.display = 'block';
+    document.getElementById('adm-gate-pass').value = '';
+    adminGateRevealed = true; // le PROCHAIN essai sera, lui, vérifié pour de vrai
+    return;
+  }
+  if (pass === ADMIN_GATE_PASSWORD){
+    closeAdminGate();
+    const btn = document.getElementById('admin-trigger');
+    btn.textContent = '🧭';
+    btn.classList.add('revealed');
+    btn.title = 'Administration';
+    openAdminLoginReal();
+  } else {
+    errEl.style.display = 'block';
+    document.getElementById('adm-gate-pass').value = '';
+  }
+}
+function resetAdminGate(){
+  adminGateRevealed = false;
+  const btn = document.getElementById('admin-trigger');
+  if (btn){ btn.textContent = '∞'; btn.classList.remove('revealed'); btn.title = ''; }
+}
+
+let adminLoginCancelled = false;
+function openAdminLoginReal(){
+  adminLoginCancelled = false;
+  document.getElementById('admin-login-overlay').classList.add('open');
+  admRefreshLoginModalStep();
+}
+function closeAdminLogin(){
+  // La faille corrigée : si une tentative de connexion est encore en cours (réseau lent) au
+  // moment où l'utilisateur ferme la modale, ce drapeau empêche le résultat tardif de la
+  // requête d'ouvrir quand même le panneau admin sans qu'aucun mot de passe n'ait été validé
+  // sous les yeux de l'utilisateur.
+  adminLoginCancelled = true;
+  document.getElementById('admin-login-overlay').classList.remove('open');
+}
+
+function admShowSupaSetupAgain(){
+  document.getElementById('adm-supa-setup').style.display = 'block';
+  document.getElementById('adm-login-fields').style.display = 'none';
+  document.getElementById('adm-setup-url').value = SUPA_URL;
+  document.getElementById('adm-setup-key').value = SUPA_KEY;
+  setTimeout(()=>document.getElementById('adm-setup-url')?.focus(),100);
+}
+
+async function admConnectSupaFromLogin(){
+  const url = document.getElementById('adm-setup-url').value.trim();
+  const key = document.getElementById('adm-setup-key').value.trim();
+  const err = document.getElementById('adm-setup-err');
+  err.style.display = 'none';
+  if (!url || !key){ err.textContent = 'Renseignez URL et clé.'; err.style.display='block'; return; }
+  if (typeof window.supabase === 'undefined'){ err.textContent = "La librairie Supabase n'a pas encore fini de charger — réessayez dans un instant."; err.style.display='block'; return; }
+  SUPA_URL = url; SUPA_KEY = key;
+  safeStorage.setItem('rc_supa_url', SUPA_URL);
+  safeStorage.setItem('rc_supa_key', SUPA_KEY);
+  const ok = initSupa();
+  if (!ok){ err.textContent = 'Connexion impossible — vérifiez URL et clé.'; err.style.display='block'; return; }
+  await loadSiteData();
+  renderAll();
+  admRefreshLoginModalStep();
+}
+
+async function doAdminLogin(){
+  const email = document.getElementById('adm-login-email').value.trim();
+  const pass = document.getElementById('adm-login-pass').value;
+  const err = document.getElementById('adm-login-err');
+  const btn = document.getElementById('adm-login-btn');
+  err.style.display = 'none';
+  if (!email || !pass){ err.textContent = 'Remplissez tous les champs.'; err.style.display = 'block'; return; }
+  if (!hasSupa()){ admRefreshLoginModalStep(); return; }
+
+  adminLoginCancelled = false;
+  const originalLabel = btn ? btn.textContent : '';
+  if (btn){ btn.textContent = 'Connexion...'; btn.disabled = true; }
+
+  try {
+    const { error } = await supa.auth.signInWithPassword({ email, password: pass });
+    // Si l'utilisateur a fermé la modale pendant que cette requête était en vol, on
+    // n'ouvre pas le panneau admin : la fermeture doit rester une fermeture.
+    if (adminLoginCancelled) return;
+    if (error){ err.textContent = 'Identifiants incorrects.'; err.style.display = 'block'; return; }
+    closeAdminLogin();
+    openAdminPanel();
+  } catch(e){
+    if (adminLoginCancelled) return;
+    err.textContent = 'Connexion impossible — vérifiez votre réseau.';
+    err.style.display = 'block';
+  } finally {
+    if (btn){ btn.textContent = originalLabel || 'Se connecter'; btn.disabled = false; }
+  }
+}
+
+async function doAdminLogout(){
+  if (hasSupa()) await supa.auth.signOut().catch(()=>{});
+  closeAdminPanel();
+}
+
+function openAdminPanel(){
+  document.getElementById('admin-panel').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  admFillForms();
+  admRunDashboardChecks();
+}
+function closeAdminPanel(){
+  document.getElementById('admin-panel').classList.remove('open');
+  document.body.style.overflow = '';
+  resetAdminGate();
+}
+
+function admSwitchTab(tab){
+  document.querySelectorAll('.adm-nav-item[data-tab]').forEach(n=>n.classList.toggle('active', n.dataset.tab===tab));
+  document.querySelectorAll('.adm-tab').forEach(t=>t.classList.toggle('active', t.id==='tab-'+tab));
+  if (tab==='supabase') document.getElementById('sql-snippet').textContent = SQL_SNIPPET;
+  if (tab==='messages') admLoadMessages();
+  if (tab==='dashboard') admRunDashboardChecks();
+  if (tab==='sections') admRenderSections();
+  if (tab==='ads') admRenderAds();
+}
+
+function admToast(msg){
+  const t = document.getElementById('adm-toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._h); t._h = setTimeout(()=>t.style.display='none', 2200);
+}
+
+/* ---- Remplissage des formulaires admin depuis `content` ---- */
+function admFillForms(){
+  document.getElementById('b-brand-name').value = content.brand.name;
+  document.getElementById('b-brand-logo').value = content.brand.logo;
+  document.getElementById('h-title').value = content.hero.title;
+  document.getElementById('h-subtitle').value = content.hero.subtitle;
+  document.getElementById('h-banner-img').value = content.hero.bannerImage || '';
+  document.getElementById('sv-illustration-img').value = content.servicesIllustration || '';
+  document.getElementById('a-about-text').value = content.about.paragraphs.join('\n');
+  document.getElementById('a-about-img').value = content.about.image || '';
+  document.getElementById('g-header-img').value = content.galerieHeaderImage || '';
+  document.getElementById('c-whatsapp').value = content.contact.whatsapp;
+  document.getElementById('c-email').value = content.contact.email;
+  document.getElementById('ai-welcome').value = content.assistant.welcome;
+  document.getElementById('ai-subtitle').value = content.assistant.subtitle;
+  document.getElementById('ai-logo').value = content.assistant.logo || '';
+  document.getElementById('ai-system').value = content.assistant.systemPrompt;
+  document.getElementById('ai-provider').value = content.assistant.provider;
+  document.getElementById('ai-model').value = content.assistant.model;
+  document.getElementById('s-url').value = SUPA_URL;
+  document.getElementById('s-key').value = SUPA_KEY;
+  admRenderList('services');
+  admRenderList('modeles');
+  admRenderList('galerie');
+  admRenderList('avis');
+  admRenderList('quickButtons');
+  admRenderSections();
+  admRenderAds();
+}
+
+/* ---- Éditeur de listes générique (services, modeles, galerie, avis, quickButtons) ---- */
+const LIST_FIELDS = {
+  services: [ {k:'icon',l:'Icône (emoji)'}, {k:'title',l:'Titre'}, {k:'desc',l:'Description',ta:true} ],
+  modeles: [ {k:'img',l:'URL image'}, {k:'label',l:'Légende'} ],
+  galerie: [ {k:'img',l:'URL image'}, {k:'artist',l:'Artiste'}, {k:'title',l:"Titre de l'œuvre"}, {k:'subtitle',l:'Sous-titre',ta:true} ],
+  avis: [ {k:'photo',l:'Photo (URL)'}, {k:'stars',l:'Étoiles (1-5)'}, {k:'text',l:"Texte de l'avis",ta:true}, {k:'author',l:'Auteur'} ],
+  quickButtons: [ {k:'label',l:'Texte du bouton'}, {k:'question',l:'Question envoyée'} ]
+};
+function admListArray(type){ return type==='quickButtons' ? content.assistant.quickButtons : content[type]; }
+function admEmptyItem(type){
+  const blanks = { services:{icon:'✨',title:'',desc:'',highlight:false}, modeles:{img:'',label:''}, galerie:{img:'',artist:'',title:'',subtitle:''}, avis:{photo:'',stars:5,text:'',author:''}, quickButtons:{label:'',question:''} };
+  return blanks[type];
+}
+function admRenderList(type){
+  const wrap = document.getElementById('list-'+type);
+  const arr = admListArray(type);
+  wrap.innerHTML = arr.map((item, i) => `
+    <div class="adm-list-item">
+      <div class="adm-list-fields">
+        ${LIST_FIELDS[type].map(f => f.ta
+          ? `<textarea class="adm-textarea" style="min-height:60px" data-type="${type}" data-i="${i}" data-k="${f.k}" oninput="admListInput(this)" placeholder="${f.l}">${esc(item[f.k])}</textarea>`
+          : `<input class="adm-input" style="margin-bottom:0" data-type="${type}" data-i="${i}" data-k="${f.k}" oninput="admListInput(this)" placeholder="${f.l}" value="${esc(item[f.k])}">`
+        ).join('')}
+      </div>
+      <div class="adm-list-actions">
+        <button class="adm-icon-btn" onclick="admMoveItem('${type}',${i},-1)" title="Monter">↑</button>
+        <button class="adm-icon-btn" onclick="admMoveItem('${type}',${i},1)" title="Descendre">↓</button>
+        <button class="adm-icon-btn del" onclick="admRemoveItem('${type}',${i})" title="Supprimer">✕</button>
+      </div>
+    </div>`).join('') || '<p style="color:#666;">Aucun élément. Ajoutez-en un ci-dessous.</p>';
+}
+function admListInput(el){
+  const { type, i, k } = el.dataset;
+  admListArray(type)[i][k] = el.value;
+}
+function admAddItem(type){
+  admListArray(type).push(admEmptyItem(type));
+  admRenderList(type);
+}
+function admRemoveItem(type, i){
+  admListArray(type).splice(i,1);
+  admRenderList(type);
+}
+function admMoveItem(type, i, dir){
+  const arr = admListArray(type);
+  const j = i + dir;
+  if (j<0 || j>=arr.length) return;
+  [arr[i], arr[j]] = [arr[j], arr[i]];
+  admRenderList(type);
+}
+
+/* ---- Sauvegarde générale ---- */
+async function admSaveAndPersist(){
+  content.brand.name = document.getElementById('b-brand-name').value;
+  content.brand.logo = document.getElementById('b-brand-logo').value;
+  content.hero.title = document.getElementById('h-title').value;
+  content.hero.subtitle = document.getElementById('h-subtitle').value;
+  content.hero.bannerImage = document.getElementById('h-banner-img').value;
+  content.servicesIllustration = document.getElementById('sv-illustration-img').value;
+  content.about.paragraphs = document.getElementById('a-about-text').value.split('\n').filter(Boolean);
+  content.about.image = document.getElementById('a-about-img').value;
+  content.galerieHeaderImage = document.getElementById('g-header-img').value;
+  content.contact.whatsapp = document.getElementById('c-whatsapp').value.replace(/\D/g,'');
+  content.contact.email = document.getElementById('c-email').value;
+  content.assistant.welcome = document.getElementById('ai-welcome').value;
+  content.assistant.subtitle = document.getElementById('ai-subtitle').value;
+  content.assistant.logo = document.getElementById('ai-logo').value;
+  content.assistant.systemPrompt = document.getElementById('ai-system').value;
+  content.assistant.provider = document.getElementById('ai-provider').value;
+  content.assistant.model = document.getElementById('ai-model').value;
+
+  await saveSiteData();
+  renderAll();
+  admToast('✅ Enregistré');
+}
+
+/* ---- Onglet Supabase ---- */
+async function admSaveSupaConn(){
+  SUPA_URL = document.getElementById('s-url').value.trim();
+  SUPA_KEY = document.getElementById('s-key').value.trim();
+  safeStorage.setItem('rc_supa_url', SUPA_URL);
+  safeStorage.setItem('rc_supa_key', SUPA_KEY);
+  const ok = initSupa();
+  const status = document.getElementById('s-conn-status');
+  if (ok){ status.textContent = '✅ Connecté'; status.style.color = '#22c55e'; await loadSiteData(); renderAll(); }
+  else { status.textContent = '❌ Échec — vérifiez URL / clé'; status.style.color = '#ef4444'; }
+  admRunDashboardChecks();
+}
+
+/* ---- Tableau de bord : vérifications + stats ---- */
+async function admRunDashboardChecks(){
+  const dotSupa = document.getElementById('dot-supa'), txtSupa = document.getElementById('txt-supa');
+  const dotAuth = document.getElementById('dot-auth'), txtAuth = document.getElementById('txt-auth');
+  const dotEdge = document.getElementById('dot-edge'), txtEdge = document.getElementById('txt-edge');
+
+  if (hasSupa()){ dotSupa.className='adm-dot ok'; txtSupa.textContent='connecté'; }
+  else { dotSupa.className='adm-dot bad'; txtSupa.textContent='non connecté'; }
+
+  if (hasSupa()){
+    try { const { data } = await supa.auth.getUser(); if (data?.user){ dotAuth.className='adm-dot ok'; txtAuth.textContent=data.user.email; } else { dotAuth.className='adm-dot warn'; txtAuth.textContent='non authentifié'; } }
+    catch(e){ dotAuth.className='adm-dot bad'; txtAuth.textContent='erreur'; }
+  } else { dotAuth.className='adm-dot bad'; txtAuth.textContent='—'; }
+
+  if (hasSupa()){
+    try {
+      const { error } = await supa.functions.invoke('assistant-chat', { body:{ message:'ping', system:'ping', provider:content.assistant.provider, model:content.assistant.model, ping:true } });
+      if (!error){ dotEdge.className='adm-dot ok'; txtEdge.textContent='déployée'; }
+      else { dotEdge.className='adm-dot warn'; txtEdge.textContent='non déployée / erreur'; }
+    } catch(e){ dotEdge.className='adm-dot warn'; txtEdge.textContent='non déployée'; }
+  } else { dotEdge.className='adm-dot bad'; txtEdge.textContent='—'; }
+
+  if (hasSupa()){
+    try {
+      const since = new Date(Date.now()-30*24*3600*1000).toISOString();
+      const { count:vc } = await supa.from('visits').select('id',{count:'exact',head:true}).gte('created_at', since);
+      const { count:mc } = await supa.from('leads').select('id',{count:'exact',head:true});
+      const { count:cc } = await supa.from('assistant_conversations').select('id',{count:'exact',head:true});
+      document.getElementById('stat-visits').textContent = vc ?? '0';
+      document.getElementById('stat-messages').textContent = mc ?? '0';
+      document.getElementById('stat-chat').textContent = cc ?? '0';
+    } catch(e){ /* tables pas encore créées */ }
+  }
+}
+
+async function admLoadMessages(){
+  const wrap = document.getElementById('adm-messages-list');
+  if (!hasSupa()){ wrap.innerHTML = '<p style="color:#666;">Connectez Supabase pour voir les messages ici.</p>'; return; }
+  try {
+    const { data, error } = await supa.from('leads').select('*').order('created_at',{ascending:false}).limit(100);
+    if (error || !data || !data.length){ wrap.innerHTML = '<p style="color:#666;">Aucun message pour le moment.</p>'; return; }
+    wrap.innerHTML = data.map(l => `
+      <div class="adm-list-item">
+        <div class="adm-list-fields">
+          <div style="color:#a3ff3b;font-weight:700;">${esc(l.name)} <span style="color:#666;font-weight:400;font-size:.75rem;">— ${esc(l.email)}</span></div>
+          <div style="color:#ccc;font-size:.85rem;">${esc(l.message)}</div>
+          <div style="color:#555;font-size:.72rem;">${new Date(l.created_at).toLocaleString('fr-FR')}</div>
+        </div>
+        <div class="adm-list-actions"><button class="adm-icon-btn del" onclick="admDeleteLead('${l.id}')">✕</button></div>
+      </div>`).join('');
+  } catch(e){ wrap.innerHTML = '<p style="color:#666;">Impossible de charger les messages.</p>'; }
+}
+async function admDeleteLead(id){
+  if (!hasSupa()) return;
+  await supa.from('leads').delete().eq('id', id).catch(()=>{});
+  admLoadMessages();
+}
+
+/* ────────────────────────────────────────────────────────────
+   10) INITIALISATION
+   ──────────────────────────────────────────────────────────── */
+// Avant ce correctif, le chargeur du <head> ET ce bloc pouvaient tous les deux
+// déclencher initSite() (une fois via onload du CDN, une fois via le minuteur
+// de secours), provoquant un double chargement/rendu ~1.5s après l'affichage
+// initial — d'où l'impression que des images "réapparaissaient" ou que le
+// site mettait du temps à se stabiliser. initSite() est maintenant idempotent.
+let siteInitStarted = false;
+async function initSite(){
+  if (siteInitStarted) return;
+  siteInitStarted = true;
+  initSupa();
+  await loadSiteData();
+  renderAll();
+  trackVisit();
+  // Si une session admin Supabase existe déjà (page rechargée dans l'admin), on peut rouvrir le panneau au besoin — laissé fermé par défaut pour l'espace public.
+}
+
+// Si le script Supabase est déjà en cache/chargé avant ce bloc, on démarre tout de suite ;
+// sinon initSite() est appelé par le loader non-bloquant dans le <head>, avec un filet de
+// sécurité ici au cas où le CDN serait bloqué (pare-feu, bloqueur de pub, etc.).
+if (typeof window.supabase !== 'undefined') { initSite(); }
+else { setTimeout(initSite, 800); }
 </script>
 
 </body>
